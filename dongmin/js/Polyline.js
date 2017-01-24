@@ -47,7 +47,7 @@ PolylineJSON.prototype.makePrimitive3d = function(){
       this.height_collection[i].push(datetimes);
     }
     //  console.log(positions)
-    this.polyline_collection_3d.push(makePolylineCollection(positions, this.r_color[i], 10));
+    this.polyline_collection_3d.push(makePolylineCollection(positions, this.r_color[i], 5));
 
     this.mapping3d(i);
 
@@ -94,7 +94,7 @@ PolylineJSON.prototype.loadJsonAndMakePrimitive = function(){
           positions.push(PolylineJSON.getPosition(geometry.coordinates[j]));
         }
 
-        this_object.polyline_collection.push(makePolylineCollection(positions, r_color, 10));
+        this_object.polyline_collection.push(makePolylineCollection(positions, r_color, 5));
 
         this_object.mapping2d(i);
       }
@@ -128,7 +128,7 @@ PolylineJSON.prototype.mapping3d = function(index){
   var pre_polyline;
   var pre_height;
 
-
+  this.triangle_primitives_3d[index] = [];
   for (var i = 0 ; i < this.collection[index].length ; i++){
 
     if (i == 0)
@@ -139,16 +139,17 @@ PolylineJSON.prototype.mapping3d = function(index){
     }
 
 
-    this.triangle_primitives_3d.push(PolylineJSON.makeTriangles(pre_polyline, this.collection[index][i],
-      pre_height, this.height_collection[index][i]));
-      pre_polyline = this.collection[index][i];
-      pre_height = this.height_collection[index][i];
-    }
+    this.triangle_primitives_3d[index].push(PolylineJSON.makeTriangles(pre_polyline, this.collection[index][i],
+                                            pre_height, this.height_collection[index][i]));
+    pre_polyline = this.collection[index][i];
+    pre_height = this.height_collection[index][i];
+  }
 }
 
 PolylineJSON.prototype.mapping2d = function(index){
   var pre_polyline;
   this.mapping_next_point[index] = [];
+  this.triangle_primitives[index] = [];
   for (var i = 0 ; i < this.collection[index].length ; i++){
 
     if (i == 0)
@@ -159,11 +160,11 @@ PolylineJSON.prototype.mapping2d = function(index){
 
     this.mapping_next_point[index][i-1] = [];
 
-    this.triangle_primitives.push(PolylineJSON.makeTriangles(pre_polyline, this.collection[index][i], undefined, undefined, this.mapping_next_point[index][i-1] ));
-      pre_polyline = this.collection[index][i];
+    this.triangle_primitives[index].push(PolylineJSON.makeTriangles(pre_polyline, this.collection[index][i], undefined, undefined, this.mapping_next_point[index][i-1] ));
+
+    pre_polyline = this.collection[index][i];
   }
 
-  console.log(index, this.mapping_next_point[index]);
 }
 
 PolylineJSON.makeTriangles = function(line_1, line_2, height1 = 0, height2 = 0, array = []){
@@ -270,9 +271,6 @@ PolylineJSON.calculateDist = function(point_1, point_2){
   return Math.sqrt(Math.pow(point_1[0] - point_2[0],2) + Math.pow(point_1[1] - point_2[1],2));
 }
 
-PolylineJSON.prototype.getPath = function(id){
-
-}
 
 PolylineJSON.prototype.animation_czml = function(id, with_height = 1){
   if (this.mapping_path[id]==undefined){
@@ -300,7 +298,7 @@ PolylineJSON.prototype.animation_czml = function(id, with_height = 1){
   }
 
   var next_point_each_line = this.mapping_next_point[id];
-  console.log(next_point_each_line.length);
+
   for (var i = 0 ; i < next_point_each_line.length ; i++ ){
     //한 줄 씩 start -> end로 polyline
     var start, stop;
@@ -324,13 +322,15 @@ PolylineJSON.prototype.animation_czml = function(id, with_height = 1){
         }
       }
     };
-
+    var ref_arr =[];
+    czml_ref_obj.polyline.positions = {
+      "references" : ref_arr
+    }
     czml.push(czml_ref_obj);
 
     var height_1 = this.height_collection[id][i] * with_height;
-    var height_2 = this.height_collection[id][i+1] * with_height;
+    var height_2 = this.height_collection[id][i+1] * with_height ;
 
-    var ref_arr = [];
     for (var j = 0 ; j < next_point.length ; j++){
       ref_arr.push("v"+i+"_"+j+"#position");
 
@@ -344,7 +344,7 @@ PolylineJSON.prototype.animation_czml = function(id, with_height = 1){
       };
 
 
-      console.log(j, next_point[j]);
+      //console.log(j, next_point[j]);
       var carto = [
         0, next_point[j][0][0] , next_point[j][0][1], height_1,
         (new Date(datetime[i+1]).getTime() - new Date(datetime[i]).getTime()) /1000, next_point[j][1][0], next_point[j][1][1], height_2
@@ -355,9 +355,6 @@ PolylineJSON.prototype.animation_czml = function(id, with_height = 1){
       czml.push(czml_position_obj);
     }
 
-    czml[1].polyline.positions = {
-      "references" : ref_arr
-    }
 
 
 

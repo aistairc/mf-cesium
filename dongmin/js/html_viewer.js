@@ -220,8 +220,11 @@ function animatePolygon(id){
 function animatePolyline(id){
   viewer.clear();
   if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
+    for (var i = 0 ; i < line_obj.triangle_primitives_3d[id].length ; i++){
+        viewer.scene.primitives.add(line_obj.triangle_primitives_3d[id][i]);
+    }
+    console.log(line_obj.triangle_primitives_3d[id]);
     viewer.scene.primitives.add(line_obj.polyline_collection_3d[id]);
-    viewer.scene.primitives.add(line_obj.triangle_primitives_3d[id]);
   }
   else {
     viewer.scene.primitives.add(line_obj.polyline_collection[id]);
