@@ -55,7 +55,7 @@ PolylineJSON.prototype.makePrimitive3d = function(){
     this.max_point_of_polyline[i] = max_num;
   }
 
-  showPolyline();
+  //showPolyline();
 
 }
 

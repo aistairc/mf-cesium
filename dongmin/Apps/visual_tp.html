@@ -9,8 +9,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
   <title>Hello World!</title>
   <script src="../Build/Cesium/Cesium.js"></script>
+  <script src="../js/Model.js"></script>
   <script src="../js/Polygon.js"></script>
-  <script src="../js/html_viewer.js"></script>
   <script src="../js/Point.js"></script>
   <script src="../js/Func.js"></script>
   <script src="../js/Polyline.js"></script>
@@ -55,54 +55,12 @@
   </div>
   <br />
 
-  <input type='button' id='btn_2d' onclick="show2D()" value='2D' style='visibility:hidden'></input>
-  <input type='button' id='btn_3d' onclick="show3D()" value='3D' style='visibility:hidden'></input>
 </div>
 
 <div id="cesiumContainer" style="position:absolute; top:0px; z-index:1;"></div>
 
 
-<script>
-var point_tp_obj;
-var poly_tp_obj;
-var line_obj;
-
-var isFirst = true;
-var selectedTime = [];
-var anime_entity = null;
-var pre_cl, pre_entity;
-
-var mode = 'home';
-var polygon_mode = '2d';
-
-var viewer = new Cesium.Viewer('cesiumContainer');
-var scene = viewer.scene;
-scene.primitives.destroyPrimitives = false;
-point_tp_obj = new PointJSON('json_data/typhoon_2016.json',viewer);
-line_obj = new PolylineJSON('json_data/polyline.json', viewer);
-
-viewer.scene.morphComplete.addEventListener(function (){
-  if (mode == 'point'){
-    showPoint();
-  }
-  else if (mode == 'polygon'){
-    showPolygon();
-    if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW)
-      polygon_mode = '3d';
-    else {
-      polygon_mode = '2d';
-    }
-  }else {
-    showPolyline();
-  }
-
-
-  viewer.scene.completeMorph();
-});
-
-
-</script>
-
+<script src="../js/html_viewer.js"></script>
 
 
 </body>

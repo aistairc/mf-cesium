@@ -123,7 +123,6 @@ PolygonJSON.prototype.makePrimitive2d = function(){
 
     this_object.is_exist_2d = true;
 
-    showPolygon();
   }
 };
 
@@ -197,9 +196,6 @@ PolygonJSON.prototype.loadJsonAndMakePrimitive = function(){
         this_object.primitives_3d.push(prim);
         //console.log(this_object);
       }
-
-
-      addShowButton();
 
       this_object.is_exist_3d = true;
       this_object.makePrimitive2d();
@@ -307,5 +303,5 @@ PolygonJSON.prototype.animation_czml = function(id, with_height = 1){
     this.pre_czml = Cesium.CzmlDataSource.load(czml)
     this.viewer.dataSources.add(this.pre_czml);
     console.log(czml);
-  
+
 }

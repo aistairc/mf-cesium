@@ -1,3 +1,36 @@
+(function init(){
+  mode = 'home';
+  polygon_mode = '2d';
+  viewer = new Cesium.Viewer('cesiumContainer');
+  scene = viewer.scene;
+
+  scene.primitives.destroyPrimitives = false;
+  point_tp_obj = new PointJSON('json_data/typhoon_2016.json',viewer);
+  line_obj = new PolylineJSON('json_data/polyline.json', viewer);
+})();
+
+
+viewer.scene.morphComplete.addEventListener(function (){
+  if (mode == 'point'){
+    showPoint();
+  }
+  else if (mode == 'polygon'){
+
+    if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
+      drawZaxis();
+      polygon_mode = '3d';
+    }
+    else {
+      polygon_mode = '2d';
+    }
+  }else { // polyline
+
+  }
+  viewer.clear();
+  viewer.scene.completeMorph();
+});
+
+
 function show_list(type){
   document.getElementById('name_list').innerHTML = '';
   mode = type;
@@ -6,8 +39,6 @@ function show_list(type){
     point_tp_obj.loadJsonAndMakePrimitive();
   }
   else if (type == 'polygon'){
-    document.getElementById('btn_2d').style.visibility = "visible";
-    document.getElementById('btn_3d').style.visibility = "visible";
     poly_tp_obj.loadJsonAndMakePrimitive();
   }
   else{
@@ -80,16 +111,16 @@ function highlightPoint(id){
     point_tp_obj.animate(id);
   }
 }
-
+/*
 function showPolygon(){
   viewer.clear();
   console.log(viewer.dataSources);
   if (polygon_mode == '3d'){
       if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW)
-        drawZaxis();
+
     for (var i = 0 ; i < poly_tp_obj.primitives_3d.length ; i++){
       if (document.getElementById('check'+i).checked){
-        viewer.scene.primitives.add(poly_tp_obj.primitives_3d[i]);
+
       }
     }
   }
@@ -104,7 +135,7 @@ function showPolygon(){
 }
 
 function showPolyline(){
-  viewer.clear();
+
   if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
     for (var i = 0 ; i < line_obj.polyline_collection_3d.length ; i++){
         viewer.scene.primitives.add(line_obj.polyline_collection_3d[i]);
@@ -122,7 +153,7 @@ function showPolyline(){
     }
   }
 }
-
+*/
 var drawZaxis = function(){
   var timebar = viewer.entities.add({
     id : 'time',
@@ -167,28 +198,48 @@ function showPoint(){
 }
 
 function animatePolygon(id){
-  if (!document.getElementById('check'+id).checked)
-    return;
+  viewer.clear();
+  if(polygon_mode == '3d'){
+    viewer.scene.primitives.add(poly_tp_obj.primitives_3d[id]);
+  }
 
-  if (polygon_mode == '3d')
-    poly_tp_obj.animation_czml(id);
-  else {
-    console.log("animation 2d")
-    poly_tp_obj.animation_czml(id, 0);
+  if (document.getElementById('check'+id).checked){
+    if (polygon_mode == '3d')
+      poly_tp_obj.animation_czml(id);
+    else {
+      console.log("animation 2d")
+      poly_tp_obj.animation_czml(id, 0);
+    }
+  }
+  else{
+    viewer.scene.primitives.add(poly_tp_obj.primitives_2d[id]);
   }
 }
 
 
 function animatePolyline(id){
-  if (!document.getElementById('check'+id).checked)
-    return;
-
-  if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW)
-    line_obj.animation_czml(id);
-  else {
-    console.log("animation 2d")
-    line_obj.animation_czml(id, 0);
+  viewer.clear();
+  if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
+    viewer.scene.primitives.add(line_obj.polyline_collection_3d[id]);
+    viewer.scene.primitives.add(line_obj.triangle_primitives_3d[id]);
   }
+  else {
+    viewer.scene.primitives.add(line_obj.polyline_collection[id]);
+  }
+
+  if (document.getElementById('check'+id).checked){
+    if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW)
+      line_obj.animation_czml(id);
+    else {
+      console.log("animation 2d")
+      line_obj.animation_czml(id, 0);
+    }
+  }
+  else{
+
+  }
+
+
 }
 
 
@@ -217,37 +268,6 @@ function select_year(){
 
 }
 
-function addShowButton(){
-  var btn = document.createElement("BUTTON");        // Create a <button> element
-  var t = document.createTextNode("SHOW");       // Create a text node
-  btn.appendChild(t);                             // Append the text to <button>
-  btn.addEventListener("click",function(){
-    return showPolygon();
-  });
-  document.getElementById('btn_div').appendChild(btn);
-
-  document.getElementById('btn_div').append(' ');
-
-  var btn2 = document.createElement("BUTTON");        // Create a <button> element
-  var t2 = document.createTextNode("DELETE ALL");       // Create a text node
-  btn2.appendChild(t2);                                // Append the text to <button>
-  btn2.addEventListener("click",function(){
-    return makeAllUnvisible();
-  });
-  document.getElementById('btn_div').appendChild(btn2);
-
-}
-
-function show3D(){
-  polygon_mode = '3d';
-  showPolygon();
-}
-
-function show2D(){
-  polygon_mode = '2d';
-  showPolygon();
-}
-
 function viewMain(){
   mode = 'home';
   isFirst = true;
@@ -256,8 +276,6 @@ function viewMain(){
   pre_cl = null, pre_entity = null;
 
 
-  document.getElementById('btn_2d').style.visibility = "hidden";
-  document.getElementById('btn_3d').style.visibility = "hidden";
   viewer.clear();
 
 
