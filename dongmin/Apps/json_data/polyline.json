@@ -1,0 +1,26 @@
+{
+  "name" : "polyline_demo",
+  "description" : "polyline_demo",
+  "updateFrequency" : 0,
+  "features" : [ {
+    "type" : "MovingFeature",
+    "properties" : {
+      "name" : "number 1 "
+    },
+    "temporalGeometry" : {
+      "type" : "MovingLinestring",
+      "datetimes" : [ "2015-07-30 03:00:00", "2015-08-05 09:00:00"],
+      "coordinates" : [
+        [ [ 0.0, 0.0 ], [ 5, 5.592893218813453 ],
+        [ 10.2, 0.3 ], [ 15.49289321881344, 10.592893218813453 ],
+        [ 20.2, 13.3 ], [ 21.49289321881344, 10.007106781186549 ]
+      ],
+      [
+        [ 5.7, 13.7 ], [ 15.40710678118654, 25.992893218813451 ],
+        [ 20.7, 20.7 ]
+      ]
+    ],
+      "interpolations" : "Spline"
+    }
+  } ]
+}
