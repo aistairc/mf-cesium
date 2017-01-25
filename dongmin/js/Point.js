@@ -1,4 +1,4 @@
-function PointJSON(data_path){
+function PointJSON(data_path, viewer){
   this.data_path = data_path;
   this.data;
   this.viewer = viewer;
@@ -7,6 +7,7 @@ function PointJSON(data_path){
   this.collection_2d = [];
   this.collection_3d = [];
   this.color_arr = [];
+  this.pre_czml;
 
   this.loadJsonAndMakePrimitive = function(){
     var this_object = this;
@@ -47,21 +48,6 @@ function PointJSON(data_path){
   };
 }
 
-PointJSON.prototype.computePath_point = function(p_id){
-  var property = new Cesium.SampledPositionProperty();
-  var positions = PointJSON.getPosition2d(this.data[p_id].temporalGeometry);
-  if (this.viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW)
-    positions = PointJSON.getPosition3d(this.data[p_id].temporalGeometry);
-  var carte_positions = Cesium.Cartesian3.fromDegreesArrayHeights(positions);
-  for (var i = 0 ; i < carte_positions.length ; i++){
-    var time = Cesium.JulianDate.fromIso8601(strtoisostr(this.data[p_id].temporalGeometry.datetimes[i]));
-    console.log(carte_positions);
-    var position = carte_positions[i];
-
-    property.addSample(time, position);
-  }
-  return property;
-}
 
 
 PointJSON.getPosition3d = function(geometry){
@@ -135,7 +121,6 @@ function strtoisostr(str_date){
 PointJSON.prototype.highlight = function(_id){
 
   //turn red
-  console.log(this.collection_2d);
   var pre_point_collection = this.collection_2d[_id];
   var positions2 =[];
   positions2.push(PointJSON.getPosition2d(this.data[_id].temporalGeometry));
@@ -146,11 +131,6 @@ PointJSON.prototype.highlight = function(_id){
   var this_object = this;
   showPoint();
   this_object.collection_2d[_id] = pre_point_collection;
-
-  //animation
-
-
-  //typhoon_animation_point(_id,entity,cl);
 
 }
 
@@ -180,6 +160,148 @@ function show_time_point(entity){
 
 
 }
+
+PointJSON.prototype.animate_czml = function(p_id, with_height){
+  var multiplier = 10000;
+  var viewer = this.viewer;
+  LOG(viewer.dataSources);
+  viewer.dataSources.removeAll();
+  var czml = [{
+      "id" : "document",
+      "name" : "point_highlight",
+      "version" : "1.0"
+  }];
+
+  var geometry = this.data[p_id].temporalGeometry;
+  var min_max_date = [];
+  min_max_date = findMinMaxTime(geometry.datetimes);
+
+  var length = geometry.datetimes.length;
+  var start, stop;
+  start = strtoisostr(geometry.datetimes[0]);
+  stop = strtoisostr(geometry.datetimes[length - 1]);
+  var availability = start + "/" + stop;
+
+  czml[0].clock = {
+    "interval" : availability,
+    "currentTime" : start,
+    "multiplier" : multiplier
+  }
+
+  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+    var interpolations;
+    if (geometry.interpolations == "Spline"){
+      interpolations = "HERMITE";
+    }
+    else{
+      interpolations = "LINEAR";
+    }
+    var v = {};
+      v.id = 'movingPoint';
+      v.point = {
+        "color" : {
+          "rgba" : [0, 0, 0, 255]
+        },
+        "outlineColor" : {
+          "rgba" : [255, 255, 255, 255]
+        },
+        "outlineWidth" : 4,
+        "pixelSize" : 20
+      };
+
+    var carto = [];
+    var point = geometry.coordinates;
+    for (var i = 0 ; i < geometry.coordinates.length ; i++){
+      carto.push(strtoisostr(geometry.datetimes[i]));
+      carto.push(point[i][1]);
+      carto.push(point[i][0]);
+      var normalize = normalizeTime(strtoDate(geometry.datetimes[i]), min_max_date);
+      if (with_height){
+        carto.push(normalize * with_height);
+      }
+      else{
+        carto.push(1000);
+      }
+
+    }
+    v.availability = availability;
+    v.position = {
+      "interpolationAlgorithm": interpolations,
+      "interpolationDegree": 2,
+      "interval" : availability,
+      "epoch" : start,
+      "cartographicDegrees" : carto
+    };
+    czml.push(v);
+  }
+  else {
+    var v = {};
+      v.id = 'movingPoint';
+      v.point = {
+        "color" : {
+          "rgba" : [0, 0, 0, 255]
+        },
+        "outlineColor" : {
+          "rgba" : [255, 255, 255, 255]
+        },
+        "outlineWidth" : 4,
+        "pixelSize" : 20
+      };
+
+    var carto = [];
+    var point = geometry.coordinates;
+    for (var i = 0 ; i < geometry.coordinates.length - 1 ; i++){
+      var obj ={};
+      if (geometry.interpolations == "Stepwise"){
+        var start_interval = strtoisostr(geometry.datetimes[i]);
+        var finish_interval = strtoisostr(geometry.datetimes[i+1]);
+        obj.interval = start_interval+"/"+finish_interval;
+      }
+      else{
+        var start_interval = strtoisostr(geometry.datetimes[i]);
+        var start_date = strtoDate(geometry.datetimes[i]);
+        var finish_date = start_date.setHours(start_date.getHours() + multiplier/10000);
+        var finish_interval = new Date(finish_date).toISOString();
+        obj.interval = start_interval+"/"+finish_interval;
+      }
+      obj.cartographicDegrees = [];
+      obj.cartographicDegrees.push(point[i][1]);
+      obj.cartographicDegrees.push(point[i][0]);
+
+      var normalize = normalizeTime(strtoDate(geometry.datetimes[i]), min_max_date);
+      if (with_height){
+        obj.cartographicDegrees.push(normalize * with_height);
+      }
+      else{
+        obj.cartographicDegrees.push(1000);
+      }
+      carto.push(obj);
+    }
+    v.availability = availability;
+    v.position = carto;
+    czml.push(v);
+  }
+  LOG(czml);
+  var load_czml = Cesium.CzmlDataSource.load(czml)
+  this.viewer.dataSources.add(load_czml);
+}
+
+/*
+PointJSON.prototype.computePath_point = function(p_id){
+  var property = new Cesium.SampledPositionProperty();
+  var positions = PointJSON.getPosition2d(this.data[p_id].temporalGeometry);
+
+    positions = PointJSON.getPosition3d(this.data[p_id].temporalGeometry);
+  var carte_positions = Cesium.Cartesian3.fromDegreesArrayHeights(positions);
+  for (var i = 0 ; i < carte_positions.length ; i++){
+    var time = Cesium.JulianDate.fromIso8601(strtoisostr(this.data[p_id].temporalGeometry.datetimes[i]));
+    var position = carte_positions[i];
+
+    property.addSample(time, position);
+  }
+  return property;
+}
+
 
 PointJSON.prototype.animate = function(p_id){
   if (anime_entity != null){
@@ -218,3 +340,4 @@ PointJSON.prototype.animate = function(p_id){
 
   anime_entity = entity;
 }
+*/

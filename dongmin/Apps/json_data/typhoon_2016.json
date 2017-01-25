@@ -1,7 +1,7 @@
 [
     {
         "properties": {
-            "name": "台風201601号 (NEPARTAK) "
+            "name": "台風201601号 (Linear) "
         },
         "temporalProperties": [
             {
@@ -149,7 +149,7 @@
         ],
         "type": "MovingFeatures",
         "temporalGeometry": {
-            "interpolations": "Spline",
+            "interpolations": "Linear",
             "coordinates": [
                 [
                     8.3,
@@ -483,7 +483,7 @@
     },
     {
         "properties": {
-            "name": "台風201603号 (MIRINAE) "
+            "name": "台風201603号 (Stepwise) "
         },
         "temporalProperties": [
             {
@@ -559,7 +559,7 @@
         ],
         "type": "MovingFeatures",
         "temporalGeometry": {
-            "interpolations": "Spline",
+            "interpolations": "Stepwise",
             "coordinates": [
                 [
                     17.2,
@@ -634,7 +634,7 @@
     },
     {
         "properties": {
-            "name": "台風201604号 (NIDA) "
+            "name": "台風201604号 (Discrete) "
         },
         "temporalProperties": [
             {
@@ -734,7 +734,7 @@
         ],
         "type": "MovingFeatures",
         "temporalGeometry": {
-            "interpolations": "Spline",
+            "interpolations": "Discrete",
             "coordinates": [
                 [
                     11.7,

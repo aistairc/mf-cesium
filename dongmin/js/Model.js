@@ -13,3 +13,6 @@ var polygon_mode;
 
 var viewer;
 var scene;
+
+var LOG = console.log;
+var temp;

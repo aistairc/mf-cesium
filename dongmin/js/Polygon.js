@@ -214,9 +214,10 @@ PolygonJSON.prototype.animation_czml = function(id, with_height = 1){
     "id" : "document",
     "name" : "polygon_highlight",
     "version" : "1.0"
-  }, {
+  }];
+
+  var ref_obj = {
     "id" : "dynamicPolygon",
-    //  "availability":"2012-08-04T16:00:00Z/2012-08-04T17:00:00Z",
     "polygon": {
       "positions": {
         "references": [
@@ -240,46 +241,55 @@ PolygonJSON.prototype.animation_czml = function(id, with_height = 1){
         }
       }
     }
-  }];
-
+  };
   var viewer = this.viewer;
 
-    if (this.pre_czml != null)
-      viewer.dataSources.removeAll();
-    var feature = this.data.features[id];
-    var geometry = feature.temporalGeometry;
-    var length = geometry.datetimes.length;
+  if (this.pre_czml != null)
+  viewer.dataSources.removeAll();
+  var feature = this.data.features[id];
+  var geometry = feature.temporalGeometry;
+  var length = geometry.datetimes.length;
 
-    var min_max_date = [];
-    min_max_date = findMinMaxTime(geometry.datetimes);
+  var multiplier = 10000;
+  var min_max_date = [];
+  min_max_date = findMinMaxTime(geometry.datetimes);
 
-    var start, stop;
-    start = new Date(geometry.datetimes[0]).toISOString();
-    stop = new Date(geometry.datetimes[length-1]).toISOString();
-    var availability = start + "/" + stop;
-    czml[1].availability = availability;
+  var start, stop;
+  start = new Date(geometry.datetimes[0]).toISOString();
+  stop = new Date(geometry.datetimes[length-1]).toISOString();
+  var availability = start + "/" + stop;
+  ref_obj.availability = availability;
 
-    czml[0].clock = {
-      "interval" : availability,
-      "currentTime" : start,
-      "multiplier" : 10000
+  czml[0].clock = {
+    "interval" : availability,
+    "currentTime" : start,
+    "multiplier" : multiplier
+  }
+
+
+  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
+  {
+    czml.push(ref_obj);
+    var interpolations;
+    if (geometry.interpolations == "Spline"){
+      interpolations = "HERMITE";
+    }
+    else{
+      interpolations = "LINEAR";
     }
 
     for (var i = 0 ; i < geometry.coordinates[0].length-1 ; i++){
       var v = {};
       v.id = 'v'+(i+1);
       v.position = {
-        "interpolationAlgorithm": "LINEAR",
-        "interpolationDegree": 1,
+        "interpolationAlgorithm": interpolations,
+        "interpolationDegree": 2,
         "interval" : availability,
         "epoch" : start,
         "cartographicDegrees" : []
       };
       czml.push(v);
     }
-
-
-
     var start_second = new Date(geometry.datetimes[0]).getTime();
     for (var i = 0 ; i < geometry.datetimes.length ; i++){
       var seconds = new Date(geometry.datetimes[i]).getTime() - start_second;
@@ -300,8 +310,54 @@ PolygonJSON.prototype.animation_czml = function(id, with_height = 1){
       }
     }
 
-    this.pre_czml = Cesium.CzmlDataSource.load(czml)
-    this.viewer.dataSources.add(this.pre_czml);
-    console.log(czml);
+  }
+  else{
+    for (var i = 0 ; i < geometry.datetimes.length - 1  ; i++){
+      var start_date = new Date(geometry.datetimes[i]);
+      var start_iso = start_date.toISOString();
+
+      var finish_iso;
+      if (geometry.interpolations == "Stepwise"){
+        finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
+      }
+      else{
+        var finish_date = start_date;
+        finish_date.setHours(start_date.getHours() + multiplier/10000) ;
+        finish_iso = finish_date.toISOString();
+
+      }
+
+      var v = {};
+      v.id ="polygon_"+i;
+      v.availability = start_iso+"/"+finish_iso;
+      var carto = [];
+      var normalize = normalizeTime(new Date(geometry.datetimes[i]), min_max_date);
+
+      var polygon = geometry.coordinates[i];
+      for (var j = 0 ; j < polygon.length-1 ; j++){
+        carto.push(polygon[j][0]);
+        carto.push(polygon[j][1]);
+        carto.push(normalize * with_height);
+      }
+      v.polygon = {
+        "positions" : {
+          "cartographicDegrees" : carto
+        },
+        "meterial" :{
+          "solidColor" :{
+            "color" : {
+              "rgbaf" : [1, 0, 1, 1]
+            }
+          }
+        }
+      };
+      czml.push(v);
+    }
+
+  }
+
+  this.pre_czml = Cesium.CzmlDataSource.load(czml)
+  this.viewer.dataSources.add(this.pre_czml);
+  console.log(czml);
 
 }

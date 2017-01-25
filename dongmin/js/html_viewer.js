@@ -9,7 +9,6 @@
   line_obj = new PolylineJSON('json_data/polyline.json', viewer);
 })();
 
-
 viewer.scene.morphComplete.addEventListener(function (){
   if (mode == 'point'){
     showPoint();
@@ -108,8 +107,9 @@ function makeAllUnvisible(){
 function highlightPoint(id){
   point_tp_obj.highlight(id);
   if (document.getElementById('check'+id).checked){
-    point_tp_obj.animate(id);
+    point_tp_obj.animate_czml(id, viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW);
   }
+
 }
 /*
 function showPolygon(){
@@ -189,11 +189,10 @@ function showPoint(){
     drawZaxis();
   }
   else{
-    console.log("showPoint_not coul");
     for (var i = 0 ; i < point_tp_obj.collection_2d.length ; i++){
         viewer.scene.primitives.add(point_tp_obj.collection_2d[i]);
     }
-    console.log(viewer.scene.primitives);
+
   }
 }
 
@@ -223,11 +222,11 @@ function animatePolyline(id){
     for (var i = 0 ; i < line_obj.triangle_primitives_3d[id].length ; i++){
         viewer.scene.primitives.add(line_obj.triangle_primitives_3d[id][i]);
     }
-    console.log(line_obj.triangle_primitives_3d[id]);
+
     viewer.scene.primitives.add(line_obj.polyline_collection_3d[id]);
   }
   else {
-    viewer.scene.primitives.add(line_obj.polyline_collection[id]);
+    //viewer.scene.primitives.add(line_obj.polyline_collection[id]);
   }
 
   if (document.getElementById('check'+id).checked){
@@ -272,6 +271,7 @@ function select_year(){
 }
 
 function viewMain(){
+  console.log(temp);
   mode = 'home';
   isFirst = true;
   selectedTime = [];
