@@ -208,156 +208,189 @@ PolygonJSON.prototype.loadJsonAndMakePrimitive = function(){
 };
 
 
-PolygonJSON.prototype.animation_czml = function(id, with_height = 1){
+PolygonJSON.prototype.animation_czml_arr = function(id_arr, with_height = 1){
+  var viewer = this.viewer;
+  viewer.dataSources.removeAll();
 
   var czml = [{
     "id" : "document",
     "name" : "polygon_highlight",
     "version" : "1.0"
   }];
-
-  var ref_obj = {
-    "id" : "dynamicPolygon",
-    "polygon": {
-      "positions": {
-        "references": [
-          "v1#position",
-          "v2#position",
-          "v3#position",
-          "v4#position",
-          "v5#position",
-          "v6#position",
-          "v7#position",
-          "v8#position"
-
-        ]
-      },
-      "perPositionHeight" : true,
-      "material": {
-        "solidColor": {
-          "color": {
-            "rgbaf" : [1, 0, 0, 1]
-          }
-        }
-      }
-    }
-  };
-  var viewer = this.viewer;
-
-  if (this.pre_czml != null)
-  viewer.dataSources.removeAll();
-  var feature = this.data.features[id];
-  var geometry = feature.temporalGeometry;
-  var length = geometry.datetimes.length;
-
   var multiplier = 10000;
-  var min_max_date = [];
-  min_max_date = findMinMaxTime(geometry.datetimes);
 
-  var start, stop;
-  start = new Date(geometry.datetimes[0]).toISOString();
-  stop = new Date(geometry.datetimes[length-1]).toISOString();
-  var availability = start + "/" + stop;
-  ref_obj.availability = availability;
+  var global_availabilty, global_start, global_stop;
 
-  czml[0].clock = {
-    "interval" : availability,
-    "currentTime" : start,
-    "multiplier" : multiplier
-  }
+  global_start = new Date(this.data.features[id_arr[0]].temporalGeometry.datetimes[0]).toISOString();
+  global_stop = global_start;
 
 
-  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
-  {
-    czml.push(ref_obj);
-    var interpolations;
-    if (geometry.interpolations == "Spline"){
-      interpolations = "HERMITE";
-    }
-    else{
-      interpolations = "LINEAR";
-    }
+  for (var id_index = 0 ; id_index < id_arr.length ; id_index++){
+    var id = id_arr[id_index];
+    var ref_obj = {
+      "id" : "dynamicPolygon_"+id,
+      "polygon": {
+        "positions": {
+          "references": [
+            "v_"+id+"_1#position",
+            "v_"+id+"_2#position",
+            "v_"+id+"_3#position",
+            "v_"+id+"_4#position",
+            "v_"+id+"_5#position",
+            "v_"+id+"_6#position",
+            "v_"+id+"_7#position",
+            "v_"+id+"_8#position",
 
-    for (var i = 0 ; i < geometry.coordinates[0].length-1 ; i++){
-      var v = {};
-      v.id = 'v'+(i+1);
-      v.position = {
-        "interpolationAlgorithm": interpolations,
-        "interpolationDegree": 2,
-        "interval" : availability,
-        "epoch" : start,
-        "cartographicDegrees" : []
-      };
-      czml.push(v);
-    }
-    var start_second = new Date(geometry.datetimes[0]).getTime();
-    for (var i = 0 ; i < geometry.datetimes.length ; i++){
-      var seconds = new Date(geometry.datetimes[i]).getTime() - start_second;
-      var normalize = normalizeTime(new Date(geometry.datetimes[i]), min_max_date);
-
-      var polygon = geometry.coordinates[i];
-
-
-      for (var j = 0 ; j < polygon.length-1 ; j++){
-        var carto = [];
-
-        carto.push(seconds / 1000);
-        carto.push(polygon[j][0]);
-        carto.push(polygon[j][1]);
-        carto.push(normalize * with_height);
-
-        czml[j + 2].position.cartographicDegrees = czml[j + 2].position.cartographicDegrees.concat(carto);
-      }
-    }
-
-  }
-  else{
-    for (var i = 0 ; i < geometry.datetimes.length - 1  ; i++){
-      var start_date = new Date(geometry.datetimes[i]);
-      var start_iso = start_date.toISOString();
-
-      var finish_iso;
-      if (geometry.interpolations == "Stepwise"){
-        finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
-      }
-      else{
-        var finish_date = start_date;
-        finish_date.setHours(start_date.getHours() + multiplier/10000) ;
-        finish_iso = finish_date.toISOString();
-
-      }
-
-      var v = {};
-      v.id ="polygon_"+i;
-      v.availability = start_iso+"/"+finish_iso;
-      var carto = [];
-      var normalize = normalizeTime(new Date(geometry.datetimes[i]), min_max_date);
-
-      var polygon = geometry.coordinates[i];
-      for (var j = 0 ; j < polygon.length-1 ; j++){
-        carto.push(polygon[j][0]);
-        carto.push(polygon[j][1]);
-        carto.push(normalize * with_height);
-      }
-      v.polygon = {
-        "positions" : {
-          "cartographicDegrees" : carto
+          ]
         },
-        "meterial" :{
-          "solidColor" :{
-            "color" : {
-              "rgbaf" : [1, 0, 1, 1]
+        "perPositionHeight" : true,
+        "material": {
+          "solidColor": {
+            "color": {
+              "rgbaf" : [1, 0, 0, 1]
             }
           }
         }
-      };
-      czml.push(v);
+      }
+    };
+
+
+    var feature = this.data.features[id];
+    var geometry = feature.temporalGeometry;
+    var length = geometry.datetimes.length;
+
+
+    var min_max_date = [];
+    min_max_date = findMinMaxTime(geometry.datetimes);
+
+    var start, stop;
+    start = new Date(geometry.datetimes[0]).toISOString();
+    stop = new Date(geometry.datetimes[length-1]).toISOString();
+    var availability = start + "/" + stop;
+    ref_obj.availability = availability;
+
+    if (new Date(start).getTime() < new Date(global_start).getTime()){
+      global_start = start;
+    }
+    if (new Date(stop).getTime() > new Date(global_stop).getTime()){
+      global_stop = stop;
     }
 
+    if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
+    {
+      czml.push(ref_obj);
+      var interpolations;
+      if (geometry.interpolations == "Spline"){
+        interpolations = "HERMITE";
+      }
+      else{
+        interpolations = "LINEAR";
+      }
+
+      for (var i = 0 ; i < geometry.coordinates[0].length-1 ; i++){
+        var v = {};
+        v.id = 'v_'+id+"_"+(i+1);
+        v.position = {
+          "interpolationAlgorithm": interpolations,
+          "interpolationDegree": 2,
+          "interval" : availability,
+          "epoch" : start,
+          "cartographicDegrees" : []
+        };
+        czml.push(v);
+
+        var start_second = new Date(geometry.datetimes[0]).getTime();
+        var carto = [];
+        for (var j = 0 ; j < geometry.datetimes.length ; j ++){
+          var seconds = new Date(geometry.datetimes[j]).getTime() - start_second;
+          var normalize = normalizeTime(new Date(geometry.datetimes[i]), min_max_date);
+          var polygon = geometry.coordinates[j];
+
+          carto.push(seconds / 1000);
+          carto.push(polygon[i][0]);
+          carto.push(polygon[i][1]);
+          if (with_height == 0)
+          {
+            carto.push(10000);
+          }
+          else{
+            carto.push(normalize * with_height);
+          }
+
+
+        }
+
+        v.position.cartographicDegrees = carto;
+      }
+
+
+
+
+    }
+    else{
+      for (var i = 0 ; i < geometry.datetimes.length - 1  ; i++){
+        var start_date = new Date(geometry.datetimes[i]);
+        var start_iso = start_date.toISOString();
+
+        var finish_iso;
+        if (geometry.interpolations == "Stepwise"){
+          finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
+        }
+        else{
+          var finish_date = start_date;
+          finish_date.setHours(start_date.getHours() + multiplier/10000) ;
+          finish_iso = finish_date.toISOString();
+        }
+
+        if (new Date(finish_iso).getTime() > new Date(global_stop).getTime()){
+          global_stop = finish_iso;
+        }
+        if (new Date(start_iso).getTime() < new Date(global_start).getTime()){
+          global_start = start_iso;
+        }
+
+        var v = {};
+        v.id ="polygon_"+id+"_"+i;
+        v.availability = start_iso+"/"+finish_iso;
+        var carto = [];
+        var normalize = normalizeTime(new Date(geometry.datetimes[i]), min_max_date);
+        console.log(normalize);
+        var polygon = geometry.coordinates[i];
+        for (var j = 0 ; j < polygon.length-1 ; j++){
+          carto.push(polygon[j][0]);
+          carto.push(polygon[j][1]);
+          carto.push(normalize * with_height);
+        }
+
+        v.polygon = {
+          "positions" : {
+            "cartographicDegrees" : carto
+          },
+          "meterial" :{
+            "solidColor" :{
+              "color" : {
+                "rgbaf" : [1, 0, 1, 1]
+              }
+            }
+          },
+          "perPositionHeight" : true
+        };
+        czml.push(v);
+      }
+
+    }
+
+
+  }
+  czml[0].clock = {
+    "interval" : global_start+"/"+global_stop,
+    "currentTime" : global_start,
+    "multiplier" : multiplier
   }
 
   this.pre_czml = Cesium.CzmlDataSource.load(czml)
   this.viewer.dataSources.add(this.pre_czml);
-  console.log(czml);
+  LOG(czml);
+
 
 }

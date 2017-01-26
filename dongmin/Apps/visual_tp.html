@@ -15,13 +15,13 @@
   <script src="../js/Point.js"></script>
   <script src="../js/Func.js"></script>
   <script src="../js/Polyline.js"></script>
-  <script src="../js/Loader.js"></script>
-  <script src="../js/Feature.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+
   <style>
 
   @import url(../Build/Cesium/Widgets/widgets.css);
   html, body, #cesiumContainer {
-    width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+    width: 80%; height: 80%; margin: 0; padding: 0; overflow: hidden;
   }
   @import url(Sandcastle/templates/bucket.css);
 
@@ -30,6 +30,12 @@
     cursor : pointer;
   }
 
+  .graph{
+    position : absolute;
+    bottom: 0;
+    width:100%;
+    height : 20%;
+  }
   </style>
 </head>
 <body>
@@ -53,16 +59,40 @@
       <input type="button" onclick="viewMain()" value="Main"> </input>
   <br />
   <div id="btn_div">
-
+    <input type="button" value="ANIMATION" onclick="animate_moving()" style="visibility:hidden"> </input>
   </div>
+
   <br />
 
 </div>
 
 <div id="cesiumContainer" style="position:absolute; top:0px; z-index:1;"></div>
+<div class="graph">
 
+</div>
 
 <script src="../js/html_viewer.js"></script>
+<script>
+var w = $(window).width(), h = $(window).height() * 0.2;
+console.log(w, h);
+var svg = d3.select('div.graph').append("svg").attr('width',w).attr('height',h);
+
+var dataset = [ 5, 10, 15, 20, 25 ];
+
+var circles = svg.selectAll("circle")
+.data(dataset)
+.enter()
+.append("circle");
+
+circles.attr("cx", function(d, i) {
+  return (i * 50) + 25;
+})
+.attr("cy", h/2)
+.attr("r", function(d) {
+  return d;
+});
+
+</script>
 
 
 </body>
