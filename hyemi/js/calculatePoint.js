@@ -1,3 +1,5 @@
+
+
 function calculateSurfaceWithTriangle(polyline1,polyline2){
   var surface_line_list = calculateMovingPath(polyline1, polyline2);
   var triangle_list = [];
@@ -6,6 +8,7 @@ function calculateSurfaceWithTriangle(polyline1,polyline2){
   }
   return triangle_list;
 }
+
 function calculateMovingPath(polyline1,polyline2){
   var surface = new Array();
   var cur_index1 = 0;
