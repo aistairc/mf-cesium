@@ -9,23 +9,21 @@
   line_obj = new PolylineJSON('json_data/polyline.json', viewer);
 })();
 
-
 viewer.scene.morphComplete.addEventListener(function (){
-  if (mode == 'point'){
-    showPoint();
+  if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
+    drawZaxis();
+
   }
-  else if (mode == 'polygon'){
+  if (mode == 'polygon'){
 
     if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
-      drawZaxis();
       polygon_mode = '3d';
     }
     else {
       polygon_mode = '2d';
     }
-  }else { // polyline
-
   }
+
   viewer.clear();
   viewer.scene.completeMorph();
 });
@@ -33,6 +31,7 @@ viewer.scene.morphComplete.addEventListener(function (){
 
 function show_list(type){
   document.getElementById('name_list').innerHTML = '';
+  document.getElementById('btn_div').style.visibility= 'visible';
   mode = type;
 
   if (type == 'point'){
@@ -78,17 +77,17 @@ function addRowtoTable(name, color, id){
 
   if (mode == 'point'){
     cell1.onclick = function(){
-       return highlightPoint(id);
+       return animatePoint();
      };
   }
   else if (mode == 'polygon'){
     cell1.onclick = function(){
-      return animatePolygon(id);
+      return animatePolygon();
     };
   }
   else{
     cell1.onclick = function(){
-      return animatePolyline(id);
+      return animatePolyline();
     };
   }
 
@@ -105,12 +104,201 @@ function makeAllUnvisible(){
   viewer.clear();
 }
 
-function highlightPoint(id){
-  point_tp_obj.highlight(id);
-  if (document.getElementById('check'+id).checked){
-    point_tp_obj.animate(id);
+var drawZaxis = function(){
+  var timebar = viewer.entities.add({
+    id : 'time',
+    polyline :{
+      positions :  Cesium.Cartesian3.fromDegreesArrayHeights([80,0,0,
+                                                              80,0,15000000
+      ]),
+      width : 10,
+      material :  new Cesium.PolylineArrowMaterialProperty(Cesium.Color.WHITE)
+    }
+
+  });
+  viewer.entities.add({
+    position : Cesium.Cartesian3.fromDegrees(80, 0, 15100000),
+
+    label : {
+      text : 'TIME',
+      font : '14pt monospace',
+      style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+      horizontalOrigin : Cesium.HorizontalOrigin.CENTER,
+      outlineWidth : 2
+    }
+  });
+}
+
+function showPoint(){
+  viewer.clear();
+
+  if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
+    for (var i = 0 ; i < point_tp_obj.collection_3d.length ; i++){
+        viewer.scene.primitives.add(point_tp_obj.collection_3d[i]);
+    }
+    drawZaxis();
+  }
+  else{
+    for (var i = 0 ; i < point_tp_obj.collection_2d.length ; i++){
+        viewer.scene.primitives.add(point_tp_obj.collection_2d[i]);
+    }
+
   }
 }
+
+function animatePolygon(){
+  viewer.clear();
+  var id_arr = [];
+  for (var id = 0 ; id < poly_tp_obj.data.features.length ; id++){
+    if (document.getElementById('check'+id).checked){
+      if(viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
+        viewer.scene.primitives.add(poly_tp_obj.primitives_3d[id]);
+      }
+      else{
+        viewer.scene.primitives.add(poly_tp_obj.primitives_2d[id]);
+      }
+      id_arr.push(id);
+    }
+  }
+
+  if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
+    poly_tp_obj.animation_czml_arr(id_arr);
+  }
+  else {
+    poly_tp_obj.animation_czml_arr(id_arr, 0);
+  }
+}
+
+function animatePoint(){
+  viewer.clear();
+  var id_arr = [];
+  for (var id = 0 ; id < point_tp_obj.data.length ; id++){
+
+    if (document.getElementById('check'+id).checked){
+      id_arr.push(id);
+      if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
+        viewer.scene.primitives.add(point_tp_obj.collection_3d[id]);
+      }
+      else{
+        viewer.scene.primitives.add(point_tp_obj.collection_2d[id]);
+      }
+    }
+
+  }
+  point_tp_obj.animate_czml(id_arr, viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW);
+
+}
+
+
+function animatePolyline(){
+  viewer.clear();
+
+  var id_arr = [];
+
+  for (var id = 0 ; id < line_obj.data.features.length ; id++){
+
+    if (document.getElementById('check'+id).checked){
+      id_arr.push(id);
+      if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
+        for (var i = 0 ; i < line_obj.triangle_primitives_3d[id].length ; i++){
+            viewer.scene.primitives.add(line_obj.triangle_primitives_3d[id][i]);
+        }
+
+        viewer.scene.primitives.add(line_obj.polyline_collection_3d[id]);
+      }
+
+    }
+
+  }
+
+  if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
+    line_obj.animation_czml_arr(id_arr);
+  }
+
+  else {
+    console.log("animation 2d")
+    //line_obj.animation_czml(id_arr[0], 0);
+    line_obj.animation_czml_arr(id_arr, 0 );
+  }
+
+
+}
+
+function animate_moving(){
+  if (type == 'point'){
+    animatePoint();
+  }
+  else if (type == 'polygon'){
+    animatePolygon();
+  }
+  else{
+    animatePolyline();
+  }
+}
+
+function select_year(){
+
+  document.getElementById('name_list').innerHTML = '';
+
+  var m_table = document.getElementById('name_list');
+  var row = m_table.insertRow( m_table.rows.length ); // 하단에 추가
+
+  var cell1 = row.insertCell(0);
+  cell1.innerHTML = '2016';
+  cell1.onclick = function(){
+    poly_tp_obj = new PolygonJSON('json_data/typhoon2016_buffer.json',viewer);
+    return show_list('polygon');
+  }
+
+  var row2 = m_table.insertRow( m_table.rows.length ); //
+  var cell2 = row2.insertCell(0);
+  cell2.innerHTML = '2015';
+  cell2.onclick = function(){
+    poly_tp_obj = new PolygonJSON('json_data/typhoon2015_buffer.json',viewer);
+    return show_list('polygon');
+    //console.log(poly_tp_obj_15.obj);
+  }
+
+}
+
+function viewMain(){
+  console.log(temp);
+  mode = 'home';
+  isFirst = true;
+  selectedTime = [];
+  anime_entity = null;
+  pre_cl = null, pre_entity = null;
+
+
+  viewer.clear();
+  document.getElementById('name_list').innerHTML = '';
+  document.getElementById('btn_div').style.visibility = 'hidden';
+
+  var m_table = document.getElementById('name_list');
+  var row = m_table.insertRow( m_table.rows.length ); // 하단에 추가
+  var cell1 = row.insertCell(0);
+  cell1.innerHTML = 'point typhoon';
+  cell1.onclick = function(){
+    return show_list('point');
+  }
+
+  var row2 = m_table.insertRow( m_table.rows.length ); //
+  var cell2 = row2.insertCell(0);
+  cell2.innerHTML = 'polygon typhoon';
+  cell2.onclick = function(){
+    return select_year();
+    //console.log(poly_tp_obj_15.obj);
+  }
+
+  var row3 = m_table.insertRow( m_table.rows.length ); //
+  var cell3 = row3.insertCell(0);
+  cell3.innerHTML = 'polyline';
+  cell3.onclick = function(){
+    return show_list('line');
+    //console.log(poly_tp_obj_15.obj);
+  }
+}
+
 /*
 function showPolygon(){
   viewer.clear();
@@ -154,158 +342,3 @@ function showPolyline(){
   }
 }
 */
-var drawZaxis = function(){
-  var timebar = viewer.entities.add({
-    id : 'time',
-    polyline :{
-      positions :  Cesium.Cartesian3.fromDegreesArrayHeights([80,0,0,
-                                                              80,0,15000000
-      ]),
-      width : 10,
-      material :  new Cesium.PolylineArrowMaterialProperty(Cesium.Color.WHITE)
-    }
-
-  });
-  viewer.entities.add({
-    position : Cesium.Cartesian3.fromDegrees(80, 0, 15100000),
-
-    label : {
-      text : 'TIME',
-      font : '14pt monospace',
-      style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-      horizontalOrigin : Cesium.HorizontalOrigin.CENTER,
-      outlineWidth : 2
-    }
-  });
-}
-
-function showPoint(){
-  viewer.clear();
-
-  if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
-    for (var i = 0 ; i < point_tp_obj.collection_3d.length ; i++){
-        viewer.scene.primitives.add(point_tp_obj.collection_3d[i]);
-    }
-    drawZaxis();
-  }
-  else{
-    console.log("showPoint_not coul");
-    for (var i = 0 ; i < point_tp_obj.collection_2d.length ; i++){
-        viewer.scene.primitives.add(point_tp_obj.collection_2d[i]);
-    }
-    console.log(viewer.scene.primitives);
-  }
-}
-
-function animatePolygon(id){
-  viewer.clear();
-  if(polygon_mode == '3d'){
-    viewer.scene.primitives.add(poly_tp_obj.primitives_3d[id]);
-  }
-
-  if (document.getElementById('check'+id).checked){
-    if (polygon_mode == '3d')
-      poly_tp_obj.animation_czml(id);
-    else {
-      console.log("animation 2d")
-      poly_tp_obj.animation_czml(id, 0);
-    }
-  }
-  else{
-    viewer.scene.primitives.add(poly_tp_obj.primitives_2d[id]);
-  }
-}
-
-
-function animatePolyline(id){
-  viewer.clear();
-  if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
-    for (var i = 0 ; i < line_obj.triangle_primitives_3d[id].length ; i++){
-        viewer.scene.primitives.add(line_obj.triangle_primitives_3d[id][i]);
-    }
-    console.log(line_obj.triangle_primitives_3d[id]);
-    viewer.scene.primitives.add(line_obj.polyline_collection_3d[id]);
-  }
-  else {
-    viewer.scene.primitives.add(line_obj.polyline_collection[id]);
-  }
-
-  if (document.getElementById('check'+id).checked){
-    if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW)
-      line_obj.animation_czml(id);
-    else {
-      console.log("animation 2d")
-      line_obj.animation_czml(id, 0);
-    }
-  }
-  else{
-
-  }
-
-
-}
-
-
-function select_year(){
-
-  document.getElementById('name_list').innerHTML = '';
-
-  var m_table = document.getElementById('name_list');
-  var row = m_table.insertRow( m_table.rows.length ); // 하단에 추가
-
-  var cell1 = row.insertCell(0);
-  cell1.innerHTML = '2016';
-  cell1.onclick = function(){
-    poly_tp_obj = new PolygonJSON('json_data/typhoon2016_buffer.json',viewer);
-    return show_list('polygon');
-  }
-
-  var row2 = m_table.insertRow( m_table.rows.length ); //
-  var cell2 = row2.insertCell(0);
-  cell2.innerHTML = '2015';
-  cell2.onclick = function(){
-    poly_tp_obj = new PolygonJSON('json_data/typhoon2015_buffer.json',viewer);
-    return show_list('polygon');
-    //console.log(poly_tp_obj_15.obj);
-  }
-
-}
-
-function viewMain(){
-  mode = 'home';
-  isFirst = true;
-  selectedTime = [];
-  anime_entity = null;
-  pre_cl = null, pre_entity = null;
-
-
-  viewer.clear();
-
-
-  document.getElementById('name_list').innerHTML = '';
-  document.getElementById('btn_div').innerHTML = '';
-
-  var m_table = document.getElementById('name_list');
-  var row = m_table.insertRow( m_table.rows.length ); // 하단에 추가
-  var cell1 = row.insertCell(0);
-  cell1.innerHTML = 'point typhoon';
-  cell1.onclick = function(){
-    return show_list('point');
-  }
-
-  var row2 = m_table.insertRow( m_table.rows.length ); //
-  var cell2 = row2.insertCell(0);
-  cell2.innerHTML = 'polygon typhoon';
-  cell2.onclick = function(){
-    return select_year();
-    //console.log(poly_tp_obj_15.obj);
-  }
-
-  var row3 = m_table.insertRow( m_table.rows.length ); //
-  var cell3 = row3.insertCell(0);
-  cell3.innerHTML = 'polyline';
-  cell3.onclick = function(){
-    return show_list('line');
-    //console.log(poly_tp_obj_15.obj);
-  }
-}

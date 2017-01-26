@@ -273,9 +273,7 @@ PolylineJSON.calculateDist = function(point_1, point_2){
 
 
 PolylineJSON.prototype.animation_czml = function(id, with_height = 1){
-  if (this.mapping_path[id]==undefined){
-    //this.getPath(id);
-  }
+  var multiplier = 10000;
   var viewer = this.viewer;
   viewer.dataSources.removeAll();
   var czml = [{
@@ -288,80 +286,314 @@ PolylineJSON.prototype.animation_czml = function(id, with_height = 1){
   var glo_start, glo_stop;
   var datetime = this.data.features[id].temporalGeometry.datetimes;
   var length = datetime.length;
+  var geometry = this.data.features[id].temporalGeometry;
 
   glo_start = new Date(datetime[0]).toISOString();
   glo_stop = new Date(datetime[length-1]).toISOString();
   czml[0].clock = {
     "interval" : glo_start + "/" + glo_stop,
     "currentTime" : glo_start,
-    "multiplier" : 10000
+    "multiplier" : multiplier
   }
 
-  var next_point_each_line = this.mapping_next_point[id];
 
-  for (var i = 0 ; i < next_point_each_line.length ; i++ ){
-    //한 줄 씩 start -> end로 polyline
-    var start, stop;
-    start = new Date(datetime[i]).toISOString();
-    stop = new Date(datetime[i+1]).toISOString();
-    var availability = start + "/" + stop;
-    var next_point = next_point_each_line[i];
-
-    var czml_ref_obj = {
-      "polyline" :{
-        "width" : 5
-      }
-    };
-    czml_ref_obj.id = "polyline_"+i;
-    czml_ref_obj.availability = availability;
-    czml_ref_obj.polyline.perPositionHeight = true;
-    czml_ref_obj.polyline.meterial = {
-      "solidColor": {
-        "color": {
-          "rgbaf" : [1, 0, 0, 1]
-        }
-      }
-    };
-    var ref_arr =[];
-    czml_ref_obj.polyline.positions = {
-      "references" : ref_arr
+  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
+  {
+    var next_point_each_line = this.mapping_next_point[id];
+    var interpolations;
+    if (geometry.interpolations == "Spline"){
+      interpolations = "HERMITE";
     }
-    czml.push(czml_ref_obj);
+    else{
+      interpolations = "LINEAR";
+    }
+    for (var i = 0 ; i < next_point_each_line.length ; i++ ){
+      //한 줄 씩 start -> end로 polyline
+      var start, stop;
+      start = new Date(datetime[i]).toISOString();
+      stop = new Date(datetime[i+1]).toISOString();
+      var availability = start + "/" + stop;
+      var next_point = next_point_each_line[i];
 
-    var height_1 = this.height_collection[id][i] * with_height;
-    var height_2 = this.height_collection[id][i+1] * with_height ;
-
-    for (var j = 0 ; j < next_point.length ; j++){
-      ref_arr.push("v"+i+"_"+j+"#position");
-
-      var czml_position_obj = {};
-      czml_position_obj.id = "v"+i+"_"+j;
-      czml_position_obj.position = {
-        "interpolationAlgorithm": "LINEAR",
-        "interpolationDegree": 1,
-        "interval" : availability,
-        "epoch" : start
+      var czml_ref_obj = {
+        "polyline" :{
+          "width" : 5
+        }
       };
 
+      czml_ref_obj.id = "polyline_"+i;
+      czml_ref_obj.availability = availability;
+      czml_ref_obj.polyline.perPositionHeight = true;
+      czml_ref_obj.polyline.meterial = {
+        "solidColor": {
+          "color": {
+            "rgba" : [255, 0, 0, 255]
+          }
+        }
+      };
 
-      //console.log(j, next_point[j]);
-      var carto = [
-        0, next_point[j][0][0] , next_point[j][0][1], height_1,
-        (new Date(datetime[i+1]).getTime() - new Date(datetime[i]).getTime()) /1000, next_point[j][1][0], next_point[j][1][1], height_2
-      ];
+      var ref_arr =[];
 
-      czml_position_obj.position.cartographicDegrees = carto;
+      czml_ref_obj.polyline.positions = {
+        "references" : ref_arr
+      }
+      czml.push(czml_ref_obj);
 
-      czml.push(czml_position_obj);
+      var height_1 = this.height_collection[id][i] * with_height;
+      var height_2 = this.height_collection[id][i+1] * with_height ;
+
+      for (var j = 0 ; j < next_point.length ; j++){
+        ref_arr.push("v"+i+"_"+j+"#position");
+
+        var czml_position_obj = {};
+        czml_position_obj.id = "v"+i+"_"+j;
+        czml_position_obj.position = {
+          "interpolationAlgorithm": interpolations,
+          "interpolationDegree": 1,
+          "interval" : availability,
+          "epoch" : start
+        };
+
+
+        //console.log(j, next_point[j]);
+        var carto = [
+          0, next_point[j][0][0] , next_point[j][0][1], height_1,
+          (new Date(datetime[i+1]).getTime() - new Date(datetime[i]).getTime()) /1000, next_point[j][1][0], next_point[j][1][1], height_2
+        ];
+
+        czml_position_obj.position.cartographicDegrees = carto;
+
+        czml.push(czml_position_obj);
+      }
+
+    }
+  }
+  else{
+
+
+    for (var i = 0 ; i < geometry.datetimes.length - 1 ; i++){
+      var start_date = new Date(geometry.datetimes[i]);
+      var start_iso = start_date.toISOString();
+
+      var finish_iso;
+      if (geometry.interpolations == "Stepwise"){
+        finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
+      }
+      else{
+        var finish_date = start_date;
+        finish_date.setHours(start_date.getHours() + multiplier/10000) ;
+        finish_iso = finish_date.toISOString();
+      }
+
+      var v = {};
+      v.id ="polyline_"+i;
+      v.availability = start_iso+"/"+finish_iso;
+
+      var carto = [];
+      var normalize = this.height_collection[id][i];
+
+      var polyline = geometry.coordinates[i];
+      for (var j = 0 ; j < polyline.length-1 ; j++){
+        carto.push(polyline[j][0]);
+        carto.push(polyline[j][1]);
+        carto.push(normalize * with_height);
+      }
+
+      v.polyline = {
+        "width" : 5,
+        "positions" : {
+          "cartographicDegrees" : carto
+        },
+        "meterial" :{
+          "solidColor" :{
+            "color" : {
+              "rgba" : [255, 0, 255, 255]
+            }
+          }
+        }
+      };
+      czml.push(v);
     }
 
+  }
+  LOG(czml);
+  this.pre_czml = Cesium.CzmlDataSource.load(czml)
+  this.viewer.dataSources.add(this.pre_czml);
+
+
+}
+
+
+PolylineJSON.prototype.animation_czml_arr = function(id_arr, with_height = 1){
+  var multiplier = 10000;
+  var viewer = this.viewer;
+  viewer.dataSources.removeAll();
+
+  var czml = [{
+    "id" : "document",
+    "name" : "polyline_highligh",
+    "version" : "1.0"
+  }];
+
+  var glo_start, glo_stop;
+  glo_start = new Date(this.data.features[id_arr[0]].temporalGeometry.datetimes[0]).toISOString();
+  glo_stop = glo_start;
 
 
 
+  for (var d = 0 ; d < id_arr.length ; d ++){
+    var id = id_arr[d];
+    var datetime = this.data.features[id].temporalGeometry.datetimes;
+    var length = datetime.length;
+    var geometry = this.data.features[id].temporalGeometry;
 
+
+
+    if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
+    {
+      var next_point_each_line = this.mapping_next_point[id];
+      var interpolations;
+      if (geometry.interpolations == "Spline"){
+        interpolations = "HERMITE";
+      }
+      else{
+        interpolations = "LINEAR";
+      }
+      for (var i = 0 ; i < next_point_each_line.length ; i++ ){
+        //한 줄 씩 start -> end로 polyline
+        var start, stop;
+        start = new Date(datetime[i]).toISOString();
+        stop = new Date(datetime[i+1]).toISOString();
+
+        if (new Date(start).getTime() < new Date(glo_start).getTime()){
+          glo_start = start;
+        }
+        if (new Date(stop).getTime() > new Date(glo_stop).getTime()){
+          glo_stop = stop;
+        }
+
+        var availability = start + "/" + stop;
+        var next_point = next_point_each_line[i];
+
+        var czml_ref_obj = {
+          "polyline" :{
+            "width" : 5
+          }
+        };
+
+        czml_ref_obj.id = "polyline_"+id+"_"+i;
+        czml_ref_obj.availability = availability;
+        czml_ref_obj.polyline.perPositionHeight = true;
+        czml_ref_obj.polyline.meterial = {
+          "solidColor": {
+            "color": {
+              "rgba" : [255, 0, 0, 255]
+            }
+          }
+        };
+
+        var ref_arr =[];
+
+        czml_ref_obj.polyline.positions = {
+          "references" : ref_arr
+        }
+        czml.push(czml_ref_obj);
+
+        var height_1 = this.height_collection[id][i] * with_height;
+        var height_2 = this.height_collection[id][i+1] * with_height ;
+
+        for (var j = 0 ; j < next_point.length ; j++){
+          ref_arr.push("v"+id+"_"+i+"_"+j+"#position");
+
+          var czml_position_obj = {};
+          czml_position_obj.id = "v"+id+"_"+i+"_"+j;
+          czml_position_obj.position = {
+            "interpolationAlgorithm": interpolations,
+            "interpolationDegree": 1,
+            "interval" : availability,
+            "epoch" : start
+          };
+
+
+          //console.log(j, next_point[j]);
+          var carto = [
+            0, next_point[j][0][0] , next_point[j][0][1], height_1,
+            (new Date(datetime[i+1]).getTime() - new Date(datetime[i]).getTime()) /1000, next_point[j][1][0], next_point[j][1][1], height_2
+          ];
+
+          czml_position_obj.position.cartographicDegrees = carto;
+
+          czml.push(czml_position_obj);
+        }
+
+      }
+    }
+    else{
+
+
+      for (var i = 0 ; i < geometry.datetimes.length - 1 ; i++){
+        var start_date = new Date(geometry.datetimes[i]);
+        var start_iso = start_date.toISOString();
+
+        var finish_iso;
+        if (geometry.interpolations == "Stepwise"){
+          finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
+        }
+        else{
+          var finish_date = start_date;
+          finish_date.setHours(start_date.getHours() + multiplier/10000) ;
+          finish_iso = finish_date.toISOString();
+        }
+
+        if (new Date(start_iso).getTime() < new Date(glo_start).getTime()){
+          glo_start = start_iso;
+        }
+        if (new Date(finish_iso).getTime() > new Date(glo_stop).getTime()){
+          glo_stop = finish_iso;
+        }
+
+
+
+        var v = {};
+        v.id ="polyline_"+id+"_"+i;
+        v.availability = start_iso+"/"+finish_iso;
+
+        var carto = [];
+        var normalize = this.height_collection[id][i];
+
+        var polyline = geometry.coordinates[i];
+        for (var j = 0 ; j < polyline.length-1 ; j++){
+          carto.push(polyline[j][0]);
+          carto.push(polyline[j][1]);
+          carto.push(normalize * with_height);
+        }
+
+        v.polyline = {
+          "width" : 5,
+          "positions" : {
+            "cartographicDegrees" : carto
+          },
+          "meterial" :{
+            "solidColor" :{
+              "color" : {
+                "rgba" : [255, 0, 255, 255]
+              }
+            }
+          }
+        };
+        czml.push(v);
+      }
+
+    }
   }
 
-  console.log(czml);
+  czml[0].clock = {
+    "interval" : glo_start + "/" + glo_stop,
+    "currentTime" : glo_start,
+    "multiplier" : multiplier
+  }
+
+  LOG(czml);
   this.pre_czml = Cesium.CzmlDataSource.load(czml)
   this.viewer.dataSources.add(this.pre_czml);
 
