@@ -1,3 +1,4 @@
+
 (function init(){
   mode = 'home';
   polygon_mode = '2d';
@@ -31,6 +32,7 @@ viewer.scene.morphComplete.addEventListener(function (){
 
 function show_list(type){
   document.getElementById('name_list').innerHTML = '';
+
   document.getElementById('btn_div').style.visibility= 'visible';
   mode = type;
 
@@ -77,17 +79,17 @@ function addRowtoTable(name, color, id){
 
   if (mode == 'point'){
     cell1.onclick = function(){
-       return animatePoint();
+       return selectProperty(point_tp_obj, id);
      };
   }
   else if (mode == 'polygon'){
     cell1.onclick = function(){
-      return animatePolygon();
+      return selectProperty(poly_tp_obj, id);
     };
   }
   else{
     cell1.onclick = function(){
-      return animatePolyline();
+      return selectProperty(line_obj, id);
     };
   }
 
@@ -99,6 +101,38 @@ function addRowtoTable(name, color, id){
   var cell2 = row.insertCell(1);
   cell2.appendChild(checkbox);
 }
+
+function selectProperty(obj, id){
+  document.getElementById('property_list').innerHTML = '';
+  document.getElementById('property_list').style.visibility = 'visible';
+  document.getElementById('property_list').style.cursor = 'pointer';
+  var property_list;
+  if (obj.data.features == undefined){//point
+    property_list = obj.data[id].temporalProperties;
+  }
+  else{
+    property_list = obj.data.features[id].temporalProperties;
+  }
+
+  var table = document.getElementById('property_list');
+
+  for (var i = 0 ; i < property_list.length ; i++){
+    var property_object = property_list[i];
+    var row = table.insertRow(table.rows.length);
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = property_object.name;
+
+    cell1.onclick = function(){
+      document.getElementById('property_list').innerHTML = '';
+      document.getElementById('property_list').style.visibility = 'hidden';
+      document.getElementById('property_list').style.cursor = '';
+      return showProperty(property_object);
+    }
+
+
+  }
+}
+
 
 function makeAllUnvisible(){
   viewer.clear();
@@ -225,10 +259,10 @@ function animatePolyline(){
 }
 
 function animate_moving(){
-  if (type == 'point'){
+  if (mode == 'point'){
     animatePoint();
   }
-  else if (type == 'polygon'){
+  else if (mode == 'polygon'){
     animatePolygon();
   }
   else{
@@ -262,7 +296,6 @@ function select_year(){
 }
 
 function viewMain(){
-  console.log(temp);
   mode = 'home';
   isFirst = true;
   selectedTime = [];
@@ -273,6 +306,13 @@ function viewMain(){
   viewer.clear();
   document.getElementById('name_list').innerHTML = '';
   document.getElementById('btn_div').style.visibility = 'hidden';
+
+  document.getElementById('property_list').innerHTML = '';
+  document.getElementById('property_list').style.visibility = 'hidden';
+  document.getElementById('property_list').style.cursor = '';
+
+  document.getElementById("cesiumContainer").style.height = '100%';
+  document.getElementById("graph").style.height = '0%';
 
   var m_table = document.getElementById('name_list');
   var row = m_table.insertRow( m_table.rows.length ); // 하단에 추가

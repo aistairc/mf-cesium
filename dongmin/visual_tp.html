@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Use correct character set. -->
+  <meta charset="utf-8">
+  <!-- Tell IE to use the latest, best version. -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <title>old version</title>
+  <script src="../Build/Cesium/Cesium.js"></script>
+  <script src="jquery-3.1.1.js"></script>
+  <script src="js/Model.js"></script>
+  <script src="js/Polygon.js"></script>
+  <script src="js/Point.js"></script>
+  <script src="js/Func.js"></script>
+  <script src="js/Polyline.js"></script>
+  <script src="js/showPr.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+  <style>
+
+  @import url(../Build/Cesium/Widgets/widgets.css);
+  html, body, #cesiumContainer {
+    width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+  }
+  @import url(Sandcastle/templates/bucket.css);
+
+  table {
+    color : white;
+  }
+
+  #name_list {
+    cursor: pointer;
+  }
+  .graph{
+    position : absolute;
+    bottom : 0;
+    width : 80%; height : 0%;
+    z-index:2;
+  }
+  </style>
+</head>
+<body>
+
+  <div id="list" style="background-color:transparent; color:white; margin:5px;
+  position:absolute; top:0px; width:260px; z-index:2;">
+
+  <div id="title">typhoonlist</div>
+  <table style="width:520px;">
+  <tr>
+    <td>
+      <table id="name_list" style="width:260px; background-color:rgba(200,200,200,0.3);">
+        <tr>
+          <td onclick="show_list('point')"> point typhoon </td>
+        </tr>
+        <tr>
+          <td onclick="select_year()"> polygon typhoon </td>
+        </tr>
+        <tr>
+          <td onclick="show_list('line')"> polyline test </td>
+        </tr>
+      </table>
+    </td>
+    <td>
+      <table id="property_list" style="visibility:hidden; width:260px; background-color:rgba(200,200,200,0.3);">
+
+      </table>
+    </td>
+  </tr>
+  </table>
+
+  <br />
+      <input type="button" onclick="viewMain()" value="Main"> </input>
+  <br />
+  <div id="btn_div" style="visibility:hidden">
+    <input type="button" value="ANIMATION" onclick="animate_moving()" > </input>
+  </div>
+
+  <br />
+
+</div>
+
+<div id="cesiumContainer" style="position:absolute; top:0px; z-index:1;"></div>
+
+<svg id="graph" class="graph" > </svg>
+
+</body>
+
+<script src="js/html_viewer.js"></script>
+
+
+
+
+
+</html>
