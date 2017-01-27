@@ -1,8 +1,6 @@
-$.ajaxSetup({
-  async: true
-});
 var start_time_global;
 var end_time_global;
+
 function getMovingLineString(polyline1, timeline, polyline2, timeline2) { //in advanced, we put 3D points to this function.
     var point_list = calculateMovingPath(polyline1, polyline2);
     var point1;
@@ -24,19 +22,90 @@ function getMovingLineString(polyline1, timeline, polyline2, timeline2) { //in a
     }
     setClock(start, stop, 3000);
 }
-function getMovingAllPolygon(filename){
-  selected_poly_radio = [];
-  setDefaultClock();
-  $.getJSON(filename,function(p_data){
-    for(var i = 0 ; i < p_data.features.length ; i++){
-      getMovingPolygon(i,filename);
-    }
-    findFastestTime(filename);
-    findLatestTime(filename);
-    setClock(start_time_global,end_time_global, 3000);
-  });
+
+function getMovingAllPolygon(filename) {
+    setDefaultClock();
+    var start1 = findFastestTime(filename);
+    var end1 = findLatestTime(filename);
+
+    setClock(start1, end1, 3000);
+
+    $.getJSON(filename, function(p_data) {
+        for (var i = 0; i < p_data.features.length; i++) {
+            getMovingPolygon(i, filename);
+        }
+
+
+    });
 
 }
+
+function getMovingAll() {
+    setDefaultClock();
+    if(polygon_all == true){
+      polygon_all = false;
+      $.getJSON("typhoon2015_buffer.json", function(p_data) {
+          for (var i = 0; i < p_data.features.length; i++) {
+              getMovingPolygon(i, "typhoon2015_buffer.json");
+          }
+
+
+      });
+      $.getJSON("typhoon2016_buffer.json", function(p_data) {
+          for (var i = 0; i < p_data.features.length; i++) {
+              getMovingPolygon(i, "typhoon2016_buffer.json");
+          }
+
+
+      });
+    }
+    else{
+      var start;
+      var end;
+      var start1 = findFastestTime("typhoon2015_buffer.json");
+      var end1 = findLatestTime("typhoon2015_buffer.json");
+      var start2 = findFastestTime("typhoon2016_buffer.json");
+      var end2 = findLatestTime("typhoon2016_buffer.json");
+
+      if (start1 > start2) {
+          start = start2;
+      } else {
+          start = start1;
+      }
+      if (end1 > end2) {
+          end = end1;
+      } else {
+          end = end2;
+      }
+
+      start_time_global = start;
+      end_time_global = end;
+      polygon_all = true;
+
+      $.getJSON("typhoon2015_buffer.json", function(p_data) {
+          for (var i = 0; i < p_data.features.length; i++) {
+              getMovingPolygon(i, "typhoon2015_buffer.json");
+          }
+
+
+      });
+      $.getJSON("typhoon2016_buffer.json", function(p_data) {
+          for (var i = 0; i < p_data.features.length; i++) {
+              getMovingPolygon(i, "typhoon2016_buffer.json");
+          }
+
+
+      });
+
+      start = Cesium.JulianDate.fromDate(start);
+      end = Cesium.JulianDate.fromDate(end);
+      setClock(start,end,3000);
+    }
+
+
+
+}
+
 function getMovingPolygon(radioItem, filename) {
     var filename_name = filename.toString();
     filename_name = filename_name.split(".")[0];
@@ -86,9 +155,16 @@ function getMovingPolygon(radioItem, filename) {
             czml_poly = [];
             var new_czml_poly = {};
             var color_info = {};
-            var availability = timeline[0].toString();
-            availability += "/";
-            availability += timeline[timeline.length - 1].toString();
+            var availability;
+            if (polygon_all == true) {
+                availability = start_time_global.toISOString();
+                availability += "/";
+                availability += end_time_global.toISOString();
+            } else {
+                availability = timeline[0].toString();
+                availability += "/";
+                availability += timeline[timeline.length - 1].toString();
+            }
 
             new_czml_poly.id = "document";
             new_czml_poly.version = "1.0";
@@ -115,58 +191,56 @@ function getMovingPolygon(radioItem, filename) {
 
             for (var j = 0; j < 8; j++) {
                 new_czml_poly = {};
-                if(interpolation == "Spline" || interpolation == "Linear"){
-                  new_czml_poly.id = "polygons" + j.toString();
-                  new_czml_poly.position = {};
-                  new_czml_poly.position.interval = availability;
-                  new_czml_poly.position.epoch = timeline[0];
-                  new_czml_poly.position.cartographicDegrees = [];
-                  if (interpolation == "Spline") {
-                      new_czml_poly.position.interpolationDegree = 2;
-                      new_czml_poly.position.interpolationAlgorithm = "LAGRANGE";
-                      for (var i = 0; i < ty_new_point.length; i++) {
-                          new_czml_poly.position.cartographicDegrees.push(timeline[i]);
-                          new_czml_poly.position.cartographicDegrees.push(ty_new_point[i][j][0], ty_new_point[i][j][1], ty_new_point[i][j][2]);
+                if (interpolation == "Spline" || interpolation == "Linear") {
+                    new_czml_poly.id = "polygons" + j.toString();
+                    new_czml_poly.position = {};
+                    new_czml_poly.position.interval = availability;
+                    new_czml_poly.position.epoch = timeline[0];
+                    new_czml_poly.position.cartographicDegrees = [];
+                    if (interpolation == "Spline") {
+                        new_czml_poly.position.interpolationDegree = 2;
+                        new_czml_poly.position.interpolationAlgorithm = "LAGRANGE";
+                        for (var i = 0; i < ty_new_point.length; i++) {
+                            new_czml_poly.position.cartographicDegrees.push(timeline[i]);
+                            new_czml_poly.position.cartographicDegrees.push(ty_new_point[i][j][0], ty_new_point[i][j][1], ty_new_point[i][j][2]);
 
-                      }
-                      czml_poly.push(new_czml_poly);
-                  } else if (interpolation == "Linear") {
-                      new_czml_poly.position.interpolationAlgorithm = "LINEAR";
-                      new_czml_poly.position.interpolationDegree = 1;
-                      for (var i = 0; i < ty_new_point.length; i++) {
-                          new_czml_poly.position.cartographicDegrees.push(timeline[i]);
-                          new_czml_poly.position.cartographicDegrees.push(ty_new_point[i][j][0], ty_new_point[i][j][1], ty_new_point[i][j][2]);
-                      }
-                      czml_poly.push(new_czml_poly);
-                  }
-                }
-                else {
-                    for (var k = 0; k < ty_new_point.length; k++) {
-                      new_czml_poly = {};
-                      var availability_temp = timeline[k].toString();
-                      availability_temp += "/";
-                      if(interpolation == "Discrete"){
-                        var next_time = changeISO2Date(timeline[k]);
-                        next_time = new Date(next_time.getTime() + 10000000);
-                        next_time = next_time.toISOString();
-                        availability_temp += next_time.toString();
-                      }
-                      else if(interpolation == "Stepwise"){
-                        if (k == ty_new_point.length - 1) {
-                            availability_temp += timeline[k].toString();
-                        } else {
-                            availability_temp += timeline[k + 1].toString();
                         }
-                      }
-                      new_czml_poly.id = "polygons" + j.toString() + k.toString();
-                      new_czml_poly.position = {};
-                      new_czml_poly.position.interval = availability_temp;
-                      new_czml_poly.position.epoch = timeline[0];
-                      new_czml_poly.position.cartographicDegrees = [];
-                      new_czml_poly.position.interpolationAlgorithm = "LINEAR";
-                      new_czml_poly.position.interpolationDegree = 1;
-                      new_czml_poly.position.cartographicDegrees.push(ty_new_point[k][j][0], ty_new_point[k][j][1], ty_new_point[k][j][2]);
-                      czml_poly.push(new_czml_poly);
+                        czml_poly.push(new_czml_poly);
+                    } else if (interpolation == "Linear") {
+                        new_czml_poly.position.interpolationAlgorithm = "LINEAR";
+                        new_czml_poly.position.interpolationDegree = 1;
+                        for (var i = 0; i < ty_new_point.length; i++) {
+                            new_czml_poly.position.cartographicDegrees.push(timeline[i]);
+                            new_czml_poly.position.cartographicDegrees.push(ty_new_point[i][j][0], ty_new_point[i][j][1], ty_new_point[i][j][2]);
+                        }
+                        czml_poly.push(new_czml_poly);
+                    }
+                } else {
+                    for (var k = 0; k < ty_new_point.length; k++) {
+                        new_czml_poly = {};
+                        var availability_temp = timeline[k].toString();
+                        availability_temp += "/";
+                        if (interpolation == "Discrete") {
+                            var next_time = changeISO2Date(timeline[k]);
+                            next_time = new Date(next_time.getTime() + 10000000);
+                            next_time = next_time.toISOString();
+                            availability_temp += next_time.toString();
+                        } else if (interpolation == "Stepwise") {
+                            if (k == ty_new_point.length - 1) {
+                                availability_temp += timeline[k].toString();
+                            } else {
+                                availability_temp += timeline[k + 1].toString();
+                            }
+                        }
+                        new_czml_poly.id = "polygons" + j.toString() + k.toString();
+                        new_czml_poly.position = {};
+                        new_czml_poly.position.interval = availability_temp;
+                        new_czml_poly.position.epoch = timeline[0];
+                        new_czml_poly.position.cartographicDegrees = [];
+                        new_czml_poly.position.interpolationAlgorithm = "LINEAR";
+                        new_czml_poly.position.interpolationDegree = 1;
+                        new_czml_poly.position.cartographicDegrees.push(ty_new_point[k][j][0], ty_new_point[k][j][1], ty_new_point[k][j][2]);
+                        czml_poly.push(new_czml_poly);
                     }
                 }
             }
@@ -184,6 +258,7 @@ function getMovingPolygon(radioItem, filename) {
                     }
                 }
             }
+
 
             viewer.dataSources.add(Cesium.CzmlDataSource.load(czml_poly));
 

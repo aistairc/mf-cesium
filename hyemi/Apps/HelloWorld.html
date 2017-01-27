@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <!-- Use correct character set. -->
     <meta charset="utf-8">
     <!-- Tell IE to use the latest, best version. -->
@@ -19,6 +20,7 @@
     <script src="../js/calculatePoint.js"></script>
     <script src="../js/getMovingFeatures.js"></script>
     <script src="../js/utility.js"></script>
+    <script src="../js/sendRequest.js"></script>
     <script src="../js/plotly-latest.min.js"></script>
     <style>
         @import url(Sandcastle/templates/bucket.css);
@@ -57,16 +59,17 @@
 <body>
           <div id="cesiumContainer" class="fullSize"></div>
           <div id="toolbar">
+              <input id = "get_server" type = "button" onclick = "sendRequest()" value = "send first request"></input>
               <input id="polygon_typhoon2015" type="button" onclick="polygon_typhoon(this)" value="polygon_typhoon2015"></input>
               <input id="polygon_typhoon2016" type="button" onclick="polygon_typhoon(this)" value="polygon_typhoon2016"></input>
               <input id="point_typhoon" type="button" onclick="point_typhoon()" value="point_typhoon"></input>
+              <input id="button_triangle" type="button" onclick="getSurface('example.json')" value="print linestrings surfaces"></input>
+              <input id="button_triangle_moving" type="button" onclick="getMovingUnsamePolygon('example.json')" value="print linestrings moving"></input>
+              <input id="button_all_moving" type="button" onclick="getMovingAll()" value="all_typhoon_moving"></input>
               <div id="toolbar_point"></div>
               <div id="toolbar_polygon"></div>
               <div id="toolbar_polygon2"></div>
-              <input id="button_triangle" type="button" onclick="getSurface('example.json')" value="print linestrings surfaces"></input>
-              <input id="button_triangle_moving" type="button" onclick="getMovingUnsamePolygon('example.json')" value="print linestrings moving"></input>
-              <input id="button_all_moving" type="button" onclick="getMovingAllPolygon('typhoon2015_buffer.json')" value="all_typhoon_moving_2015"></input>
-              <input id="button_all_moving" type="button" onclick="getMovingAllPolygon('typhoon2016_buffer.json')" value="all_typhoon_moving_2016"></input>
+              <div id = "get_server_info"></div>
           </div>
 
 
@@ -118,6 +121,8 @@
         var maked_instances = new Array();
         var typhoon_2016 = new Cesium.PrimitiveCollection();
         var typhoon_2015 = new Cesium.PrimitiveCollection();
+
+        var polygon_all = false;
 
         scene.morphComplete.addEventListener(function() {
             changeMode();
@@ -407,34 +412,13 @@
             var new_point;
             var name_list = [];
             var p_ty = new Array();
-
+            printNames(filename, label_id);
             $.getJSON(filename, function(p_data) {
                 gl_p_data = p_data;
                 for (var i = 0; i < gl_p_data.features.length; i++) {
                     name_list.push(gl_p_data.features[i].properties.name);
                 }
-                var label_list = "";
-                for (var k = 0; k < name_list.length; k++) {
-                    label_list += "<label style = 'color:white' onclick = 'changeColor_poly(";
-                    label_list += k;
-                    label_list += ",";
-                    label_list += "\"";
-                    label_list += filename;
-                    label_list += "\"";
-                    label_list += ")'>";
-                    label_list += name_list[k];
-                    label_list += "</label>";
-                    label_list += "<input type = 'checkbox' onclick = 'getMovingPolygon(";
-                    label_list += k;
-                    label_list += ",";
-                    label_list += "\"";
-                    label_list += filename;
-                    label_list += "\"";
-                    label_list += ")'></input></br>";
 
-                }
-
-                document.getElementById(label_id.toString()).innerHTML = label_list;
 
                 if (scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
 
@@ -495,6 +479,7 @@
                         });
                         typhoonCollection.add(typhoon_poly);
                     }
+                    viewer.scene.primitives.add(typhoonCollection);
 
                 } else {
                     gl_p_data = p_data;
