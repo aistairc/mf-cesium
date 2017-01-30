@@ -16,6 +16,7 @@
   <script src="../js/Func.js"></script>
   <script src="../js/MovingFeatureList.js"></script>
   <script src="../js/MovingPolygon.js"></script>
+  <script src="../js/MovingPoint.js"></script>
   <script src="../js/MovingLineString.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
 
@@ -84,7 +85,7 @@
   </table>
 
   <br />
-      <input type="button" onclick="viewMain()" value="Main"> </input>
+      <input id="btn_main" type="button" onclick="viewMain()" value="Main"> </input>
   <br />
   <div id="btn_div" style="visibility:hidden">
     <input type="button" value="ANIMATION" onclick="animateCheckedFeatures()" > </input>
@@ -105,7 +106,7 @@
   scene = viewer.scene;
   scene.primitives.destroyPrimitives = false;
   viewer.clock.shouldAnimate = false;
-  mfl = new MovingFeatureList();
+  //mfl = new MovingFeatureList();
 
   viewer.clock.shouldAnimate = false;
 

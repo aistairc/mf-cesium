@@ -1,10 +1,13 @@
 var viewer;
 var scene;
 
-var mfl; // moving feature list
+var active_mfl;
+var mfl = {}; // array of featurelist
 var LOG = console.log;
 
 function MovingFeatureList(){
+  this.id = null;
+  this.name = null;
   this.list = {};
   this.name_list = [];
 }
@@ -12,7 +15,7 @@ function MovingFeatureList(){
 
 function MovingFeature(){
   this.height_arr = [];
-
+  this.viewer;
 }
 
 
@@ -27,6 +30,7 @@ MovingPolygon.prototype.constructor = MovingPolygon;
 
 function MovingPoint(){
   MovingFeature.apply(this, arguments);
+  this.line_prim_3d = null;
 }
 
 MovingPoint.prototype = new MovingFeature();

@@ -1,13 +1,17 @@
 
 function init(){
 
-  mfl = new MovingFeatureList();
+  requestFeatureLayersAndShow();
 
 
-  //requestFeatureLayersAndShow();
+
   $('.test').click( function() {
-    mfl.loadFeaturesInLocalJSONFile($(this).attr('id')).then(
-      testInLocal
+    var new_mfl = new MovingFeatureList();
+    new_mfl.id = 'local';
+    mfl['local'] = new_mfl;
+    active_mfl = new_mfl;
+    new_mfl.loadFeaturesInLocalJSONFile($(this).attr('id')).then(
+
     );
   })
 
@@ -28,25 +32,20 @@ function init(){
 
 }
 
-  init();
-function showFirstList(){
-  var url = getParameterByName('url');
-  LOG(url);
-  $.getJSON(url+'/$ref', function(data){
+init();
 
-  });
-}
-
-function testInLocal(){
-  $('#name_list').empty();
-  showListTable('name_list');
-  $('#btn_div').css('visibility','visible');
+function showLoading(){
+  document.getElementById('btn_main').visibility = 'hidden';
+  document.getElementById('name_list').innerHTML = '<h1>Loading..</h1>';
 }
 
 function showListTable(table_id='name_list'){
-
+  LOG(mfl);
+  document.getElementById('btn_main').visibility = 'visibile';
+  $('#name_list').empty();
+  $('#btn_div').css('visibility','visible');
   var table = document.getElementById(table_id);
-  var list = mfl.getAllNameList();
+  var list = active_mfl.getAllNameList();
 
   for (var i = 0 ; i < list.length ; i++){
     var id = list[i].id;
@@ -78,7 +77,7 @@ function selectProperty(id, table_id='property_list'){
   table.style.visibility = 'visible';
   table.style.cursor = 'pointer';
 
-  var obj = mfl.getById(id);
+  var obj = active_mfl.getById(id);
 
   var property_list = obj.temporalProperties;
 
@@ -138,11 +137,13 @@ function showProperty(object){
 
   var data = [];
 
-  var dateparse = d3.timeParse("%Y-%m-%d %H:%M:%S");
+  var dateparse = d3.timeParse("%Y-%m-%dT%H:%M:%S.000Z");
 
   for (var i = 0 ; i < object.datetimes.length ; i++){
     var comp = {};
-    comp.date = dateparse(object.datetimes[i]);
+    var da = new Date(object.datetimes[i]).toISOString();
+
+    comp.date = dateparse(da);
     comp.value = object.values[i];
     data.push(comp);
   }

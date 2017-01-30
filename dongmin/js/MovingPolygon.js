@@ -7,7 +7,7 @@ MovingPolygon.prototype.visualizePath3D = function(){
   viewer.scene.primitives.add(this.triangles_prim_3d);
 }
 
-MovingPolygon.prototype.animateWithArray = function(id_arr, with_height = false){
+MovingPolygon.prototype.animateWithArray = function(mfl, id_arr, with_height = false){
   viewer.dataSources.removeAll();
 
   var czml = [{
@@ -86,6 +86,8 @@ MovingPolygon.prototype.animateWithArray = function(id_arr, with_height = false)
       else{
         interpolations = "LINEAR";
       }
+
+      if (geometry.coordinates.length == 0) continue;
 
       for (var i = 0 ; i < geometry.coordinates[0].length-1 ; i++){
         var v = {};
@@ -191,8 +193,11 @@ MovingPolygon.prototype.animateWithArray = function(id_arr, with_height = false)
     "multiplier" : multiplier
   }
 
-  var load_czml = Cesium.CzmlDataSource.load(czml)
-  viewer.dataSources.add(load_czml);
+  if (czml.length > 2){
+    var load_czml = Cesium.CzmlDataSource.load(czml)
+    viewer.dataSources.add(load_czml);
+
+  }
   LOG(czml);
 }
 

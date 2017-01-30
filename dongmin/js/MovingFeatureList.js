@@ -1,13 +1,14 @@
 //MovingFeatureList.prototype.getById(id){}
+MovingFeatureList.prototype.requestFeatureList = function(feature_url){
+  var url = getParameterByName('url');
+  var mfl =this;
+  showLoading();
+  return $.getJSON(url +'/'+feature_url , function(data){
 
-
-MovingFeatureList.prototype.loadFeaturesInLocalJSONFile = function(path){
-  var mfl = this;
-  return $.getJSON(path, function(data){
     if (data.features == undefined){
       for (var i = 0 ; i < data.length ; i++){
-        var obj = getNewFeature(data[i].temporalGeometry);
-
+        var obj = MovingFeature.getNewFeature(data[i].temporalGeometry);
+        obj.viewer = viewer;
         if (data[i].id == undefined){
           obj.id = 'mf' + Object.keys(mfl.list).length;//mfl.list.length;
         }
@@ -21,7 +22,8 @@ MovingFeatureList.prototype.loadFeaturesInLocalJSONFile = function(path){
     else{
       mfl.name = data.name;
       for (var i = 0 ; i < data.features.length ; i++){
-        var obj = getNewFeature(data.features[i].temporalGeometry);
+        var obj = MovingFeature.getNewFeature(data.features[i].temporalGeometry);
+        obj.viewer = viewer;
 
         if (data.features[i].id == undefined){
           obj.id = 'mf' + Object.keys(mfl.list).length;
@@ -33,8 +35,52 @@ MovingFeatureList.prototype.loadFeaturesInLocalJSONFile = function(path){
         //mfl.list.push(obj);
         mfl.name_list.push({'name' : data.features[i].properties.name, 'id' : obj.id});
 
+      }
     }
-  }
+
+    showListTable();
+  });
+}
+
+MovingFeatureList.prototype.loadFeaturesInLocalJSONFile = function(path){
+  var mfl = this;
+  showLoading();
+  return $.getJSON(path, function(data){
+
+    if (data.features == undefined){
+      for (var i = 0 ; i < data.length ; i++){
+        var obj = MovingFeature.getNewFeature(data[i].temporalGeometry);
+        obj.viewer = viewer;
+        if (data[i].id == undefined){
+          obj.id = 'mf' + Object.keys(mfl.list).length;//mfl.list.length;
+        }
+
+        mergeObject(obj, data[i]);
+        //mfl.list.push(obj);
+        mfl.list[obj.id] = obj;
+        mfl.name_list.push({'name' : data[i].properties.name, 'id' : obj.id});
+      }
+    }
+    else{
+      mfl.name = data.name;
+      for (var i = 0 ; i < data.features.length ; i++){
+        var obj = MovingFeature.getNewFeature(data.features[i].temporalGeometry);
+        obj.viewer = viewer;
+
+        if (data.features[i].id == undefined){
+          obj.id = 'mf' + Object.keys(mfl.list).length;
+        }
+
+        mergeObject(obj, data.features[i]);
+        mfl.list[obj.id] = obj;
+
+        //mfl.list.push(obj);
+        mfl.name_list.push({'name' : data.features[i].properties.name, 'id' : obj.id});
+
+      }
+    }
+
+    showListTable();
   });
 
 }
@@ -56,6 +102,7 @@ MovingFeatureList.prototype.getGeometryListByIdArray = function(id_arr){
   }
   return geos;
 }
+
 MovingFeatureList.prototype.getById = function(id){
 
   if (typeof this.list[id] != 'undefined')
@@ -81,11 +128,11 @@ MovingFeatureList.prototype.getTemporalGeometryById = function(id){
 }
 
 
-MovingFeatureList.animateMoving = function(id_arr, with_height){
+MovingFeatureList.prototype.animateMoving = function(id_arr, with_height){
 
   var type = null;
   for (var i = 0 ; i < id_arr.length ; i++){//check same type.
-    var geometry = mfl.getTemporalGeometryById(id_arr[i]);
+    var geometry = this.getTemporalGeometryById(id_arr[i]);
 
     if (type == null){
       type = geometry.type;
@@ -101,14 +148,13 @@ MovingFeatureList.animateMoving = function(id_arr, with_height){
 
   if (with_height){
     for (var i = 0 ; i < id_arr.length ; i++){
-      mfl.getById(id_arr[i]).visualizePath3D();
+      this.getById(id_arr[i]).visualizePath3D();
     }
   }
 
-  LOG(id_arr);
-  var first_data = mfl.getById(id_arr[0]);
-  LOG(first_data);
-  first_data.animateWithArray(id_arr, with_height);
+  var first_data = this.getById(id_arr[0]);
+
+  first_data.animateWithArray(this, id_arr, with_height);
 
   return type;
 }

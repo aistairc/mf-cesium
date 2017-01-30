@@ -2,24 +2,6 @@ function mergeObject(obj1, obj2){
   for (var attrname in obj2) { obj1[attrname] = obj2[attrname]; }
 }
 
-function getNewFeature(geometry){
-  var obj;
-  if (geometry.type == 'MovingPolygon'){
-    obj = new MovingPolygon();
-  }
-  else if (geometry.type == 'MovingPoint'){
-    obj = new MovingPoint();
-  }
-  else if (geometry.type == 'MovingLineString'){
-    obj = new MovingLineString();
-  }
-  else{
-    alert("undefined type");
-    return;
-  }
-  return obj;
-}
-
 var calculateDist = function(point_1, point_2){
   return Math.sqrt(Math.pow(point_1[0] - point_2[0],2) + Math.pow(point_1[1] - point_2[1],2));
 }
@@ -64,4 +46,24 @@ function getParameterByName(name, url) {
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+
+var makePolylineCollection= function(position, r_color , width = 3){
+  var polylines = new Cesium.PolylineCollection();
+
+  var material = new Cesium.Material.fromType('Color');
+  material.uniforms.color = r_color;
+
+  for (var i = 0 ; i < position.length ; i++){
+    polylines.add({
+      positions :  Cesium.Cartesian3.fromDegreesArrayHeights(position[i]) ,
+      width : width,
+      material : material
+    });
+  }
+
+
+  return polylines;
+
 }

@@ -4,7 +4,6 @@ MovingLineString.prototype.calculateHeight = function(){
   var min_max_date = findMinMaxTime(this.temporalGeometry.datetimes);
 
   for (var i = 0 ; i < date_arr.length ; i ++){
-
     this.height_arr.push(normalizeTime(new Date(date_arr[i]), min_max_date));
   }
 }
@@ -13,10 +12,18 @@ MovingLineString.prototype.visualizePath3D = function(){
   if (this.height_arr.length == 0){
     this.calculateHeight();
   }
-  
+
+  for (var i = 0 ; i < this.triangles_prim_3d.length ; i++){
+    viewer.scene.primitives.add(this.triangles_prim_3d[i]);
+  }
+  LOG(this.triangles_prim_3d);
+  LOG(this)
 }
 
 MovingLineString.prototype.calculatePathForEachPoint = function(){
+  if (this.height_arr.length == 0){
+    this.calculateHeight();
+  }
   var pre_polyline;
   var coord_arr = this.temporalGeometry.coordinates;
   for (var i = 0; i < coord_arr.length ; i++){
@@ -135,7 +142,7 @@ MovingLineString.prototype.makeTriangles = function(line_1, line_2, height1, hei
   return array;
 }
 
-MovingLineString.prototype.animateWithArray = function (id_arr, with_height){
+MovingLineString.prototype.animateWithArray = function (mfl, id_arr, with_height){
   var multiplier = 10000;
 
   viewer.dataSources.removeAll();
