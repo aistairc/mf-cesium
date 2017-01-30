@@ -7,16 +7,17 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
-  <title>old version</title>
+  <title>Hello World!</title>
   <script src="../Build/Cesium/Cesium.js"></script>
   <script src="jquery-3.1.1.js"></script>
-  <script src="js/Model.js"></script>
-  <script src="js/Polygon.js"></script>
-  <script src="js/Point.js"></script>
-  <script src="js/Func.js"></script>
-  <script src="js/Polyline.js"></script>
-  <script src="js/showPr.js"></script>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="../js/Model.js"></script>
+  <script src="../js/MovingFeature.js"></script>
+  <script src="../js/Loader.js"></script>
+  <script src="../js/Func.js"></script>
+  <script src="../js/MovingFeatureList.js"></script>
+  <script src="../js/MovingPolygon.js"></script>
+  <script src="../js/MovingLineString.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
 
   <style>
 
@@ -46,19 +47,31 @@
   <div id="list" style="background-color:transparent; color:white; margin:5px;
   position:absolute; top:0px; width:260px; z-index:2;">
 
-  <div id="title">typhoonlist</div>
+  <div id="title"></div>
   <table style="width:520px;">
   <tr>
     <td>
       <table id="name_list" style="width:260px; background-color:rgba(200,200,200,0.3);">
+
         <tr>
-          <td onclick="show_list('point')"> point typhoon </td>
+          <td class="test" id="json_data/point.json">
+            POINT
+          </td>
         </tr>
         <tr>
-          <td onclick="select_year()"> polygon typhoon </td>
+          <td class="test" id="json_data/polyline.json">
+            Polyline
+          </td>
         </tr>
         <tr>
-          <td onclick="show_list('line')"> polyline test </td>
+          <td class="test"  id="json_data/polygon2015.json">
+            Polygon2015
+          </td>
+        </tr>
+        <tr>
+          <td class="test" id="json_data/polygon2016.json">
+            Polygon2016
+          </td>
         </tr>
       </table>
     </td>
@@ -74,7 +87,7 @@
       <input type="button" onclick="viewMain()" value="Main"> </input>
   <br />
   <div id="btn_div" style="visibility:hidden">
-    <input type="button" value="ANIMATION" onclick="animate_moving()" > </input>
+    <input type="button" value="ANIMATION" onclick="animateCheckedFeatures()" > </input>
   </div>
 
   <br />
@@ -87,10 +100,20 @@
 
 </body>
 
-<script src="js/html_viewer.js"></script>
+<script>
+  viewer = new Cesium.Viewer('cesiumContainer');
+  scene = viewer.scene;
+  scene.primitives.destroyPrimitives = false;
+  viewer.clock.shouldAnimate = false;
+  mfl = new MovingFeatureList();
+
+  viewer.clock.shouldAnimate = false;
 
 
 
+</script>
+<script src="../js/ViewerWithHTML.js"></script>
+<script src="../js/ViewerForCesium.js"></script>
 
 
 </html>
