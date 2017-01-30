@@ -1,13 +1,19 @@
-MovingPolygon.prototype.visualizePath3D = function(){
-  if (this.triangles_prim_3d == undefined){//make triangle
-    //LOG(this);
+
+MovingPolygon.prototype.get3D = function(){
+  if (this.triangles_prim_3d == undefined){
     this.makePrimitive3d();
   }
-
-  viewer.scene.primitives.add(this.triangles_prim_3d);
+  return this.triangles_prim_3d;
 }
 
-MovingPolygon.prototype.animateWithArray = function(mfl, id_arr, with_height = false){
+MovingPolygon.prototype.get2D = function(){
+  if (this.prim_2d == undefined){
+    this.makePrimitive2d();
+  }
+  return this.prim_2d;
+}
+
+MovingPolygon.prototype.animateWithArray = function(id_arr, with_height = false){
   viewer.dataSources.removeAll();
 
   var czml = [{
@@ -19,7 +25,7 @@ MovingPolygon.prototype.animateWithArray = function(mfl, id_arr, with_height = f
 
   var global_availabilty, global_start, global_stop;
 
-  var geo_list = mfl.getGeometryListByIdArray(id_arr);
+  var geo_list = active_mfl.getGeometryListByIdArray(id_arr);
 
   global_start = new Date(geo_list[0].datetimes[0]).toISOString();
   global_stop = global_start;
@@ -198,7 +204,7 @@ MovingPolygon.prototype.animateWithArray = function(mfl, id_arr, with_height = f
     viewer.dataSources.add(load_czml);
 
   }
-  LOG(czml);
+  LOG('czml',czml);
 }
 
 MovingPolygon.makeVolumePolygonPair = function(poly_1, poly_2, color){
@@ -264,8 +270,6 @@ var makePolygonWithHeight = function (position, r_color){
   } ));
 };
 
-
-
 MovingPolygon.prototype.makePrimitive3d = function(){
   var instances = [];
   var r_color = Cesium.Color.fromRandom({
@@ -317,4 +321,70 @@ MovingPolygon.prototype.makePrimitive3d = function(){
   });
 
   this.triangles_prim_3d = prim;
+}
+
+
+MovingPolygon.makePolygon = function (position, r_color){
+  var vertexF = new Cesium.VertexFormat({
+    position : true,
+    st : false,
+    normal : true,
+    color : true
+  });
+  var polygon = new Cesium.PolygonGeometry({
+    polygonHierarchy : new Cesium.PolygonHierarchy(
+      Cesium.Cartesian3.fromDegreesArray(position)
+    ),
+    vertexFormat : vertexF
+  });
+
+  var p_geometry = Cesium.PolygonGeometry.createGeometry(polygon);
+
+  return (new Cesium.GeometryInstance({
+    geometry : p_geometry,
+    attributes : {
+      color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
+    }
+
+  } ));
+};
+
+
+
+MovingPolygon.prototype.makePrimitive2d = function(){
+  var instances = [];
+  var r_color = Cesium.Color.fromRandom({
+    red : 0.0,
+    minimumBlue : 0.2,
+    minimumGreen : 0.2,
+    alpha : 0.3
+  });
+
+  var geometry = this.temporalGeometry;
+
+  for (var j = 0 ; j < geometry.coordinates.length ; j ++){
+
+    var position = [];
+
+    for (var k = 0 ; k < geometry.coordinates[j].length ; k++){
+      var long_lat = geometry.coordinates[j][k];
+      position.push(long_lat[0]);
+      position.push(long_lat[1]);
+    }
+
+    instances.push(MovingPolygon.makePolygon(position,r_color));
+
+  }
+
+
+  var temp = new Cesium.Primitive({
+    geometryInstances : instances,
+    //    releaseGeometryInstances : false,
+    appearance : new Cesium.PerInstanceColorAppearance({
+      //translucent : false
+    }),
+    show : true
+  });
+
+  this.prim_2d = temp;
 }

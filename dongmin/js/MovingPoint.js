@@ -1,8 +1,20 @@
 MovingPoint.prototype.visualizePath3D = function(){
+
+
+}
+
+MovingPoint.prototype.get3D = function(){
   if (this.line_prim_3d == null){
     this.makeLinePrimitive();
   }
-  this.viewer.scene.primitives.add(this.line_prim_3d);
+  return this.line_prim_3d;
+}
+
+MovingPoint.prototype.get2D = function(){
+  if (this.line_prim_2d == null){
+    this.makeLinePrimitive();
+  }
+  return this.line_prim_2d;
 }
 
 MovingPoint.prototype.makeLinePrimitive = function(){
@@ -17,8 +29,23 @@ MovingPoint.prototype.makeLinePrimitive = function(){
   positions.push(MovingPoint.getPosition3d(this.temporalGeometry));
   this.line_prim_3d = makePolylineCollection(positions,r_color);
 
+  var positions2 =[];
+  positions2.push(MovingPoint.getPosition2d(this.temporalGeometry));
+  this.line_prim_2d = makePolylineCollection(positions2,r_color);
+
 }
 
+MovingPoint.getPosition2d = function(geometry){
+  var posi_arr = [];
+
+  for ( var j = 0 ; j < geometry.coordinates.length ; j++ ){
+    posi_arr.push(geometry.coordinates[j][1]);
+    posi_arr.push(geometry.coordinates[j][0]);
+    posi_arr.push(1000);
+  }
+
+  return posi_arr;
+}
 
 
 MovingPoint.getPosition3d = function(geometry){
@@ -56,7 +83,7 @@ MovingPoint.findMinMaxTime = function(datetimes){
 }
 
 
-MovingPoint.prototype.animateWithArray = function(mfl, id_arr, with_height){
+MovingPoint.prototype.animateWithArray = function(id_arr, with_height){
   var multiplier = 10000;
 
   LOG(viewer.dataSources);
@@ -73,7 +100,7 @@ MovingPoint.prototype.animateWithArray = function(mfl, id_arr, with_height){
 
   for (var id_index = 0 ; id_index < id_arr.length ; id_index++){
     var p_id = id_arr[id_index];
-    var geometry = mfl.list[p_id].temporalGeometry;
+    var geometry = active_mfl.list[p_id].temporalGeometry;
 
     var min_max_date = [];
     min_max_date = MovingPoint.findMinMaxTime(geometry.datetimes);
@@ -194,7 +221,7 @@ MovingPoint.prototype.animateWithArray = function(mfl, id_arr, with_height){
         "multiplier" : multiplier
   }
 
-  LOG(czml);
+  LOG('czml',czml);
   var load_czml = Cesium.CzmlDataSource.load(czml)
   viewer.dataSources.add(load_czml);
 }

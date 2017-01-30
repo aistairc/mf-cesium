@@ -8,16 +8,29 @@ MovingLineString.prototype.calculateHeight = function(){
   }
 }
 
-MovingLineString.prototype.visualizePath3D = function(){
+MovingLineString.prototype.get3D = function(){
   if (this.height_arr.length == 0){
     this.calculateHeight();
   }
+  if (this.triangles_prim_3d.length == 0){
+    this.calculatePathForEachPoint();
+  }
+
+  return this.triangles_prim_3d;
+}
+
+
+MovingLineString.prototype.get2D = function(){
+  return null;
+}
+
+
+MovingLineString.prototype.visualizePath3D = function(){
 
   for (var i = 0 ; i < this.triangles_prim_3d.length ; i++){
     viewer.scene.primitives.add(this.triangles_prim_3d[i]);
   }
-  LOG(this.triangles_prim_3d);
-  LOG(this)
+
 }
 
 MovingLineString.prototype.calculatePathForEachPoint = function(){
@@ -137,12 +150,12 @@ MovingLineString.prototype.makeTriangles = function(line_1, line_2, height1, hei
     }),
     show : true
   });
-
+  LOG(instances);
   this.triangles_prim_3d.push(temp);
   return array;
 }
 
-MovingLineString.prototype.animateWithArray = function (mfl, id_arr, with_height){
+MovingLineString.prototype.animateWithArray = function (id_arr, with_height){
   var multiplier = 10000;
 
   viewer.dataSources.removeAll();
@@ -158,10 +171,10 @@ MovingLineString.prototype.animateWithArray = function (mfl, id_arr, with_height
   glo_stop = glo_start;
 
 
-  var geo_list = mfl.getGeometryListByIdArray(id_arr);
+  var geo_list = active_mfl.getGeometryListByIdArray(id_arr);
   for (var d = 0 ; d < id_arr.length ; d ++){
     var id = id_arr[d];
-    var mls = mfl.getById(id_arr[d]);
+    var mls = active_mfl.getById(id_arr[d]);
     var geometry = geo_list[d];
     var datetime = geometry.datetimes;
     var length = datetime.length;
@@ -321,7 +334,7 @@ MovingLineString.prototype.animateWithArray = function (mfl, id_arr, with_height
     "multiplier" : multiplier
   }
 
-  LOG(czml);
+  LOG('czma' , czml);
   var load_czml = Cesium.CzmlDataSource.load(czml)
   viewer.dataSources.add(load_czml);
 

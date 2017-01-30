@@ -23,6 +23,7 @@ function MovingPolygon(){
   MovingFeature.apply(this, arguments);
   this.polygon_prim_2d = [];
   this.triangles_prim_3d;
+  this.prim_2d;
 }
 
 MovingPolygon.prototype = new MovingFeature();
@@ -31,6 +32,7 @@ MovingPolygon.prototype.constructor = MovingPolygon;
 function MovingPoint(){
   MovingFeature.apply(this, arguments);
   this.line_prim_3d = null;
+  this.line_prim_2d = null;
 }
 
 MovingPoint.prototype = new MovingFeature();

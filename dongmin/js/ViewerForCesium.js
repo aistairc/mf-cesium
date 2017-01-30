@@ -14,9 +14,28 @@ function animateCheckedFeatures(){
 
     if (document.getElementById('check'+id).checked){
       id_arr.push(id);
+      if (viewer.scene.mode==Cesium.SceneMode.COLUMBUS_VIEW){
+        var prim = active_mfl.list[id].get3D();
+
+        if (Array.isArray(prim)){
+          for (var i = 0 ; i < prim.length ; i++){
+            viewer.scene.primitives.add(prim[i]);
+          }
+        }
+        else{
+          viewer.scene.primitives.add(prim);
+        }
+
+      }
+      else if ( viewer.scene.mode==Cesium.SceneMode.SCENE2D ){
+        viewer.scene.primitives.add(active_mfl.list[id].get2D())
+      }
+
     }
 
   }
 
   active_mfl.animateMoving(id_arr, viewer.scene.mode==Cesium.SceneMode.COLUMBUS_VIEW);
+
+
 }

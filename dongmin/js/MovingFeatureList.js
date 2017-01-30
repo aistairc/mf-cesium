@@ -146,15 +146,9 @@ MovingFeatureList.prototype.animateMoving = function(id_arr, with_height){
     }
   }
 
-  if (with_height){
-    for (var i = 0 ; i < id_arr.length ; i++){
-      this.getById(id_arr[i]).visualizePath3D();
-    }
-  }
-
   var first_data = this.getById(id_arr[0]);
 
-  first_data.animateWithArray(this, id_arr, with_height);
+  first_data.animateWithArray(id_arr, with_height);
 
   return type;
 }
