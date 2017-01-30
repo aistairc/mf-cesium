@@ -1,5 +1,73 @@
-var start_time_global;
-var end_time_global;
+function getMoving(radioItem) {
+    var id = radioItem.toString() + "_radioItem";
+
+    var check_id = document.getElementById(id);
+    if (contains(selected, radioItem)) {
+
+        if (!$(check_id).prop("checked")) {
+
+            viewer.entities.remove(viewer.entities.getById(id));
+            setDefaultClock();
+        } else if ($(check_id).prop("checked")) {
+
+            var moving_item = gl_data[radioItem].temporalGeometry;
+            var start = Cesium.JulianDate.fromDate(getTime(moving_item.datetimes[0]));
+            var stop = Cesium.JulianDate.fromDate(getTime(moving_item.datetimes[moving_item.datetimes.length - 1]));
+            setClock(start, stop, 6000);
+            var position = new Array();
+            var property = new Cesium.SampledPositionProperty();
+
+            if (scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
+                var time = moving_item.datetimes[0];
+                time = getTime(time);
+                for (var j  = 0 ; j < moving_item.coordinates.length ; j++) {
+                    position[3 * j] = moving_item.coordinates[j][1];
+                    position[3 * j + 1] = moving_item.coordinates[j][0];
+                    position[3 * j + 2] = ((getTime(moving_item.datetimes[j]) - time)/ 1000) * 3;
+                }
+
+                console.log(position);
+                for (var i = 0; i < moving_item.coordinates.length; i++) {
+                    var temp_position = Cesium.Cartesian3.fromDegrees(position[3 * i], position[3 * i + 1], position[3 * i + 2]);
+                    var temp_time = Cesium.JulianDate.fromDate(getTime(moving_item.datetimes[i]));
+                    property.addSample(temp_time, temp_position);
+                }
+
+            } else {
+
+                for (var j in moving_item.coordinates) {
+                    position[2 * j] = moving_item.coordinates[j][1];
+                    position[2 * j + 1] = moving_item.coordinates[j][0];
+                }
+                for (var i = 0; i < moving_item.coordinates.length; i++) {
+
+                    var temp_position = Cesium.Cartesian3.fromDegrees(position[2 * i], position[2 * i + 1]);
+                    var temp_time = Cesium.JulianDate.fromDate(getTime(moving_item.datetimes[i]));
+                    property.addSample(temp_time, temp_position);
+
+                }
+            }
+            console.log(property);
+            moving_id = radioItem.toString();
+            moving_id += "_";
+            moving_id += "radioItem";
+            moving_path = viewer.entities.add({
+                id: moving_id,
+                availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
+                    start: start,
+                    stop: stop
+                })]),
+                position: property,
+                ellipse: {
+                    semiMajorAxis: 50000.0,
+                    semiMinorAxis: 50000.0
+
+                }
+
+            });
+        }
+    }
+}
 
 function getMovingLineString(polyline1, timeline, polyline2, timeline2) { //in advanced, we put 3D points to this function.
     var point_list = calculateMovingPath(polyline1, polyline2);
@@ -42,64 +110,63 @@ function getMovingAllPolygon(filename) {
 
 function getMovingAll() {
     setDefaultClock();
-    if(polygon_all == true){
-      polygon_all = false;
-      $.getJSON("typhoon2015_buffer.json", function(p_data) {
-          for (var i = 0; i < p_data.features.length; i++) {
-              getMovingPolygon(i, "typhoon2015_buffer.json");
-          }
+    if (polygon_all == true) {
+        polygon_all = false;
+        $.getJSON("typhoon2015_buffer.json", function(p_data) {
+            for (var i = 0; i < p_data.features.length; i++) {
+                getMovingPolygon(i, "typhoon2015_buffer.json");
+            }
 
 
-      });
-      $.getJSON("typhoon2016_buffer.json", function(p_data) {
-          for (var i = 0; i < p_data.features.length; i++) {
-              getMovingPolygon(i, "typhoon2016_buffer.json");
-          }
+        });
+        $.getJSON("typhoon2016_buffer.json", function(p_data) {
+            for (var i = 0; i < p_data.features.length; i++) {
+                getMovingPolygon(i, "typhoon2016_buffer.json");
+            }
 
 
-      });
-    }
-    else{
-      var start;
-      var end;
-      var start1 = findFastestTime("typhoon2015_buffer.json");
-      var end1 = findLatestTime("typhoon2015_buffer.json");
-      var start2 = findFastestTime("typhoon2016_buffer.json");
-      var end2 = findLatestTime("typhoon2016_buffer.json");
+        });
+    } else {
+        var start;
+        var end;
+        var start1 = findFastestTime("typhoon2015_buffer.json");
+        var end1 = findLatestTime("typhoon2015_buffer.json");
+        var start2 = findFastestTime("typhoon2016_buffer.json");
+        var end2 = findLatestTime("typhoon2016_buffer.json");
 
-      if (start1 > start2) {
-          start = start2;
-      } else {
-          start = start1;
-      }
-      if (end1 > end2) {
-          end = end1;
-      } else {
-          end = end2;
-      }
+        if (start1 > start2) {
+            start = start2;
+        } else {
+            start = start1;
+        }
+        if (end1 > end2) {
+            end = end1;
+        } else {
+            end = end2;
+        }
 
-      start_time_global = start;
-      end_time_global = end;
-      polygon_all = true;
+        start_time_global = start;
+        end_time_global = end;
+        polygon_all = true;
 
-      $.getJSON("typhoon2015_buffer.json", function(p_data) {
-          for (var i = 0; i < p_data.features.length; i++) {
-              getMovingPolygon(i, "typhoon2015_buffer.json");
-          }
-
-
-      });
-      $.getJSON("typhoon2016_buffer.json", function(p_data) {
-          for (var i = 0; i < p_data.features.length; i++) {
-              getMovingPolygon(i, "typhoon2016_buffer.json");
-          }
+        $.getJSON("typhoon2015_buffer.json", function(p_data) {
+            for (var i = 0; i < p_data.features.length; i++) {
+                getMovingPolygon(i, "typhoon2015_buffer.json");
+            }
 
 
-      });
+        });
+        $.getJSON("typhoon2016_buffer.json", function(p_data) {
+            for (var i = 0; i < p_data.features.length; i++) {
+                getMovingPolygon(i, "typhoon2016_buffer.json");
+            }
 
-      start = Cesium.JulianDate.fromDate(start);
-      end = Cesium.JulianDate.fromDate(end);
-      setClock(start,end,3000);
+
+        });
+
+        start = Cesium.JulianDate.fromDate(start);
+        end = Cesium.JulianDate.fromDate(end);
+        setClock(start, end, 3000);
     }
 
 

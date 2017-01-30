@@ -63,7 +63,15 @@ function getInformation(radioItem, filename) {
             }
             var label_id = radioItem.toString() + filename.toString();
             var label_list = "";
-
+            label_list += "<div>"
+            label_list += "<div style = 'width : 50%; display: inline-block;'>";
+            label_list += "<h4>";
+            label_list += "properties</h4>";
+            label_list += get_data.type;
+            label_list += "</div>"
+            label_list += "<div style = 'width : 50%; display: inline-block;'>";
+            label_list += "<h4>";
+            label_list += "temporalProperties</h4>"
             for (var i = 0; i < properties_name.length; i++) {
                 var new_label_id = radioItem.toString() + "_" + i.toString() + "_" + filename.toString();
                 label_list += "<div id = '"
@@ -82,7 +90,9 @@ function getInformation(radioItem, filename) {
                 label_list += "</input>";
                 label_list += "</div>";
             }
-            console.log(label_list);
+            label_list += "</div>"
+            label_list += "</div>"
+            //console.log(label_list);
             document.getElementById(label_id.toString()).innerHTML = label_list;
 
         });
@@ -95,6 +105,7 @@ function getInformation(radioItem, filename) {
 }
 
 function printInfo(callValue) {
+    console.log(callValue);
     var info_index = callValue;
     var new_label_id = callValue;
     var typhoon_index;
@@ -118,71 +129,38 @@ function printInfo(callValue) {
                 interpolations = "spline";
             }
 
-            var myPlot = document.getElementById("footer"),
-            x = get_data.datetimes,
-            y = get_data.values,
-            colors =['#00000'],
-            data = [{x:x, y:y ,
-                     type:'scatter',
-                     mode:'markers', marker:{size:16, color:colors}}],
-            layout = {
-              hovermode : 'closest',
-              type : 'scatter'
-            };
-            Plotly.newPlot("footer",data,layout);
 
-            myPlot.on('plotly_hover', function(data){
-              var pn = '',
-              tn = '',
-              colors = [];
-              for(var i = 0 ; i < data.points.length; i++){
-                pn = data.points[i].pointNumber;
-                tn = data.points[i].curveNumber;
-                colors = data.points[i].data.marker.color;
-              };
-                colors[pn] = '#C54C82';
-                var update = {'marker':{color: colors, size:16}};
-                Plotly.restyle('footer', update, [tn]);
-                console.log([tn]);
-            });
-            myPlot.on('plotly_unhover', function(data){
-              var pn='',
-                  tn='',
-                  colors=[];
-              for(var i=0; i < data.points.length; i++){
-                pn = data.points[i].pointNumber;
-                tn = data.points[i].curveNumber;
-                colors = data.points[i].data.marker.color;
-              };
-              colors[pn] = '#00000';
-
-              var update = {'marker':{color: colors, size:16}};
-              Plotly.restyle('footer', update, [tn]);
-            });
-
-            /*
-            Plotly.purge(print_target);
-            Plotly.plot(print_target, [{
-                x: get_data.datetimes,
-                y: get_data.values
-            }], {
-                margin: {
-                    t: 0
-                }
-            }, {
-                line: {
-                    shape: interpolations
-                    },
-            },{
-                showlegend: true,
-                legend: {
-                    "orientation": "v"
-                }
-            },
-            {
+            var print_target = document.getElementById("footer");
+            var data = [{
+              x : get_data.datetimes,
+              y : get_data.values,
+              mode : 'lines',
+              line : {
+                shape : interpolations
+              }
+            }];
+            var layout = {
               hovermode : 'closest'
-            }
-              );*/
+            };
+
+            Plotly.purge(print_target);
+            Plotly.plot(print_target, data, layout);
+            var infotext;
+            print_target.on('plotly_hover',function(data){
+               infotext = data.points.map(function(d){
+                var temp_data = [];
+                temp_data.push(d.x,d.y);
+                return temp_data;
+              });
+              drawOnePolygon(infotext[0][0],typhoon_index,filename);
+            })
+            .on('plotly_unhover',function(data){
+              var p_id = infotext[0][0];
+              p_id += "_";
+              p_id += typhoon_index;
+              viewer.entities.remove(viewer.entities.getById(p_id));
+            });
+              //*/
         });
     } else {
         var print_target = document.getElementById("footer");
