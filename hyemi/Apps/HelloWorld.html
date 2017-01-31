@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <!-- Use correct character set. -->
     <meta charset="utf-8">
     <!-- Tell IE to use the latest, best version. -->
@@ -19,16 +20,22 @@
     <script src="../js/calculatePoint.js"></script>
     <script src="../js/getMovingFeatures.js"></script>
     <script src="../js/utility.js"></script>
+    <script src="../js/sendRequest.js"></script>
+    <script src="../js/drawingFeatures.js"></script>
     <script src="../js/plotly-latest.min.js"></script>
     <style>
         @import url(Sandcastle/templates/bucket.css);
-
-        html,body{height:100%;margin:0;}
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
 
         #toolbar {
             background: rgba(42, 42, 42, 0.8);
             padding: 2px;
             border-radius: 4px;
+              height: 80%;
         }
 
         #toolbar input {
@@ -42,37 +49,45 @@
             padding: 2px;
             border-radius: 4px;
         }
-    #cesiumContainer {
-      height : 80%;
-    }
-    #footer {
-      height : 20%;
-      position:absolute;
-      bottom:0px;
-    }
+
+        #cesiumContainer {
+            height: 80%;
+        }
+
+        #footer {
+            height: 20%;
+            position: absolute;
+            bottom: 0px;
+        }
 
     </style>
 </head>
 
 <body>
-          <div id="cesiumContainer" class="fullSize"></div>
-          <div id="toolbar">
-              <input id="polygon_typhoon2015" type="button" onclick="polygon_typhoon(this)" value="polygon_typhoon2015"></input>
-              <input id="polygon_typhoon2016" type="button" onclick="polygon_typhoon(this)" value="polygon_typhoon2016"></input>
-              <input id="point_typhoon" type="button" onclick="point_typhoon()" value="point_typhoon"></input>
-              <div id="toolbar_point"></div>
-              <div id="toolbar_polygon"></div>
-              <div id="toolbar_polygon2"></div>
-              <input id="button_triangle" type="button" onclick="getSurface('example.json')" value="print linestrings surfaces"></input>
-              <input id="button_triangle_moving" type="button" onclick="getMovingUnsamePolygon('example.json')" value="print linestrings moving"></input>
-              <input id="button_all_moving" type="button" onclick="getMovingAllPolygon('typhoon2015_buffer.json')" value="all_typhoon_moving_2015"></input>
-              <input id="button_all_moving" type="button" onclick="getMovingAllPolygon('typhoon2016_buffer.json')" value="all_typhoon_moving_2016"></input>
-          </div>
+    <div id="cesiumContainer" class="fullSize"></div>
+    <div id="toolbar" style = "overflow:auto">
+        <div>
+          <input id="polygon_typhoon2015" type="button" onclick="polygon_typhoon(this)" value="polygon_typhoon2015"></input>
+          <input id="polygon_typhoon2016" type="button" onclick="polygon_typhoon(this)" value="polygon_typhoon2016"></input>
 
+        </div>
+        <div>
+            <input id="point_typhoon" type="button" onclick="point_typhoon()" value="point_typhoon"></input>
+        </div>
+        <div>
+          <input id="button_triangle" type="button" onclick="getSurface('example.json')" value="print linestrings surfaces"></input>
+          <input id="button_triangle_moving" type="button" onclick="getMovingUnsamePolygon('example.json')" value="print linestrings moving"></input>
+        </div>
+        <div>
+          <input id="button_all_moving" type="button" onclick="getMovingAll()" value="all_typhoon_moving"></input>
+          <input id="get_server" type="button" onclick="sendRequest()" value="send first request"></input>
+        </div>
+        <div id="toolbar_point"></div>
+        <div id="toolbar_polygon"></div>
+        <div id="toolbar_polygon2"></div>
+        <div id="get_server_info"></div>
 
-
-
-
+        </div>
 
 
     <script type="text/javascript">
@@ -119,6 +134,8 @@
         var typhoon_2016 = new Cesium.PrimitiveCollection();
         var typhoon_2015 = new Cesium.PrimitiveCollection();
 
+        var polygon_all = false;
+
         scene.morphComplete.addEventListener(function() {
             changeMode();
             scene.completeMorph();
@@ -140,232 +157,9 @@
             }
         }
 
-        function drawline(filename, label_id, lineCollection) {
-            $.getJSON(filename, function(data) {
-                gl_data = data;
-                //make PolylineCollection for containing several polylines.
-                var line_list = [];
-                var line_time_list = [];
-                var point_list = [];
-
-                for (var i = 0; i < gl_data.length; i++) {
-                    line_list = [];
-                    line_time_list = [];
-                    point_list = [];
-
-                    line_list = data[i].temporalGeometry.coordinates;
-                    line_time_list = data[i].temporalGeometry.datetimes;
-                    name_list[i] = data[i].properties.name;
-
-                    var base_time = data[i].temporalGeometry.datetimes[0]; //the basetime we will use for nomalization of datetimes
-                    base_time = getTime(base_time);
-
-                    for (var j in line_list) {
-                        point_list[2 * j] = line_list[j][1];
-                        point_list[2 * j + 1] = line_list[j][0];
-
-                    }
-
-                    lineCollection.add({ //add a set of points of polyline at PolylineCollection.
-                        id: i,
-                        positions: Cesium.Cartesian3.fromDegreesArray(point_list), //add points as array
-                        color: Cesium.Color.WHITE,
-                        width: 2
-                    });
-
-                }
-
-
-                var label_list = "";
-                for (var k = 0; k < name_list.length; k++) {
-                    label_list += "<label style = 'color:white' onclick = 'changeColor(";
-                    label_list += k;
-                    label_list += ")'>";
-                    label_list += name_list[k];
-                    label_list += "</label>";
-                    label_list += "<input type = 'checkbox' onclick = 'getMoving(";
-                    label_list += k;
-                    label_list += ")'></input></br>";
-                }
-                document.getElementById("toolbar_point").innerHTML = label_list;
-                viewer.scene.primitives.add(lineCollection);
-
-            });
-        }
-
-        function changeColor(labelValue) {
-
-            var id_l;
-            if (contains(selected, labelValue)) { //already existed item, then we removed highlight.
-                //delete labelValue at Array.selected
-                var already_selected = selected.indexOf(labelValue);
-                selected.splice(already_selected, 1);
-                //console.log(selected);
-                for (var k in gl_data[labelValue].temporalGeometry.datetimes) {
-
-                    id_l = k.toString();
-                    id_l += '_l_';
-                    id_l += gl_data[labelValue].properties.name;
-
-                    viewer.entities.remove(viewer.entities.getById(id_l));
-
-                    //console.log(id_l);
-                }
-                polyline = lines.get(labelValue);
-                polyline.material.uniforms.color = Cesium.Color.WHITE;
-                viewer.trackedEntity = undefined;
-            } else {
-                selected.push(labelValue);
-                //cor_list = [];
-                change_shape = labelValue;
-                polyline = lines.get(change_shape);
-                var time = gl_data[change_shape].temporalGeometry.datetimes[0];
-                //console.log (labelValue);
-                polyline = lines.get(change_shape); //get is search polyline by index which is number.
-
-
-
-                if (scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
-                    //get the coordinates of polyline
-                    for (var j in gl_data[change_shape].temporalGeometry.coordinates) {
-
-                        cor_list[3 * j] = gl_data[change_shape].temporalGeometry.coordinates[j][1];
-                        cor_list[3 * j + 1] = gl_data[change_shape].temporalGeometry.coordinates[j][0];
-
-                    }
-                    //get the timestamps of polyline
-                    time = getTime(time);
-                    for (var j in gl_data[change_shape].temporalGeometry.datetimes) {
-                        cor_list[3 * j + 2] = parseInt((getTime(gl_data[change_shape].temporalGeometry.datetimes[j]) - time) / currSec) * 6000;
-                        time_list[j] = gl_data[change_shape].temporalGeometry.datetimes[j];
-                    }
-
-                    for (var k in gl_data[change_shape].temporalGeometry.datetimes) {
-                        var id_l = k.toString();
-                        id_l += '_l_';
-                        id_l += gl_data[change_shape].properties.name;
-                        viewer.entities.add({
-                            id: id_l,
-                            position: Cesium.Cartesian3.fromDegrees(cor_list[3 * k], cor_list[3 * k + 1], cor_list[3 * k + 2]),
-                            label: {
-                                text: time_list[k],
-                                font: '10px'
-                            }
-                        });
-
-                    }
-
-                    polyline.material.uniforms.color = Cesium.Color.HOTPINK; //polyline.material has attributes related to poly_option
-                    viewer.trackedEntity = polyline;
-
-                } else {
-                    for (var j in gl_data[change_shape].temporalGeometry.coordinates) {
-
-                        cor_list[2 * j] = gl_data[change_shape].temporalGeometry.coordinates[j][1];
-                        cor_list[2 * j + 1] = gl_data[change_shape].temporalGeometry.coordinates[j][0];
-
-                    }
-                    for (var j in gl_data[change_shape].temporalGeometry.datetimes) {
-                        time_list[j] = gl_data[change_shape].temporalGeometry.datetimes[j];
-                    }
-                    //get the timestamps of polyline
-                    for (var k in gl_data[change_shape].temporalGeometry.datetimes) {
-                        //console.log(k);
-                        var id_l = k.toString();
-                        id_l += '_l_';
-                        id_l += gl_data[change_shape].properties.name;
-                        //  console.log(id_l);
-                        viewer.entities.add({
-                            id: id_l,
-                            position: Cesium.Cartesian3.fromDegrees(cor_list[2 * k], cor_list[2 * k + 1]),
-                            label: {
-                                text: time_list[k],
-                                font: '10px'
-                            }
-                        });
-
-                    }
-                    polyline.material.uniforms.color = Cesium.Color.HOTPINK; //polyline.material has attributes related to poly_option
-                    viewer.trackedEntity = polyline;
-
-                }
-            }
-        }
-
-        function getMoving(radioItem) {
-            if (selected_radio.length != 0) {
-                if (!contains(selected_radio, radioItem)) {
-
-                } else if (contains(selected_radio, radioItem) && contains(selected, radioItem)) {
-                    viewer.entities.remove(viewer.entities.getById(moving_id));
-                    var already_selected = selected_radio.indexOf(radioItem);
-                    setDefaultClock();
-                }
-            } else if (contains(selected, radioItem) && !contains(selected_radio, radioItem)) {
-
-                selected_radio.push(radioItem);
-                var moving_item = gl_data[radioItem].temporalGeometry;
-                var start = Cesium.JulianDate.fromDate(getTime(moving_item.datetimes[0]));
-                var stop = Cesium.JulianDate.fromDate(getTime(moving_item.datetimes[moving_item.datetimes.length - 1]));
-                setClock(start, stop, 6000);
-                var position = new Array();
-                var property = new Cesium.SampledPositionProperty();
-
-                if (scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
-                    var time = moving_item.datetimes[0];
-                    time = getTime(time);
-                    for (var j in moving_item.coordinates) {
-                        position[3 * j] = moving_item.coordinates[j][1];
-                        position[3 * j + 1] = moving_item.coordinates[j][0];
-                    }
-                    for (var k in moving_item.datetimes) {
-                        position[3 * k + 2] = parseInt((getTime(moving_item.datetimes[k]) - time) / currSec) * 6000;
-                    }
-                    for (var i = 0; i < moving_item.coordinates.length; i++) {
-                        var temp_position = Cesium.Cartesian3.fromDegrees(position[3 * i], position[3 * i + 1], position[3 * i + 2]);
-                        var temp_time = Cesium.JulianDate.fromDate(getTime(moving_item.datetimes[i]));
-                        property.addSample(temp_time, temp_position);
-                    }
-
-                } else {
-
-                    var time = moving_item.datetimes[0];
-                    time = getTime(time);
-
-                    for (var j in moving_item.coordinates) {
-                        position[2 * j] = moving_item.coordinates[j][1];
-                        position[2 * j + 1] = moving_item.coordinates[j][0];
-                    }
-                    for (var i = 0; i < moving_item.coordinates.length; i++) {
-
-                        var temp_position = Cesium.Cartesian3.fromDegrees(position[2 * i], position[2 * i + 1]);
-                        var temp_time = Cesium.JulianDate.fromDate(getTime(moving_item.datetimes[i]));
-                        property.addSample(temp_time, temp_position);
-
-                    }
-                }
-                moving_id = radioItem.toString();
-                moving_id += "_";
-                moving_id += "radioItem";
-
-                moving_path = viewer.entities.add({
-                    id: moving_id,
-                    availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
-                        start: start,
-                        stop: stop
-                    })]),
-                    position: property,
-                    orientation: new Cesium.VelocityOrientationProperty(property),
-                    model: {
-                        uri: 'Cesium_Air.gltf',
-                        minimumPixelSize: 100
-                    }
-                });
-
-            }
-        }
 
         function polygon_typhoon(callvalue) {
+    
             if (callvalue.value == "polygon_typhoon2015") {
                 if (polygon_typhoon_button == true) {
                     var label_list = "";
@@ -401,156 +195,7 @@
             }
         }
 
-        function drawPolygon(filename, label_id, typhoonCollection) {
-            var one_ty;
-            var new_line;
-            var new_point;
-            var name_list = [];
-            var p_ty = new Array();
 
-            $.getJSON(filename, function(p_data) {
-                gl_p_data = p_data;
-                for (var i = 0; i < gl_p_data.features.length; i++) {
-                    name_list.push(gl_p_data.features[i].properties.name);
-                }
-                var label_list = "";
-                for (var k = 0; k < name_list.length; k++) {
-                    label_list += "<label style = 'color:white' onclick = 'changeColor_poly(";
-                    label_list += k;
-                    label_list += ",";
-                    label_list += "\"";
-                    label_list += filename;
-                    label_list += "\"";
-                    label_list += ")'>";
-                    label_list += name_list[k];
-                    label_list += "</label>";
-                    label_list += "<input type = 'checkbox' onclick = 'getMovingPolygon(";
-                    label_list += k;
-                    label_list += ",";
-                    label_list += "\"";
-                    label_list += filename;
-                    label_list += "\"";
-                    label_list += ")'></input></br>";
-
-                }
-
-                document.getElementById(label_id.toString()).innerHTML = label_list;
-
-                if (scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
-
-                    for (var i = 0; i < gl_p_data.features.length; i++) {
-                        one_ty = new Array();
-                        var p_geo = gl_p_data.features[i].temporalGeometry; //one typhoon
-                        var base = p_geo.datetimes[0].split(" ");
-                        var base_J = Cesium.JulianDate.fromIso8601(base[0] + "T" + base[1] + "Z");
-                        for (var k = 0; k < 9; k++) { //lines
-                            new_line = new Array();
-                            for (var j = 0; j < p_geo.coordinates.length; j++) {
-                                new_point = new Array();
-                                var temp_time = p_geo.datetimes[j].split(" ");
-                                var temp_time_J = Cesium.JulianDate.fromIso8601(temp_time[0] + "T" + temp_time[1] + "Z");
-
-                                new_point.push(p_geo.coordinates[j][k][0]);
-                                new_point.push(p_geo.coordinates[j][k][1]);
-                                new_point.push(Cesium.JulianDate.secondsDifference(temp_time_J, base_J) * 3);
-
-                                new_line.push(new_point);
-                            }
-                            one_ty.push(new_line);
-                        }
-                        p_ty.push(one_ty);
-                    }
-
-                    var poly_list;
-                    var typhoon_poly;
-                    for (var i = 0; i < name_list.length; i++) { // one typ
-                        poly_list = new Array();
-                        for (var j = 0; j < 8; j++) { //line searching with 2
-
-                            for (var k = 0; k < p_ty[i][j].length - 1; k++) {
-                                var temp_poly = new Array();
-                                var first = p_ty[i][j][k];
-                                var sec = p_ty[i][j + 1][k];
-                                var third = p_ty[i][j + 1][k + 1];
-                                var forth = p_ty[i][j][k + 1];
-                                temp_poly.push(first[0], first[1], first[2], sec[0], sec[1], sec[2], third[0], third[1], third[2], forth[0], forth[1], forth[2]);
-                                var temp_instance = new Cesium.GeometryInstance({
-                                    geometry: new Cesium.PolygonGeometry({
-                                        polygonHierarchy: new Cesium.PolygonHierarchy(Cesium.Cartesian3.fromDegreesArrayHeights(temp_poly)),
-                                        perPositionHeight: true,
-                                    }),
-                                    attributes: {
-                                        color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.ORANGE.withAlpha(0.3))
-                                    }
-                                });
-                                poly_list.push(temp_instance);
-                            }
-                        }
-                        typhoon_poly = new Cesium.Primitive({
-                            id: name_list[i],
-                            geometryInstances: poly_list,
-                            appearance: new Cesium.PerInstanceColorAppearance({
-
-                            })
-                        });
-                        typhoonCollection.add(typhoon_poly);
-                    }
-
-                } else {
-                    gl_p_data = p_data;
-                    for (var i = 0; i < gl_p_data.features.length; i++) {
-                        one_ty = new Array();
-                        var p_geo = gl_p_data.features[i].temporalGeometry; //one typhoon
-                        for (var k = 0; k < 9; k++) { //lines
-                            new_line = new Array();
-                            for (var j = 0; j < p_geo.coordinates.length; j++) {
-                                new_point = new Array();
-                                new_point.push(p_geo.coordinates[j][k][0]);
-                                new_point.push(p_geo.coordinates[j][k][1]);
-                                new_line.push(new_point);
-                            }
-                            one_ty.push(new_line);
-                        }
-                        p_ty.push(one_ty);
-                    }
-                    var poly_list;
-                    var typhoon_poly;
-                    for (var i = 0; i < name_list.length; i++) { // one typ
-                        poly_list = new Array();
-                        for (var j = 0; j < 8; j++) { //line searching with 2
-                            for (var k = 0; k < p_ty[i][j].length - 1; k++) { //the number of poly in one typhoon
-                                var temp_poly = new Array();
-                                var first = p_ty[i][j][k];
-                                var sec = p_ty[i][j + 1][k];
-                                var third = p_ty[i][j + 1][k + 1];
-                                var forth = p_ty[i][j][k + 1];
-                                temp_poly.push(first[0], first[1], sec[0], sec[1], third[0], third[1], forth[0], forth[1]);
-
-                                var temp_instance = new Cesium.GeometryInstance({
-                                    geometry: new Cesium.PolygonGeometry({
-                                        polygonHierarchy: new Cesium.PolygonHierarchy(Cesium.Cartesian3.fromDegreesArray(temp_poly)),
-                                        perPositionHeight: true
-                                    }),
-                                    attributes: {
-                                        color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.ORANGE.withAlpha(0.3))
-                                    }
-                                });
-                                poly_list.push(temp_instance);
-                            }
-
-                        }
-                        typhoon_poly = new Cesium.Primitive({
-                            id: name_list[i],
-                            geometryInstances: poly_list,
-                            appearance: new Cesium.PerInstanceColorAppearance()
-                        });
-                        typhoonCollection.add(typhoon_poly);
-                    }
-                }
-                //viewer.scene.primitives.add(typhoonCollection);
-
-            });
-        }
 
         function poly_change(filename, polyCollection) {
             var gl_p_data;
@@ -722,7 +367,7 @@
 
                 if (point_typhoon_button == true) {
                     var label_list = "";
-
+                    lines.removeAll();
                     document.getElementById("toolbar_point").innerHTML = label_list;
                     for (var i in gl_data) {
                         var time = gl_data[i].temporalGeometry.datetimes[0];
@@ -759,6 +404,7 @@
             } else { //not COLUMBUS_VIEW
                 viewer.entities.remove(viewer.entities.getById('time_axis'));
                 viewer.entities.remove(viewer.entities.getById('time_axis_label'));
+                /*
                 if (point_typhoon_button == true) {
 
                     for (var i in gl_data) {
@@ -784,6 +430,7 @@
                 } else if (polygon_typhoon_button2 == true) {
                     poly_change("typhoon2016_buffer.json", typhoon_2016);
                 }
+                */
             }
         }
 
@@ -893,8 +540,8 @@
             });
         }
     </script>
-    <div id = "footer">
-      <div id = "graph"></div>
+    <div id="footer">
+        <div id="graph"></div>
     </div>
 </body>
 
