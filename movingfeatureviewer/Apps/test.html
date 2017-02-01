@@ -53,7 +53,8 @@
   //mfl = new MovingFeatureList();
 
   function point_test(){
-    $.getJSON("http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/FeatureLayers('Typhoon1995')/features('685556100')").then(
+    var url = getParameterByName('url');
+    $.getJSON(url + "/FeatureLayers('Typhoon1995')/features('685556100')").then(
       function(data){
         console.log(data);
         var mf_arr = [];
