@@ -6,7 +6,7 @@ return czml.
 
 "'js
 var mov = new Moving();
-var mf_arr = [ mf1, mf2 ]; // mf1 is movingfeature json object.
+var mf_arr = [ mf1, mf2 ];
 var czml = mov.movePolygonArray(mf_arr);
 "'
 
