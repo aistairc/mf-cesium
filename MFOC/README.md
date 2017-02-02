@@ -44,7 +44,7 @@ var czml = movePolygonArray(mf_arr);
 
 * moveLineStringArray([mf_arr], with_height);
 
-## draw Primitive
+## Draw Primitive
 
 * drawPolygons([mf_arr], with_height) 
 
