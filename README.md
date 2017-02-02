@@ -20,5 +20,5 @@ Cesium Examples licensed under the [MIT](https://opensource.org/licenses/MIT)
 
 > 3. Start Cesium Server.("node server.js" in Cesium foler with console)
 
-> 4. ...
+> 4. localhost:8080/Apps/viewer.html?url='json path'
 
