@@ -6,7 +6,7 @@
 
 movingfeature is moving feature json object array.
 
-'with_height' means path of animation with own height. 1 is default.( 1 or 0 )
+'with_height' means path of animation with own height.(boolean)
 
 return czml.
 
