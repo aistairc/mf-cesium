@@ -1,5 +1,7 @@
 # MovingFeatureOnCesium
 
+## Visualize Movement
+
 * movePolygonArray([movingfeature_array], with_height);
 
 movingfeature is moving feature json object array.
@@ -42,10 +44,13 @@ var czml = movePolygonArray(mf_arr);
 
 * moveLineStringArray([mf_arr], with_height);
 
+## draw Primitive
 
 * drawPolygons([mf_arr], with_height) 
 
 draw multiple Polygon.
+
+return Cesium.primitiveCollection
 
 * drawTyphoons([mf_arr], with_height)
 
