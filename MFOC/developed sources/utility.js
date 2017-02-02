@@ -283,7 +283,7 @@ function setDefaultClock() {
 var normalizeTime = function(date, min_max_date, value = 15000000){
   var separation = min_max_date[1].getTime() - min_max_date[0].getTime()
   return (date.getTime() - min_max_date[0].getTime())/separation * value;
-};
+}
 
 
 var findMinMaxTime = function(datetimes){
@@ -303,12 +303,15 @@ for (var j = 1 ; j < datetimes.length ; j++){
     }
   }
   return min_max_date;
-};
+}
 
-var getListOfHeight(datetimes){
+var getListOfHeight = function(datetimes){
+
   for(var i = 0 ; i < datetimes.length ; i++){
     datetimes[i] = getTime2(datetimes[i]);
+
   }
+
   var min_max = findMinMaxTime(datetimes);
   var heights = [];
   for(var i = 0 ; i < datetimes.length ; i++){
