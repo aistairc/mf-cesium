@@ -6,7 +6,7 @@ Cesium Examples licensed under the [MIT](https://opensource.org/licenses/MIT)
 
 ## API
 
-MovingFeatureOnCesium
+[MovingFeatureOnCesium](https://github.com/STEMLab/cesium-examples/tree/master/MFOC)
 
 ## Building
 
