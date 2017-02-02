@@ -1,6 +1,7 @@
 # MovingFeatureOnCesium
 
 * movePolygonArray([movingfeature_array], with_height);
+
 movingfeature is moving feature json object array.
 'with_height' means path of animation with own height. 1 is default.( 1 or 0 )
 return czml.
@@ -41,13 +42,17 @@ var czml = movePolygonArray(mf_arr);
 
 
 * drawPolygons([mf_arr], with_height) 
+
 draw multiple Polygon.
 
 * drawTyphoons([mf_arr], with_height)
+
 draw multiple Polygon With Volume.
 
 * drawPoints([mf_arr], with_height)
+
 draw multiple Point.
 
 * drawLines([mf_arr], with_height)
+
 draw multiple LineString.
