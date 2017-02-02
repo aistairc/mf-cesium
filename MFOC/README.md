@@ -1,4 +1,4 @@
-# MovingFeatureOnCesium
+# Moving Feature On Cesium
 
 ## Visualize Movement
 
