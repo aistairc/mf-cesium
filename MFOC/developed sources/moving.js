@@ -477,7 +477,6 @@ var movePolygonArray = function(mf_arr, with_height = 1 ){
   }
 
   min_max_date = [global_start, global_stop];
-  console.log(min_max_date);
 
   for (var id = 0 ; id < mf_arr.length ; id++){
 

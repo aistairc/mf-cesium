@@ -305,17 +305,20 @@ for (var j = 1 ; j < datetimes.length ; j++){
   return min_max_date;
 }
 
-var getListOfHeight = function(datetimes){
+var getListOfHeight = function(datetimes, min_max_date){
 
   for(var i = 0 ; i < datetimes.length ; i++){
     datetimes[i] = getTime2(datetimes[i]);
-
   }
 
-  var min_max = findMinMaxTime(datetimes);
+  if (min_max_date == undefined){
+    console.log("undefined");
+    min_max_date = findMinMaxTime(datetimes);
+  }
+
   var heights = [];
   for(var i = 0 ; i < datetimes.length ; i++){
-    heights.push(normalizeTime(datetimes[i],min_max, value = 15000000));
+    heights.push(normalizeTime(datetimes[i],min_max_date));
   }
   return heights;
 }
