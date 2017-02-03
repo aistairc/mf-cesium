@@ -79,6 +79,6 @@ var property1 = {
   "datetimes" : [ "2015-07-30 03:00:00",..., "2015-08-12 09:00:00" ],
   "interpolations" : "Linear"
 }
-var propert2 = { ...}
+var property2 = { ...}
 showProperty([property1, property2,..], 'graph');
 ```
