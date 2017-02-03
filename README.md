@@ -14,4 +14,11 @@ Cesium Examples licensed under the [MIT](https://opensource.org/licenses/MIT)
 
 ## Getting Started 
 
-TBD
+> 1. Download Cesium.
+
+> 2. Clone this Project and paste Cesium Folder.
+
+> 3. Start Cesium Server.("node server.js" in Cesium foler with console)
+
+> 4. localhost:8080/Apps/viewer.html?url='json path'
+
