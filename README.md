@@ -10,16 +10,17 @@ Cesium Examples licensed under the [MIT](https://opensource.org/licenses/MIT)
 
 2. MovingFeatureOnCesium
 
+
 ### Cesium
 
-[Ceisum - An open-source JavaScript library for world-class 3D globes and maps](https://cesiumjs.org/)
+[Ceisum](https://cesiumjs.org/) - An open-source JavaScript library for world-class 3D globes and maps
+
 
 ### Moving Feature On Cesium (MFOC)
 
 We are developing API for this project.
 
 [OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/)
-
 
 
 #### Visualize Movement
@@ -106,7 +107,7 @@ Returns Cesium.PrimitiveCollection. Draw triangles using each linestring points.
 
 * drawPointsWithZvalue([mf_arr], with_height);
 
-Returns Cesium.PointPrimitiveCollection.
+Returns Cesium.PointPrimitiveCollection. z-value apperas in color.
 
 ```js
 $.getJSON('json_data/indoor.json').then(
