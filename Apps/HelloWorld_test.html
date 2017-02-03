@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- Use correct character set. -->
+    <meta charset="utf-8">
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>Hello World!</title>
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <script src='../js/libs/papaparse.min.js' type='text/javascript'></script>
+
+    <script src="../js/loader/IndoorGMLLoader.js"></script>
+    <script src='../js/libs/jquery-1.8.0.min.js' type='text/javascript'></script>
+    <script type="text/javascript" src="Sandcastle/Sandcastle-header.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+    <script src="../js/calculatePoint.js"></script>
+    <script src="../js/getMovingFeatures.js"></script>
+    <script src="../js/utility.js"></script>
+    <script src="../js/sendRequest.js"></script>
+    <script src="../js/drawingFeatures.js"></script>
+    <script src="../js/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.js"></script>
+
+    <style>
+        @import url(Sandcastle/templates/bucket.css);
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #toolbar {
+            background: rgba(42, 42, 42, 0.8);
+            padding: 2px;
+            border-radius: 4px;
+            height: 80%;
+        }
+
+        #toolbar input {
+            vertical-align: middle;
+            padding-top: 2px;
+            padding-bottom: 2px;
+        }
+
+        #checked_info {
+            background: rgba(42, 42, 42, 0.8);
+            padding: 2px;
+            border-radius: 4px;
+        }
+
+        #cesiumContainer {
+            height: 80%;
+            width: 80%;
+        }
+
+        #footer {
+            height: 20%;
+            position: absolute;
+            bottom: 0px;
+        }
+
+        .wrapper {
+            margin: 0 auto;
+        }
+
+        .column {
+            float: left;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer" class="fullSize"></div>
+    <div>
+
+            <div id="toolbar" class = "wrapper" style="overflow:auto">
+              <button onclick="getLayers()">getdata</button>
+              <div id="featureLayers" style="overflow:auto" class = "column"></div>
+              <div id="features" class = "column"></div>
+              <div id="feature" class = "column"></div>
+            </div>
+
+
+        </div>
+        <script>
+            var checked_info = new Array();
+            String.prototype.replaceAll = function(org, dest) {
+            return this.split(org).join(dest);
+            }
+            function getLayers() {
+                var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+                url += "$ref";
+                var featureLayers;
+                var promise = request1(url);
+                promise.then(function(arr) {
+                        featureLayers = arr;
+                        printFeatureLayerList(featureLayers, "featureLayers");
+                    })
+                    .catch(function() {
+                        console.log("error");
+                    });
+
+            }
+
+            function getFeatures(feature) {
+                var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+
+                console.log("nock nock");
+                url += feature.replaceAll("\\\'","\'") + "/$ref";
+
+
+                var features;
+                var promise = request2(url);
+                promise.then(function(arr) {
+                        features = arr[1];
+                        printFeatures(features, "features");
+                    })
+                    .catch(function() {
+                        console.log("error");
+                    });
+
+            }
+
+            function getFeature(feature) {
+                var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+                url += feature.value;
+                var feature;
+                var token = prompt("token", "");
+                url += "?token=" + token;
+                var promise = request3(url);
+                promise.then(function(arr) {
+                        feature = arr;
+                        printFeature(feature, "feature");
+                    })
+                    .catch(function() {
+                        console.log("error");
+                    });
+            }
+
+            function printFeature(data, id) {
+                var label_list;
+                for (var i = 0; i < arr.length; i++) {
+                    label_list += "<div>" + data + "<div>";
+                }
+                document.getElementById(id).innerHTML = label_list;
+                //$('input[name=ff_checkbox]').prop('checked',true);
+            }
+
+            function printFeatureLayerList(arr, id) {
+                var label_list;
+                //label_list += "<form name = 'featureLayers'>";
+                for (var i = 0; i < arr.length; i++) {
+                    var parameter = arr[i].toString();
+                    parameter = arr[i].replaceAll("\'","\\\'");
+                    console.log(parameter);
+                    var div = document.createElement("div");
+                    div.id = arr[i];
+                    div.innerText = arr[i];
+                    div.onclick = (function(id){
+                      getFeatures(id);
+                    })(parameter);
+                    var target = document.getElementById("featureLayers");
+                    target.appendChild(div);
+                    var chk = document.createElement("input");
+                    target = document.getElementById("featureLayers");
+                    target.appendChild(div);
+                    //label_list += "<div onclick = \'getFeatures(\'"+parameter+"\')\'>" + arr[i] + "</div>" + "<input name = 'f_checkbox' type = 'checkbox' value = " + arr[i] + " />";
+                    //$("input:checkbox[name='f_checkbox']").prop("checked",true);
+                }
+                //label_list += "</form>";
+
+                //document.getElementById(id).innerHTML = label_list;
+                //$('input[name=f_checkbox]').prop('checked', true);
+                console.log("nock nock");
+            }
+
+            function printFeatures(arr, id) {
+                var label_list;
+                console.log(arr);
+                for (var i = 0; i < arr.length; i++) {
+                    label_list += "<div value = \"" + arr[i] + "\" onclick = 'getFeature(this)'>" + arr[i] + "<input name = 'ff_checkbox' type = 'checkbox' value " + arr[i] + " /></div>";
+                }
+                document.getElementById(id).innerHTML = label_list;
+                $('input[name=ff_checkbox]').prop('checked', true);
+
+            }
+
+            function sendRequest() { //later we need to put url as parameter
+                var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+                var featureLayers = new Array();
+                var feature = new Array();
+                var featureProperty;
+                url += "$ref";
+                var promise = request1(url);
+                promise.then(function(arr) {
+                        //featureLayers = arr.splice(0,1);
+                        featureLayers = arr;
+                        var new_url = url.replace("$ref", "") + arr[0] + "/$ref";
+                        printFeatureLayerList(featureLayers, "featureLayers");
+                        return request2(new_url);
+                    })
+                    .catch(function() {
+                        console.log("error");
+                    })
+                    .then(function(arr) {
+                        feature = arr[1].splice(0, 1);
+                        console.log(feature);
+                        var new_url = arr[0].replace("$ref", "") + feature[0];
+                        var token = prompt("token", "");
+                        new_url += "?token=" + token;
+                        console.log(new_url);
+                        return (request3(new_url));
+                    })
+                    .catch(function() {
+                        console.log("error");
+                    })
+                    .then(function(arr) {
+                        featureProperty = arr;
+                        console.log(arr);
+                    })
+                    .catch(function() {
+                        console.log("you do not get full properties without token");
+                    });
+
+            }
+            var request1 = function(url) {
+                return new Promise(function(resolved, rejected) {
+                    var xhr = createCORSRequest('GET', url);
+                    if (!xhr) {
+                        alert('CORS not supported');
+                        return;
+                    }
+                    xhr.onload = function() {
+                        var text = xhr.responseText;
+                        //var title = getTitle(text);
+                        var arr = JSON.parse("[" + text + "]");
+                        arr = $.map(arr[0], function(el) {
+                            return el
+                        });
+                        resolved(arr);
+                    };
+                    xhr.onerror = function() {
+                        alert('Woops, there was an error making the request.');
+                    };
+                    xhr.send();
+                });
+            };
+            var request2 = function(url) {
+                return new Promise(function(resolved, rejected) {
+                    var xhr = createCORSRequest('GET', url);
+                    if (!xhr) {
+                        alert('CORS not supported');
+                        return;
+                    }
+                    xhr.onload = function() {
+                        var text = xhr.responseText;
+                        //var title = getTitle(text);
+                        var arr = JSON.parse("[" + text + "]");
+                        arr = $.map(arr[0], function(el) {
+                            return el
+                        });
+                        var info = new Array();
+                        info.push(url);
+                        info.push(arr);
+                        resolved(info);
+                    };
+
+                    xhr.onerror = function() {
+                        alert('Woops, there was an error making the request.');
+                    };
+                    xhr.send();
+
+                });
+            };
+            var request3 = function(url) {
+                return new Promise(function(resolved, rejected) {
+
+                    var xhr = createCORSRequest('GET', url);
+                    if (!xhr) {
+                        alert('CORS not supported');
+                        return;
+                    }
+                    xhr.onload = function() {
+                        var text = xhr.responseText;
+                        console.log(text);
+                        resolved(text);
+                    };
+                    xhr.onerror = function() {
+                        alert('Woops, there was an error making the request.');
+                    };
+                    xhr.send();
+
+                });
+            };
+
+            function createCORSRequest(method, url) {
+                var xhr = new XMLHttpRequest();
+                if ("withCredentials" in xhr) {
+                    // XHR for Chrome/Firefox/Opera/Safari.
+                    xhr.open(method, url, true);
+                } else if (typeof XDomainRequest != "undefined") {
+                    // XDomainRequest for IE.
+                    xhr = new XDomainRequest();
+                    xhr.open(method, url);
+                } else {
+                    // CORS not supported.
+                    xhr = null;
+                }
+                return xhr;
+            }
+        </script>
+</body>
+
+
+</html>
