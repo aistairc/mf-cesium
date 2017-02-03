@@ -12,11 +12,9 @@ MovingFeatureOnCesium
 
 #### Moving Feature On Cesium (MFOC)
 
----------------------------------
+  * Visualize Movement
 
-##### Visualize Movement
-
-  * movePolygonArray([movingfeature_array], with_height);
+    * movePolygonArray([movingfeature_array], with_height);
 
 movingfeature is moving feature json object array.
 
@@ -54,37 +52,36 @@ var mf_arr = [ mf1, mf2 ]; //mf is movingfeature object.
 var czml = movePolygonArray(mf_arr);
 ```
 
-  * movePointArray([mf_arr], with_height);
+    * movePointArray([mf_arr], with_height);
 
-  * moveLineStringArray([mf_arr], with_height);
+    * moveLineStringArray([mf_arr], with_height);
 
----------------------------------
 
-##### Draw Primitive
 
-  * drawPolygons([mf_arr], with_height)
+  * Draw Primitive
+
+    * drawPolygons([mf_arr], with_height)
 
 draw multiple Polygon.
 
 return Cesium.primitiveCollection
 
-  * drawTyphoons([mf_arr], with_height)
+    * drawTyphoons([mf_arr], with_height)
 
 draw multiple Polygon With Volume.
 
-  * drawPoints([mf_arr], with_height)
+    * drawPoints([mf_arr], with_height)
 
 draw multiple Point.
 
-  * drawLines([mf_arr], with_height)
+    * drawLines([mf_arr], with_height)
 
 draw multiple LineString.
 
----------------------------------
 
-##### view Properties graph
+  * View Properties graph
 
-  * showProperty([obj_arr], div_id)
+    * showProperty([obj_arr], div_id)
 
 showProperties by d3 graph. (https://github.com/d3/d3/blob/master/API.md)
 
