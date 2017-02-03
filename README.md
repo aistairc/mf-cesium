@@ -6,10 +6,22 @@ Cesium Examples licensed under the [MIT](https://opensource.org/licenses/MIT)
 
 ## API
 
-MovingFeatureOnCesium
+1. Cesium
 
-### API references
-# Moving Feature On Cesium
+2. MovingFeatureOnCesium
+
+
+### Cesium
+
+[Ceisum](https://cesiumjs.org/) - An open-source JavaScript library for world-class 3D globes and maps
+
+
+### Moving Feature On Cesium (MFOC)
+
+We are developing API for this project.
+
+[OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/)
+
 
 #### Visualize Movement
 
@@ -17,9 +29,11 @@ MovingFeatureOnCesium
 
 movingfeature is moving feature json object array.
 
+It should be have 'temporalGeometry' key.
+
 'with_height' means path of animation with own height.(boolean)
 
-return czml.
+Returns [czml](https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Guide) object.
 
 ```js
 var mf1 = {
@@ -43,7 +57,7 @@ var mf1 = {
       "name" : "Max wind speed",
       "uom" : "kt",
       "values" : [ 0.0, 0.0,..., 0.0, 0.0 ],
-      "datetimes" : [ "2015-07-30 03:00:00",.., "2015-08-11 03:00:00", "2015-08-11 09:00:00", "2015-08-11 15:00:00", "2015-08-11 21:00:00", "2015-08-12 03:00:00", "2015-08-12 09:00:00" ],
+      "datetimes" : [ "2015-07-30 03:00:00",.., "2015-08-12 09:00:00" ],
       "interpolations" : "Linear"
     } ]
   }
@@ -51,17 +65,22 @@ var mf_arr = [ mf1, mf2 ]; //mf is movingfeature object.
 var czml = movePolygonArray(mf_arr);
 ```
 
-* movePointArray([mf_arr], with_height);
+* movePointArray([mf_arr], with_height)
 
-* moveLineStringArray([mf_arr], with_height);
+Returns czml object.
+
+* moveLineStringArray([mf_arr], with_height)
+
+Returns czml object.
+
 
 #### Draw Primitive
 
 * drawPolygons([mf_arr], with_height)
 
-draw multiple Polygon.
+Draw multiple Polygon.
 
-return Cesium.primitiveCollection
+Return Cesium.primitiveCollection.
 
 * drawTyphoons([mf_arr], with_height)
 
@@ -75,11 +94,40 @@ draw multiple Point.
 
 draw multiple LineString.
 
-#### view Properties graph
+* drawPointsPath([mf_arr], with_height)
+
+Returns Cesium.PolylineCollection. Draw path for MovingPoint.
+
+* drawLinesPath([mf_arr], with_height)
+
+Returns Cesium.PrimitiveCollection. Draw triangles using each linestring points.
+
+
+#### Draw IndoorGML Data (With Z-value)
+
+* drawPointsWithZvalue([mf_arr], with_height);
+
+Returns Cesium.PointPrimitiveCollection. z-value apperas in color.
+
+```js
+$.getJSON('json_data/indoor.json').then(
+  function(data){
+    var mf_arr = [];
+    for (var i = 0 ; i < data.features.length ; i++){
+      mf_arr.push(data.features[i]);
+    }
+    scene.primitives.add(drawPointsWithZvalue(mf_arr, true));
+  }
+);
+```
+
+#### View Properties graph
 
 * showProperty([obj_arr], div_id)
 
-showProperties by d3 graph. (https://github.com/d3/d3/blob/master/API.md)
+Show Property graph by [d3](https://github.com/d3/d3/blob/master/API.md).
+
+It is recommended that propery objects have same attributes.
 
 ```js
 <div id="graph" class="graph" > </svg>
@@ -94,10 +142,15 @@ var property2 = { ...}
 showProperty([property1, property2,..], 'graph');
 ```
 
+- - -
 
 ## Building
 
     Don't need to build
+
+
+
+- - -
 
 ## Getting Started
 
@@ -105,6 +158,6 @@ showProperty([property1, property2,..], 'graph');
 
 > 2. Clone this Project and paste Cesium Folder.
 
-> 3. Start Cesium Server.("node server.js" in Cesium foler with console)
+> 3. Start Cesium Server - type "node server.js" in Cesium foler with console
 
 > 4. localhost:8080/Apps/viewer.html?url='json path'

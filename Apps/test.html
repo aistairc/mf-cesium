@@ -11,10 +11,11 @@
 
   <script src="../Build/Cesium/Cesium.js"></script>
   <script src="jquery-3.1.1.js"></script>
-  <script src="../MFOC/developed sources/draw.js"></script>
-  <script src="../MFOC/developed sources/moving.js"></script>
-  <script src="../MFOC/developed sources/utility.js"></script>
-  <script src="../MFOC/developed sources/property.js"></script>
+  <script src="../MFOC/src/draw.js"></script>
+  <script src="../MFOC/src/draw_indoor.js"></script>
+  <script src="../MFOC/src/moving.js"></script>
+  <script src="../MFOC/src/utility.js"></script>
+  <script src="../MFOC/src/property.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
 
 
@@ -65,6 +66,20 @@
     this.entities.removeAll();
     this.scene.primitives.removeAll();
     this.scene.primitives.add(temp);
+  }
+
+  function linepath_test(){
+    $.getJSON('json_data/polyline.json').then(
+      function(data){
+        var mf_arr = [];
+        for (var i = 0 ; i < data.features.length; i++){
+          mf_arr.push(data.features[i]);
+        }
+        var prim = drawLinesPath(mf_arr, true);
+        scene.primitives.add(prim);
+        scene.primitives.add(drawLines(mf_arr,true));
+      }
+    );
   }
 
   function property_test(){
@@ -137,7 +152,7 @@
     $.getJSON('json_data/polygon2015.json').then(
       function(data){
         var mf_arr = [];
-        for (var i = 0 ; i < data.features.length / 2 ; i++){
+        for (var i = 0 ; i < data.features.length ; i++){
           mf_arr.push(data.features[i]);
 
         }
@@ -152,7 +167,21 @@
     );
 
   }
-  property_test();
+
+  function point_indoor_test(){
+    $.getJSON('json_data/indoor.json').then(
+      function(data){
+        var mf_arr = [];
+        for (var i = 0 ; i < data.features.length ; i++){
+          mf_arr.push(data.features[i]);
+        }
+        scene.primitives.add(drawPointsWithZvalue(mf_arr, true));
+      }
+    );
+
+  }
+  point_indoor_test();
+  //property_test();
   //point_test();
   //polygon_test();
 
