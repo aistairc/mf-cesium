@@ -67,6 +67,20 @@
     this.scene.primitives.add(temp);
   }
 
+  function linepath_test(){
+    $.getJSON('json_data/polyline.json').then(
+      function(data){
+        var mf_arr = [];
+        for (var i = 0 ; i < data.features.length; i++){
+          mf_arr.push(data.features[i]);
+        }
+        var prim = drawLinesPath(mf_arr, true);
+        scene.primitives.add(prim);
+        scene.primitives.add(drawLines(mf_arr,true));
+      }
+    );
+  }
+
   function property_test(){
     $.getJSON('json_data/polygon2015.json').then(
       function(data){
@@ -152,7 +166,9 @@
     );
 
   }
-  property_test();
+
+  linepath_test();
+  //property_test();
   //point_test();
   //polygon_test();
 

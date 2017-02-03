@@ -5,22 +5,32 @@ function drawOnePolygon(onePolygon, height, with_height, r_color = Cesium.Color.
   var points = [];
 
   var position;
-
-  if (height == null){
-    for (var i = 0; i < coordinates.length; i++) {
-        points.push(coordinates[i][0]);
-        points.push(coordinates[i][1]);
-        points.push(coordinates[i][2]);
-    }
-  }
-  else{
+  if (!with_height){
+    height = 0;
     for (var i = 0; i < coordinates.length; i++) {
         points.push(coordinates[i][0]);
         points.push(coordinates[i][1]);
         points.push(height);
     }
   }
-  console.log(points);
+  else{
+    if (height == null){
+      for (var i = 0; i < coordinates.length; i++) {
+          points.push(coordinates[i][0]);
+          points.push(coordinates[i][1]);
+          points.push(coordinates[i][2]);
+      }
+    }
+    else{
+      for (var i = 0; i < coordinates.length; i++) {
+          points.push(coordinates[i][0]);
+          points.push(coordinates[i][1]);
+          points.push(height);
+      }
+    }
+  }
+
+
   position = Cesium.Cartesian3.fromDegreesArrayHeights(points);
 
   var polygonHierarchy = new Cesium.PolygonHierarchy(position);
@@ -66,16 +76,19 @@ var drawPolygons = function(mf_arr, with_height) { // it gets one object of feat
     var name = setOfPolygon.properties.name;
     var polyCollection;
     var poly_list = new Array();
-    var heights = getListOfHeight(datetimes, min_max_date);
+    var heights = null;
+    if (with_height){
+      heights = getListOfHeight(datetimes, min_max_date);
+    }
 
-        var r_color = Cesium.Color.fromRandom({
-          red : 0.0,
-          minimumBlue : 0.2,
-          minimumGreen : 0.2,
-          alpha : 0.3
-        });
+    var r_color = Cesium.Color.fromRandom({
+      red : 0.0,
+      minimumBlue : 0.2,
+      minimumGreen : 0.2,
+      alpha : 0.3
+    });
+
     for (var i = 0; i < coordinates.length; i++) {
-
       poly_list.push(drawOnePolygon(coordinates[i], heights[i], with_height, r_color));
     }
 
@@ -252,73 +265,6 @@ var drawLines = function(mf_arr, with_height) { // it gets one object of feature
   return polylineCollection;
 }
 
-
-function drawSurfaceBetween2Polylines(polyline1, polyline2) {
-  var surface_line_list = calculateMovingPath(polyline1, polyline2);
-  var triangle_list = [];
-  for (var i = 0; i < surface_line_list.length - 1; i++) {
-    triangle_list.push(calculateTriangleWithLines(surface_line_list[i], surface_line_list[i + 1]));
-  }
-  return triangle_list;
-}
-
-function calculateMovingPath(polyline1, polyline2) {
-  var surface = new Array();
-  var cur_index1 = 0;
-  var cur_index2 = 0;
-  var next_index1 = cur_index1 + 1;
-  var next_index2 = cur_index2 + 1
-  var curr_point;
-  var next_point;
-  var line = [];
-
-  line.push(polyline1[cur_index1], polyline2[cur_index2]);
-  surface.push(line);
-
-  while (1) {
-    if (next_index1 == polyline1.length && next_index2 == polyline2.length) {
-      break;
-    }
-    if (next_index1 == polyline1.length) {
-      cur_point = cur_index1;
-      next_point = next_index2;
-      line = [];
-      line.push(polyline1[cur_point], polyline2[next_point]);
-      cur_index2 = next_index2;
-      next_index2 = next_index2 + 1;
-    } else if (next_index2 == polyline2.length) {
-      cur_point = cur_index2;
-      next_point = next_index1;
-      line = [];
-      line.push(polyline1[next_point], polyline2[cur_point]);
-      cur_index1 = next_index1;
-      next_index1 = next_index1 + 1;
-    } else {
-      var dis1 = calculateDistanceThree2D(polyline1[cur_index1], polyline2[cur_index2], polyline1[next_index1]);
-      var dis2 = calculateDistanceThree2D(polyline1[cur_index1], polyline2[cur_index2], polyline2[next_index2]);
-
-      if (dis1 < dis2) {
-        cur_point = cur_index2;
-        next_point = next_index1;
-        line = [];
-        line.push(polyline1[next_point], polyline2[cur_point]);
-        cur_index1 = next_index1;
-        next_index1 = next_index1 + 1;
-
-      } else {
-        cur_point = cur_index1;
-        next_point = next_index2;
-        line.push(polyline1[cur_point], polyline2[next_point]);
-        cur_index2 = next_index2;
-        next_index2 = next_index2 + 1;
-      }
-    }
-    surface.push(line);
-  }
-
-  return surface;
-}
-
 function calculateDistanceThree2D(p1, p2, p3) {
   var dis1 = euclidianDistance2D(p1, p3);
   var dis2 = euclidianDistance2D(p2, p3);
@@ -344,21 +290,6 @@ function euclidianDistance3D(a, b) {
   return Math.sqrt(pow1 + pow2 + pow3);
 }
 
-function calculateTriangleWithLines(polyline1, polyline2) {
-  var triangle = [];
-  if (polyline1[0] == polyline2[0]) {
-    triangle.push(polyline1[0], polyline1[1], polyline2[1]);
-  } else if (polyline1[1] == polyline2[1]) {
-    triangle.push(polyline1[0], polyline1[1], polyline2[0]);
-  } else if (polyline1[0] == polyline2[1]) {
-    triangle.push(polyline1[0], polyline1[1], polyline2[0]);
-  } else if (polyline1[1] == polyline2[0]) {
-    triangle.push(polyline1[0], polyline1[1], polyline2[1]);
-  } else {
-    triangle.push(polyline1[0], polyline1[1], polyline2[1], polyline2[0]);
-  }
-  return triangle;
-}
 
 var drawPolygonsWithZvalue = function(mf_arr, with_height){
 
@@ -404,6 +335,126 @@ var drawPointsPath = function(mf_arr, with_height){
   return polylineCollection;
 }
 
-var drawLinePath = function(mf_arr, with_height){
+var drawLinesPath = function(mf_arr, with_height){
+  if ( !Array.isArray(mf_arr) ){
+    mf_arr = [mf_arr];
+  }
+  var trianlgeCollection = new Cesium.PrimitiveCollection();
+
+  var min_max_date = findAllMinMaxTime(mf_arr);
+
+  for (var id = 0 ; id < mf_arr.length ; id ++ ){
+    var data = mf_arr[id].temporalGeometry;
+    var heights = getListOfHeight(data.datetimes, min_max_date);
+    var coord_arr = data.coordinates;
+    for (var i = 0; i < coord_arr.length ; i++){
+      if (i == 0){
+        pre_polyline = coord_arr[0];
+        continue;
+      }
+
+      trianlgeCollection.add(drawTrinaglesWithNextPos(pre_polyline, coord_arr[i], heights[i-1], heights[i], with_height));
+
+
+
+      pre_polyline = coord_arr[i];
+    }
+  }
+
+  return trianlgeCollection;
+
+
+}
+
+function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height){
+  var instances = [];
+  var i=0,
+  j=0;
+
+  while ( i < line_1.length - 1 && j < line_2.length - 1){
+
+    var color = Cesium.Color.fromRandom({
+      minimumRed : 0.6,
+      minimumBlue : 0.0,
+      minimumGreen : 0.0,
+      alpha : 0.4
+    });
+
+    var positions = [];
+    var point_1 = line_1[i];
+    var point_2 = line_2[j];
+
+    var next_point_1 = line_1[i+1];
+    var next_point_2 = line_2[j+1];
+
+    point_1.push(height1);
+    positions.push(point_1);
+    point_2.push(height2);
+    positions.push(point_2);
+
+    var dist1 = euclidianDistance2D(point_1, next_point_2);
+    var dist2 = euclidianDistance2D(point_2, next_point_1);
+
+    if (dist1 > dist2){
+      next_point_1.push(height1);
+      positions.push(next_point_1);
+
+      i++;
+    }
+    else{
+      next_point_2.push(height2);
+      positions.push(next_point_2);
+
+      j++;
+    }
+    instances.push(drawOnePolygon(positions,null,with_height,color));
+  }
+
+  while (i < line_1.length - 1 || j < line_2.length - 1){
+    var color = Cesium.Color.fromRandom({
+      minimumRed : 0.6,
+      minimumBlue : 0.0,
+      minimumGreen : 0.0,
+      alpha : 0.4
+    });
+
+    var positions = [];
+    var point_1 = line_1[i];
+    var point_2 = line_2[j];
+
+    point_1.push(height1);
+  positions.push(point_1);
+    point_2.push(height2);
+    positions.push(point_2);
+
+
+    if (i == line_1.length - 1){
+      var next_point = line_2[j+1];
+      next_point.push(height2);
+      positions.push(next_point);
+
+      j++;
+    }
+    else if (j == line_2.length - 1){
+      var next_point = line_1[i+1];
+      next_point.push(height1);
+    positions.push(next_point);
+
+      i++;
+    }
+    else {
+      alert("error");
+    }
+    instances.push(drawOnePolygon(positions,null,with_height,color));
+  }
+
+  var temp = new Cesium.Primitive({
+    geometryInstances : instances,
+    appearance : new Cesium.PerInstanceColorAppearance({   }),
+    show : true
+  });
+
+
+  return temp;
 
 }
