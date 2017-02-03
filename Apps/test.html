@@ -8,16 +8,15 @@
   <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
   <title>Hello World!</title>
+
   <script src="../Build/Cesium/Cesium.js"></script>
   <script src="jquery-3.1.1.js"></script>
-
   <script src="../MFOC/developed sources/draw.js"></script>
   <script src="../MFOC/developed sources/moving.js"></script>
   <script src="../MFOC/developed sources/utility.js"></script>
-
-
-  <script src="../MFOC/MFOC-0.1.js"></script>
+  <script src="../MFOC/developed sources/property.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
+
 
   <style>
 
@@ -36,26 +35,26 @@
   }
   .graph{
     position : absolute;
-    bottom : 0;
-    width : 80%; height : 0%;
+    bottom : 0px;
+    width : 100%; height : 0%;
     z-index:2;
   }
   </style>
 </head>
-<body>
-
+<body style="margin-bottom:10px">
+<iframe src="about:blank" id="iframe" sandbox="allow-same-origin"></iframe>
 <div id="cesiumContainer" style="position:absolute; top:0px; z-index:1;"></div>
 
-<svg id="graph" class="graph" > </svg>
-<iframe src="about:blank" id="iframe" sandbox="allow-same-origin"></iframe>
+<div id="graph" class="graph" > </svg>
+
 </body>
 
 <script>
+
   viewer = new Cesium.Viewer('cesiumContainer');
   scene = viewer.scene;
   scene.primitives.destroyPrimitives = false;
   viewer.clock.shouldAnimate = false;
-
   var url = getParameterByName('url');
   var token = getParameterByName('token');
 
@@ -68,6 +67,25 @@
     this.scene.primitives.add(temp);
   }
 
+  function property_test(){
+    $.getJSON('json_data/polygon2015.json').then(
+      function(data){
+
+        document.getElementById('graph').style.height = '20%';
+        document.getElementById('cesiumContainer').style.height = '80%';
+        var pro_arr = [];
+        for (var i = 0 ; i < data.features.length; i++){
+          if (data.features[i].temporalProperties[0].name == 'central pressure')
+            pro_arr.push(data.features[i].temporalProperties[0]);
+        }
+
+        showProperty(pro_arr, 'graph');
+
+      }
+    );
+
+  }
+
   function point_test_2(id_arr){
 
     var mf_arr = [];
@@ -77,15 +95,14 @@
     var finish = 0;
 
     while (i < id_arr.length){
-      console.log(i);
       $.getJSON(url + "/FeatureLayers('Typhoon1995')/"+id_arr[i]+"?token="+token).then(
         function(data){
           for (var j = 0 ; j < data.features.length ; j++){
             mf_arr.push(data.features[j]);
           }
-          
+
           viewer.clear();
-          scene.primitives.add(drawPoints(mf_arr, true));
+          scene.primitives.add(drawPointsPath(mf_arr, true));
           var czml = movePointArray(mf_arr , true);
           var load_czml = Cesium.CzmlDataSource.load(czml)
           viewer.dataSources.add(load_czml);
@@ -104,6 +121,7 @@
           id_arr[i] = data.url[i];
           if (i == data.url.length -1){
             point_test_2(id_arr);
+
             console.log(scene.primitives);
           }
         }
@@ -134,9 +152,10 @@
     );
 
   }
-
-  point_test();
+  property_test();
+  //point_test();
   //polygon_test();
+
 </script>
 
 

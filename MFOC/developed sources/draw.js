@@ -195,25 +195,33 @@ var drawPoints = function(mf_arr, with_height){ //it gets set of points
   return pointCollection;
 }
 
-function drawOneLine(oneLine, height) { //it gets one object of features
-  var points = [];
-  var positions;
-  var line;
+function drawOneLine(positions, r_color){
+  var material = new Cesium.Material.fromType('Color');
+  material.uniforms.color = r_color;
 
-  for (var i = 0; i < oneLine.length; i++) {
-    points.push(oneLine[i][0], oneLine[i][1], height);
-  }
-  position = Cesium.Cartesian3.fromDegreesArrayHeights(points);
+  var line = {
+    positions :  Cesium.Cartesian3.fromDegreesArrayHeights(positions) ,
+    width : 5,
+    material : material
+  };
 
-  line = new Cesium.Polyline({
-    positions: positions,
-    color: Cesium.Color.WHITE,
-    width: 2
-  });
   return line;
 }
 
-var drawLines= function(mf_arr, with_height) { // it gets one object of features.
+function makeDegreesArray(pos_2d, height){
+  var points = [];
+  for (var i = 0; i < pos_2d.length; i++) {
+    if (Array.isArray(height)){
+      points.push(pos_2d[i][0], pos_2d[i][1], height[i]);
+    }
+    else{
+      points.push(pos_2d[i][0], pos_2d[i][1], height);
+    }
+  }
+  return points;
+}
+
+var drawLines = function(mf_arr, with_height) { // it gets one object of features.
   if ( !Array.isArray(mf_arr) ){
     mf_arr = [mf_arr];
   }
@@ -222,43 +230,28 @@ var drawLines= function(mf_arr, with_height) { // it gets one object of features
   var min_max_date = findAllMinMaxTime(mf_arr);
 
   for (var id = 0 ; id < mf_arr.length ; id++){
+    var r_color = Cesium.Color.fromRandom({
+      red : 0.0,
+      minimumBlue : 0.2,
+      minimumGreen : 0.2,
+      alpha : 1.0
+    });
+
     var buffer = mf_arr[id];
     var data = buffer.temporalGeometry;
     var heights = getListOfHeight(data.datetimes, min_max_date);
 
-    if(with_height){
-      for (var i = 0; i < data.length; i++) {
-        for (var j = 0; j < data.coordinates.length; j++) {
-          polylineCollection.add(drawOneLine(data.coordinates[j], heights[j]));
-        }
+    for (var j = 0 ; j < data.coordinates.length ; j++){
+      if (!with_height){
+        heights[j] = 0;
       }
-    }
-    else{
-      for (var i = 0; i < data.length; i++) {
-        for (var j = 0; j < data.coordinates.length; j++) {
-          polylineCollection.add(drawOneLine(data.coordinates[j], 0));
-        }
-      }
+      var positions = makeDegreesArray(data.coordinates[j], heights[j]);
+      polylineCollection.add(drawOneLine(positions, r_color));
     }
   }
   return polylineCollection;
 }
 
-function findAllMinMaxTime(mf_arr){
-
-  var first_date = new Date(mf_arr[0].temporalGeometry.datetimes[0]);
-  var min_max_date = [first_date,first_date];
-  for (var i = 0 ; i < mf_arr.length ; i++){
-    var temp_max_min = findMinMaxTime(mf_arr[i].temporalGeometry.datetimes);
-    if (temp_max_min[0].getTime() < min_max_date[0].getTime()){
-      min_max_date[0] = temp_max_min[0];
-    }
-    if (temp_max_min[1].getTime() > min_max_date[1].getTime()){
-      min_max_date[1] = temp_max_min[1];
-    }
-  }
-  return min_max_date;
-}
 
 function drawSurfaceBetween2Polylines(polyline1, polyline2) {
   var surface_line_list = calculateMovingPath(polyline1, polyline2);
@@ -301,8 +294,8 @@ function calculateMovingPath(polyline1, polyline2) {
       cur_index1 = next_index1;
       next_index1 = next_index1 + 1;
     } else {
-      var dis1 = calculateDistanceThree3D(polyline1[cur_index1], polyline2[cur_index2], polyline1[next_index1]);
-      var dis2 = calculateDistanceThree3D(polyline1[cur_index1], polyline2[cur_index2], polyline2[next_index2]);
+      var dis1 = calculateDistanceThree2D(polyline1[cur_index1], polyline2[cur_index2], polyline1[next_index1]);
+      var dis2 = calculateDistanceThree2D(polyline1[cur_index1], polyline2[cur_index2], polyline2[next_index2]);
 
       if (dis1 < dis2) {
         cur_point = cur_index2;
@@ -326,41 +319,10 @@ function calculateMovingPath(polyline1, polyline2) {
   return surface;
 }
 
-function get2Dpoints(coordinates) {
-  var temp_point = new Array();
-  var temp_list = new Array();
-  var poly_lines = new Array();
-  for (var i = 0; i < coordinates.length; i++) {
-    for (var j = 0; j < coordinates[i].length; j++) {
-      temp_point.push(coordinates[i][j][0], coordinates[i][j][1]);
-      temp_list.push(temp_point);
-      temp_point = [];
-    }
-    poly_lines.push(temp_list);
-    temp_list = [];
-  }
-  return poly_lines;
-}
-
-function get3DPoints(coordinates, timeline, timebase, with_height) { //coordinates is the set of points.
-  var temp_point = new Array();
-  var temp_list = new Array();
-  var poly_lines = new Array();
-  var time = (getTime2(timeline) - getTime2(timebase)) / (1000);
-  for (var i = 0; i < coordinates.length; i++) {
-    temp_point.push(coordinates[i][0]);
-    temp_point.push(coordinates[i][1]);
-    if (with_height) {
-      temp_point.push(time);
-    } else {
-      temp_point.push(0);
-    }
-    poly_lines.push(temp_point);
-    temp_point = [];
-    //console.log((getTime2(timeline) - getTime2(timebase)) / 1000);
-  }
-
-  return poly_lines;
+function calculateDistanceThree2D(p1, p2, p3) {
+  var dis1 = euclidianDistance2D(p1, p3);
+  var dis2 = euclidianDistance2D(p2, p3);
+  return (dis1 + dis2) / 2;
 }
 
 function calculateDistanceThree3D(p1, p2, p3) {
@@ -417,7 +379,29 @@ var drawTyphoonsWithZvalue = function(mf_arr, with_height){
 }
 
 var drawPointsPath = function(mf_arr, with_height){
+  if ( !Array.isArray(mf_arr) ){
+    mf_arr = [mf_arr];
+  }
+  var polylineCollection = new Cesium.PolylineCollection();
 
+  var min_max_date = findAllMinMaxTime(mf_arr);
+
+  for (var id = 0 ; id < mf_arr.length ; id++){
+    var r_color = Cesium.Color.fromRandom({
+      red : 0.0,
+      minimumBlue : 0.2,
+      minimumGreen : 0.2,
+      alpha : 1.0
+    });
+
+    var buffer = mf_arr[id];
+    var data = buffer.temporalGeometry;
+    var heights = getListOfHeight(data.datetimes, min_max_date);
+
+    var positions = makeDegreesArray(data.coordinates, heights);
+    polylineCollection.add(drawOneLine(positions, r_color));
+  }
+  return polylineCollection;
 }
 
 var drawLinePath = function(mf_arr, with_height){
