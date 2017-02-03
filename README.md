@@ -9,9 +9,9 @@ Cesium Examples licensed under the [MIT](https://opensource.org/licenses/MIT)
 MovingFeatureOnCesium
 
 ### API references
-# Moving Feature On Cesium
+#### Moving Feature On Cesium (MFOC)
 
-#### Visualize Movement
+##### Visualize Movement
 
 * movePolygonArray([movingfeature_array], with_height);
 
@@ -55,7 +55,7 @@ var czml = movePolygonArray(mf_arr);
 
 * moveLineStringArray([mf_arr], with_height);
 
-#### Draw Primitive
+##### Draw Primitive
 
 * drawPolygons([mf_arr], with_height)
 
@@ -75,7 +75,7 @@ draw multiple Point.
 
 draw multiple LineString.
 
-#### view Properties graph
+##### view Properties graph
 
 * showProperty([obj_arr], div_id)
 
