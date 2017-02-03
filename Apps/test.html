@@ -10,6 +10,12 @@
   <title>Hello World!</title>
   <script src="../Build/Cesium/Cesium.js"></script>
   <script src="jquery-3.1.1.js"></script>
+
+  <script src="../MFOC/developed sources/draw.js"></script>
+  <script src="../MFOC/developed sources/moving.js"></script>
+  <script src="../MFOC/developed sources/utility.js"></script>
+
+
   <script src="../MFOC/MFOC-0.1.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
 
@@ -41,7 +47,7 @@
 <div id="cesiumContainer" style="position:absolute; top:0px; z-index:1;"></div>
 
 <svg id="graph" class="graph" > </svg>
-
+<iframe src="about:blank" id="iframe" sandbox="allow-same-origin"></iframe>
 </body>
 
 <script>
@@ -49,49 +55,88 @@
   scene = viewer.scene;
   scene.primitives.destroyPrimitives = false;
   viewer.clock.shouldAnimate = false;
-  //mfl = new MovingFeatureList();
+
+  var url = getParameterByName('url');
+  var token = getParameterByName('token');
+
+  Cesium.Viewer.prototype.clear = function(){
+    this.clock.multiplier = 10;
+    this.dataSources.removeAll();
+    var temp = this.scene.primitives.get(0);
+    this.entities.removeAll();
+    this.scene.primitives.removeAll();
+    this.scene.primitives.add(temp);
+  }
+
+  function point_test_2(id_arr){
+
+    var mf_arr = [];
+    var i = 0;
+    var j = 0;
+
+    var finish = 0;
+
+    while (i < id_arr.length){
+      console.log(i);
+      $.getJSON(url + "/FeatureLayers('Typhoon1995')/"+id_arr[i]+"?token="+token).then(
+        function(data){
+          for (var j = 0 ; j < data.features.length ; j++){
+            mf_arr.push(data.features[j]);
+          }
+          
+          viewer.clear();
+          scene.primitives.add(drawPoints(mf_arr, true));
+          var czml = movePointArray(mf_arr , true);
+          var load_czml = Cesium.CzmlDataSource.load(czml)
+          viewer.dataSources.add(load_czml);
+        }
+      );
+      i++;
+    }
+  }
 
   function point_test(){
-    var url = getParameterByName('url');
-    $.getJSON(url + "/FeatureLayers('Typhoon1995')/features('685556100')").then(
+    var id_arr = [];
+    $.getJSON(url + "/FeatureLayers('Typhoon1995')/$ref").then(
       function(data){
-        console.log(data);
+
+        for (var i = 0 ; i < data.url.length ; i++){
+          id_arr[i] = data.url[i];
+          if (i == data.url.length -1){
+            point_test_2(id_arr);
+            console.log(scene.primitives);
+          }
+        }
+
+      }
+    );
+
+
+  }
+
+
+  function polygon_test(){
+    $.getJSON('json_data/polygon2015.json').then(
+      function(data){
         var mf_arr = [];
         for (var i = 0 ; i < data.features.length / 2 ; i++){
           mf_arr.push(data.features[i]);
-        }
 
-        var czml = mfoc.movePointArray(mf_arr, 1);
-        console.log(czml);
+        }
+        scene.primitives.add(drawPolygons(mf_arr, true));
+
+        var czml = movePolygonArray(mf_arr, 1);
+
         var load_czml = Cesium.CzmlDataSource.load(czml)
         viewer.dataSources.add(load_czml);
+
       }
     );
+
   }
 
   point_test();
-
-  function poylgon_test(){
-    $.getJSON('json_data/polygon2016.json').then(
-      function(data){
-        console.log(data);
-        var mf_arr = [];
-        for (var i = 0 ; i < data.features.length / 2 ; i++){
-          mf_arr.push(data.features[i]);
-        }
-
-        var czml = mfoc.movePolygonArray(mf_arr, 1);
-        console.log(czml);
-        var load_czml = Cesium.CzmlDataSource.load(czml)
-        viewer.dataSources.add(load_czml);
-      }
-    );
-
-
-  }
-
-console.log(number);
-console.log(d3);
+  //polygon_test();
 </script>
 
 

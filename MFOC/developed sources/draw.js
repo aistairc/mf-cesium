@@ -1,6 +1,6 @@
 var LOG = console.log;
-function drawOnePolygon(onePolygon, height, with_height, r_color = Cesium.Color.ORANGE.withAlpha(0.3)) { //it gets one polygon
 
+function drawOnePolygon(onePolygon, height, with_height, r_color = Cesium.Color.ORANGE.withAlpha(0.3)) { //it gets one polygon
   var coordinates = onePolygon;
   var points = [];
 
@@ -155,11 +155,11 @@ var drawTyphoons = function(mf_arr, with_height) { // it gets one object of feat
 
 }
 
-
-function drawOnePoint(onePoint,height){ //it gets one point
-  var pointInstance = new PointPrimitive();
+function drawOnePoint(onePoint,height,r_color){ //it gets one point
+  var pointInstance = new Cesium.PointPrimitive();
   var position = Cesium.Cartesian3.fromDegrees(onePoint[0],onePoint[1],height);;
   pointInstance.position = position;
+  pointInstance.color = r_color;
   return pointInstance;
 }
 
@@ -172,17 +172,23 @@ var drawPoints = function(mf_arr, with_height){ //it gets set of points
   var min_max_date = findAllMinMaxTime(mf_arr);
 
   for (var id = 0 ; id < mf_arr.length ; id++){
+    var r_color = Cesium.Color.fromRandom({
+      red : 0.0,
+      minimumBlue : 0.2,
+      minimumGreen : 0.2,
+      alpha : 1.0
+    });
     var buffer = mf_arr[id];
     var heights = getListOfHeight(buffer.temporalGeometry.datetimes, min_max_date);
     var data = buffer.temporalGeometry.coordinates;
     if(with_height){
       for(var i = 0 ; i < data.length ; i++ ){
-        pointCollection.add(drawOnePoint(data[i], heights[i]));
+        pointCollection.add(drawOnePoint(data[i], heights[i], r_color));
       }
     }
     else{
       for(var i = 0 ; i < data.length ; i++ ){
-        pointCollection.add(drawOnePoint(data[i], 0));
+        pointCollection.add(drawOnePoint(data[i], 0, r_color));
       }
     }
   }
@@ -239,6 +245,7 @@ var drawLines= function(mf_arr, with_height) { // it gets one object of features
 }
 
 function findAllMinMaxTime(mf_arr){
+
   var first_date = new Date(mf_arr[0].temporalGeometry.datetimes[0]);
   var min_max_date = [first_date,first_date];
   for (var i = 0 ; i < mf_arr.length ; i++){
@@ -252,6 +259,7 @@ function findAllMinMaxTime(mf_arr){
   }
   return min_max_date;
 }
+
 function drawSurfaceBetween2Polylines(polyline1, polyline2) {
   var surface_line_list = calculateMovingPath(polyline1, polyline2);
   var triangle_list = [];
@@ -318,8 +326,6 @@ function calculateMovingPath(polyline1, polyline2) {
   return surface;
 }
 
-
-
 function get2Dpoints(coordinates) {
   var temp_point = new Array();
   var temp_list = new Array();
@@ -335,7 +341,6 @@ function get2Dpoints(coordinates) {
   }
   return poly_lines;
 }
-
 
 function get3DPoints(coordinates, timeline, timebase, with_height) { //coordinates is the set of points.
   var temp_point = new Array();
@@ -357,11 +362,13 @@ function get3DPoints(coordinates, timeline, timebase, with_height) { //coordinat
 
   return poly_lines;
 }
+
 function calculateDistanceThree3D(p1, p2, p3) {
   var dis1 = euclidianDistance3D(p1, p3);
   var dis2 = euclidianDistance3D(p2, p3);
   return (dis1 + dis2) / 2;
 }
+
 function euclidianDistance2D(a, b) {
   var pow1 = Math.pow(a[0] - b[0], 2);
   var pow2 = Math.pow(a[1] - b[1], 2);
@@ -374,6 +381,7 @@ function euclidianDistance3D(a, b) {
   var pow3 = Math.pow(a[2] - b[2], 2);
   return Math.sqrt(pow1 + pow2 + pow3);
 }
+
 function calculateTriangleWithLines(polyline1, polyline2) {
   var triangle = [];
   if (polyline1[0] == polyline2[0]) {
@@ -388,4 +396,30 @@ function calculateTriangleWithLines(polyline1, polyline2) {
     triangle.push(polyline1[0], polyline1[1], polyline2[1], polyline2[0]);
   }
   return triangle;
+}
+
+var drawPolygonsWithZvalue = function(mf_arr, with_height){
+
+}
+
+
+var drawPointsWithZvalue = function(mf_arr, with_height){
+
+}
+
+
+var drawLinesWithZvalue = function(mf_arr, with_height){
+
+}
+
+var drawTyphoonsWithZvalue = function(mf_arr, with_height){
+
+}
+
+var drawPointsPath = function(mf_arr, with_height){
+
+}
+
+var drawLinePath = function(mf_arr, with_height){
+
 }
