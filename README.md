@@ -89,6 +89,9 @@ draw multiple LineString.
 
 Returns Cesium.PolylineCollection. Draw path for MovingPoint.
 
+* drawLinesPath([mf_arr], with_height)
+
+Returns Cesium.PrimitiveCollection. Draw triangles using each linestring points.
 
 #### View Properties graph
 
