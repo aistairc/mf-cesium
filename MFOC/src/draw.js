@@ -185,6 +185,7 @@ var drawPoints = function(mf_arr, with_height){ //it gets set of points
   var min_max_date = findAllMinMaxTime(mf_arr);
 
   for (var id = 0 ; id < mf_arr.length ; id++){
+
     var r_color = Cesium.Color.fromRandom({
       red : 0.0,
       minimumBlue : 0.2,
@@ -291,24 +292,6 @@ function euclidianDistance3D(a, b) {
 }
 
 
-var drawPolygonsWithZvalue = function(mf_arr, with_height){
-
-}
-
-
-var drawPointsWithZvalue = function(mf_arr, with_height){
-
-}
-
-
-var drawLinesWithZvalue = function(mf_arr, with_height){
-
-}
-
-var drawTyphoonsWithZvalue = function(mf_arr, with_height){
-
-}
-
 var drawPointsPath = function(mf_arr, with_height){
   if ( !Array.isArray(mf_arr) ){
     mf_arr = [mf_arr];
@@ -360,10 +343,7 @@ var drawLinesPath = function(mf_arr, with_height){
       pre_polyline = coord_arr[i];
     }
   }
-
   return trianlgeCollection;
-
-
 }
 
 function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height){

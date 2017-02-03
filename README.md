@@ -6,19 +6,27 @@ Cesium Examples licensed under the [MIT](https://opensource.org/licenses/MIT)
 
 ## API
 
-MovingFeatureOnCesium
+1. Cesium
+
+2. MovingFeatureOnCesium
+
+### Cesium
+
+[Ceisum - An open-source JavaScript library for world-class 3D globes and maps](https://cesiumjs.org/)
+
+### Moving Feature On Cesium (MFOC)
 
 We are developing API for this project.
 
-### Moving Feature On Cesium (MFOC)
+[OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/)
+
+
 
 #### Visualize Movement
 
 * movePolygonArray([movingfeature_array], with_height);
 
 movingfeature is moving feature json object array.
-
-[MovingFeature - JSON](https://ksookim.github.io/mf-json/)
 
 It should be have 'temporalGeometry' key.
 
@@ -92,6 +100,25 @@ Returns Cesium.PolylineCollection. Draw path for MovingPoint.
 * drawLinesPath([mf_arr], with_height)
 
 Returns Cesium.PrimitiveCollection. Draw triangles using each linestring points.
+
+
+#### Draw IndoorGML Data (With Z-value)
+
+* drawPointsWithZvalue([mf_arr], with_height);
+
+Returns Cesium.PointPrimitiveCollection.
+
+```js
+$.getJSON('json_data/indoor.json').then(
+  function(data){
+    var mf_arr = [];
+    for (var i = 0 ; i < data.features.length ; i++){
+      mf_arr.push(data.features[i]);
+    }
+    scene.primitives.add(drawPointsWithZvalue(mf_arr, true));
+  }
+);
+```
 
 #### View Properties graph
 
