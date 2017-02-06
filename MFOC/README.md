@@ -1,4 +1,4 @@
-# MovingFeatureOnCesium
+# Moving Feature On Cesium
 
 ## Visualize Movement
 
@@ -6,7 +6,7 @@
 
 movingfeature is moving feature json object array.
 
-'with_height' means path of animation with own height. 1 is default.( 1 or 0 )
+'with_height' means path of animation with own height.(boolean)
 
 return czml.
 
@@ -46,7 +46,7 @@ var czml = movePolygonArray(mf_arr);
 
 ## Draw Primitive
 
-* drawPolygons([mf_arr], with_height) 
+* drawPolygons([mf_arr], with_height)
 
 draw multiple Polygon.
 
@@ -63,3 +63,22 @@ draw multiple Point.
 * drawLines([mf_arr], with_height)
 
 draw multiple LineString.
+
+## view Properties graph
+
+* showProperty([obj_arr], div_id)
+
+showProperties by d3 graph. (https://github.com/d3/d3/blob/master/API.md)
+
+```js
+<div id="graph" class="graph" > </svg>
+var property1 = {
+  "name" : "central pressure",
+  "uom" : "hPa",
+  "values" : [ 1006.0, ..., 1000.0 ],
+  "datetimes" : [ "2015-07-30 03:00:00",..., "2015-08-12 09:00:00" ],
+  "interpolations" : "Linear"
+}
+var property2 = { ...}
+showProperty([property1, property2,..], 'graph');
+```

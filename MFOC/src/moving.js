@@ -1,4 +1,3 @@
-
 function calculatePathForEachPoint(mls){
 
   var pre_polyline;
@@ -64,8 +63,6 @@ function findMapping(line_1, line_2){
   }
   return array;
 }
-
-
 
 var moveLineStringArray = function(mf_arr, with_height = 1){
   var multiplier = 10000;
@@ -282,8 +279,8 @@ var movePointArray = function(mf_arr, with_height = 1 ){
 
     var length = geometry.datetimes.length;
     var start, stop;
-    start = strtoisostr(geometry.datetimes[0]);
-    stop = strtoisostr(geometry.datetimes[length - 1]);
+    start = new Date(geometry.datetimes[0]).toISOString();
+    stop = new Date(geometry.datetimes[length - 1]).toISOString();
 
     var availability = start + "/" + stop;
 
@@ -311,9 +308,9 @@ var movePointArray = function(mf_arr, with_height = 1 ){
       var carto = [];
       var point = geometry.coordinates;
       for (var i = 0 ; i < geometry.coordinates.length ; i++){
-        carto.push(strtoisostr(geometry.datetimes[i]));
-        carto.push(point[i][1]);
+        carto.push(new Date(geometry.datetimes[i]).toISOString());
         carto.push(point[i][0]);
+        carto.push(point[i][1]);
         var normalize = normalizeTime(new Date(geometry.datetimes[i]), min_max_date);
         if (with_height){
           carto.push(normalize);
@@ -352,13 +349,13 @@ var movePointArray = function(mf_arr, with_height = 1 ){
       for (var i = 0 ; i < geometry.coordinates.length - 1 ; i++){
         var obj ={};
         if (geometry.interpolations == "Stepwise"){
-          var start_interval = strtoisostr(geometry.datetimes[i]);
-          var finish_interval = strtoisostr(geometry.datetimes[i+1]);
+          var start_interval = new Date(geometry.datetimes[i]).toISOString();
+          var finish_interval = new Date(geometry.datetimes[i+1]).toISOString();
           obj.interval = start_interval+"/"+finish_interval;
         }
         else{
-          var start_interval = strtoisostr(geometry.datetimes[i]);
-          var start_date = strtoDate(geometry.datetimes[i]);
+          var start_interval = new Date(geometry.datetimes[i]).toISOString();
+          var start_date = new Date(geometry.datetimes[i]);
           var finish_date = start_date.setHours(start_date.getHours() + multiplier/10000);
           var finish_interval = new Date(finish_date).toISOString();
           obj.interval = start_interval+"/"+finish_interval;
@@ -367,7 +364,7 @@ var movePointArray = function(mf_arr, with_height = 1 ){
         obj.cartographicDegrees.push(point[i][1]);
         obj.cartographicDegrees.push(point[i][0]);
 
-        var normalize = normalizeTime(strtoDate(geometry.datetimes[i]), min_max_date);
+        var normalize = normalizeTime(new Date(geometry.datetimes[i]), min_max_date);
         if (with_height){
           obj.cartographicDegrees.push(normalize);
         }
@@ -384,61 +381,6 @@ var movePointArray = function(mf_arr, with_height = 1 ){
 
 
   return czml;
-}
-
-var findMinMaxTime_point = function(datetimes){
-  var min_max_date = [];
-  min_max_date[0] = strtoDate(datetimes[0]).getTime();
-  min_max_date[1] = strtoDate(datetimes[0]).getTime();
-
-  for (var j = 1 ; j < datetimes.length ; j++){
-
-    var time = strtoDate(datetimes[j]).getTime();
-
-    if (min_max_date[0] > time){
-      min_max_date[0] = time;
-    }
-    if (min_max_date[1] < time){
-      min_max_date[1] = time;
-    }
-  }
-  return min_max_date;
-}
-
-function strtoDate(str_date){
-  var date_T = str_date.split("T");
-  var ymd = date_T[0].split("-");
-  var month = ymd[1];
-  if (month.length == 1)
-  {
-    month = "0" + month;
-  }
-
-  if (ymd[2].length == 1)
-  {
-    ymd[2] = "0" + ymd[2];
-  }
-
-  var new_date = new Date(ymd[0]+"-"+month+"-"+ymd[2]+"T"+date_T[1]);
-  return new_date;
-}
-
-function strtoisostr(str_date){
-  var date_T = str_date.split("T");
-  var ymd = date_T[0].split("-");
-  var month = ymd[1];
-  if (month.length == 1)
-  {
-    month = "0" + month;
-  }
-
-  if (ymd[2].length == 1)
-  {
-    ymd[2] = "0" + ymd[2];
-  }
-
-  var new_date = ymd[0]+"-"+month+"-"+ymd[2]+"T"+date_T[1];
-  return new_date;
 }
 
 var movePolygonArray = function(mf_arr, with_height = 1 ){
