@@ -130,7 +130,7 @@ Show Property graph by [d3](https://github.com/d3/d3/blob/master/API.md).
 It is recommended that propery objects have same attributes.
 
 ```js
-<div id="graph" class="graph" > </svg>
+<div id="graph" class="graph" > </div>
 var property1 = {
   "name" : "central pressure",
   "uom" : "hPa",
