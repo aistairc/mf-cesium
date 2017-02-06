@@ -363,7 +363,7 @@ function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height)
     var positions = [];
     var point_1 = line_1[i];
     var point_2 = line_2[j];
-
+    
     var next_point_1 = line_1[i+1];
     var next_point_2 = line_2[j+1];
 
@@ -403,7 +403,7 @@ function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height)
     var point_2 = line_2[j];
 
     point_1.push(height1);
-  positions.push(point_1);
+    positions.push(point_1);
     point_2.push(height2);
     positions.push(point_2);
 
@@ -418,7 +418,7 @@ function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height)
     else if (j == line_2.length - 1){
       var next_point = line_1[i+1];
       next_point.push(height1);
-    positions.push(next_point);
+      positions.push(next_point);
 
       i++;
     }
