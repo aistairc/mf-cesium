@@ -22,8 +22,10 @@
     <script src="../js/utility.js"></script>
     <script src="../js/sendRequest.js"></script>
     <script src="../js/drawingFeatures.js"></script>
+    <script src="../js/property.js"></script>
     <script src="../js/plotly-latest.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
 
     <style>
         @import url(Sandcastle/templates/bucket.css);
@@ -69,7 +71,7 @@
 
         .column {
             float: left;
-            width: 100%;
+            width: 30%;
         }
     </style>
 </head>
@@ -77,243 +79,374 @@
 <body>
     <div id="cesiumContainer" class="fullSize"></div>
     <div>
-
-            <div id="toolbar" class = "wrapper" style="overflow:auto">
-              <button onclick="getLayers()">getdata</button>
-              <div id="featureLayers" style="overflow:auto" class = "column"></div>
-              <div id="features" class = "column"></div>
-              <div id="feature" class = "column"></div>
-            </div>
-
-
+        <div id="toolbar" class="wrapper" style="overflow:auto">
+            <button onclick="getLayers()">getdata</button>
+            <div id="featureLayers" style="overflow:auto" class="column"></div>
+            <div id="features" class="column"></div>
+            <div id="feature" class="column"></div>
         </div>
-        <script>
-            var checked_info = new Array();
-            String.prototype.replaceAll = function(org, dest) {
+
+
+    </div>
+    <div id="graph"></div>
+    <script>
+        var checked_info = new Array();
+        String.prototype.replaceAll = function(org, dest) {
             return this.split(org).join(dest);
-            }
-            function getLayers() {
-                var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
-                url += "$ref";
-                var featureLayers;
-                var promise = request1(url);
-                promise.then(function(arr) {
-                        featureLayers = arr;
-                        printFeatureLayerList(featureLayers, "featureLayers");
-                    })
-                    .catch(function() {
-                        console.log("error");
-                    });
+        }
 
-            }
+        function getLayers() {
+            var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+            url += "$ref";
+            var featureLayers;
+            var promise = request1(url);
 
-            function getFeatures(feature) {
-                var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+            promise.then(function(arr) {
+                    featureLayers = arr;
+                    url = url.replace("/$ref", "");
+                    printFeatureLayerList(featureLayers, url, "featureLayers");
+                })
+                .catch(function() {
+                    console.log("error");
+                });
 
-                console.log("nock nock");
-                url += feature.replaceAll("\\\'","\'") + "/$ref";
+        }
 
+        function getFeatures(url, feature) {
+            //var new_url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+            //console.log(feature);
+            //url += feature + "/$ref";
+            //console.log(url);
+            var features;
+            var promise = request2(url);
+            url = url.replace("/$ref", "");
+            promise.then(function(arr) {
+                    features = arr[1];
+                    printFeatures(features, url, "features");
 
-                var features;
-                var promise = request2(url);
-                promise.then(function(arr) {
-                        features = arr[1];
-                        printFeatures(features, "features");
-                    })
-                    .catch(function() {
-                        console.log("error");
-                    });
+                })
+                .catch(function() {
+                    console.log("error");
+                });
 
-            }
+        }
 
-            function getFeature(feature) {
-                var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
-                url += feature.value;
-                var feature;
-                var token = prompt("token", "");
-                url += "?token=" + token;
-                var promise = request3(url);
-                promise.then(function(arr) {
-                        feature = arr;
-                        printFeature(feature, "feature");
-                    })
-                    .catch(function() {
-                        console.log("error");
-                    });
-            }
+        function getFeature(url, feature) {
+            //var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
 
-            function printFeature(data, id) {
-                var label_list;
-                for (var i = 0; i < arr.length; i++) {
-                    label_list += "<div>" + data + "<div>";
+            //var feature;
+            var token = prompt("token", "");
+            url += "?token=" + token;
+            console.log(url);
+            var promise = request3(url);
+            promise.then(function(arr) {
+                    feature = arr;
+                    printFeature(feature, "feature");
+                })
+                .catch(function() {
+                    console.log("error");
+                });
+        }
+        var properties = new Array();
+        var checked_property = new Array();
+        var features = new Array();
+        function putProperties(id, name) {
+          var obj = searchPropertyInfo(id, name);
+          //obj = JSON.parse(obj);
+          console.log(obj);
+            if(obj !== NULL){
+              var isExistPro = false;
+              if(properties.length!=0){
+                if (properties[0].name == obj.name) {
+                    isExistPro = true;
+                    if (!properties[i].contains(obj)) {
+                        properties[i].push(obj);
+                    }
                 }
-                document.getElementById(id).innerHTML = label_list;
-                //$('input[name=ff_checkbox]').prop('checked',true);
-            }
-
-            function printFeatureLayerList(arr, id) {
-                var label_list;
-                //label_list += "<form name = 'featureLayers'>";
-                for (var i = 0; i < arr.length; i++) {
-                    var parameter = arr[i].toString();
-                    parameter = arr[i].replaceAll("\'","\\\'");
-                    console.log(parameter);
-                    var div = document.createElement("div");
-                    div.id = arr[i];
-                    div.innerText = arr[i];
-                    div.onclick = (function(id){
-                      getFeatures(id);
-                    })(parameter);
-                    var target = document.getElementById("featureLayers");
-                    target.appendChild(div);
-                    var chk = document.createElement("input");
-                    target = document.getElementById("featureLayers");
-                    target.appendChild(div);
-                    //label_list += "<div onclick = \'getFeatures(\'"+parameter+"\')\'>" + arr[i] + "</div>" + "<input name = 'f_checkbox' type = 'checkbox' value = " + arr[i] + " />";
-                    //$("input:checkbox[name='f_checkbox']").prop("checked",true);
+                if (isExistPro == false) {
+                    properties = [];
+                    properties.push(obj);
                 }
-                //label_list += "</form>";
-
-                //document.getElementById(id).innerHTML = label_list;
-                //$('input[name=f_checkbox]').prop('checked', true);
-                console.log("nock nock");
+              }
+              else{
+                console.log(obj);
+                properties.push(obj);
+              }
             }
+        }
 
-            function printFeatures(arr, id) {
-                var label_list;
-                console.log(arr);
+        function delProperties(id,name) {
+          var obj = searchPropertyInfo(id, name);
+            if (properties.contains(obj)) {
+                var index = properties.indexOf(obj);
+                properties.splice(index, 1);
+            }
+        }
+
+        function updateProperties(id, name, checked){
+          if(checked == false){
+            delProperties(id, name);
+          }
+          else{
+            putProperties(id, name);
+          }
+          showProperty(properties, "graph");
+        }
+        function searchPropertyInfo(id, name){
+          for(var i = 0 ; i < features.length ;i++){
+            console.log(features);
+            if(features[i].features[0].properties.name == id){
+              var temporalProperties = features[i].features[0].temporalProperties;
+              for(var j = 0 ; j < temporalProperties.length ; j++){
+                if(temporalProperties[j].name == name){
+                  return temporalProperties[j];
+                }
+              }
+            }
+          }
+          return NULL;
+        }
+        Array.prototype.contains = function(obj) {
+    var i = this.length;
+    while (i--) {
+        if (this[i] === obj) {
+            return true;
+        }
+    }
+    return false;
+}
+        function printFeature(data, id) {
+            var div = document.createElement("div");
+            var json = JSON.parse(data);
+            features.push(json);
+            var name = json.features[0].properties.name;
+            var temporalProperties = json.features[0].temporalProperties;
+
+            div.innerText = name;
+            var target = document.getElementById("feature");
+            target.appendChild(div);
+            for (var i = 0; i < temporalProperties.length; i++) {
+                var temp_div = document.createElement("div");
+                temp_div.innerText = temporalProperties[i].name;
+                target.appendChild(temp_div);
+
+                var chk = document.createElement("input");
+                chk.id = name;
+                chk.name = temporalProperties[i].name;
+                chk.type = "checkbox";
+
+                chk.onclick = (function(id, name, checked) {
+                    return function(){
+                        updateProperties(id, name, checked);
+                    };
+                })(chk.id, chk.name, chk.checked);
+                target.appendChild(chk);
+            }
+        }
+
+
+
+        function printFeatureLayerList(arr, url, id) {
+            //label_list += "<form name = 'featureLayers'>";
+            for (var i = 0; i < arr.length; i++) {
+                var parameter = arr[i];
+                console.log(parameter);
+                var div = document.createElement("div");
+                var new_url = url + "/" + parameter + "/$ref";
+                div.id = arr[i];
+                div.innerText = arr[i];
+                /*S
+                div.onclick = (function(id){
+                  return function (){
+                    getFeatures(id);
+                  }})(parameter);*/
+
+                div.onclick = (function(url, p) {
+                    return function(){getFeatures(url, p);};
+                })(new_url,parameter);
+
+                var target = document.getElementById("featureLayers");
+                target.appendChild(div);
+                var chk = document.createElement("input");
+                target = document.getElementById("featureLayers");
+                target.appendChild(div);
+                //label_list += "<div onclick = \'getFeatures(\'"+parameter+"\')\'>" + arr[i] + "</div>" + "<input name = 'f_checkbox' type = 'checkbox' value = " + arr[i] + " />";
+                //$("input:checkbox[name='f_checkbox']").prop("checked",true);
+            }
+            //label_list += "</form>";
+
+            //document.getElementById(id).innerHTML = label_list;
+            //$('input[name=f_checkbox]').prop('checked', true);s
+        }
+
+        function printFeatures(arr, url, id) {
+            var label_list;
+            //console.log(arr);
+
+            for (var i = 0; i < arr.length; i++) {
+                var parameter = arr[i].toString();
+                parameter = arr[i];
+
+                var div = document.createElement("div");
+                div.id = arr[i];
+                div.innerText = arr[i];
+                var chk = document.createElement("input");
+                chk.type = "checkbox";
+                chk.checked = "true";
+                chk.id = arr[i];
+                var new_url = url + "/" + parameter;
+                /*
+                div.onclick = (function(id){
+                  return function (){
+                    getFeatures(id);
+                  }})(parameter);*/
+
+                  div.onclick = (function(url, p) {
+                      return function(){getFeature(url, p);};
+                  })(new_url,parameter);
+
+                var target = document.getElementById("features");
+                target.appendChild(div);
+
+                target.appendChild(chk);
+
+                /*
                 for (var i = 0; i < arr.length; i++) {
                     label_list += "<div value = \"" + arr[i] + "\" onclick = 'getFeature(this)'>" + arr[i] + "<input name = 'ff_checkbox' type = 'checkbox' value " + arr[i] + " /></div>";
                 }
                 document.getElementById(id).innerHTML = label_list;
                 $('input[name=ff_checkbox]').prop('checked', true);
+                */
 
             }
+        }
 
-            function sendRequest() { //later we need to put url as parameter
-                var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
-                var featureLayers = new Array();
-                var feature = new Array();
-                var featureProperty;
-                url += "$ref";
-                var promise = request1(url);
-                promise.then(function(arr) {
-                        //featureLayers = arr.splice(0,1);
-                        featureLayers = arr;
-                        var new_url = url.replace("$ref", "") + arr[0] + "/$ref";
-                        printFeatureLayerList(featureLayers, "featureLayers");
-                        return request2(new_url);
-                    })
-                    .catch(function() {
-                        console.log("error");
-                    })
-                    .then(function(arr) {
-                        feature = arr[1].splice(0, 1);
-                        console.log(feature);
-                        var new_url = arr[0].replace("$ref", "") + feature[0];
-                        var token = prompt("token", "");
-                        new_url += "?token=" + token;
-                        console.log(new_url);
-                        return (request3(new_url));
-                    })
-                    .catch(function() {
-                        console.log("error");
-                    })
-                    .then(function(arr) {
-                        featureProperty = arr;
-                        console.log(arr);
-                    })
-                    .catch(function() {
-                        console.log("you do not get full properties without token");
-                    });
-
-            }
-            var request1 = function(url) {
-                return new Promise(function(resolved, rejected) {
-                    var xhr = createCORSRequest('GET', url);
-                    if (!xhr) {
-                        alert('CORS not supported');
-                        return;
-                    }
-                    xhr.onload = function() {
-                        var text = xhr.responseText;
-                        //var title = getTitle(text);
-                        var arr = JSON.parse("[" + text + "]");
-                        arr = $.map(arr[0], function(el) {
-                            return el
-                        });
-                        resolved(arr);
-                    };
-                    xhr.onerror = function() {
-                        alert('Woops, there was an error making the request.');
-                    };
-                    xhr.send();
-                });
-            };
-            var request2 = function(url) {
-                return new Promise(function(resolved, rejected) {
-                    var xhr = createCORSRequest('GET', url);
-                    if (!xhr) {
-                        alert('CORS not supported');
-                        return;
-                    }
-                    xhr.onload = function() {
-                        var text = xhr.responseText;
-                        //var title = getTitle(text);
-                        var arr = JSON.parse("[" + text + "]");
-                        arr = $.map(arr[0], function(el) {
-                            return el
-                        });
-                        var info = new Array();
-                        info.push(url);
-                        info.push(arr);
-                        resolved(info);
-                    };
-
-                    xhr.onerror = function() {
-                        alert('Woops, there was an error making the request.');
-                    };
-                    xhr.send();
-
-                });
-            };
-            var request3 = function(url) {
-                return new Promise(function(resolved, rejected) {
-
-                    var xhr = createCORSRequest('GET', url);
-                    if (!xhr) {
-                        alert('CORS not supported');
-                        return;
-                    }
-                    xhr.onload = function() {
-                        var text = xhr.responseText;
-                        console.log(text);
-                        resolved(text);
-                    };
-                    xhr.onerror = function() {
-                        alert('Woops, there was an error making the request.');
-                    };
-                    xhr.send();
-
-                });
-            };
-
-            function createCORSRequest(method, url) {
-                var xhr = new XMLHttpRequest();
-                if ("withCredentials" in xhr) {
-                    // XHR for Chrome/Firefox/Opera/Safari.
-                    xhr.open(method, url, true);
-                } else if (typeof XDomainRequest != "undefined") {
-                    // XDomainRequest for IE.
-                    xhr = new XDomainRequest();
-                    xhr.open(method, url);
-                } else {
-                    // CORS not supported.
-                    xhr = null;
+        var request1 = function(url) {
+            return new Promise(function(resolved, rejected) {
+                var xhr = createCORSRequest('GET', url);
+                if (!xhr) {
+                    alert('CORS not supported');
+                    return;
                 }
-                return xhr;
+                xhr.onload = function() {
+                    var text = xhr.responseText;
+                    //var title = getTitle(text);
+
+                    var arr = JSON.parse("[" + text + "]");
+                    arr = $.map(arr[0], function(el) {
+                        return el
+                    });
+                    resolved(arr);
+                };
+                xhr.onerror = function() {
+                    alert('Woops, there was an error making the request.');
+                };
+                xhr.send();
+            });
+        };
+        var request2 = function(url) {
+            return new Promise(function(resolved, rejected) {
+                var xhr = createCORSRequest('GET', url);
+                if (!xhr) {
+                    alert('CORS not supported');
+                    return;
+                }
+                xhr.onload = function() {
+                    var text = xhr.responseText;
+                    //var title = getTitle(text);
+                    var arr = JSON.parse("[" + text + "]");
+                    arr = $.map(arr[0], function(el) {
+                        return el
+                    });
+                    var info = new Array();
+                    info.push(url);
+                    info.push(arr);
+                    resolved(info);
+                };
+
+                xhr.onerror = function() {
+                    alert('Woops, there was an error making the request.');
+                };
+                xhr.send();
+
+            });
+        };
+        var request3 = function(url) {
+            return new Promise(function(resolved, rejected) {
+
+                var xhr = createCORSRequest('GET', url);
+                if (!xhr) {
+                    alert('CORS not supported');
+                    return;
+                }
+                xhr.onload = function() {
+                    var text = xhr.responseText;
+                    console.log(text);
+                    resolved(text);
+                };
+                xhr.onerror = function() {
+                    alert('Woops, there was an error making the request.');
+                };
+                xhr.send();
+
+            });
+        };
+
+        function createCORSRequest(method, url) {
+            var xhr = new XMLHttpRequest();
+            if ("withCredentials" in xhr) {
+                // XHR for Chrome/Firefox/Opera/Safari.
+                xhr.open(method, url, true);
+            } else if (typeof XDomainRequest != "undefined") {
+                // XDomainRequest for IE.
+                xhr = new XDomainRequest();
+                xhr.open(method, url);
+            } else {
+                // CORS not supported.
+                xhr = null;
             }
-        </script>
+            return xhr;
+        }
+
+        function sendRequest() { //later we need to put url as parameter
+            var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+            var featureLayers = new Array();
+            var feature = new Array();
+            var featureProperty;
+            url += "$ref";
+            var promise = request1(url);
+            promise.then(function(arr) {
+                    //featureLayers = arr.splice(0,1);
+                    featureLayers = arr;
+                    var new_url = url.replace("$ref", "") + arr[0] + "/$ref";
+                    printFeatureLayerList(featureLayers, "featureLayers");
+                    return request2(new_url);
+                })
+                .catch(function() {
+                    console.log("error");
+                })
+                .then(function(arr) {
+                    feature = arr[1].splice(0, 1);
+                    console.log(feature);
+                    var new_url = arr[0].replace("$ref", "") + feature[0];
+                    var token = prompt("token", "");
+                    new_url += "?token=" + token;
+                    console.log(new_url);
+                    return (request3(new_url));
+                })
+                .catch(function() {
+                    console.log("error");
+                })
+                .then(function(arr) {
+                    featureProperty = arr;
+                    console.log(arr);
+                })
+                .catch(function() {
+                    console.log("you do not get full properties without token");
+                });
+
+        }
+    </script>
 </body>
 
 
