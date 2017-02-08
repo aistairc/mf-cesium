@@ -124,6 +124,7 @@
                     features = arr[1];
                     printFeatures(features, url, "features");
 
+
                 })
                 .catch(function() {
                     console.log("error");
@@ -150,71 +151,89 @@
         var properties = new Array();
         var checked_property = new Array();
         var features = new Array();
+
         function putProperties(id, name) {
-          var obj = searchPropertyInfo(id, name);
-          //obj = JSON.parse(obj);
-          console.log(obj);
-            if(obj !== NULL){
-              var isExistPro = false;
-              if(properties.length!=0){
-                if (properties[0].name == obj.name) {
-                    isExistPro = true;
-                    if (!properties[i].contains(obj)) {
-                        properties[i].push(obj);
+            var obj = searchPropertyInfo(id, name);
+            //obj = JSON.parse(obj);
+            console.log(obj);
+            if (obj !== null) {
+                var isExistPro = false;
+                if (properties.length != 0) {
+                    if (properties[0].name == obj.name) {
+                        isExistPro = true;
+                        if (!properties.contains(obj)) {
+                            properties.push(obj);
+                        }
                     }
-                }
-                if (isExistPro == false) {
-                    properties = [];
+                    if (isExistPro == false) {
+                        properties = [];
+                        properties.push(obj);
+                    }
+                } else {
+                    console.log(obj);
                     properties.push(obj);
                 }
-              }
-              else{
-                console.log(obj);
-                properties.push(obj);
-              }
             }
         }
 
-        function delProperties(id,name) {
-          var obj = searchPropertyInfo(id, name);
+        function delProperties(id, name) {
+            var obj = searchPropertyInfo(id, name);
             if (properties.contains(obj)) {
                 var index = properties.indexOf(obj);
                 properties.splice(index, 1);
             }
         }
 
-        function updateProperties(id, name, checked){
-          if(checked == false){
-            delProperties(id, name);
-          }
-          else{
-            putProperties(id, name);
-          }
-          showProperty(properties, "graph");
-        }
-        function searchPropertyInfo(id, name){
-          for(var i = 0 ; i < features.length ;i++){
-            console.log(features);
-            if(features[i].features[0].properties.name == id){
-              var temporalProperties = features[i].features[0].temporalProperties;
-              for(var j = 0 ; j < temporalProperties.length ; j++){
-                if(temporalProperties[j].name == name){
-                  return temporalProperties[j];
+        function updateProperties(id, name) {
+            var elem = document.getElementById(id + "_" + name);
+            var prop_info = searchPropertyInfo(id, name);
+            //comnpare prop_info with already_selected prop at properties
+            if (properties.length !== 0) {
+                if (prop_info.name == properties[0].name) {
+                    if (properties.contains(prop_info)) {
+                        delProperties(id, name);
+                    } else {
+                        putProperties(id, name);
+                    }
+                } else {
+                    $('input:checkbox[name="' + properties[0].name + '"]').each(function() {
+                        //this.checked = true; //checked 처리
+                        if (this.checked) { //checked 처리된 항목의 값
+                            this.checked = false;
+                        }
+                    });
+                    properties = [];
+                    putProperties(id, name);
                 }
-              }
+            } else {
+                putProperties(id, name);
             }
-          }
-          return NULL;
+            showProperty(properties, "graph");
+        }
+
+        function searchPropertyInfo(id, name) {
+            for (var i = 0; i < features.length; i++) {
+                if (features[i].features[0].properties.name == id) {
+                    var temporalProperties = features[i].features[0].temporalProperties;
+                    for (var j = 0; j < temporalProperties.length; j++) {
+                        if (temporalProperties[j].name == name) {
+                            return temporalProperties[j];
+                        }
+                    }
+                }
+            }
+            return NULL;
         }
         Array.prototype.contains = function(obj) {
-    var i = this.length;
-    while (i--) {
-        if (this[i] === obj) {
-            return true;
+            var i = this.length;
+            while (i--) {
+                if (this[i] === obj) {
+                    return true;
+                }
+            }
+            return false;
         }
-    }
-    return false;
-}
+
         function printFeature(data, id) {
             var div = document.createElement("div");
             var json = JSON.parse(data);
@@ -231,15 +250,20 @@
                 target.appendChild(temp_div);
 
                 var chk = document.createElement("input");
-                chk.id = name;
+                chk.id = name + "_" + temporalProperties[i].name;
                 chk.name = temporalProperties[i].name;
+                //chk.name = temporalProperties[i].name;
                 chk.type = "checkbox";
 
-                chk.onclick = (function(id, name, checked) {
-                    return function(){
-                        updateProperties(id, name, checked);
+                chk.onclick = (function(id) {
+                    var getid = id.split("_");
+
+                    //var checked = $("input:checkbox[id='"+id+"']").is(':checked');
+                    return function() {
+                        //console.log(checked);
+                        updateProperties(getid[0], getid[1]);
                     };
-                })(chk.id, chk.name, chk.checked);
+                })(chk.id);
                 target.appendChild(chk);
             }
         }
@@ -262,8 +286,10 @@
                   }})(parameter);*/
 
                 div.onclick = (function(url, p) {
-                    return function(){getFeatures(url, p);};
-                })(new_url,parameter);
+                    return function() {
+                        getFeatures(url, p);
+                    };
+                })(new_url, parameter);
 
                 var target = document.getElementById("featureLayers");
                 target.appendChild(div);
@@ -294,6 +320,7 @@
                 chk.type = "checkbox";
                 chk.checked = "true";
                 chk.id = arr[i];
+
                 var new_url = url + "/" + parameter;
                 /*
                 div.onclick = (function(id){
@@ -301,9 +328,11 @@
                     getFeatures(id);
                   }})(parameter);*/
 
-                  div.onclick = (function(url, p) {
-                      return function(){getFeature(url, p);};
-                  })(new_url,parameter);
+                div.onclick = (function(url, p) {
+                    return function() {
+                        getFeature(url, p);
+                    };
+                })(new_url, parameter);
 
                 var target = document.getElementById("features");
                 target.appendChild(div);
