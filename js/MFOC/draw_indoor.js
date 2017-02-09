@@ -9,7 +9,6 @@ var drawPointsWithZvalue = function(mf_arr, with_height){
   var pointCollection = new Cesium.PointPrimitiveCollection();
   var min_max = findAllMinMaxTimeAndZ(mf_arr, true);
 
-  LOG(min_max.value);
   for (var id = 0 ; id < mf_arr.length ; id++){
     var r_color = Cesium.Color.fromRandom({
       red : 0.0,

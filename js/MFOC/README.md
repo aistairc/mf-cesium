@@ -1,14 +1,21 @@
-# Moving Feature On Cesium
+# Moving Feature On Cesium (MFOC)
 
-## Visualize Movement
+We are developing API for this project.
+
+[OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/)
+
+
+#### Visualize Movement
 
 * movePolygonArray([movingfeature_array], with_height);
 
 movingfeature is moving feature json object array.
 
+It should be have 'temporalGeometry' key.
+
 'with_height' means path of animation with own height.(boolean)
 
-return czml.
+Returns [czml](https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Guide) object.
 
 ```js
 var mf1 = {
@@ -32,7 +39,7 @@ var mf1 = {
       "name" : "Max wind speed",
       "uom" : "kt",
       "values" : [ 0.0, 0.0,..., 0.0, 0.0 ],
-      "datetimes" : [ "2015-07-30 03:00:00",.., "2015-08-11 03:00:00", "2015-08-11 09:00:00", "2015-08-11 15:00:00", "2015-08-11 21:00:00", "2015-08-12 03:00:00", "2015-08-12 09:00:00" ],
+      "datetimes" : [ "2015-07-30 03:00:00",.., "2015-08-12 09:00:00" ],
       "interpolations" : "Linear"
     } ]
   }
@@ -40,17 +47,22 @@ var mf_arr = [ mf1, mf2 ]; //mf is movingfeature object.
 var czml = movePolygonArray(mf_arr);
 ```
 
-* movePointArray([mf_arr], with_height);
+* movePointArray([mf_arr], with_height)
 
-* moveLineStringArray([mf_arr], with_height);
+Returns czml object.
 
-## Draw Primitive
+* moveLineStringArray([mf_arr], with_height)
+
+Returns czml object.
+
+
+#### Draw Primitive
 
 * drawPolygons([mf_arr], with_height)
 
-draw multiple Polygon.
+Draw multiple Polygon.
 
-return Cesium.primitiveCollection
+Return Cesium.primitiveCollection.
 
 * drawTyphoons([mf_arr], with_height)
 
@@ -64,14 +76,43 @@ draw multiple Point.
 
 draw multiple LineString.
 
-## view Properties graph
+* drawPointsPath([mf_arr], with_height)
+
+Returns Cesium.PolylineCollection. Draw path for MovingPoint.
+
+* drawLinesPath([mf_arr], with_height)
+
+Returns Cesium.PrimitiveCollection. Draw triangles using each linestring points.
+
+
+#### Draw IndoorGML Data (With Z-value)
+
+* drawPointsWithZvalue([mf_arr], with_height);
+
+Returns Cesium.PointPrimitiveCollection. z-value apperas in color.
+
+```js
+$.getJSON('json_data/indoor.json').then(
+  function(data){
+    var mf_arr = [];
+    for (var i = 0 ; i < data.features.length ; i++){
+      mf_arr.push(data.features[i]);
+    }
+    scene.primitives.add(drawPointsWithZvalue(mf_arr, true));
+  }
+);
+```
+
+#### View Properties graph
 
 * showProperty([obj_arr], div_id)
 
-showProperties by d3 graph. (https://github.com/d3/d3/blob/master/API.md)
+Show Property graph by [d3](https://github.com/d3/d3/blob/master/API.md).
+
+It is recommended that propery objects have same attributes.
 
 ```js
-<div id="graph" class="graph" > </svg>
+<div id="graph" class="graph" > </div>
 var property1 = {
   "name" : "central pressure",
   "uom" : "hPa",
@@ -82,3 +123,25 @@ var property1 = {
 var property2 = { ...}
 showProperty([property1, property2,..], 'graph');
 ```
+
+#### View hotspot cube
+
+* show3DHotSpotMovingPoint([mf_arr], x_deg, y_deg, time_deg, max_height)
+
+Show Hotspot cube for MovingPoint Array.
+
+'x_deg' is how much divide longitude.
+
+'y_deg' is latitude.
+
+'time_deg' is seconds.
+
+'max_height' is meters that assume how much maximum height. it can be omitted.(default 15000000)
+
+```js
+scene.primitives.add(show3DHotSpotMovingPoint(mf_arr, 1, 1, 3600));
+```
+
+e.g.
+
+![hotspotPoint](http://i.imgur.com/7pN8bDz.png)
