@@ -142,6 +142,29 @@ var property2 = { ...}
 showProperty([property1, property2,..], 'graph');
 ```
 
+#### View hotspot cube
+
+* show3DHotSpotMovingPoint([mf_arr], x_deg, y_deg, time_deg, max_height)
+
+Show Hotspot cube for MovingPoint Array.
+
+'x_deg' is how much divide longitude.
+
+'y_deg' is latitude.
+
+'time_deg' is seconds.
+
+'max_height' is meters that assume how much maximum height. it can be omitted.(default 15000000)
+
+```js
+scene.primitives.add(show3DHotSpotMovingPoint(mf_arr, 1, 1, 3600));
+```
+
+e.g.
+
+![hotspotPoint](http://i.imgur.com/7pN8bDz.png)
+
+
 - - -
 
 ## Building

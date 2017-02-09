@@ -440,34 +440,61 @@ function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height)
 }
 
 
-function drawOneCube(lower, upper, ){
+function drawOneCube(positions, rating = 1.0){
+  var red_rate = 1.0, green_rate = (-2 * rating) + 2;
 
-  /*
+  var rating_color = new Cesium.Color(
+    1.0,
+    green_rate,
+    0.0,
+    rating
+  );
 
-    var prim = new Cesium.Primitive({
-      geometryInstances : instances,
-      appearance : new Cesium.PerInstanceColorAppearance({
-        translucent : true
-      }),
-      show : true
-    });
+  if (rating < 0){
+    rating_color = new Cesium.Color(
+      1.0,
+      green_rate,
+      0.5,
+      0.2
+    );
+  }
+  var size = calcSidesBoxCoord(positions);
 
-
-    var p_geometry = Cesium.PolygonGeometry.createGeometry(polygon);
-
-    return (new Cesium.GeometryInstance({
-      geometry : p_geometry,
-      attributes : {
-        color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
-      }
-
-    } ));
-
-    var box = new Cesium.BoxGeometry({
-    vertexFormat : Cesium.VertexFormat.POSITION_ONLY,
-    maximum : new Cesium.Cartesian3(250000.0, 250000.0, 250000.0),
-    minimum : new Cesium.Cartesian3(-250000.0, -250000.0, -250000.0)
+  var geometry = Cesium.BoxGeometry.fromDimensions({
+    vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
+    dimensions :  new Cesium.Cartesian3( size[0], size[1], size[2] )
   });
-  */
+  //console.log(positions, geometry);
+  var position = Cesium.Cartesian3.fromDegrees( (positions.minimum.x + positions.maximum.x) / 2, (positions.maximum.y + positions.minimum.y) /2 , (positions.minimum.z + positions.maximum.z) / 2);
 
+  var point3d = new Cesium.Cartesian3( 0.0, 0.0, 0.0 );
+  var translation = Cesium.Transforms.eastNorthUpToFixedFrame( position );
+  var matrix = Cesium.Matrix4.multiplyByTranslation( translation, point3d, new Cesium.Matrix4() );
+
+
+  var geo_instance = new Cesium.GeometryInstance({
+    geometry : geometry,
+    modelMatrix : matrix,
+    attributes : {
+      color : Cesium.ColorGeometryInstanceAttribute.fromColor(rating_color)
+    }
+
+  } );
+
+  return new Cesium.Primitive({
+    geometryInstances : geo_instance,
+    appearance : new Cesium.PerInstanceColorAppearance({
+      translucent : true
+    }),
+    show : true
+  });
+
+}
+
+function calcSidesBoxCoord(box_coord){
+  var x_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.maximum.x, box_coord.minimum.y, box_coord.minimum.z));
+  var y_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.maximum.y, box_coord.minimum.z));
+  var z_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.maximum.z));
+
+  return [x_dist, y_dist, z_dist];
 }

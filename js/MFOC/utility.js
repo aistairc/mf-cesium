@@ -173,7 +173,7 @@ function findMinMaxCoord(coordinates){
       min_max.min_y = coord[1];
     }
     if (min_max.max_y < coord[1]){
-      min_max.max_y < coord[1];
+      min_max.max_y = coord[1];
     }
   }
 
