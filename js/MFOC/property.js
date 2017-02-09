@@ -2,18 +2,18 @@
 var showProperty = function(object_arr, div_id){
   document.getElementById(div_id).innerHTML = '';
 
+  //if put empty array.
+  if (object_arr == undefined || object_arr.length == 0){
+    return;
+  }
 
   var min_max_date = findMinMaxTimeAndValue(object_arr);
   var svg = d3.select("#"+div_id).append("svg");
   svg.attr("width",$(window).width());
   svg.attr("height",$(window).height() / 5);
-  //var svg = d3.select("#graph"),
   var margin = {top: 10, right: 20, bottom: 10, left: 50},
   width = $(window).width() - margin.left - margin.right,
   height = $(window).height() /5 - margin.top - margin.bottom;
-
-  //ocument.getElementById(div_id).style.margin = "10px 20px 10px 50px";
-
 
   var g = svg.append("g")
         .attr("transform", "translate("+ margin.left +"," + 0 + " )");
@@ -72,7 +72,7 @@ var showProperty = function(object_arr, div_id){
     }
 
     var r_color = d3.rgb(Math.random() *255,Math.random() *255,0);
-    
+
     graph_data.push(data);
     if(object.interpolations == 'Discrete'){
       for (var i = 0 ; i < data.length ; i++){
