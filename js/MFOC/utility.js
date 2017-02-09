@@ -110,16 +110,16 @@ function findMinMaxCoordAndTimeInMFArray(mf_arr){
   var first_date = new Date(mf_arr[0].temporalGeometry.datetimes[0]);
   min_max.date = [first_date,first_date];
   for (var i = 0 ; i < mf_arr.length ; i++){
-    var mf_min_max_coord;
+    var mf_min_max_coord = {};
     if (mf_arr[i].temporalGeometry.type == "MovingPoint"){
       mf_min_max_coord = findMinMaxCoord(mf_arr[i].temporalGeometry.coordinates);
     }
     else{
       var coord_arr = mf_arr[i].temporalGeometry.coordinates;
-      mf_min_max_coord.min_x = coord_arr[j][0][0];
-      mf_min_max_coord.max_x = coord_arr[j][0][0];
-      mf_min_max_coord.min_y = coord_arr[j][0][1];
-      mf_min_max_coord.max_y = coord_arr[j][0][1];
+      mf_min_max_coord.min_x = coord_arr[0][0][0];
+      mf_min_max_coord.max_x = coord_arr[0][0][0];
+      mf_min_max_coord.min_y = coord_arr[0][0][1];
+      mf_min_max_coord.max_y = coord_arr[0][0][1];
       for (var j = 1 ; j < coord_arr.length ; j++){
         mf_min_max_coord = findBiggerCoord(mf_min_max_coord, findMinMaxCoord(coord_arr[j]) );
       }
@@ -197,4 +197,12 @@ var getListOfHeight = function(datetimes, min_max_date, max_height = undefined){
     heights.push(normalizeTime(datetimes[i],min_max_date,max_height));
   }
   return heights;
+}
+
+
+
+function getMBRFromPolygon(coordinates){
+
+  var mbr = findMinMaxCoord(coordinates);
+  return mbr;
 }

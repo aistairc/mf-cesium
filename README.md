@@ -164,6 +164,21 @@ e.g.
 
 ![hotspotPoint](http://i.imgur.com/7pN8bDz.png)
 
+* show3DHotSpotMovingPolygon([mf_arr], x_deg, y_deg, time_deg, max_height)
+
+Show Hotspot cube for MovingPoint Array.
+
+The other descriptions are same as MovingPoint's.
+
+```js
+scene.primitives.add(show3DHotSpotMovingPolygon(mf_arr, 1, 1, 3600));
+```
+
+
+e.g.
+
+![hotspotPolygon](http://i.imgur.com/k4Vp01V.png)
+
 
 - - -
 

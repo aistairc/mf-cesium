@@ -632,6 +632,132 @@ function getCubeIndexFromSample(value, deg, min){
   return Math.floor((value - min) / deg);
 }
 
+var show3DHotSpotMovingPolygon = function(mf_arr,x_deg,y_deg,time_deg, max_height = 15000000){//time_deg is seconds
+
+  var min_max = findMinMaxCoordAndTimeInMFArray(mf_arr);
+
+  var cube_data = [];
+  var time_length = (min_max.date[1].getTime() - min_max.date[0].getTime())/(time_deg * 1000);
+  var start = Cesium.JulianDate.fromDate(min_max.date[0]);
+
+  var x_band = min_max.coord.max_x - min_max.coord.min_x,
+  y_band = min_max.coord.max_y - min_max.coord.min_y;
+  var x_length = Math.ceil(x_band/x_deg);
+  var y_length = Math.ceil(y_band/y_deg);
+
+  for (var i = 0 ; i < time_length + 1 ; i++){
+    cube_data[i] = {
+      time : Cesium.JulianDate.addSeconds(start, time_deg * i, new Cesium.JulianDate())
+
+    };
+    cube_data[i].count = [];
+
+    for (var x = 0 ; x < x_length ; x++){
+
+      cube_data[i].count[x] = [];
+      for (var y = 0 ; y < y_length ; y++){
+        cube_data[i].count[x][y] = 0;
+      }
+    }
+  }
+
+  var max_num = 0;
+  //  console.log(cube_data);
+  for (var mf = 0 ; mf < mf_arr.length ; mf++){
+    var geometry = mf_arr[mf].temporalGeometry;
+    var datetimes = geometry.datetimes;
+
+    var lower_x_property = new Cesium.SampledProperty(Number);
+    var upper_x_property = new Cesium.SampledProperty(Number);
+
+    var lower_y_property = new Cesium.SampledProperty(Number);
+    var upper_y_property = new Cesium.SampledProperty(Number);
+
+
+    if (geometry.interpolations == "Spline"){
+      upper_y_property.setInterpolationOptions({
+        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+        interpolationDegree : 2
+      });
+      lower_y_property.setInterpolationOptions({
+        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+        interpolationDegree : 2
+      });
+      upper_x_property.setInterpolationOptions({
+        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+        interpolationDegree : 2
+      });
+      lower_x_property.setInterpolationOptions({
+        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+        interpolationDegree : 2
+      });
+
+    }
+
+    for (var time = 0 ; time < datetimes.length ; time++){
+      var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
+      var normalize = normalizeTime(new Date(datetimes[time]), min_max.date, max_height);
+
+      var coordinates = geometry.coordinates[time];
+      var mbr = getMBRFromPolygon(coordinates);
+
+      lower_x_property.addSample(jul_time, mbr.min_x);
+      upper_x_property.addSample(jul_time, mbr.max_x);
+      lower_y_property.addSample(jul_time, mbr.min_y);
+      upper_y_property.addSample(jul_time, mbr.max_y);
+    }
+
+    for (var i = 0 ; i < time_length - 1 ; i++){
+      var middle_time = Cesium.JulianDate.addDays(cube_data[i].time, Cesium.JulianDate.daysDifference(cube_data[i+1].time, cube_data[i].time), new Cesium.JulianDate());
+      var mbr = {};
+      mbr.min_x = lower_x_property.getValue(middle_time);
+      mbr.max_x = upper_x_property.getValue(middle_time);
+      mbr.min_y = lower_y_property.getValue(middle_time);
+      mbr.max_y = upper_y_property.getValue(middle_time);
+
+
+      if (mbr.max_y != undefined)
+      {
+        var x_min = getCubeIndexFromSample(mbr.min_x, x_deg, min_max.coord.min_x);
+        var y_min = getCubeIndexFromSample(mbr.min_y, y_deg, min_max.coord.min_y);
+        var x_max = getCubeIndexFromSample(mbr.max_x, x_deg, min_max.coord.min_x);
+        var y_max = getCubeIndexFromSample(mbr.max_y, y_deg, min_max.coord.min_y);
+
+        var x_equal = (x_min == x_max);
+        var y_equal = (y_min == y_max);
+
+        if (x_equal && y_equal){
+          cube_data[i].count[x_min][y_min] += 1;
+        }
+        else if(x_equal){
+          cube_data[i].count[x_min][y_min] += 1;
+          cube_data[i].count[x_min][y_max] += 1;
+        }
+        else if(y_equal){
+          cube_data[i].count[x_min][y_min] += 1;
+          cube_data[i].count[x_max][y_min] += 1;
+        }
+        else{
+          cube_data[i].count[x_max][y_min] += 1;
+          cube_data[i].count[x_max][y_max] += 1;
+          cube_data[i].count[x_min][y_min] += 1;
+          cube_data[i].count[x_min][y_max] += 1;
+        }
+        max_num = Math.max(cube_data[i].count[x_min][y_min],max_num);
+        max_num = Math.max(cube_data[i].count[x_min][y_max],max_num);
+        max_num = Math.max(cube_data[i].count[x_max][y_min],max_num);
+        max_num = Math.max(cube_data[i].count[x_max][y_max],max_num);
+      }
+    }
+  }
+
+  console.log(max_num);
+
+  var cube_prim = makeCube(cube_data, min_max, x_deg, y_deg, max_num, max_height);
+
+  return cube_prim;
+}
+
 
 function makeCube(data,min_max, x_deg, y_deg, max_count, max_height){
   var boxCollection = new Cesium.PrimitiveCollection();
@@ -661,7 +787,6 @@ function makeCube(data,min_max, x_deg, y_deg, max_count, max_height){
         }
 
 
-
         var prim = drawOneCube(positions, rating) ;
 
         boxCollection.add(prim);
@@ -676,11 +801,6 @@ function makeCube(data,min_max, x_deg, y_deg, max_count, max_height){
 
 
   return boxCollection;
-}
-
-
-var show3DHotSpotMovingPolygon = function(mf_arr,x_deg,y_deg,time_deg, max_height = 15000000){//time_deg is seconds
-
 }
 function BoxCoord(){
   this.minimum = {};
@@ -1508,16 +1628,16 @@ function findMinMaxCoordAndTimeInMFArray(mf_arr){
   var first_date = new Date(mf_arr[0].temporalGeometry.datetimes[0]);
   min_max.date = [first_date,first_date];
   for (var i = 0 ; i < mf_arr.length ; i++){
-    var mf_min_max_coord;
+    var mf_min_max_coord = {};
     if (mf_arr[i].temporalGeometry.type == "MovingPoint"){
       mf_min_max_coord = findMinMaxCoord(mf_arr[i].temporalGeometry.coordinates);
     }
     else{
       var coord_arr = mf_arr[i].temporalGeometry.coordinates;
-      mf_min_max_coord.min_x = coord_arr[j][0][0];
-      mf_min_max_coord.max_x = coord_arr[j][0][0];
-      mf_min_max_coord.min_y = coord_arr[j][0][1];
-      mf_min_max_coord.max_y = coord_arr[j][0][1];
+      mf_min_max_coord.min_x = coord_arr[0][0][0];
+      mf_min_max_coord.max_x = coord_arr[0][0][0];
+      mf_min_max_coord.min_y = coord_arr[0][0][1];
+      mf_min_max_coord.max_y = coord_arr[0][0][1];
       for (var j = 1 ; j < coord_arr.length ; j++){
         mf_min_max_coord = findBiggerCoord(mf_min_max_coord, findMinMaxCoord(coord_arr[j]) );
       }
@@ -1595,4 +1715,12 @@ var getListOfHeight = function(datetimes, min_max_date, max_height = undefined){
     heights.push(normalizeTime(datetimes[i],min_max_date,max_height));
   }
   return heights;
+}
+
+
+
+function getMBRFromPolygon(coordinates){
+
+  var mbr = findMinMaxCoord(coordinates);
+  return mbr;
 }
