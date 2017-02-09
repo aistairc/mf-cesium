@@ -363,7 +363,7 @@ function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height)
     var positions = [];
     var point_1 = line_1[i];
     var point_2 = line_2[j];
-    
+
     var next_point_1 = line_1[i+1];
     var next_point_2 = line_2[j+1];
 
@@ -436,5 +436,38 @@ function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height)
 
 
   return temp;
+
+}
+
+
+function drawOneCube(lower, upper, ){
+
+  /*
+
+    var prim = new Cesium.Primitive({
+      geometryInstances : instances,
+      appearance : new Cesium.PerInstanceColorAppearance({
+        translucent : true
+      }),
+      show : true
+    });
+
+
+    var p_geometry = Cesium.PolygonGeometry.createGeometry(polygon);
+
+    return (new Cesium.GeometryInstance({
+      geometry : p_geometry,
+      attributes : {
+        color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
+      }
+
+    } ));
+
+    var box = new Cesium.BoxGeometry({
+    vertexFormat : Cesium.VertexFormat.POSITION_ONLY,
+    maximum : new Cesium.Cartesian3(250000.0, 250000.0, 250000.0),
+    minimum : new Cesium.Cartesian3(-250000.0, -250000.0, -250000.0)
+  });
+  */
 
 }
