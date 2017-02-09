@@ -6,9 +6,15 @@ Cesium Examples licensed under the [MIT](https://opensource.org/licenses/MIT)
 
 ## API
 
+### List of API be used in this project.
+
 1. Cesium
 
 2. MovingFeatureOnCesium
+
+3. d3
+
+and so on...
 
 
 ### Cesium
@@ -162,7 +168,7 @@ scene.primitives.add(show3DHotSpotMovingPoint(mf_arr, 1, 1, 3600));
 
 e.g.
 
-![hotspotPoint](http://i.imgur.com/7pN8bDz.png)
+![hotspotPoint](http://i.imgur.com/AkUJEyX.png)
 
 * show3DHotSpotMovingPolygon([mf_arr], x_deg, y_deg, time_deg, max_height)
 
@@ -177,7 +183,7 @@ scene.primitives.add(show3DHotSpotMovingPolygon(mf_arr, 1, 1, 3600));
 
 e.g.
 
-![hotspotPolygon](http://i.imgur.com/k4Vp01V.png)
+![hotspotPolygon](http://i.imgur.com/3d8N5xE.png)
 
 
 - - -
