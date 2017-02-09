@@ -105,6 +105,82 @@ function findAllMinMaxTime(mf_arr){
   return min_max_date;
 }
 
+function findMinMaxCoordAndTimeInMFArray(mf_arr){
+  var min_max = {};
+  var first_date = new Date(mf_arr[0].temporalGeometry.datetimes[0]);
+  min_max.date = [first_date,first_date];
+  for (var i = 0 ; i < mf_arr.length ; i++){
+    var mf_min_max_coord;
+    if (mf_arr[i].temporalGeometry.type == "MovingPoint"){
+      mf_min_max_coord = findMinMaxCoord(mf_arr[i].temporalGeometry.coordinates);
+    }
+    else{
+      var coord_arr = mf_arr[i].temporalGeometry.coordinates;
+      mf_min_max_coord.min_x = coord_arr[j][0][0];
+      mf_min_max_coord.max_x = coord_arr[j][0][0];
+      mf_min_max_coord.min_y = coord_arr[j][0][1];
+      mf_min_max_coord.max_y = coord_arr[j][0][1];
+      for (var j = 1 ; j < coord_arr.length ; j++){
+        mf_min_max_coord = findBiggerCoord(mf_min_max_coord, findMinMaxCoord(coord_arr[j]) );
+      }
+    }
+
+    if (min_max.coord == undefined){
+      min_max.coord = mf_min_max_coord;
+    }
+    else{
+      min_max.coord = findBiggerCoord(min_max.coord, mf_min_max_coord);
+    }
+
+    var temp_max_min = findMinMaxTime(mf_arr[i].temporalGeometry.datetimes);
+    if (temp_max_min[0].getTime() < min_max.date[0].getTime()){
+      min_max.date[0] = temp_max_min[0];
+    }
+    if (temp_max_min[1].getTime() > min_max.date[1].getTime()){
+      min_max.date[1] = temp_max_min[1];
+    }
+
+  }
+
+  return min_max;
+}
+
+function findBiggerCoord(min_max_1, min_max_2){
+  var ret = {};
+  ret.min_x = Math.min(min_max_1.min_x,min_max_2.min_x);
+  ret.min_y = Math.min(min_max_1.min_y,min_max_2.min_y);
+  ret.max_x = Math.max(min_max_1.max_x,min_max_2.max_x);
+  ret.max_y = Math.max(min_max_1.max_y,min_max_2.max_y);
+  return ret;
+}
+
+function findMinMaxCoord(coordinates){
+  var min_max = {};
+  min_max.min_x = coordinates[0][0];
+  min_max.max_x = coordinates[0][0];
+  min_max.min_y = coordinates[0][1];
+  min_max.max_y = coordinates[0][1];
+
+  for (var i = 0 ; i < coordinates.length ; i++){
+    var coord = coordinates[i];
+    if (min_max.min_x > coord[0]){
+      min_max.min_x = coord[0];
+    }
+    if (min_max.max_x < coord[0]){
+      min_max.max_x = coord[0];
+    }
+    if (min_max.min_y > coord[1]){
+      min_max.min_y = coord[1];
+    }
+    if (min_max.max_y < coord[1]){
+      min_max.max_y < coord[1];
+    }
+  }
+
+  return min_max;
+
+}
+
 var getListOfHeight = function(datetimes, min_max_date, max_height = undefined){
 
   for(var i = 0 ; i < datetimes.length ; i++){
