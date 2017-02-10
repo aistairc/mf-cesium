@@ -1,5 +1,12 @@
 var LOG = console.log;
 
+//return : Cesium.PrimitiveCollection
+var drawHighlightMovingFeature = function (mf){
+  var prim_collecion = new Cesium.PrimitiveCollection();
+
+  
+}
+
 function drawOnePolygon(onePolygon, height, with_height, r_color = Cesium.Color.ORANGE.withAlpha(0.3)) { //it gets one polygon
   var coordinates = onePolygon;
   var points = [];
@@ -59,6 +66,10 @@ function drawOnePolygon(onePolygon, height, with_height, r_color = Cesium.Color.
 }
 
 var drawMovingPolygonArray = function(mf_arr, with_height) { // it gets one object of features.
+  if (!Array.isArray(mf_arr)){
+    mf_arr = [mf_arr];
+  }
+
   var prim_collecion = new Cesium.PrimitiveCollection();
   var r_color = Cesium.Color.fromRandom({
     red : 0.0,

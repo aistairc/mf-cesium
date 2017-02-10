@@ -65,6 +65,10 @@ function findMapping(line_1, line_2){
 }
 
 var moveLineStringArray = function(mf_arr, with_height = 1){
+  if (!Array.isArray(mf_arr)){
+    mf_arr = [mf_arr];
+  }
+
   var multiplier = 10000;
 
   var czml = [{
@@ -239,6 +243,10 @@ var moveLineStringArray = function(mf_arr, with_height = 1){
 }
 
 var movePointArray = function(mf_arr, with_height = 1 ){
+  if (!Array.isArray(mf_arr)){
+    mf_arr = [mf_arr];
+  }
+  
   var multiplier = 10000;
   var czml = [{
     "id" : "document",
