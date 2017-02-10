@@ -69,6 +69,8 @@ var mf1 = {
   }
 var mf_arr = [ mf1, mf2 ]; //mf is movingfeature object.
 var czml = movePolygonArray(mf_arr);
+var load_czml = Cesium.CzmlDataSource.load(czml)
+viewer.dataSources.add(load_czml);
 ```
 
 * movePointArray([mf_arr], with_height)
@@ -111,9 +113,13 @@ Returns Cesium.PrimitiveCollection. Draw triangles using each linestring points.
 
 #### Draw IndoorGML Data (With Z-value)
 
-* drawPointsWithZvalue([mf_arr], with_height);
+* drawPointsWithZvalue([mf_arr], with_height, max_height);
 
-Returns Cesium.PointPrimitiveCollection. z-value apperas in color.
+draw MovingPoint with Z-value.
+
+'max_height' is meters that assume how much maximum height. it can be omitted.(default 1000)
+
+Returns Cesium.PointPrimitiveCollection. z-value appears in color.
 
 ```js
 $.getJSON('json_data/indoor.json').then(
@@ -170,6 +176,10 @@ e.g.
 
 ![hotspotPoint](http://i.imgur.com/AkUJEyX.png)
 
+![hotspotPoint](http://i.imgur.com/tY0VT0R.jpg)
+
+<IndoorGML and 3D HotSpot>
+
 * show3DHotSpotMovingPolygon([mf_arr], x_deg, y_deg, time_deg, max_height)
 
 Show Hotspot cube for MovingPoint Array.
@@ -184,6 +194,8 @@ scene.primitives.add(show3DHotSpotMovingPolygon(mf_arr, 1, 1, 3600));
 e.g.
 
 ![hotspotPolygon](http://i.imgur.com/3d8N5xE.png)
+
+
 
 
 - - -

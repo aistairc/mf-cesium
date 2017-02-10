@@ -105,9 +105,14 @@ function findAllMinMaxTime(mf_arr){
   return min_max_date;
 }
 
+var calculateDist = function(point_1, point_2){
+  return Math.sqrt(Math.pow(point_1[0] - point_2[0],2) + Math.pow(point_1[1] - point_2[1],2));
+}
+
 function findMinMaxCoordAndTimeInMFArray(mf_arr){
   var min_max = {};
   var first_date = new Date(mf_arr[0].temporalGeometry.datetimes[0]);
+
   min_max.date = [first_date,first_date];
   for (var i = 0 ; i < mf_arr.length ; i++){
     var mf_min_max_coord = {};

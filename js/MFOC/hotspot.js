@@ -11,6 +11,7 @@ var show3DHotSpotMovingPoint = function(mf_arr,x_deg,y_deg,time_deg, max_height 
   var x_length = Math.ceil(x_band/x_deg);
   var y_length = Math.ceil(y_band/y_deg);
 
+  console.log(x_length, y_length);
   for (var i = 0 ; i < time_length + 1 ; i++){
     cube_data[i] = {
       time : Cesium.JulianDate.addSeconds(start, time_deg * i, new Cesium.JulianDate())
@@ -32,10 +33,15 @@ var show3DHotSpotMovingPoint = function(mf_arr,x_deg,y_deg,time_deg, max_height 
   for (var mf = 0 ; mf < mf_arr.length ; mf++){
     var geometry = mf_arr[mf].temporalGeometry;
     var datetimes = geometry.datetimes;
-    var property = new Cesium.SampledPositionProperty();
+    var x_property = new Cesium.SampledProperty(Number);
+    var y_property = new Cesium.SampledProperty(Number);
 
     if (geometry.interpolations == "Spline"){
-      property.setInterpolationOptions({
+      x_property.setInterpolationOptions({
+        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+        interpolationDegree : 2
+      });
+      y_property.setInterpolationOptions({
         interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
         interpolationDegree : 2
       });
@@ -43,20 +49,24 @@ var show3DHotSpotMovingPoint = function(mf_arr,x_deg,y_deg,time_deg, max_height 
 
     for (var time = 0 ; time < datetimes.length ; time++){
       var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
-      var normalize = normalizeTime(new Date(datetimes[time]), min_max.date, max_height);
-      var position = {        x : geometry.coordinates[time][0],        y : geometry.coordinates[time][1]      };
-      //Cesium.Cartesian2.fromElements(geometry.coordinates[time][0],geometry.coordinates[time][1]);
-      property.addSample(jul_time, position);
+      var position = {        x : geometry.coordinates[time][0],
+                              y : geometry.coordinates[time][1]      };
+
+      x_property.addSample(jul_time, position.x);
+      y_property.addSample(jul_time, position.y);
     }
 
     for (var i = 0 ; i < time_length - 1 ; i++){
-      var middle_time = Cesium.JulianDate.addDays(cube_data[i].time, Cesium.JulianDate.daysDifference(cube_data[i+1].time, cube_data[i].time), new Cesium.JulianDate());
-      var position = property.getValue(middle_time);
+      var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time,
+                        time_deg/2,
+                        new Cesium.JulianDate());
+      var x_position = x_property.getValue(middle_time);
+      var y_position = y_property.getValue(middle_time);
 
-      if (position != undefined)
+      if (x_position != undefined && y_position != undefined)
       {
-        var x = getCubeIndexFromSample(position.x, x_deg, min_max.coord.min_x);
-        var y = getCubeIndexFromSample(position.y, y_deg, min_max.coord.min_y);
+        var x = getCubeIndexFromSample(x_position, x_deg, min_max.coord.min_x);
+        var y = getCubeIndexFromSample(y_position, y_deg, min_max.coord.min_y);
 
         cube_data[i].count[x][y] += 1;
         max_num = Math.max(cube_data[i].count[x][y],max_num);
@@ -64,10 +74,9 @@ var show3DHotSpotMovingPoint = function(mf_arr,x_deg,y_deg,time_deg, max_height 
     }
   }
 
-  console.log(max_num);
-
   var cube_prim = makeCube(cube_data, min_max, x_deg, y_deg, max_num, max_height);
 
+    console.log(max_num);
   return cube_prim;
 }
 
@@ -151,7 +160,9 @@ var show3DHotSpotMovingPolygon = function(mf_arr,x_deg,y_deg,time_deg, max_heigh
     }
 
     for (var i = 0 ; i < time_length - 1 ; i++){
-      var middle_time = Cesium.JulianDate.addDays(cube_data[i].time, Cesium.JulianDate.daysDifference(cube_data[i+1].time, cube_data[i].time), new Cesium.JulianDate());
+      var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time,
+                        time_deg/2,
+                        new Cesium.JulianDate());
       var mbr = {};
       mbr.min_x = lower_x_property.getValue(middle_time);
       mbr.max_x = upper_x_property.getValue(middle_time);
@@ -223,9 +234,9 @@ function makeCube(data,min_max, x_deg, y_deg, max_count, max_height){
         positions.maximum.z = upper_time;
 
         var rating = count/max_count;
-        if (rating < 0.5){
-          //continue;
-          rating = 0.1;
+        if (rating < 0.1){
+          continue;
+          //rating = 0.1;
         }
 
 
