@@ -58,7 +58,7 @@ function drawOnePolygon(onePolygon, height, with_height, r_color = Cesium.Color.
   return geoInstance;
 }
 
-var drawPolygons = function(mf_arr, with_height) { // it gets one object of features.
+var drawMovingPolygonArray = function(mf_arr, with_height) { // it gets one object of features.
   var prim_collecion = new Cesium.PrimitiveCollection();
   var r_color = Cesium.Color.fromRandom({
     red : 0.0,
@@ -103,7 +103,7 @@ var drawPolygons = function(mf_arr, with_height) { // it gets one object of feat
 
 }
 
-var drawTyphoons = function(mf_arr, with_height) { // it gets one object of features.
+var drawVolumeMovingPolygonArray = function(mf_arr, with_height) { // it gets one object of features.
 
   if ( !Array.isArray(mf_arr) ){
     mf_arr = [mf_arr];
@@ -176,7 +176,7 @@ function drawOnePoint(onePoint,height,r_color){ //it gets one point
   return pointInstance;
 }
 
-var drawPoints = function(mf_arr, with_height){ //it gets set of points
+var drawMovingPointArray = function(mf_arr, with_height){ //it gets set of points
   if ( !Array.isArray(mf_arr) ){
     mf_arr = [mf_arr];
   }
@@ -235,7 +235,7 @@ function makeDegreesArray(pos_2d, height){
   return points;
 }
 
-var drawLines = function(mf_arr, with_height) { // it gets one object of features.
+var drawMovingLineStringArray = function(mf_arr, with_height) { // it gets one object of features.
   if ( !Array.isArray(mf_arr) ){
     mf_arr = [mf_arr];
   }
@@ -292,7 +292,7 @@ function euclidianDistance3D(a, b) {
 }
 
 
-var drawPointsPath = function(mf_arr, with_height){
+var drawMovingPointPath = function(mf_arr, with_height){
   if ( !Array.isArray(mf_arr) ){
     mf_arr = [mf_arr];
   }
@@ -318,7 +318,7 @@ var drawPointsPath = function(mf_arr, with_height){
   return polylineCollection;
 }
 
-var drawLinesPath = function(mf_arr, with_height){
+var drawMovingLinePath = function(mf_arr, with_height){
   if ( !Array.isArray(mf_arr) ){
     mf_arr = [mf_arr];
   }

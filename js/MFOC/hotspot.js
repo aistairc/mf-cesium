@@ -159,8 +159,7 @@ var show3DHotSpotMovingPolygon = function(mf_arr,x_deg,y_deg,time_deg, max_heigh
       mbr.max_y = upper_y_property.getValue(middle_time);
 
 
-      if (mbr.max_y != undefined)
-      {
+      if (mbr.max_y != undefined){
         var x_min = getCubeIndexFromSample(mbr.min_x, x_deg, min_max.coord.min_x);
         var y_min = getCubeIndexFromSample(mbr.min_y, y_deg, min_max.coord.min_y);
         var x_max = getCubeIndexFromSample(mbr.max_x, x_deg, min_max.coord.min_x);
