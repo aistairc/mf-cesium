@@ -82,29 +82,29 @@ Returns czml object.
 
 #### Draw Primitive
 
-* drawPolygons([mf_arr], with_height)
+* drawMovingPolygonArray([mf_arr], with_height)
 
 Draw multiple Polygon.
 
 Return Cesium.primitiveCollection.
 
-* drawTyphoons([mf_arr], with_height)
+* drawVolumeMovingPolygonArray([mf_arr], with_height)
 
 draw multiple Polygon With Volume.
 
-* drawPoints([mf_arr], with_height)
+* drawMovingPointArray([mf_arr], with_height)
 
 draw multiple Point.
 
-* drawLines([mf_arr], with_height)
+* drawMovingLineStringArray([mf_arr], with_height)
 
 draw multiple LineString.
 
-* drawPointsPath([mf_arr], with_height)
+* drawMovingPointPath([mf_arr], with_height)
 
 Returns Cesium.PolylineCollection. Draw path for MovingPoint.
 
-* drawLinesPath([mf_arr], with_height)
+* drawMovingLinePath([mf_arr], with_height)
 
 Returns Cesium.PrimitiveCollection. Draw triangles using each linestring points.
 
