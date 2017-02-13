@@ -107,3 +107,33 @@ var showProperty = function(object_arr, div_id){
   });
 
 }
+
+
+
+function findMinMaxTimeAndValue(pro_arr){
+
+  var first_date = new Date(pro_arr[0].datetimes[0]);
+  var first_value = pro_arr[0].values[0];
+  var min_max = {};
+  min_max.date = [first_date,first_date];
+  min_max.value = [first_value,first_value];
+  for (var i = 0 ; i < pro_arr.length ; i++){
+    var temp_max_min = findMinMaxTime(pro_arr[i].datetimes);
+    if (temp_max_min[0].getTime() < min_max.date[0].getTime()){
+      min_max.date[0] = temp_max_min[0];
+    }
+    if (temp_max_min[1].getTime() > min_max.date[1].getTime()){
+      min_max.date[1] = temp_max_min[1];
+    }
+    for (var j = 0 ; j < pro_arr[i].values.length ; j++){
+      if (min_max.value[0] > pro_arr[i].values[j]){
+        min_max.value[0] = pro_arr[i].values[j];
+      }
+      if (min_max.value[1] < pro_arr[i].values[j]){
+        min_max.value[1] = pro_arr[i].values[j];
+      }
+    }
+
+  }
+  return min_max;
+}

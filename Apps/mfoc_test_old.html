@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Use correct character set. -->
+  <meta charset="utf-8">
+  <!-- Tell IE to use the latest, best version. -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <title>Hello World!</title>
+
+  <script src="../Build/Cesium/Cesium.js"></script>
+  <script src="jquery-3.1.1.js"></script>
+  <script src="../MFOC/src/draw.js"></script>
+  <script src="../MFOC/src/draw_indoor.js"></script>
+  <script src="../MFOC/src/moving.js"></script>
+  <script src="../MFOC/src/utility.js"></script>
+  <script src="../MFOC/src/hotspot.js"> </script>
+  <script src="../MFOC/src/Model.js"> </script>
+  <script src="../MFOC/src/property.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+
+
+  <style>
+
+  @import url(../Build/Cesium/Widgets/widgets.css);
+  html, body, #cesiumContainer {
+    width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+  }
+  @import url(Sandcastle/templates/bucket.css);
+
+  #name_list {
+    cursor: pointer;
+  }
+  .graph{
+    position : absolute;
+    bottom : 0px;
+    width : 100%; height : 0%;
+    z-index:2;
+    color:white;
+  }
+
+  </style>
+</head>
+<body style="margin-bottom:10px">
+<iframe src="about:blank" id="iframe" sandbox="allow-same-origin"></iframe>
+
+<div id="div_temp" style="background-color:transparent; color:white; margin:5px;
+  position:absolute; top:0px; width:260px; z-index:2;">
+Loading..
+</div>
+<div id="cesiumContainer" style="position:absolute; top:0px; z-index:1;"></div>
+
+<div id="graph" class="graph" >
+
+</div>
+
+</body>
+
+<script>
+
+  viewer = new Cesium.Viewer('cesiumContainer');
+  scene = viewer.scene;
+  //scene.primitives.destroyPrimitives = false;
+  viewer.clock.shouldAnimate = false;
+  scene.morphToColumbusView(0.5);
+
+
+  Cesium.Viewer.prototype.clear = function(){
+    this.clock.multiplier = 10;
+    this.dataSources.removeAll();
+    var temp = this.scene.primitives.get(0);
+    this.entities.removeAll();
+    this.scene.primitives.removeAll();
+    this.scene.primitives.add(temp);
+  }
+
+  var url = getParameterByName('url');
+  var token = getParameterByName('token');
+  function linepath_test(){
+    $.getJSON('json_data/polyline.json').then(
+      function(data){
+        var mf_arr = [];
+        for (var i = 0 ; i < data.features.length; i++){
+          mf_arr.push(data.features[i]);
+        }
+        var prim = drawLinesPath(mf_arr, true);
+        scene.primitives.add(prim);
+        scene.primitives.add(drawLines(mf_arr,true));
+      }
+    );
+  }
+
+  function property_test(){
+    $.getJSON('json_data/polygon2015.json').then(
+      function(data){
+
+        document.getElementById('graph').style.height = '20%';
+        document.getElementById('cesiumContainer').style.height = '80%';
+        var pro_arr = [];
+        for (var i = 0 ; i < data.features.length; i++){
+          if (data.features[i].temporalProperties[0].name == 'central pressure')
+            pro_arr.push(data.features[i].temporalProperties[0]);
+        }
+
+        showProperty(pro_arr, 'graph');
+
+      }
+    );
+
+  }
+
+  function point_test(){
+
+    $.getJSON('json_data/point.json').then(
+      function(data){
+        var mf_arr = [];
+        for (var j = 0 ; j < data.features.length ; j++){
+          mf_arr.push(data.features[j]);
+        }
+
+        viewer.clear();
+        scene.primitives.add(drawPointsPath(mf_arr, true));
+        var czml = movePointArray(mf_arr , true);
+        var load_czml = Cesium.CzmlDataSource.load(czml)
+        viewer.dataSources.add(load_czml);
+      }
+    );
+  }
+
+  function typhoon_test(){
+    $.getJSON('json_data/polygon2015.json').then(
+      function(data){
+        var mf_arr = [];
+        for (var i = 0 ; i < data.features.length ; i++){
+          mf_arr.push(data.features[i]);
+
+        }
+        scene.primitives.add(drawVolumeMovingPolygonArray(mf_arr, true));
+
+        var czml = movePolygonArray(mf_arr, 1);
+
+        var load_czml = Cesium.CzmlDataSource.load(czml)
+        viewer.dataSources.add(load_czml);
+
+      }
+    );
+
+  }
+
+  function polygon_test(){
+    $.getJSON('json_data/polygon2015.json').then(
+      function(data){
+        var mf_arr = [];
+        for (var i = 0 ; i < data.features.length ; i++){
+          mf_arr.push(data.features[i]);
+
+        }
+        scene.primitives.add(drawMovingPolygonArray(mf_arr, true));
+
+        var czml = movePolygonArray(mf_arr, 1);
+
+        var load_czml = Cesium.CzmlDataSource.load(czml)
+        viewer.dataSources.add(load_czml);
+
+      }
+    );
+
+  }
+
+  function drawPointsWithZvalue_test(){
+    var mf_arr = [];
+
+    var featurelist = [ "features('2031964805')", "features('2041293648')", "features('247746548')", "features('661058904')", "features('364705220')", "features('1888111874')", "features('2120201535')", "features('1904664080')", "features('1739676720')", "features('1861580116')", "features('2076239035')", "features('1270675060')", "features('550683431')", "features('729931352')", "features('1254890945')", "features('1378455029')", "features('1142481599')", "features('1193091872')", "features('263198149')", "features('562607063')", "features('965460549')", "features('579755529')", "features('1878310839')", "features('1783722457')", "features('233228929')", "features('650870755')", "features('1287021522')", "features('291668939')", "features('1332684839')", "features('763278948')", "features('1785478538')", "features('1630164242')", "features('136881801')", "features('2087332650')", "features('1495286105')", "features('782312960')", "features('2038300462')", "features('1321243322')", "features('2121779277')", "features('272937415')", "features('2110389170')", "features('2133826891')", "features('1703430483')", "features('285119152')", "features('289843399')", "features('1882613070')", "features('787802260')", "features('1208940095')", "features('1438774860')", "features('1587272779')", "features('931411747')", "features('2025881169')", "features('2038327273')", "features('373557523')", "features('1405152104')", "features('280735864')", "features('410834739')", "features('1623312533')", "features('2064769544')", "features('543548233')", "features('268621967')", "features('1141618811')", "features('986460779')", "features('710207183')", "features('57975500')", "features('2118724866')", "features('28073795')", "features('2092008508')", "features('626311637')", "features('1337404717')", "features('402087688')", "features('616610306')", "features('897255948')", "features('1492558986')", "features('1692795351')", "features('899199720')", "features('1419138996')", "features('407812400')", "features('2097660895')", "features('1196171414')", "features('2030268534')", "features('1017137225')", "features('102609843')", "features('1489470246')", "features('1145109781')", "features('1956519847')", "features('1771627605')", "features('1842672404')", "features('2131678037')", "features('22043141')", "features('1659754534')", "features('1496293974')", "features('158898072')", "features('1613018997')", "features('2123056644')", "features('186501057')", "features('1186874317')", "features('137048756')", "features('255465187')", "features('1408307994')", "features('1239879017')", "features('1657358002')", "features('1181233294')", "features('1553484665')", "features('633037676')", "features('465282593')", "features('2098177488')", "features('356912566')", "features('2096800820')", "features('283481429')", "features('1201275330')", "features('270221188')", "features('1891691112')", "features('1105752574')", "features('383202363')", "features('1587440298')", "features('2073007978')", "features('2023832012')", "features('1031727243')", "features('1033029037')", "features('130930209')", "features('319324500')", "features('512086474')", "features('859572312')", "features('1249111543')", "features('1740241758')", "features('1029372508')", "features('492307090')", "features('107403302')", "features('1184009080')", "features('423659023')", "features('1818519820')", "features('169997364')", "features('588548255')", "features('55107915')", "features('1458241994')", "features('1317453895')", "features('890550269')", "features('1566985191')", "features('101594475')", "features('1406527624')", "features('1619256265')", "features('2027635719')", "features('1657848373')"];
+    for (var i = 0 ; i < featurelist.length/3 ; i++){
+      $.getJSON(url + "/FeatureLayers('IntegratedWalk')/" + featurelist[i] +"?token="+token).then(function(data){
+        for (var j = 0 ; j < data.features.length ;j++){
+          mf_arr.push(data.features[j]);
+        }
+        $('#div_temp').text('Loading...'+mf_arr.length);
+        scene.primitives.add(drawPointsWithZvalue(mf_arr, true));
+        if (mf_arr.length == featurelist.length){
+          $('#div_temp').text('Done');
+          scene.primitives.add(show3DHotSpotMovingPoint(mf_arr, 10, 10, 1500000, 15000000));
+        }
+      });
+    }
+
+  }
+
+
+    function drawPointsWithZvalue_local_test(){
+      var mf_arr = [];
+
+      $.getJSON('json_data/indoor.json').then(function(data){
+        for (var j = 0 ; j < data.features.length ;j++){
+          mf_arr.push(data.features[j]);
+        }
+
+        scene.primitives.add(drawPointsWithZvalue(mf_arr, true));
+      });
+
+
+    }
+
+
+  function show3DHotSpotMovingPoint_test(){
+    $.getJSON('json_data/point.json').then(
+      function(data){
+        var mf_arr = [];
+        for (var j = 0 ; j < data.features.length ; j++){
+          mf_arr.push(data.features[j]);
+        }
+        viewer.clear();
+        scene.primitives.add(drawPointsPath(mf_arr, true));
+        scene.primitives.add(show3DHotSpotMovingPoint(mf_arr, 10, 10, 1500000, 15000000));
+      }
+    );
+  }
+
+
+  function show3DHotSpotMovingPolygon_test(){
+    $.getJSON('json_data/polygon2015.json').then(
+      function(data){
+        var mf_arr = [];
+        for (var j = 0 ; j < data.features.length ; j++){
+          mf_arr.push(data.features[j]);
+        }
+        viewer.clear();
+        //scene.primitives.add(drawPointsPath(mf_arr, true));
+        scene.primitives.add(show3DHotSpotMovingPolygon(mf_arr, 10, 10, 1000000, 15000000));
+        scene.primitives.add(drawVolumeMovingPolygonArray(mf_arr, true));
+      }
+    );
+  }
+
+
+
+
+
+  drawPointsWithZvalue_test();
+//  property_test();
+  //point_test();
+  //polygon_test();
+  //typhoon_test();
+  //show3DHitMapMovingPoint_test();
+//  show3DHitMapMovingPolygon_test();
+</script>
+
+
+</html>
