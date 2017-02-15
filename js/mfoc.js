@@ -1783,7 +1783,6 @@ MFOC.findMapping = function(line_1, line_2){
 }
 
 MFOC.prototype.showPropertyArray = function(object_arr, div_id){
-  console.log(colorType);
   document.getElementById(div_id).innerHTML = '';
 
   //if put empty array.
