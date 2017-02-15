@@ -11,6 +11,8 @@ MFOC.prototype.highlight = null;
 MFOC.prototype.showHOTSPOT = null;
 MFOC.prototype.animate = null;
 MFOC.prototype.changeMode = null;
+MFOC.prototype.analyzeSpatialInfo = null;
+MFOC.prototype.setCameraOnFeatures = null;
 
 MFOC.prototype.add = function(mf){
   if (mf.type != 'MovingFeature'){
@@ -57,14 +59,7 @@ MFOC.prototype.drawFeatures = function(options){
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
     var feat_prim;
-    if (this.feature_prim_memory[feature.properties.name] != undefined){
-      if (this.mode == '2D'){
-        continue;
-      }
-      else{
-  //      this.viwer.scene.primitives.remove(this.feature_prim_memory[feature.properties.name]);
-      }
-    }
+
     if (feature.temporalGeometry.type == "MovingPoint"){
       feat_prim = this.viewer.scene.primitives.add(this.drawMovingPoint(feature.temporalGeometry));
     }
@@ -77,11 +72,8 @@ MFOC.prototype.drawFeatures = function(options){
     else{
       console.log("this type cannot be drawn", feature);
     }
-
     this.feature_prim_memory[feature.properties.name] = feat_prim;//찾아서 지울때 사용.
-
   }
-
 }
 
 MFOC.prototype.drawPaths = function(options){
@@ -115,14 +107,7 @@ MFOC.prototype.drawPaths = function(options){
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
     var path_prim;
-    if (this.path_prim_memory[feature.properties.name] != undefined){
-      if (this.mode == '2D'){
-        continue;
-      }
-      else{
-    //    this.viwer.scene.primitives.remove(this.path_prim_memory[feature.properties.name]);
-      }
-    }
+
     if (feature.temporalGeometry.type == "MovingPoint"){
       path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPoint({
         temporalGeometry : feature.temporalGeometry
@@ -244,18 +229,6 @@ MFOC.prototype.showProperty = function(propertyName, divID){
   this.showPropertyArray(pro_arr, divID);
 }
 
-MFOC.getPropertyByName = function(mf, name){
-  if (mf.temporalProperties == undefined) return -1;
-
-  for (var i = 0 ; i < mf.temporalProperties.length ; i++){
-    if (mf.temporalProperties[i].name == name){
-      return mf.temporalProperties[i];
-    }
-  }
-  return -1;
-}
-
-
 MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   var mf_name = movingfeatureName;
   var pro_name = propertyName;
@@ -312,21 +285,20 @@ MFOC.prototype.showHOTSPOT = function(degree){
 
   var mf_arr = this.features;
 
-  this.min_max = this.findMinMaxGeometry(mf_arr);
-  this.cube_data = [];
-  this.hotspot_maxnum = 0;
 
-  this.makeBasicCube(degree);
+  this.min_max = this.findMinMaxGeometry(mf_arr);
+  this.hotspot_maxnum = 0;
+  var cube_data = this.makeBasicCube(degree);
+
 
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
 
     if (feature.temporalGeometry.type == "MovingPoint"){
-      this.drawHotSpotMovingPoint(feature.temporalGeometry, degree  );
+      this.drawHotSpotMovingPoint(feature.temporalGeometry, degree, cube_data);
     }
     else if(feature.temporalGeometry.type == "MovingPolygon"){
-
-      this.drawHotSpotMovingPolygon(feature.temporalGeometry, degree);
+      this.drawHotSpotMovingPolygon(feature.temporalGeometry, degree, cube_data);
     }
     else if(feature.temporalGeometry.type == "MovingLineString"){
 
@@ -336,9 +308,9 @@ MFOC.prototype.showHOTSPOT = function(degree){
     }
   }
 
-  var cube_prim = this.makeCube(degree);
+  var cube_prim = this.makeCube(degree, cube_data);
 
-  this.cube_data = this.primitives.add(cube_prim);
+  this.cube_primitives = this.primitives.add(cube_prim);
 
 }
 
@@ -432,4 +404,89 @@ MFOC.prototype.changeMode = function(mode){
   else{
     this.mode = mode;
   }
+}
+
+MFOC.prototype.analyzeSpatialInfo = function(canvasID){
+  var cumulative = new SpatialInfo();
+
+//  this.min_max = this.findMinMaxGeometry(this.features);
+
+  for (var index = 0 ; index < this.features.length ; index++){
+    var feature = this.features[index];
+    MFOC.addDirectionInfo(cumulative, feature.temporalGeometry);
+  }
+
+  var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
+  var total_length = cumulative.west.total_length + cumulative.east.total_length + cumulative.north.total_length + cumulative.south.total_length;
+
+  var cnvs = document.getElementById(canvasID);
+  if (cnvs.getContext){
+    var h_width = cnvs.width / 2;
+    var h_height = cnvs.height / 2;
+
+    var ctx = cnvs.getContext('2d');
+
+    ctx.beginPath();
+    ctx.arc(50,50,25,0,Math.PI*2,true);
+    ctx.stroke();
+
+    //west
+    ctx.beginPath();
+    ctx.moveTo(h_width,h_height);
+    ctx.lineTo(h_width - cumulative.west.total_length/total_length * 0.375 * h_width, h_height - 0.25 * h_height * cumulative.west.total_life/total_life);
+    ctx.lineTo(h_width - cumulative.west.total_length/total_length * 0.5 * h_width, h_height - 0.5 * h_height * cumulative.west.total_life/total_life);
+    ctx.lineTo(h_width - cumulative.west.total_length/total_length * 1.0 * h_width, h_height);
+    ctx.lineTo(h_width - cumulative.west.total_length/total_length * 0.5 * h_width, h_height + 0.5 * h_height * cumulative.west.total_life/total_life);
+    ctx.lineTo(h_width - cumulative.west.total_length/total_length * 0.375 * h_width, h_height - 0.25 * h_height * cumulative.west.total_life/total_life);
+
+
+    console.log(h_width,h_height);
+    console.log(h_width - cumulative.west.total_length/total_length * 0.375 * h_width, h_height - 0.25 * h_height * cumulative.west.total_life/total_life);
+    console.log(h_width - cumulative.west.total_length/total_length * 0.5 * h_width, h_height - 0.5 * h_height * cumulative.west.total_life/total_life);
+  console.log(h_width - cumulative.west.total_length/total_length * 1.0 * h_width, h_height);
+    console.log(h_width - cumulative.west.total_length/total_length * 0.5 * h_width, h_height + 0.5 * h_height * cumulative.west.total_life/total_life);
+    console.log(h_width - cumulative.west.total_length/total_length * 0.375 * h_width, h_height - 0.25 * h_height * cumulative.west.total_life/total_life);
+     ctx.closePath();
+    ctx.fillstyle= 'yellow';
+    ctx.fill();
+    //east
+    /*
+    ctx.beginPath();
+    ctx.moveTo(h_width,h_height);
+    ctx.lineTo(h_width + cumulative.east.total_length/total_length * 0.375 * h_width, h_height - 0.25 * h_height * cumulative.east.total_life/total_life);
+    ctx.lineTo(h_width + cumulative.east.total_length/total_length * 0.5 * h_width, h_height - 0.5 * h_height * cumulative.east.total_life/total_life);
+    ctx.lineTo(h_width + cumulative.east.total_length/total_length * 1.0 * h_width, h_height);
+    ctx.lineTo(h_width + cumulative.east.total_length/total_length * 0.5 * h_width, h_height + 0.5 * h_height * cumulative.east.total_life/total_life);
+    ctx.lineTo(h_width + cumulative.east.total_length/total_length * 0.375 * h_width, h_height - 0.25 * h_height * cumulative.east.total_life/total_life);
+    ctx.fillstyle = 'green';
+    ctx.fill();
+    //north
+    ctx.beginPath();
+    ctx.moveTo(h_width,h_height);
+    ctx.lineTo(h_width - cumulative.east.total_life/total_life * 0.25 * h_width, h_height - 0.375 * h_height * cumulative.east.total_length/total_length);
+    ctx.lineTo(h_width - cumulative.east.total_life/total_life * 0.5 * h_width, h_height - 0.5 * h_height * cumulative.east.total_length/total_length);
+    ctx.lineTo(h_width, h_height - 1.0 * h_height * cumulative.east.total_length/total_length);
+    ctx.lineTo(h_width + cumulative.east.total_life/total_life * 0.5 * h_width, h_height - 0.5 * h_height * cumulative.east.total_length/total_length);
+    ctx.lineTo(h_width + cumulative.east.total_life/total_life * 0.25 * h_width, h_height - 0.375 * h_height * cumulative.east.total_length/total_length);
+    ctx.fillstyle = 'blue';
+    ctx.fill();
+    //south
+    ctx.beginPath();
+    ctx.moveTo(h_width,h_height);
+    ctx.lineTo(h_width - cumulative.east.total_life/total_life * 0.25 * h_width, h_height + 0.375 * h_height * cumulative.east.total_length/total_length);
+    ctx.lineTo(h_width - cumulative.east.total_life/total_life * 0.5 * h_width, h_height + 0.5 * h_height * cumulative.east.total_length/total_length);
+    ctx.lineTo(h_width, h_height + 1.0 * h_height * cumulative.east.total_length/total_length);
+    ctx.lineTo(h_width + cumulative.east.total_life/total_life * 0.5 * h_width, h_height + 0.5 * h_height * cumulative.east.total_length/total_length);
+    ctx.lineTo(h_width + cumulative.east.total_life/total_life * 0.25 * h_width, h_height + 0.375 * h_height * cumulative.east.total_length/total_length);
+    ctx.fillstyle = 'red';
+    ctx.fill();
+    */
+  }
+  else{
+    alert('canvas를 지원하지 않는 브라우저');
+  }
+}
+
+MFOC.prototype.setCameraOnFeatures = function(){
+
 }

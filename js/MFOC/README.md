@@ -210,6 +210,8 @@ primitive는 제거되지 않습니다.
 
 그리는 mode('2D','3D') 를 변경합니다. 인자가 없다면 현재 모드와 다른 모드로 변경됩니다.
 
+mode 변경후에 primitives를 지우고 다시 그려주어야 모드가 적용된 그림을 볼 수 있습니다.
+
     '2D' : movingfeature visualization doesn't have height.
     '3D' : movingfeature visualization has height.
 
@@ -220,11 +222,15 @@ primitive는 제거되지 않습니다.
 Example
 ```js
 mfoc.changeMode();
+mfoc.clearViewer();
+mfoc.drawPaths();
 ```
 or
 
 ```js
 mfoc.changeMode('2D');
+mfoc.clearViewer();
+mfoc.drawPaths();
 ```
 
 
@@ -234,6 +240,7 @@ mfoc.changeMode('2D');
 * remove(movingFeature)
 
 해당 movingfeature 의 정보를 MFOC객체에서 모두 제거하고 화면에 그려진 primitives를 지웁니다.
+
 animation은 제거되지 않습니다. 진행중인 animation을 제거하고 다시 animation을 만들어야 합니다.
 
 | Name | Type | Default | Description |

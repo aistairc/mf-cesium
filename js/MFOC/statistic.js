@@ -1,6 +1,106 @@
+MFOC.addDirectionInfo = function(cumulative, geometry){
+  var life = MFOC.calculateLife(geometry);
+  var length = MFOC.calculateLength(geometry);
+
+  var start_point = geometry.coordinates[0];
+  var end_point = geometry.coordinates[geometry.coordinates.length-1];
+
+  if (geometry.type != "MovingPoint" ){ // Polygon, LineString
+    start_point = MFOC.getCenter(start_point, geometry.type);
+    end_point = MFOC.getCenter(end_point, geometry.type);
+  }
+
+  var dist_x, dist_y;
+
+  dist_x = end_point[0] - start_point[0];
+  dist_y = end_point[1] - start_point[1];
+
+  if (dist_x == 0){
+    if (dist_y > 0){
+      cumulative.north.total_life += life;
+      cumulative.north.total_length += length;
+    }
+    else if (dist_y < 0){
+      cumulative.south.total_life += life;
+      cumulative.south.total_length += length;
+    }
+    else{
+
+    }
+  }
+  else{
+    var slope = dist_y / dist_x ;
+    if (slope < 1 && slope > -1){
+      if (dist_x > 0 ){
+        cumulative.east.total_life += life;
+        cumulative.east.total_length += length;
+      }
+      else{
+        cumulative.west.total_life += life;
+        cumulative.west.total_length += length;
+      }
+    }
+    else {
+      if (dist_y >0){
+        cumulative.north.total_life += life;
+        cumulative.north.total_length += length;
+      }
+      else{
+        cumulative.south.total_life += life;
+        cumulative.south.total_length += length;
+      }
+    }
+  }
+
+
+}
+
+
+MFOC.calculateLife = function(geometry){
+  return new Date(geometry.datetimes[0]).getTime() - new Date(geometry.datetimes[geometry.datetimes.length-1]).getTime();
+};
+
+MFOC.calculateLength = function(geometry){
+  var total = 0;
+  for (var i = 0 ; i < geometry.coordinates - 1 ; i++){
+    var point1;
+    var point2;
+    if (geometry.type == "MovingPoint"){
+      point1 = geometry.coordinates[i];
+      point2 = geometry.coordinates[i+1];
+    }
+    else{
+      point1 =MFOC.getCenter(geometry.coordinates[i], geometry.type);
+      point2=MFOC.getCenter(geometry.coordinates[i+1], geometry.type);
+    }
+    total += MFOC.calculateDist(point1, point2);
+  }
+  return total;
+};
+
+
+MFOC.getCenter = function(coordinates, type){
+  var x,y;
+  var length = coordinates.length;
+  if (type = 'MovingPolygon'){
+    length -= 1;
+  }
+  for (var i = 0 ; i < length ; i++){
+    x += coordinates[i][0];
+    y += coordinates[i][1];
+  }
+  x /= length;
+  y /= length;
+  return [x,y];
+}
+
+
+
+
+
 
 MFOC.prototype.showPropertyArray = function(object_arr, div_id){
-  console.log(colorType);
+
   document.getElementById(div_id).innerHTML = '';
 
   //if put empty array.
