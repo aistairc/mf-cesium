@@ -11,17 +11,14 @@
 
   <script src="../Build/Cesium/Cesium.js"></script>
   <script src="jquery-3.1.1.js"></script>
-  <script src="../MFOC/src/Model.js"> </script>
-  <script src="../MFOC/src/draw_indoor.js"></script>
-  <script src="../MFOC/src/moving.js"></script>
-  <script src="../MFOC/src/utility.js"></script>
-
-  <script src="../MFOC/src/hotspot.js"> </script>
-
-  <script src="test.js"> </script>
-  <script src="../MFOC/src/property.js"></script>
-  <script src="../MFOC/src/method.js"></script>
-  <script src="../MFOC/src/draw.js"></script>
+  <script src="../js/MFOC/Model.js"> </script>
+  <script src="../js/MFOC/draw_indoor.js"></script>
+  <script src="../js/MFOC/moving.js"></script>
+  <script src="../js/MFOC/utility.js"></script>
+  <script src="../js/MFOC/hotspot.js"> </script>
+  <script src="../js/MFOC/property.js"></script>
+  <script src="../js/MFOC/method.js"></script>
+  <script src="../js/MFOC/draw.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
 
 
@@ -29,7 +26,7 @@
 
   @import url(../Build/Cesium/Widgets/widgets.css);
   html, body, #cesiumContainer {
-    width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+    width: 100%; height: 80%; margin: 0; padding: 0; overflow: hidden;
   }
   @import url(Sandcastle/templates/bucket.css);
 
@@ -39,9 +36,21 @@
   .graph{
     position : absolute;
     bottom : 0px;
-    width : 100%; height : 0%;
+    width : 100%; height : 20%;
     z-index:2;
     color:white;
+  }
+
+  .axis text{
+    fill : red;
+  }
+
+  .axis line{
+    stroke : red;
+  }
+
+  .axis path{
+    stroke : red;
   }
 
   </style>
@@ -108,34 +117,34 @@
   var url = getParameterByName('url');
   var token = getParameterByName('token');
 
-
+  var mf_arr = [];
 
   function test(){
     $.getJSON('json_data/polygon2015.json').then(
       function(data){
-        var mf_arr = [];
+
         for (var i = 0 ; i < data.features.length ; i++){
-          mf_arr.push(data.features[i]);
-          //mfoc.add(data.features[i]);
+          //mf_arr.push(data.features[i]);
+          mfoc.add(data.features[i]);
         //  console.log(mfoc);
         }
 
-        mfoc.drawFeatures({movingfeature : mf_arr});
+      //  mfoc.drawFeatures();
       }
     );
     $.getJSON('json_data/point.json').then(
       function(data){
-        var mf_arr = [];
-        for (var i = 0 ; i < 2 ; i++){
-        //  mfoc.add(data.features[i]);
+    //    var mf_arr = [];
+        for (var i = 0 ; i < data.features.length ; i++){
+      //    mfoc.add(data.features[i]);
       //    console.log(mfoc);
         }
       }
     );$.getJSON('json_data/polyline.json').then(
       function(data){
-        var mf_arr = [];
+    //    var mf_arr = [];
         for (var i = 0 ; i < 2 ; i++){
-        //  mfoc.add(data.features[i]);
+          mfoc.add(data.features[i]);
         //  console.log(mfoc);
         }
       }

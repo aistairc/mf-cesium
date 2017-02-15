@@ -170,6 +170,7 @@ function getParameterByName(name, url) {
 
 
 MFOC.findMinMaxProperties = function(properties){
+  console.log(properties);
   if (!Array.isArray(properties)){
     properties = [properties];
   }
@@ -203,6 +204,11 @@ MFOC.findMinMaxProperties = function(properties){
 
 
 
+MFOC.getMBRFromPolygon = function(coordinates){
+
+  var mbr = MFOC.findMinMaxCoord(coordinates);
+  return mbr;
+}
 
 
 
@@ -211,7 +217,7 @@ MFOC.findMinMaxProperties = function(properties){
 
 //----------------------it wiil be removed--------------
 
-
+/*
 
 
 
@@ -336,12 +342,6 @@ function findMinMaxCoordAndTimeInMFArray(mf_arr){
 
 
 
-function getMBRFromPolygon(coordinates){
-
-  var mbr = findMinMaxCoord(coordinates);
-  return mbr;
-}
-
 function findMinMaxTimeAndValue(pro_arr){
 
   var first_date = new Date(pro_arr[0].datetimes[0]);
@@ -369,3 +369,4 @@ function findMinMaxTimeAndValue(pro_arr){
   }
   return min_max;
 }
+*/

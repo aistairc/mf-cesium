@@ -1,6 +1,126 @@
 var LOG = console.log;
 
-function drawOnePolygon(onePolygon, height, with_height, r_color = Cesium.Color.ORANGE.withAlpha(0.3)) { //it gets one polygon
+
+
+MFOC.prototype.drawMovingLineString = function(geometry){
+  var polylineCollection = new Cesium.PolylineCollection();
+
+  var r_color = Cesium.Color.fromRandom({
+    minimumRed : 0.8,
+    minimumBlue : 0.8,
+    minimumGreen : 0.8,
+    alpha : 1.0
+  });
+
+  var data = geometry;
+  var heights = this.getListOfHeight(data.datetimes);
+
+  for (var j = 0 ; j < data.coordinates.length ; j++){
+    if (this.mode == '2D'){
+      heights[j] = 0;
+    }
+    var positions = MFOC.makeDegreesArray(data.coordinates[j], heights[j]);
+    polylineCollection.add(MFOC.drawOneLine(positions, r_color));
+  }
+
+  return polylineCollection;
+}
+
+MFOC.makeDegreesArray = function(pos_2d, height){
+  var points = [];
+  for (var i = 0; i < pos_2d.length; i++) {
+    if (Array.isArray(height)){
+      points.push(pos_2d[i][0], pos_2d[i][1], height[i]);
+    }
+    else{
+      points.push(pos_2d[i][0], pos_2d[i][1], height);
+    }
+  }
+  return points;
+}
+
+MFOC.drawOneLine = function(positions, r_color){
+  var material = new Cesium.Material.fromType('Color');
+  material.uniforms.color = r_color;
+
+  var line = {
+    positions :  Cesium.Cartesian3.fromDegreesArrayHeights(positions) ,
+    width : 5,
+    material : material
+  };
+
+  return line;
+}
+
+MFOC.prototype.drawMovingPoint = function(geometry){
+  var pointCollection = new Cesium.PointPrimitiveCollection();
+
+  var r_color = Cesium.Color.fromRandom({
+    minimumRed : 0.8,
+    minimumBlue : 0.8,
+    minimumGreen : 0.8,
+    alpha : 1.0
+  });
+
+
+  var data = geometry.coordinates;
+  if(this.mode == '3D'){
+    var heights = this.getListOfHeight(geometry.datetimes);
+    for(var i = 0 ; i < data.length ; i++ ){
+      pointCollection.add(MFOC.drawOnePoint(data[i], heights[i], r_color));
+    }
+  }
+  else{
+    for(var i = 0 ; i < data.length ; i++ ){
+      pointCollection.add(MFOC.drawOnePoint(data[i], 0, r_color));
+    }
+  }
+
+  return pointCollection;
+}
+
+MFOC.drawOnePoint = function(onePoint,height,r_color){ //it gets one point
+  var pointInstance = new Cesium.PointPrimitive();
+  var position = Cesium.Cartesian3.fromDegrees(onePoint[0],onePoint[1],height);;
+  pointInstance.position = position;
+  pointInstance.color = r_color;
+  return pointInstance;
+}
+
+MFOC.prototype.drawMovingPolygon = function(geometry){
+  var color = Cesium.Color.ORANGE.withAlpha(0.5);
+
+  var min_max_date = this.min_max.date;
+  var coordinates = geometry.coordinates;
+  var datetimes = geometry.datetimes;
+
+  var prim;
+  var poly_list = new Array();
+  var heights = null;
+
+  var with_height = false;
+  if (this.mode == '3D'){
+    with_height = true;
+    heights = this.getListOfHeight(datetimes);
+  }
+
+  for (var i = 0; i < coordinates.length; i++) {
+    if (!with_height){
+      heights[i] = 0;
+    }
+    poly_list.push(MFOC.drawOnePolygon(coordinates[i], heights[i], with_height , color));
+  }
+
+
+  prim = new Cesium.Primitive({
+    geometryInstances: poly_list,
+    appearance: new Cesium.PerInstanceColorAppearance({})
+  });
+
+  return prim;
+}
+
+MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it gets one polygon
   var coordinates = onePolygon;
   var points = [];
 
@@ -58,307 +178,178 @@ function drawOnePolygon(onePolygon, height, with_height, r_color = Cesium.Color.
   return geoInstance;
 }
 
-var drawMovingPolygonArray = function(mf_arr, with_height) { // it gets one object of features.
-  var prim_collecion = new Cesium.PrimitiveCollection();
-  var r_color = Cesium.Color.fromRandom({
-    red : 0.0,
-    minimumBlue : 0.2,
-    minimumGreen : 0.2,
-    alpha : 0.3
+MFOC.prototype.drawPathMovingPoint = function(options){
+  var polylineCollection = new Cesium.PolylineCollection();
+
+  var color = Cesium.Color.fromRandom({
+    red : 0.8,
+    minimumBlue : 0.8,
+    minimumGreen : 0.8,
+    alpha : 1.0
   });
 
-  var min_max_date = findAllMinMaxTime(mf_arr);
+  var data = options.temporalGeometry;
+  var property = options.temporalProperty;
+  var heights = this.getListOfHeight(data.datetimes);
 
-  for (var id = 0 ; id < mf_arr.length ; id++){
-    var setOfPolygon = mf_arr[id];
-    var coordinates = setOfPolygon.temporalGeometry.coordinates;
-    var datetimes = setOfPolygon.temporalGeometry.datetimes;
-    var name = setOfPolygon.properties.name;
-    var polyCollection;
-    var poly_list = new Array();
-    var heights = null;
-    if (with_height){
-      heights = getListOfHeight(datetimes, min_max_date);
-    }
-
-    var r_color = Cesium.Color.fromRandom({
-      red : 0.0,
-      minimumBlue : 0.2,
-      minimumGreen : 0.2,
-      alpha : 0.3
-    });
-
-    for (var i = 0; i < coordinates.length; i++) {
-      poly_list.push(drawOnePolygon(coordinates[i], heights[i], with_height, r_color));
-    }
-
-
-    polyCollection = new Cesium.Primitive({
-      geometryInstances: poly_list,
-      appearance: new Cesium.PerInstanceColorAppearance({})
-    });
-    prim_collecion.add(polyCollection);
+  var pro_min_max = null;
+  if (property != undefined){
+    pro_min_max = MFOC.findMinMaxProperties(property);
   }
-  return prim_collecion;
 
+  if (property == undefined){
+    var positions = MFOC.makeDegreesArray(data.coordinates, heights);
+    polylineCollection.add(MFOC.drawOneLine(positions, color));
+  }
+  else{
+    for (var index = 0 ; index < data.coordinates.length - 1; index++){
+      var middle_value = (property.values[index] + property.values[index+1]) / 2;
+      var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+      if (blue_rate < 0.2){
+        blue_rate = 0.2;
+      }
+      color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
+
+      var positions =
+      (data.coordinates[index].concat(heights[index]))
+      .concat(data.coordinates[index+1].concat(heights[index+1]));
+
+      polylineCollection.add(MFOC.drawOneLine(positions, color));
+    }
+
+  }
+
+
+
+  return polylineCollection;
 }
 
-var drawVolumeMovingPolygonArray = function(mf_arr, with_height) { // it gets one object of features.
+MFOC.prototype.drawPathMovingPolygon = function(options){
+  var geometry = options.temporalGeometry;
+  var property = options.temporalProperty;
 
-  if ( !Array.isArray(mf_arr) ){
-    mf_arr = [mf_arr];
+  var coordinates = geometry.coordinates;
+  var datetimes = geometry.datetimes;
+
+  var pro_min_max = null;
+  if (property != undefined){
+    pro_min_max = MFOC.findMinMaxProperties(property);
   }
-  var typhoonCollection = new Cesium.PrimitiveCollection();
 
+  var geoInstance;
+  var surface = [];
+  var typhoon;
 
-  var min_max_date = findAllMinMaxTime(mf_arr);
+  var heights = this.getListOfHeight(datetimes);
 
+  var color = Cesium.Color.fromRandom({
+    red : 0.8,
+    minimumBlue : 0.8,
+    minimumGreen : 0.8,
+    alpha : 1.0
+  });
 
-  for (var id = 0 ; id < mf_arr.length ; id++){
+  for (var i = 0; i < coordinates.length - 1; i++) {
+    for (var j = 0; j < coordinates[i].length - 1 ; j++) {
+      var temp_poly = new Array();
+      var temp_point = new Array();
+      var first = coordinates[i][j];
+      var sec = coordinates[i + 1][j];
+      var third = coordinates[i + 1][j + 1];
+      var forth = coordinates[i][j + 1];
 
-    var oneTyphoon = mf_arr[id];
-    var coordinates = oneTyphoon.temporalGeometry.coordinates;
-    var datetimes = oneTyphoon.temporalGeometry.datetimes;
-    var name = oneTyphoon.properties.name;
-
-    var geoInstance;
-    var surface = [];
-    var typhoon;
-
-    var heights = getListOfHeight(datetimes, min_max_date);
-
-    var r_color = Cesium.Color.fromRandom({
-      red : 0.0,
-      minimumBlue : 0.2,
-      minimumGreen : 0.2,
-      alpha : 0.3
-    });
-
-    for (var i = 0; i < coordinates.length - 1; i++) {
-      for (var j = 0; j < coordinates[i].length - 1 ; j++) {
-
-        var temp_poly = new Array();
-        var temp_point = new Array();
-        var first = coordinates[i][j];
-        var sec = coordinates[i + 1][j];
-        var third = coordinates[i + 1][j + 1];
-        var forth = coordinates[i][j + 1];
-
-
-        if (with_height){
-          temp_poly.push([first[0], first[1], heights[i]], [sec[0], sec[1], heights[i+1]],
-             [third[0], third[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
+      if (property != undefined){
+        var middle_value = (property.values[i] + property.values[i+1]) / 2;
+        var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+        if (blue_rate < 0.2){
+          blue_rate = 0.2;
         }
-        else{
-          temp_poly.push([first[0], first[1], 0], [sec[0], sec[1], 0],
+
+        color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
+      }
+
+      if (this.mode == '3D'){
+        temp_poly.push([first[0], first[1], heights[i]], [sec[0], sec[1], heights[i+1]],
+          [third[0], third[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
+      }
+      else{
+        temp_poly.push([first[0], first[1], 0], [sec[0], sec[1], 0],
             [third[0], third[1], 0], [forth[0], forth[1], 0]);
-        }
-
-        geoInstance = drawOnePolygon(temp_poly, null, with_height, r_color);
-        surface.push(geoInstance);
       }
-    }
-    var typhoon = new Cesium.Primitive({
-      geometryInstances: surface,
-      appearance: new Cesium.PerInstanceColorAppearance()
-    });
-    typhoonCollection.add(typhoon);
-  }
-  return typhoonCollection;
 
-}
-
-function drawOnePoint(onePoint,height,r_color){ //it gets one point
-  var pointInstance = new Cesium.PointPrimitive();
-  var position = Cesium.Cartesian3.fromDegrees(onePoint[0],onePoint[1],height);;
-  pointInstance.position = position;
-  pointInstance.color = r_color;
-  return pointInstance;
-}
-
-var drawMovingPointArray = function(mf_arr, with_height){ //it gets set of points
-  if ( !Array.isArray(mf_arr) ){
-    mf_arr = [mf_arr];
-  }
-  var pointCollection = new Cesium.PointPrimitiveCollection();
-
-  var min_max_date = findAllMinMaxTime(mf_arr);
-
-  for (var id = 0 ; id < mf_arr.length ; id++){
-
-    var r_color = Cesium.Color.fromRandom({
-      red : 0.0,
-      minimumBlue : 0.2,
-      minimumGreen : 0.2,
-      alpha : 1.0
-    });
-    var buffer = mf_arr[id];
-    var heights = getListOfHeight(buffer.temporalGeometry.datetimes, min_max_date);
-    var data = buffer.temporalGeometry.coordinates;
-    if(with_height){
-      for(var i = 0 ; i < data.length ; i++ ){
-        pointCollection.add(drawOnePoint(data[i], heights[i], r_color));
-      }
-    }
-    else{
-      for(var i = 0 ; i < data.length ; i++ ){
-        pointCollection.add(drawOnePoint(data[i], 0, r_color));
-      }
+      geoInstance = MFOC.drawOnePolygon(temp_poly, null, this.mode == '3D', color);
+      surface.push(geoInstance);
     }
   }
-  return pointCollection;
+  var typhoon = new Cesium.Primitive({
+    geometryInstances: surface,
+    appearance: new Cesium.PerInstanceColorAppearance()
+  });
+
+  return typhoon;
+
 }
 
-function drawOneLine(positions, r_color){
-  var material = new Cesium.Material.fromType('Color');
-  material.uniforms.color = r_color;
-
-  var line = {
-    positions :  Cesium.Cartesian3.fromDegreesArrayHeights(positions) ,
-    width : 5,
-    material : material
-  };
-
-  return line;
-}
-
-function makeDegreesArray(pos_2d, height){
-  var points = [];
-  for (var i = 0; i < pos_2d.length; i++) {
-    if (Array.isArray(height)){
-      points.push(pos_2d[i][0], pos_2d[i][1], height[i]);
-    }
-    else{
-      points.push(pos_2d[i][0], pos_2d[i][1], height);
-    }
-  }
-  return points;
-}
-
-var drawMovingLineStringArray = function(mf_arr, with_height) { // it gets one object of features.
-  if ( !Array.isArray(mf_arr) ){
-    mf_arr = [mf_arr];
-  }
-  var polylineCollection = new Cesium.PolylineCollection();
-
-  var min_max_date = findAllMinMaxTime(mf_arr);
-
-  for (var id = 0 ; id < mf_arr.length ; id++){
-    var r_color = Cesium.Color.fromRandom({
-      red : 0.0,
-      minimumBlue : 0.2,
-      minimumGreen : 0.2,
-      alpha : 1.0
-    });
-
-    var buffer = mf_arr[id];
-    var data = buffer.temporalGeometry;
-    var heights = getListOfHeight(data.datetimes, min_max_date);
-
-    for (var j = 0 ; j < data.coordinates.length ; j++){
-      if (!with_height){
-        heights[j] = 0;
-      }
-      var positions = makeDegreesArray(data.coordinates[j], heights[j]);
-      polylineCollection.add(drawOneLine(positions, r_color));
-    }
-  }
-  return polylineCollection;
-}
-
-function calculateDistanceThree2D(p1, p2, p3) {
-  var dis1 = euclidianDistance2D(p1, p3);
-  var dis2 = euclidianDistance2D(p2, p3);
-  return (dis1 + dis2) / 2;
-}
-
-function calculateDistanceThree3D(p1, p2, p3) {
-  var dis1 = euclidianDistance3D(p1, p3);
-  var dis2 = euclidianDistance3D(p2, p3);
-  return (dis1 + dis2) / 2;
-}
-
-function euclidianDistance2D(a, b) {
-  var pow1 = Math.pow(a[0] - b[0], 2);
-  var pow2 = Math.pow(a[1] - b[1], 2);
-  return Math.sqrt(pow1 + pow2);
-}
-
-function euclidianDistance3D(a, b) {
-  var pow1 = Math.pow(a[0] - b[0], 2);
-  var pow2 = Math.pow(a[1] - b[1], 2);
-  var pow3 = Math.pow(a[2] - b[2], 2);
-  return Math.sqrt(pow1 + pow2 + pow3);
-}
-
-
-var drawMovingPointPath = function(mf_arr, with_height){
-  if ( !Array.isArray(mf_arr) ){
-    mf_arr = [mf_arr];
-  }
-  var polylineCollection = new Cesium.PolylineCollection();
-
-  var min_max_date = findAllMinMaxTime(mf_arr);
-
-  for (var id = 0 ; id < mf_arr.length ; id++){
-    var r_color = Cesium.Color.fromRandom({
-      red : 0.0,
-      minimumBlue : 0.2,
-      minimumGreen : 0.2,
-      alpha : 1.0
-    });
-
-    var buffer = mf_arr[id];
-    var data = buffer.temporalGeometry;
-    var heights = getListOfHeight(data.datetimes, min_max_date);
-
-    var positions = makeDegreesArray(data.coordinates, heights);
-    polylineCollection.add(drawOneLine(positions, r_color));
-  }
-  return polylineCollection;
-}
-
-var drawMovingLinePath = function(mf_arr, with_height){
-  if ( !Array.isArray(mf_arr) ){
-    mf_arr = [mf_arr];
-  }
+MFOC.prototype.drawPathMovingLineString = function(options){
   var trianlgeCollection = new Cesium.PrimitiveCollection();
 
-  var min_max_date = findAllMinMaxTime(mf_arr);
+  var data = options.temporalGeometry;
+  var property = options.temporalProperty;
 
-  for (var id = 0 ; id < mf_arr.length ; id ++ ){
-    var data = mf_arr[id].temporalGeometry;
-    var heights = getListOfHeight(data.datetimes, min_max_date);
-    var coord_arr = data.coordinates;
-    for (var i = 0; i < coord_arr.length ; i++){
-      if (i == 0){
-        pre_polyline = coord_arr[0];
-        continue;
+  var pro_min_max = null;
+  if (property != undefined){
+    pro_min_max = MFOC.findMinMaxProperties(property);
+  }
+
+  var heights = this.getListOfHeight(data.datetimes);
+  var coord_arr = data.coordinates;
+  for (var i = 0; i < coord_arr.length ; i++){
+    var color = undefined;
+
+    if (i == 0){
+      pre_polyline = coord_arr[0];
+      continue;
+    }
+
+    if (property != undefined){
+      var middle_value = (property.values[i] + property.values[i+1]) / 2;
+      var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+      if (blue_rate < 0.2){
+        blue_rate = 0.2;
       }
 
-      trianlgeCollection.add(drawTrinaglesWithNextPos(pre_polyline, coord_arr[i], heights[i-1], heights[i], with_height));
-
-
-
-      pre_polyline = coord_arr[i];
+      color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
     }
+
+    trianlgeCollection.add(this.drawTrinaglesWithNextPos(pre_polyline, coord_arr[i], heights[i-1], heights[i], color));
+
+    pre_polyline = coord_arr[i];
   }
+
   return trianlgeCollection;
 }
 
-function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height){
+
+MFOC.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, height2, color){
   var instances = [];
   var i=0,
   j=0;
 
-  while ( i < line_1.length - 1 && j < line_2.length - 1){
+  var with_height = (this.mode == '3D');
 
-    var color = Cesium.Color.fromRandom({
-      minimumRed : 0.6,
-      minimumBlue : 0.0,
-      minimumGreen : 0.0,
-      alpha : 0.4
-    });
+  while ( i < line_1.length - 1 && j < line_2.length - 1){
+    var new_color;
+    if (color == undefined){
+      new_color = Cesium.Color.fromRandom({
+        minimumRed : 0.6,
+        minimumBlue : 0.0,
+        minimumGreen : 0.0,
+        alpha : 0.4
+      });
+    }
+    else{
+      new_color = color;
+    }
 
     var positions = [];
     var point_1 = line_1[i];
@@ -372,31 +363,35 @@ function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height)
     point_2.push(height2);
     positions.push(point_2);
 
-    var dist1 = euclidianDistance2D(point_1, next_point_2);
-    var dist2 = euclidianDistance2D(point_2, next_point_1);
+    var dist1 = MFOC.euclidianDistance2D(point_1, next_point_2);
+    var dist2 = MFOC.euclidianDistance2D(point_2, next_point_1);
 
     if (dist1 > dist2){
       next_point_1.push(height1);
       positions.push(next_point_1);
-
       i++;
     }
     else{
       next_point_2.push(height2);
       positions.push(next_point_2);
-
       j++;
     }
-    instances.push(drawOnePolygon(positions,null,with_height,color));
+    instances.push(MFOC.drawOnePolygon(positions,null,with_height,new_color));
   }
 
   while (i < line_1.length - 1 || j < line_2.length - 1){
-    var color = Cesium.Color.fromRandom({
-      minimumRed : 0.6,
-      minimumBlue : 0.0,
-      minimumGreen : 0.0,
-      alpha : 0.4
-    });
+    var new_color;
+    if (color == undefined){
+      new_color = Cesium.Color.fromRandom({
+        minimumRed : 0.6,
+        minimumBlue : 0.0,
+        minimumGreen : 0.0,
+        alpha : 0.4
+      });
+    }
+    else{
+      new_color = color;
+    }
 
     var positions = [];
     var point_1 = line_1[i];
@@ -412,20 +407,18 @@ function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height)
       var next_point = line_2[j+1];
       next_point.push(height2);
       positions.push(next_point);
-
       j++;
     }
     else if (j == line_2.length - 1){
       var next_point = line_1[i+1];
       next_point.push(height1);
       positions.push(next_point);
-
       i++;
     }
     else {
       alert("error");
     }
-    instances.push(drawOnePolygon(positions,null,with_height,color));
+    instances.push(MFOC.drawOnePolygon(positions,null,with_height,new_color));
   }
 
   var temp = new Cesium.Primitive({
@@ -439,10 +432,26 @@ function drawTrinaglesWithNextPos(line_1, line_2, height1, height2, with_height)
 
 }
 
+MFOC.euclidianDistance2D = function(a, b) {
+  var pow1 = Math.pow(a[0] - b[0], 2);
+  var pow2 = Math.pow(a[1] - b[1], 2);
+  return Math.sqrt(pow1 + pow2);
+}
 
-function drawOneCube(positions, rating = 1.0){
+MFOC.euclidianDistance3D = function(a, b) {
+  var pow1 = Math.pow(a[0] - b[0], 2);
+  var pow2 = Math.pow(a[1] - b[1], 2);
+  var pow3 = Math.pow(a[2] - b[2], 2);
+  return Math.sqrt(pow1 + pow2 + pow3);
+}
+
+
+MFOC.drawOneCube = function(positions, rating = 1.0){
   var red_rate = 1.0, green_rate = (-2 * rating) + 2;
-
+  var blue_rate = 0.0;
+  if (rating < 0.5){
+    blue_rate = (0.5 - rating) * 2 ;
+  }
   var rating_color = new Cesium.Color(
     1.0,
     green_rate,
@@ -450,15 +459,7 @@ function drawOneCube(positions, rating = 1.0){
     rating
   );
 
-  if (rating < 0){
-    rating_color = new Cesium.Color(
-      1.0,
-      green_rate,
-      0.5,
-      0.2
-    );
-  }
-  var size = calcSidesBoxCoord(positions);
+  var size = MFOC.calcSidesBoxCoord(positions);
 
   var geometry = Cesium.BoxGeometry.fromDimensions({
     vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
@@ -491,13 +492,69 @@ function drawOneCube(positions, rating = 1.0){
 
 }
 
-function calcSidesBoxCoord(box_coord){
+MFOC.calcSidesBoxCoord = function(box_coord){
   var x_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.maximum.x, box_coord.minimum.y, box_coord.minimum.z));
   var y_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.maximum.y, box_coord.minimum.z));
   var z_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.maximum.z));
 
   return [x_dist, y_dist, z_dist];
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+//return : Cesium.PrimitiveCollection
+var drawHighlightMovingFeature = function (mf, with_height, property_name){
+  var prim_collecion = new Cesium.PrimitiveCollection();
+  if (mf.type != "MovingFeature"){
+    LOG("it is not moving feature");
+  }
+
+  var type = mf.temporalGeometry.type;
+
+  if (type == 'MovingPolygon'){
+    prim_collecion.add(drawVolumeMovingPolygonArray(mf, with_height, property_name));
+  }
+  else if (type == 'MovingPoint'){
+    prim_collecion.add(drawMovingPointPath(mf, with_height, property_name));
+  }
+  else if (type == 'MovingLineString'){
+    prim_collecion.add(drawPathMovingLineString(mf, with_height, property_name));
+  }
+  else{
+    LOG('this type is not implemented.');
+  }
+  return prim_collecion;
+}
+
+
+
+function calculateDistanceThree2D(p1, p2, p3) {
+  var dis1 = euclidianDistance2D(p1, p3);
+  var dis2 = euclidianDistance2D(p2, p3);
+  return (dis1 + dis2) / 2;
+}
+
+function calculateDistanceThree3D(p1, p2, p3) {
+  var dis1 = euclidianDistance3D(p1, p3);
+  var dis2 = euclidianDistance3D(p2, p3);
+  return (dis1 + dis2) / 2;
+}
+*/
 //draw movingfeature with z-value.
 
 var drawPolygonsWithZvalue = function(mf_arr, with_height){
@@ -505,7 +562,7 @@ var drawPolygonsWithZvalue = function(mf_arr, with_height){
 }
 
 
-var drawPointsWithZvalue = function(mf_arr, with_height){
+var drawPointsWithZvalue = function(mf_arr, with_height, max_height = 1000){
   var pointCollection = new Cesium.PointPrimitiveCollection();
   var min_max = findAllMinMaxTimeAndZ(mf_arr, true);
 
@@ -518,7 +575,7 @@ var drawPointsWithZvalue = function(mf_arr, with_height){
     });
 
     var buffer = mf_arr[id];
-    var heights = getListOfHeight(buffer.temporalGeometry.datetimes, min_max.date, 1000);
+    var heights = getListOfHeight(buffer.temporalGeometry.datetimes, min_max.date, max_height);
     var data = buffer.temporalGeometry.coordinates;
     for(var i = 0 ; i < data.length ; i++ ){
       var p_color = r_color.clone();
@@ -555,18 +612,22 @@ var drawPointsPathWithZvalue = function(mf_arr, with_height){
 
 
 }
-var show3DHotSpotMovingPoint = function(mf_arr,x_deg,y_deg,time_deg, max_height = 15000000){//time_deg is seconds
+MFOC.prototype.makeBasicCube = function(degree){
+  var min_max = this.min_max;
+  var cube_data = this.cube_data;
 
-  var min_max = findMinMaxCoordAndTimeInMFArray(mf_arr);
+  var x_deg = degree.x,
+  y_deg = degree.y,
+  time_deg = degree.time;
 
-  var cube_data = [];
-  var time_length = (min_max.date[1].getTime() - min_max.date[0].getTime())/(time_deg * 1000);
-  var start = Cesium.JulianDate.fromDate(min_max.date[0]);
+  var x_band = min_max.x[1] - min_max.x[0],
+  y_band = min_max.y[1] - min_max.y[0];
 
-  var x_band = min_max.coord.max_x - min_max.coord.min_x,
-  y_band = min_max.coord.max_y - min_max.coord.min_y;
   var x_length = Math.ceil(x_band/x_deg);
   var y_length = Math.ceil(y_band/y_deg);
+
+  var time_length = (min_max.date[1].getTime() - min_max.date[0].getTime())/(time_deg * 1000);
+  var start = Cesium.JulianDate.fromDate(min_max.date[0]);
 
   for (var i = 0 ; i < time_length + 1 ; i++){
     cube_data[i] = {
@@ -583,213 +644,215 @@ var show3DHotSpotMovingPoint = function(mf_arr,x_deg,y_deg,time_deg, max_height 
       }
     }
   }
+}
 
-  var max_num = 0;
-//  console.log(cube_data);
-  for (var mf = 0 ; mf < mf_arr.length ; mf++){
-    var geometry = mf_arr[mf].temporalGeometry;
-    var datetimes = geometry.datetimes;
-    var property = new Cesium.SampledPositionProperty();
+MFOC.prototype.drawHotSpotMovingPolygon = function(geometry, degree){
+  var min_max = this.min_max;
+  var cube_data = this.cube_data;
 
-    if (geometry.interpolations == "Spline"){
-      property.setInterpolationOptions({
-        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
-        interpolationDegree : 2
-      });
-    }
+  var x_deg = degree.x,
+  y_deg = degree.y,
+  time_deg = degree.time;
 
-    for (var time = 0 ; time < datetimes.length ; time++){
-      var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
-      var normalize = normalizeTime(new Date(datetimes[time]), min_max.date, max_height);
-      var position = {        x : geometry.coordinates[time][0],        y : geometry.coordinates[time][1]      };
-      //Cesium.Cartesian2.fromElements(geometry.coordinates[time][0],geometry.coordinates[time][1]);
-      property.addSample(jul_time, position);
-    }
+  var time_length = (min_max.date[1].getTime() - min_max.date[0].getTime())/(time_deg * 1000);
+  var start = Cesium.JulianDate.fromDate(min_max.date[0]);
 
-    for (var i = 0 ; i < time_length - 1 ; i++){
-      var middle_time = Cesium.JulianDate.addDays(cube_data[i].time, Cesium.JulianDate.daysDifference(cube_data[i+1].time, cube_data[i].time), new Cesium.JulianDate());
-      var position = property.getValue(middle_time);
+  var x_band = min_max.x[1] - min_max.x[0],
+  y_band = min_max.y[1] - min_max.y[0];
 
-      if (position != undefined)
-      {
-        var x = getCubeIndexFromSample(position.x, x_deg, min_max.coord.min_x);
-        var y = getCubeIndexFromSample(position.y, y_deg, min_max.coord.min_y);
+  var x_length = Math.ceil(x_band/x_deg);
+  var y_length = Math.ceil(y_band/y_deg);
 
-        cube_data[i].count[x][y] += 1;
-        max_num = Math.max(cube_data[i].count[x][y],max_num);
-      }
-    }
+  var max_num = this.hotspot_maxnum;
+  var datetimes = geometry.datetimes;
+
+  var lower_x_property = new Cesium.SampledProperty(Number);
+  var upper_x_property = new Cesium.SampledProperty(Number);
+
+  var lower_y_property = new Cesium.SampledProperty(Number);
+  var upper_y_property = new Cesium.SampledProperty(Number);
+
+
+  if (geometry.interpolations == "Spline"){
+    upper_y_property.setInterpolationOptions({
+      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+      interpolationDegree : 2
+    });
+    lower_y_property.setInterpolationOptions({
+      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+      interpolationDegree : 2
+    });
+    upper_x_property.setInterpolationOptions({
+      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+      interpolationDegree : 2
+    });
+    lower_x_property.setInterpolationOptions({
+      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+      interpolationDegree : 2
+    });
+
   }
 
+  for (var time = 0 ; time < datetimes.length ; time++){
+    var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
+    var normalize = MFOC.normalizeTime(new Date(datetimes[time]), this.min_max.date, this.max_height);
+
+    var coordinates = geometry.coordinates[time];
+    var mbr = MFOC.getMBRFromPolygon(coordinates);
+
+    lower_x_property.addSample(jul_time, mbr.x[0]);
+    upper_x_property.addSample(jul_time, mbr.x[1]);
+    lower_y_property.addSample(jul_time, mbr.y[0]);
+    upper_y_property.addSample(jul_time, mbr.y[1]);
+  }
+  
+  for (var i = 0 ; i < time_length - 1 ; i++){
+    var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time, time_deg/2, new Cesium.JulianDate());
+    var mbr = {
+      x : [],
+      y : []
+    };
+
+    mbr.x[0] = lower_x_property.getValue(middle_time);
+    mbr.x[1] = upper_x_property.getValue(middle_time);
+    mbr.y[0] = lower_y_property.getValue(middle_time);
+    mbr.y[1] = upper_y_property.getValue(middle_time);
+
+
+    if (mbr.y[1] != undefined){
+      var x_min = MFOC.getCubeIndexFromSample(mbr.x[0], x_deg, min_max.x[0]);
+      var y_min = MFOC.getCubeIndexFromSample(mbr.y[0], y_deg, min_max.y[0]);
+      var x_max = MFOC.getCubeIndexFromSample(mbr.x[1], x_deg, min_max.x[0]);
+      var y_max = MFOC.getCubeIndexFromSample(mbr.y[1], y_deg, min_max.y[0]);
+
+      var x_equal = (x_min == x_max);
+      var y_equal = (y_min == y_max);
+
+      if (x_equal && y_equal){
+        cube_data[i].count[x_min][y_min] += 1;
+      }
+      else if(x_equal){
+        cube_data[i].count[x_min][y_min] += 1;
+        cube_data[i].count[x_min][y_max] += 1;
+      }
+      else if(y_equal){
+        cube_data[i].count[x_min][y_min] += 1;
+        cube_data[i].count[x_max][y_min] += 1;
+      }
+      else{
+        cube_data[i].count[x_max][y_min] += 1;
+        cube_data[i].count[x_max][y_max] += 1;
+        cube_data[i].count[x_min][y_min] += 1;
+        cube_data[i].count[x_min][y_max] += 1;
+      }
+      max_num = Math.max(cube_data[i].count[x_min][y_min],max_num);
+      max_num = Math.max(cube_data[i].count[x_min][y_max],max_num);
+      max_num = Math.max(cube_data[i].count[x_max][y_min],max_num);
+      max_num = Math.max(cube_data[i].count[x_max][y_max],max_num);
+    }
+  }
   console.log(max_num);
-
-  var cube_prim = makeCube(cube_data, min_max, x_deg, y_deg, max_num, max_height);
-
-  return cube_prim;
+  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
 }
 
-function getCubeIndexFromSample(value, deg, min){
-  return Math.floor((value - min) / deg);
-}
+MFOC.prototype.drawHotSpotMovingPoint = function(geometry, degree){
+  var min_max = this.min_max;
+  var cube_data = this.cube_data;
 
-var show3DHotSpotMovingPolygon = function(mf_arr,x_deg,y_deg,time_deg, max_height = 15000000){//time_deg is seconds
+  var x_deg = degree.x,
+  y_deg = degree.y,
+  time_deg = degree.time;
 
-  var min_max = findMinMaxCoordAndTimeInMFArray(mf_arr);
-
-  var cube_data = [];
   var time_length = (min_max.date[1].getTime() - min_max.date[0].getTime())/(time_deg * 1000);
   var start = Cesium.JulianDate.fromDate(min_max.date[0]);
 
-  var x_band = min_max.coord.max_x - min_max.coord.min_x,
-  y_band = min_max.coord.max_y - min_max.coord.min_y;
+
+  var x_band = min_max.x[1] - min_max.x[0],
+  y_band = min_max.y[1] - min_max.y[0];
+
   var x_length = Math.ceil(x_band/x_deg);
   var y_length = Math.ceil(y_band/y_deg);
 
-  for (var i = 0 ; i < time_length + 1 ; i++){
-    cube_data[i] = {
-      time : Cesium.JulianDate.addSeconds(start, time_deg * i, new Cesium.JulianDate())
-
-    };
-    cube_data[i].count = [];
-
-    for (var x = 0 ; x < x_length ; x++){
-
-      cube_data[i].count[x] = [];
-      for (var y = 0 ; y < y_length ; y++){
-        cube_data[i].count[x][y] = 0;
-      }
-    }
-  }
-
-  var max_num = 0;
+  var max_num = this.hotspot_maxnum;
   //  console.log(cube_data);
-  for (var mf = 0 ; mf < mf_arr.length ; mf++){
-    var geometry = mf_arr[mf].temporalGeometry;
-    var datetimes = geometry.datetimes;
+  var datetimes = geometry.datetimes;
+  var x_property = new Cesium.SampledProperty(Number);
+  var y_property = new Cesium.SampledProperty(Number);
 
-    var lower_x_property = new Cesium.SampledProperty(Number);
-    var upper_x_property = new Cesium.SampledProperty(Number);
-
-    var lower_y_property = new Cesium.SampledProperty(Number);
-    var upper_y_property = new Cesium.SampledProperty(Number);
-
-
-    if (geometry.interpolations == "Spline"){
-      upper_y_property.setInterpolationOptions({
-        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
-        interpolationDegree : 2
-      });
-      lower_y_property.setInterpolationOptions({
-        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
-        interpolationDegree : 2
-      });
-      upper_x_property.setInterpolationOptions({
-        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
-        interpolationDegree : 2
-      });
-      lower_x_property.setInterpolationOptions({
-        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
-        interpolationDegree : 2
-      });
-
-    }
-
-    for (var time = 0 ; time < datetimes.length ; time++){
-      var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
-      var normalize = normalizeTime(new Date(datetimes[time]), min_max.date, max_height);
-
-      var coordinates = geometry.coordinates[time];
-      var mbr = getMBRFromPolygon(coordinates);
-
-      lower_x_property.addSample(jul_time, mbr.min_x);
-      upper_x_property.addSample(jul_time, mbr.max_x);
-      lower_y_property.addSample(jul_time, mbr.min_y);
-      upper_y_property.addSample(jul_time, mbr.max_y);
-    }
-
-    for (var i = 0 ; i < time_length - 1 ; i++){
-      var middle_time = Cesium.JulianDate.addDays(cube_data[i].time, Cesium.JulianDate.daysDifference(cube_data[i+1].time, cube_data[i].time), new Cesium.JulianDate());
-      var mbr = {};
-      mbr.min_x = lower_x_property.getValue(middle_time);
-      mbr.max_x = upper_x_property.getValue(middle_time);
-      mbr.min_y = lower_y_property.getValue(middle_time);
-      mbr.max_y = upper_y_property.getValue(middle_time);
-
-
-      if (mbr.max_y != undefined){
-        var x_min = getCubeIndexFromSample(mbr.min_x, x_deg, min_max.coord.min_x);
-        var y_min = getCubeIndexFromSample(mbr.min_y, y_deg, min_max.coord.min_y);
-        var x_max = getCubeIndexFromSample(mbr.max_x, x_deg, min_max.coord.min_x);
-        var y_max = getCubeIndexFromSample(mbr.max_y, y_deg, min_max.coord.min_y);
-
-        var x_equal = (x_min == x_max);
-        var y_equal = (y_min == y_max);
-
-        if (x_equal && y_equal){
-          cube_data[i].count[x_min][y_min] += 1;
-        }
-        else if(x_equal){
-          cube_data[i].count[x_min][y_min] += 1;
-          cube_data[i].count[x_min][y_max] += 1;
-        }
-        else if(y_equal){
-          cube_data[i].count[x_min][y_min] += 1;
-          cube_data[i].count[x_max][y_min] += 1;
-        }
-        else{
-          cube_data[i].count[x_max][y_min] += 1;
-          cube_data[i].count[x_max][y_max] += 1;
-          cube_data[i].count[x_min][y_min] += 1;
-          cube_data[i].count[x_min][y_max] += 1;
-        }
-        max_num = Math.max(cube_data[i].count[x_min][y_min],max_num);
-        max_num = Math.max(cube_data[i].count[x_min][y_max],max_num);
-        max_num = Math.max(cube_data[i].count[x_max][y_min],max_num);
-        max_num = Math.max(cube_data[i].count[x_max][y_max],max_num);
-      }
-    }
+  if (geometry.interpolations == "Spline"){
+    x_property.setInterpolationOptions({
+      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+      interpolationDegree : 2
+    });
+    y_property.setInterpolationOptions({
+      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+      interpolationDegree : 2
+    });
   }
 
-  console.log(max_num);
+  for (var time = 0 ; time < datetimes.length ; time++){
+    var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
+    var position = {        x : geometry.coordinates[time][0],y : geometry.coordinates[time][1]      };
 
-  var cube_prim = makeCube(cube_data, min_max, x_deg, y_deg, max_num, max_height);
+    x_property.addSample(jul_time, position.x);
+    y_property.addSample(jul_time, position.y);
+  }
 
-  return cube_prim;
+  for (var i = 0 ; i < time_length - 1 ; i++){
+    var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time,time_deg/2,new Cesium.JulianDate());
+    var x_position = x_property.getValue(middle_time);
+    var y_position = y_property.getValue(middle_time);
+
+    if (x_position != undefined && y_position != undefined){
+      var x = MFOC.getCubeIndexFromSample(x_position, x_deg, min_max.x[0]);
+      var y = MFOC.getCubeIndexFromSample(y_position, y_deg, min_max.y[0]);
+      cube_data[i].count[x][y] += 1;
+      console.log(i,x,y);
+      max_num = Math.max(cube_data[i].count[x][y],max_num);
+    }
+  }
+  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
 }
 
 
-function makeCube(data,min_max, x_deg, y_deg, max_count, max_height){
+MFOC.prototype.makeCube = function(degree){
   var boxCollection = new Cesium.PrimitiveCollection();
   var num = 0;
+  var data = this.cube_data;
+  var min_max = this.min_max;
 
+  var max_count = this.hotspot_maxnum;
+  var x_deg = degree.x,
+  y_deg = degree.y;
 
   for (var z = 0 ; z < data.length - 1 ; z++){
 
-    var lower_time = normalizeTime(new Date(data[z].time.toString()),min_max.date,max_height);
-    var upper_time = normalizeTime(new Date(data[z+1].time.toString()),min_max.date,max_height);
+    var lower_time = MFOC.normalizeTime(new Date(data[z].time.toString()),this.min_max.date,this.max_height);
+    var upper_time = MFOC.normalizeTime(new Date(data[z+1].time.toString()),this.min_max.date,this.max_height);
 
     for (var x = 0 ; x < data[z].count.length ; x++){
       for (var y = 0 ; y < data[z].count[x].length ; y++){
         var count = data[z].count[x][y];
+
         var positions = new BoxCoord();
-        positions.minimum.x = min_max.coord.min_x + x_deg * x;
-        positions.maximum.x = min_max.coord.min_x + x_deg * (x + 1);
-        positions.minimum.y = min_max.coord.min_y + y_deg * y;
-        positions.maximum.y = min_max.coord.min_y + y_deg * (y + 1);
+        positions.minimum.x = min_max.x[0] + x_deg * x;
+        positions.maximum.x = min_max.x[0] + x_deg * (x + 1);
+        positions.minimum.y = min_max.y[0] + y_deg * y;
+        positions.maximum.y = min_max.y[0] + y_deg * (y + 1);
         positions.minimum.z = lower_time;
         positions.maximum.z = upper_time;
 
         var rating = count/max_count;
-        if (rating < 0.5){
-          //continue;
-          rating = 0.1;
+        if (rating < 0.1){
+
+          continue;
+          //rating = 0.1;
         }
 
 
-        var prim = drawOneCube(positions, rating) ;
-
+        var prim = MFOC.drawOneCube(positions, rating) ;
         boxCollection.add(prim);
-        num++;
+        num += count;
 
       }
 
@@ -797,18 +860,866 @@ function makeCube(data,min_max, x_deg, y_deg, max_count, max_height){
 
     //  return boxCollection;
   }
-
-
   return boxCollection;
 }
+
+
+
+MFOC.getCubeIndexFromSample = function(value, deg, min){
+  return Math.floor((value - min) / deg);
+}
+//User Method Definition
+
+MFOC.prototype.add = null;
+MFOC.prototype.drawPaths = null;
+MFOC.prototype.clear = null;
+MFOC.prototype.remove = null;
+MFOC.prototype.drawFeatures = null;
+MFOC.prototype.removeByIndex = null;
+MFOC.prototype.showProperty = null;
+MFOC.prototype.highlight = null;
+MFOC.prototype.showHOTSPOT = null;
+MFOC.prototype.animate = null;
+MFOC.prototype.changeMode = null;
+
+MFOC.prototype.add = function(mf){
+  if (mf.type != 'MovingFeature'){
+    console.log("it is not MovingFeature!!@!@!");
+    return 0;
+  }
+  this.features.push(mf);
+  //this.min_max = this.findMinMax();
+  return this.features.length;
+}
+
+MFOC.prototype.drawFeatures = function(options){
+
+  var mf_arr;
+  if (options != undefined){
+    if (options.name == undefined){
+      mf_arr = this.features;
+    }
+    else{
+      mf_arr = [];
+      var name_arr = [];
+      if (!Array.isArray(options.name) ){
+        name_arr.push(options.name);
+      }
+      else{
+        name_arr = options.name;
+      }
+
+      for (var i = 0 ; i < name_arr.length ; i++){
+        var feat = this.getFeatureByName(name_arr[i]);
+        if (feat != -1){
+          mf_arr.push(feat);
+        }
+      }
+    }
+  }
+  else{
+    mf_arr = this.features;
+  }
+
+  this.min_max = this.findMinMaxGeometry(mf_arr);
+
+
+  for (var index = 0 ; index < mf_arr.length ; index++){
+    var feature = mf_arr[index];
+    var feat_prim;
+    if (this.feature_prim_memory[feature.properties.name] != undefined){
+      if (this.mode == '2D'){
+        continue;
+      }
+      else{
+  //      this.viwer.scene.primitives.remove(this.feature_prim_memory[feature.properties.name]);
+      }
+    }
+    if (feature.temporalGeometry.type == "MovingPoint"){
+      feat_prim = this.viewer.scene.primitives.add(this.drawMovingPoint(feature.temporalGeometry));
+    }
+    else if(feature.temporalGeometry.type == "MovingPolygon"){
+      feat_prim = this.viewer.scene.primitives.add(this.drawMovingPolygon(feature.temporalGeometry));
+    }
+    else if(feature.temporalGeometry.type == "MovingLineString"){
+      feat_prim = this.viewer.scene.primitives.add(this.drawMovingLineString(feature.temporalGeometry));
+    }
+    else{
+      console.log("this type cannot be drawn", feature);
+    }
+
+    this.feature_prim_memory[feature.properties.name] = feat_prim;//찾아서 지울때 사용.
+
+  }
+
+}
+
+MFOC.prototype.drawPaths = function(options){
+
+  var mf_arr;
+  if (options != undefined){
+    if (options.name == undefined){
+      mf_arr = this.features;
+    }
+    else{
+      mf_arr = [];
+      var name_arr = [];
+      if (!Array.isArray(options.name) ){
+        name_arr.push(options.name);
+      }
+      else{
+        name_arr = options.name;
+      }
+
+      for (var i = 0 ; i < name_arr.length ; i++){
+        mf_arr.push(this.getFeatureByName(name_arr[i]));
+      }
+    }
+  }
+  else{
+    mf_arr = this.features;
+  }
+
+  this.min_max = this.findMinMaxGeometry(mf_arr);
+
+  for (var index = 0 ; index < mf_arr.length ; index++){
+    var feature = mf_arr[index];
+    var path_prim;
+    if (this.path_prim_memory[feature.properties.name] != undefined){
+      if (this.mode == '2D'){
+        continue;
+      }
+      else{
+    //    this.viwer.scene.primitives.remove(this.path_prim_memory[feature.properties.name]);
+      }
+    }
+    if (feature.temporalGeometry.type == "MovingPoint"){
+      path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPoint({
+        temporalGeometry : feature.temporalGeometry
+      }));
+    }
+    else if(feature.temporalGeometry.type == "MovingPolygon"){
+      path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
+        temporalGeometry : feature.temporalGeometry
+      }));
+    }
+    else if(feature.temporalGeometry.type == "MovingLineString"){
+      path_prim = this.viewer.scene.primitives.add(this.drawPathMovingLineString({
+        temporalGeometry : feature.temporalGeometry
+      }));
+    }
+    else{
+      console.log("this type cannot be drawn", feature);
+    }
+
+    this.path_prim_memory[feature.properties.name] = path_prim;
+  }
+}
+
+MFOC.prototype.reset = function(){
+  this.viewer.clock.multiplier = 10;
+  this.viewer.dataSources.removeAll();
+  var temp = this.viewer.scene.primitives.get(0);
+  this.viewer.entities.removeAll();
+  this.viewer.scene.primitives.removeAll();
+  this.viewer.scene.primitives.add(temp);
+
+  this.path_prim_memory = {};
+  this.feature_prim_memory = {};
+  this.features = [];
+}
+
+MFOC.prototype.clearViewer = function(){
+  this.viewer.clock.multiplier = 10;
+  this.viewer.dataSources.removeAll();
+  var temp = this.viewer.scene.primitives.get(0);
+  this.viewer.entities.removeAll();
+  this.viewer.scene.primitives.removeAll();
+  this.viewer.scene.primitives.add(temp);
+
+  this.path_prim_memory = {};
+  this.feature_prim_memory = {};
+}
+
+MFOC.prototype.clearAnimation = function(){
+  this.viewer.clock.multiplier = 10;
+  this.viewer.dataSources.removeAll();
+}
+
+MFOC.prototype.remove = function(mf){
+  var index = this.features.indexOf(mf);
+  if(index === -1){
+    console.log("this mf is not exist in array");
+  }
+  else{
+    console.log(this.features, this.features[index], mf);
+    return;
+    var remove_mf = this.features.splice(index, 1);
+    if (remove_mf[0] != mf){
+      console.log(index, remove_mf[0], mf);
+      console.log("it is something wrong!!!");
+      return;
+    }
+    if (this.path_prim_memory[mf.properties.name] != undefined){
+      this.viewer.scene.primitives.remove(this.path_prim_memory[mf.properties.name]);
+      this.path_prim_memory[mf.properties.name] = undefined;
+    }
+    if (this.feature_prim_memory[mf.properties.name] != undefined){
+      this.viewer.scene.primitives.remove(this.feature_prim_memory[mf.properties.name]);
+      this.feature_prim_memory[mf.properties.name] = undefined;
+    }
+  }
+  return this.features.length;
+}
+
+MFOC.prototype.removeByName = function(name){
+  var features = this.getFeatureByName(name);
+  if (features == -1){
+    return;
+  }
+  var index = this.features.indexOf(features);
+  if(index === -1){
+    console.log("this mf is not exist in array");
+    return;
+  }
+  else{
+    console.log(this.features, this.features[index], mf);
+    return;
+    var remove_mf = this.features.splice(index, 1);
+    if (remove_mf[0] != mf){
+      console.log(index, remove_mf[0], mf);
+      console.log("it is something wrong!!!");
+      return;
+    }
+    if (this.path_prim_memory[mf.properties.name] != undefined){
+      this.viewer.scene.primitives.remove(this.path_prim_memory[mf.properties.name]);
+      this.path_prim_memory[mf.properties.name] = undefined;
+    }
+    if (this.feature_prim_memory[mf.properties.name] != undefined){
+      this.viewer.scene.primitives.remove(this.feature_prim_memory[mf.properties.name]);
+      this.feature_prim_memory[mf.properties.name] = undefined;
+    }
+  }
+  return this.features.length;
+}
+
+MFOC.prototype.showProperty = function(propertyName, divID){
+  var pro_arr = [];
+  for (var i = 0 ; i < this.features.length ; i ++){
+    var property = MFOC.getPropertyByName(this.features[i], propertyName);
+    if (property != -1){
+      pro_arr.push(property);
+    }
+  }
+  this.showPropertyArray(pro_arr, divID);
+}
+
+MFOC.getPropertyByName = function(mf, name){
+  if (mf.temporalProperties == undefined) return -1;
+
+  for (var i = 0 ; i < mf.temporalProperties.length ; i++){
+    if (mf.temporalProperties[i].name == name){
+      return mf.temporalProperties[i];
+    }
+  }
+  return -1;
+}
+
+
+MFOC.prototype.highlight = function(movingfeatureName,propertyName){
+  var mf_name = movingfeatureName;
+  var pro_name = propertyName;
+
+  var mf = this.getFeatureByName(mf_name);
+  if (mf == -1){
+    console.log("please add mf first.");
+    return;
+  }
+  var property = MFOC.getPropertyByName(mf, pro_name);
+  if (property == -1){
+    console.log("that property is not in this moving feature");
+    return;
+  }
+
+  if (this.path_prim_memory[mf_name] != undefined){
+    this.viewer.scene.primitives.remove(this.path_prim_memory[mf_name]);
+    this.path_prim_memory[mf_name] = undefined;
+  }
+  if (this.feature_prim_memory[mf_name] != undefined){
+    this.viewer.scene.primitives.remove(this.feature_prim_memory[mf_name]);
+    this.feature_prim_memory[mf_name] = undefined;
+  }
+
+  var type = mf.temporalGeometry.type;
+
+  if (type == 'MovingPolygon'){
+    this.viewer.scene.primitives.add(drawPathMovingPolygon({
+      temporalGeometry : mf,
+      temporalProperty : property
+    }));
+  }
+  else if (type == 'MovingPoint'){
+    this.viewer.scene.primitives.add(drawMovingPointPath({
+      temporalGeometry : mf,
+      temporalProperty : property
+    }));
+  }
+  else if (type == 'MovingLineString'){
+    this.viewer.scene.primitives.add(drawPathMovingLineString({
+      temporalGeometry : mf,
+      temporalProperty : property
+    }));
+  }
+  else{
+    LOG('this type is not implemented.');
+  }
+}
+
+MFOC.prototype.showHOTSPOT = function(degree){
+  var x_deg = degree.x,
+  y_deg = degree.y,
+  z_deg = degree.time;
+
+  var mf_arr = this.features;
+
+  this.min_max = this.findMinMaxGeometry(mf_arr);
+  this.cube_data = [];
+  this.hotspot_maxnum = 0;
+
+  this.makeBasicCube(degree);
+
+  for (var index = 0 ; index < mf_arr.length ; index++){
+    var feature = mf_arr[index];
+
+    if (feature.temporalGeometry.type == "MovingPoint"){
+      this.drawHotSpotMovingPoint(feature.temporalGeometry, degree  );
+    }
+    else if(feature.temporalGeometry.type == "MovingPolygon"){
+
+      this.drawHotSpotMovingPolygon(feature.temporalGeometry, degree);
+    }
+    else if(feature.temporalGeometry.type == "MovingLineString"){
+
+    }
+    else{
+      console.log("nono", feature);
+    }
+  }
+
+  var cube_prim = this.makeCube(degree);
+
+  this.cube_data = this.primitives.add(cube_prim);
+
+}
+
+MFOC.prototype.getFeatureByName = function(name){
+  for (var i = 0 ; i < this.feature.length ; i++){
+    if (this.feature[i].properties.name == name){
+      return this.feature[i];
+    }
+  }
+  return -1;
+}
+
+MFOC.prototype.animate = function(options){
+  var mf_arr;
+  if (options != undefined){
+    if (options.name == undefined){
+      mf_arr = this.features;
+    }
+    else{
+      mf_arr = [];
+      var name_arr = [];
+      if (!Array.isArray(options.name) ){
+        name_arr.push(options.name);
+      }
+      else{
+        name_arr = options.name;
+      }
+
+      for (var i = 0 ; i < name_arr.length ; i++){
+        mf_arr.push(this.getFeatureByName(name_arr[i]));
+      }
+    }
+  }
+  else{
+    mf_arr = this.features;
+  }
+
+
+  this.min_max = this.findMinMaxGeometry(mf_arr);
+  var multiplier = 10000;
+  var czml = [{
+    "id" : "document",
+    "name" : "polygon_highlight",
+    "version" : "1.0"
+  }];
+
+  czml[0].clock = {
+    "interval" : this.min_max.date[0].toISOString() +"/" + this.min_max.date[1].toISOString(),
+    "currentTime" : this.min_max.date[0].toISOString(),
+    "multiplier" : multiplier
+  }
+
+  for (var index = 0 ; index < mf_arr.length ; index++){
+    var feature = mf_arr[index];
+    if (feature.temporalGeometry.type == "MovingPoint"){
+      czml = czml.concat(this.moveMovingPoint({
+        temporalGeometry : feature.temporalGeometry,
+        number : index
+      }));
+    }
+    else if(feature.temporalGeometry.type == "MovingPolygon"){
+      czml = czml.concat(this.moveMovingPolygon({
+        temporalGeometry : feature.temporalGeometry,
+        number : index
+      }));
+    }
+    else if(feature.temporalGeometry.type == "MovingLineString"){
+      czml = czml.concat(this.moveMovingLineString({
+        temporalGeometry : feature.temporalGeometry,
+        number : index
+      }));
+    }
+    else{
+      console.log("this type cannot be animated", feature);
+    }
+  }
+
+  var load_czml = Cesium.CzmlDataSource.load(czml);
+  viewer.dataSources.add(load_czml);
+}
+
+MFOC.prototype.changeMode = function(mode){
+  if (mode == undefined){
+    if (this.mode == '2D'){
+      this.mode = '3D';
+    }
+    else{
+      this.mode = '2D';
+    }
+  }
+  else{
+    this.mode = mode;
+  }
+}
+function MFOC(viewer){
+  this.viewer = viewer;
+  this.primitives = viewer.scene.primitives;
+  this.features = [];
+  this.mode = '3D';
+  this.max_height = 15000000;
+  this.path_prim_memory = {};
+  this.feature_prim_memory = {};
+}
+
+
 function BoxCoord(){
   this.minimum = {};
   this.maximum = {};
 };
-function calculatePathForEachPoint(mls){
+MFOC.prototype.moveMovingPoint = function(options){
+  var czml = [];
+
+  var geometry = options.temporalGeometry;
+  var number = options.number;
+
+  var length = geometry.datetimes.length;
+  var start, stop;
+  start = new Date(geometry.datetimes[0]).toISOString();
+  stop = new Date(geometry.datetimes[length - 1]).toISOString();
+
+  var availability = start + "/" + stop;
+
+  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+    var interpolations;
+    if (geometry.interpolations == "Spline"){
+      interpolations = "HERMITE";
+    }
+    else{
+      interpolations = "LINEAR";
+    }
+    var v = {};
+    v.id = 'movingPoint_' + number;
+    v.point = {
+      "color" : {
+        "rgba" : [0, 0, 0, 255]
+      },
+      "outlineColor" : {
+        "rgba" : [255, 255, 255, 255]
+      },
+      "outlineWidth" : 4,
+      "pixelSize" : 20
+    };
+
+    var carto = [];
+    var point = geometry.coordinates;
+    for (var i = 0 ; i < geometry.coordinates.length ; i++){
+      carto.push(new Date(geometry.datetimes[i]).toISOString());
+      carto.push(point[i][0]);
+      carto.push(point[i][1]);
+      var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);
+      if (this.mode == '3D'){
+        carto.push(normalize);
+      }
+      else{
+        carto.push(1000);
+      }
+
+    }
+    v.availability = availability;
+    v.position = {
+      "interpolationAlgorithm": interpolations,
+      "interpolationDegree": 2,
+      "interval" : availability,
+      "epoch" : start,
+      "cartographicDegrees" : carto
+    };
+    czml.push(v);
+  }
+  else {
+    var v = {};
+    v.id = 'movingPoint_'+number;
+    v.point = {
+      "color" : {
+        "rgba" : [0, 0, 0, 255]
+      },
+      "outlineColor" : {
+        "rgba" : [255, 255, 255, 255]
+      },
+      "outlineWidth" : 4,
+      "pixelSize" : 20
+    };
+
+    var carto = [];
+    var point = geometry.coordinates;
+    for (var i = 0 ; i < geometry.coordinates.length - 1 ; i++){
+      var obj ={};
+      if (geometry.interpolations == "Stepwise"){
+        var start_interval = new Date(geometry.datetimes[i]).toISOString();
+        var finish_interval = new Date(geometry.datetimes[i+1]).toISOString();
+        obj.interval = start_interval+"/"+finish_interval;
+      }
+      else{
+        var start_interval = new Date(geometry.datetimes[i]).toISOString();
+        var start_date = new Date(geometry.datetimes[i]);
+        var finish_date = start_date.setHours(start_date.getHours() + multiplier/10000);
+        var finish_interval = new Date(finish_date).toISOString();
+        obj.interval = start_interval+"/"+finish_interval;
+      }
+      obj.cartographicDegrees = [];
+      obj.cartographicDegrees.push(point[i][1]);
+      obj.cartographicDegrees.push(point[i][0]);
+
+      var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date);
+      if (this.mode == '3D'){
+        obj.cartographicDegrees.push(normalize);
+      }
+      else{
+        obj.cartographicDegrees.push(1000);
+      }
+      carto.push(obj);
+    }
+    v.availability = availability;
+    v.position = carto;
+    czml.push(v);
+  }
+
+
+
+  return czml;
+}
+
+MFOC.prototype.moveMovingPolygon =function(options){
+  var geometry = options.temporalGeometry,
+  number = options.number;
+  var multiplier = 10000;
+  var czml = [];
+  var ref_obj = {
+    "id" : "dynamicPolygon_"+number,
+    "polygon": {
+      "positions": {
+        "references": [
+          "v_"+number+"_1#position",
+          "v_"+number+"_2#position",
+          "v_"+number+"_3#position",
+          "v_"+number+"_4#position",
+          "v_"+number+"_5#position",
+          "v_"+number+"_6#position",
+          "v_"+number+"_7#position",
+          "v_"+number+"_8#position",
+
+        ]
+      },
+      "perPositionHeight" : true,
+      "material": {
+        "solidColor": {
+          "color": {
+            "rgbaf" : [1, 0, 0, 1]
+          }
+        }
+      }
+    }
+  };
+
+  var length = geometry.datetimes.length;
+
+  var start, stop;
+  start = new Date(geometry.datetimes[0]).toISOString();
+  stop = new Date(geometry.datetimes[length-1]).toISOString();
+  var availability = start + "/" + stop;
+  ref_obj.availability = availability;
+
+  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
+  {
+    czml.push(ref_obj);
+    var interpolations;
+    if (geometry.interpolations == "Spline"){
+      interpolations = "HERMITE";
+    }
+    else{
+      interpolations = "LINEAR";
+    }
+
+    for (var i = 0 ; i < geometry.coordinates[0].length-1 ; i++){
+      var v = {};
+      v.id = 'v_'+number+"_"+(i+1);
+      v.position = {
+        "interpolationAlgorithm": interpolations,
+        "interpolationDegree": 2,
+        "interval" : availability,
+        "epoch" : start,
+        "cartographicDegrees" : []
+      };
+      czml.push(v);
+
+      var start_second = new Date(geometry.datetimes[0]).getTime();
+      var carto = [];
+      for (var j = 0 ; j < geometry.datetimes.length ; j ++){
+        var seconds = new Date(geometry.datetimes[j]).getTime() - start_second;
+        var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[j]), this.min_max.date, this.max_height);
+        var polygon = geometry.coordinates[j];
+
+        carto.push(seconds / 1000);
+        carto.push(polygon[i][0]);
+        carto.push(polygon[i][1]);
+        if (this.mode == '2D')
+        {
+          carto.push(10000);
+        }
+        else{
+          carto.push(normalize);
+        }
+
+
+      }
+
+      v.position.cartographicDegrees = carto;
+    }
+
+
+
+
+  }
+  else{
+    for (var i = 0 ; i < geometry.datetimes.length - 1  ; i++){
+      var start_date = new Date(geometry.datetimes[i]);
+      var start_iso = start_date.toISOString();
+
+      var finish_iso;
+      if (geometry.interpolations == "Stepwise"){
+        finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
+      }
+      else{
+        var finish_date = start_date;
+        finish_date.setHours(start_date.getHours() + multiplier/10000) ;
+        finish_iso = finish_date.toISOString();
+      }
+
+      var v = {};
+      v.id ="polygon_"+number+"_"+i;
+      v.availability = start_iso+"/"+finish_iso;
+      var carto = [];
+      var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);
+      var polygon = geometry.coordinates[i];
+      for (var j = 0 ; j < polygon.length-1 ; j++){
+        carto.push(polygon[j][0]);
+        carto.push(polygon[j][1]);
+        if (this.mode == '2D')
+        carto.push(normalize);
+        else {
+          carto.push(0);
+        }
+      }
+
+      v.polygon = {
+        "positions" : {
+          "cartographicDegrees" : carto
+        },
+        "meterial" :{
+          "solidColor" :{
+            "color" : {
+              "rgbaf" : [1, 0, 1, 1]
+            }
+          }
+        },
+        "perPositionHeight" : true
+      };
+      czml.push(v);
+    }
+
+  }
+
+
+  return czml;
+}
+
+MFOC.prototype.moveMovingLineString = function(options){
+  var czml = [];
+  var geometry = options.temporalGeometry;
+  var number = options.number
+  var datetime = geometry.datetimes;
+  var length = datetime.length;
+
+  var next_mapping_point_arr = MFOC.calculatePathForEachPoint(geometry);
+
+  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
+  {
+    var next_point_each_line = next_mapping_point_arr;
+    var interpolations;
+    if (geometry.interpolations == "Spline"){
+      interpolations = "HERMITE";
+    }
+    else{
+      interpolations = "LINEAR";
+    }
+    for (var i = 0 ; i < next_point_each_line.length ; i++ ){
+      //한 줄 씩 start -> end로 polyline
+
+      var start, stop;
+      start = new Date(datetime[i]).toISOString();
+      stop = new Date(datetime[i+1]).toISOString();
+
+      var availability = start + "/" + stop;
+      var next_point = next_point_each_line[i];
+
+      var czml_ref_obj = {
+        "polyline" :{
+          "width" : 5
+        }
+      };
+
+      czml_ref_obj.id = "polyline_"+number+"_"+i;
+      czml_ref_obj.availability = availability;
+      czml_ref_obj.polyline.perPositionHeight = true;
+      czml_ref_obj.polyline.meterial = {
+        "solidColor": {
+          "color": {
+            "rgba" : [255, 0, 0, 255]
+          }
+        }
+      };
+
+      var ref_arr =[];
+
+      czml_ref_obj.polyline.positions = {
+        "references" : ref_arr
+      }
+      czml.push(czml_ref_obj);
+
+      var height_1 = MFOC.normalizeTime(new Date(datetime[i]),this.min_max.date,this.max_height);
+      var height_2 = MFOC.normalizeTime(new Date(datetime[i+1]),this.min_max.date,this.max_height);;
+      if (this.mode == '2D'){
+        height_1 = 0;
+        height_2 = 0;
+      }
+
+      for (var j = 0 ; j < next_point.length ; j++){
+        ref_arr.push("v"+number+"_"+i+"_"+j+"#position");
+
+        var czml_position_obj = {};
+        czml_position_obj.id = "v"+number+"_"+i+"_"+j;
+        czml_position_obj.position = {
+          "interpolationAlgorithm": interpolations,
+          "interpolationDegree": 1,
+          "interval" : availability,
+          "epoch" : start
+        };
+
+
+        //console.log(j, next_point[j]);
+        var carto = [
+          0, next_point[j][0][0] , next_point[j][0][1], height_1,
+          (new Date(datetime[i+1]).getTime() - new Date(datetime[i]).getTime()) /1000, next_point[j][1][0], next_point[j][1][1], height_2
+        ];
+
+        czml_position_obj.position.cartographicDegrees = carto;
+
+        czml.push(czml_position_obj);
+      }
+
+    }
+  }
+  else{
+    for (var i = 0 ; i < geometry.datetimes.length - 1 ; i++){
+      var start_date = new Date(geometry.datetimes[i]);
+      var start_iso = start_date.toISOString();
+
+      var finish_iso;
+      if (geometry.interpolations == "Stepwise"){
+        finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
+      }
+      else{
+        var finish_date = start_date;
+        finish_date.setHours(start_date.getHours() + multiplier/10000) ;
+        finish_iso = finish_date.toISOString();
+      }
+
+      var v = {};
+      v.id ="polyline_"+number+"_"+i;
+      v.availability = start_iso+"/"+finish_iso;
+
+      var carto = [];
+      var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);//this.height_collection[id][i];
+
+      if (this.mode == '2D'){
+        normalize = 0;
+      }
+
+      var polyline = geometry.coordinates[i];
+      for (var j = 0 ; j < polyline.length-1 ; j++){
+        carto.push(polyline[j][0]);
+        carto.push(polyline[j][1]);
+        carto.push(normalize);
+      }
+
+      v.polyline = {
+        "width" : 5,
+        "positions" : {
+          "cartographicDegrees" : carto
+        },
+        "meterial" :{
+          "solidColor" :{
+            "color" : {
+              "rgba" : [255, 0, 255, 255]
+            }
+          }
+        }
+      };
+      czml.push(v);
+    }
+
+  }
+
+  return czml;
+}
+
+
+
+MFOC.calculatePathForEachPoint = function(mls){
 
   var pre_polyline;
-  var coord_arr = mls.temporalGeometry.coordinates;
+  var coord_arr = mls.coordinates;
   var next_mapping_point_arr = [];
   for (var i = 0; i < coord_arr.length ; i++){
     if (i == 0){
@@ -816,7 +1727,7 @@ function calculatePathForEachPoint(mls){
       continue;
     }
 
-    next_mapping_point_arr[i-1] = findMapping(pre_polyline, coord_arr[i]);
+    next_mapping_point_arr[i-1] = MFOC.findMapping(pre_polyline, coord_arr[i]);
 
     pre_polyline = coord_arr[i];
   }
@@ -824,7 +1735,7 @@ function calculatePathForEachPoint(mls){
   return next_mapping_point_arr;
 }
 
-function findMapping(line_1, line_2){
+MFOC.findMapping = function(line_1, line_2){
   var i=0,
   j=0;
   var array = [];
@@ -871,521 +1782,16 @@ function findMapping(line_1, line_2){
   return array;
 }
 
-var moveLineStringArray = function(mf_arr, with_height = 1){
-  var multiplier = 10000;
-
-  var czml = [{
-    "id" : "document",
-    "name" : "polyline_highligh",
-    "version" : "1.0"
-  }];
-
-  var glo_start, glo_stop;
-  glo_start = new Date(mf_arr[0].temporalGeometry.datetimes[0]);
-  glo_stop = glo_start;
-
-  var min_max_date = [];
-
-  for (var id = 0 ; id < mf_arr.length ; id++){
-
-    var geometry = mf_arr[id].temporalGeometry;
-    var poly_min_max_date = findMinMaxTime(geometry.datetimes);
-    if (poly_min_max_date[0] < new Date(global_start).getTime()){
-      global_start = new Date(poly_min_max_date[0]);
-    }
-    if (poly_min_max_date[1] > new Date(global_stop).getTime()){
-      global_stop = new Date(poly_min_max_date[1]);
-    }
-
-  }
-
-  min_max_date = [global_start, global_stop];
-
-
-  for (var d = 0 ; d < mf_arr.length ; d ++){
-
-    var mls = mf_arr[d];
-    var geometry = mls.temporalGeometry;
-    var datetime = geometry.datetimes;
-    var length = datetime.length;
-    var next_mapping_point_arr = this.calculatePathForEachPoint(mls);
-
-    if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
-    {
-
-
-      var next_point_each_line = next_mapping_point_arr;
-      var interpolations;
-      if (geometry.interpolations == "Spline"){
-        interpolations = "HERMITE";
-      }
-      else{
-        interpolations = "LINEAR";
-      }
-      for (var i = 0 ; i < next_point_each_line.length ; i++ ){
-        //한 줄 씩 start -> end로 polyline
-        var start, stop;
-        start = new Date(datetime[i]).toISOString();
-        stop = new Date(datetime[i+1]).toISOString();
-
-        var availability = start + "/" + stop;
-        var next_point = next_point_each_line[i];
-
-        var czml_ref_obj = {
-          "polyline" :{
-            "width" : 5
-          }
-        };
-
-        czml_ref_obj.id = "polyline_"+id+"_"+i;
-        czml_ref_obj.availability = availability;
-        czml_ref_obj.polyline.perPositionHeight = true;
-        czml_ref_obj.polyline.meterial = {
-          "solidColor": {
-            "color": {
-              "rgba" : [255, 0, 0, 255]
-            }
-          }
-        };
-
-        var ref_arr =[];
-
-        czml_ref_obj.polyline.positions = {
-          "references" : ref_arr
-        }
-        czml.push(czml_ref_obj);
-
-        var height_1 = normalizeTime(new Date(datetime[i]),min_max_date);//this.height_collection[id][i] * with_height;
-        var height_2 = normalizeTime(new Date(datetime[i+1]),min_max_date);//this.height_collection[id][i+1] * with_height ;
-        if (!with_height){
-          height_1 = 0;
-          height_2 = 0;
-        }
-
-        for (var j = 0 ; j < next_point.length ; j++){
-          ref_arr.push("v"+id+"_"+i+"_"+j+"#position");
-
-          var czml_position_obj = {};
-          czml_position_obj.id = "v"+id+"_"+i+"_"+j;
-          czml_position_obj.position = {
-            "interpolationAlgorithm": interpolations,
-            "interpolationDegree": 1,
-            "interval" : availability,
-            "epoch" : start
-          };
-
-
-          //console.log(j, next_point[j]);
-          var carto = [
-            0, next_point[j][0][0] , next_point[j][0][1], height_1,
-            (new Date(datetime[i+1]).getTime() - new Date(datetime[i]).getTime()) /1000, next_point[j][1][0], next_point[j][1][1], height_2
-          ];
-
-          czml_position_obj.position.cartographicDegrees = carto;
-
-          czml.push(czml_position_obj);
-        }
-
-      }
-    }
-    else{
-
-
-      for (var i = 0 ; i < geometry.datetimes.length - 1 ; i++){
-        var start_date = new Date(geometry.datetimes[i]);
-        var start_iso = start_date.toISOString();
-
-        var finish_iso;
-        if (geometry.interpolations == "Stepwise"){
-          finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
-        }
-        else{
-          var finish_date = start_date;
-          finish_date.setHours(start_date.getHours() + multiplier/10000) ;
-          finish_iso = finish_date.toISOString();
-        }
-
-        var v = {};
-        v.id ="polyline_"+id+"_"+i;
-        v.availability = start_iso+"/"+finish_iso;
-
-        var carto = [];
-        var normalize = normalizeTime(new Date(geometry.datetimes[i]), min_max_date);//this.height_collection[id][i];
-
-        var polyline = geometry.coordinates[i];
-        for (var j = 0 ; j < polyline.length-1 ; j++){
-          carto.push(polyline[j][0]);
-          carto.push(polyline[j][1]);
-          carto.push(normalize * with_height);
-        }
-
-        v.polyline = {
-          "width" : 5,
-          "positions" : {
-            "cartographicDegrees" : carto
-          },
-          "meterial" :{
-            "solidColor" :{
-              "color" : {
-                "rgba" : [255, 0, 255, 255]
-              }
-            }
-          }
-        };
-        czml.push(v);
-      }
-
-    }
-  }
-
-  czml[0].clock = {
-    "interval" : glo_start.toISOString() + "/" + glo_stop.toISOString(),
-    "currentTime" : glo_start.toISOString(),
-    "multiplier" : multiplier
-  }
-}
-
-var movePointArray = function(mf_arr, with_height = 1 ){
-  var multiplier = 10000;
-  var czml = [{
-    "id" : "document",
-    "name" : "point_highlight",
-    "version" : "1.0"
-  }];
-
-  var glo_start, glo_stop;
-  glo_start = new Date(mf_arr[0].temporalGeometry.datetimes[0]);
-  glo_stop = glo_start;
-
-  var min_max_date = [];
-
-  for (var id = 0 ; id < mf_arr.length ; id++){
-
-    var geometry = mf_arr[id].temporalGeometry;
-    var poly_min_max_date = findMinMaxTime(geometry.datetimes);
-    if (poly_min_max_date[0] < new Date(glo_start).getTime()){
-      glo_start = new Date(poly_min_max_date[0]);
-    }
-    if (poly_min_max_date[1] > new Date(glo_stop).getTime()){
-      glo_stop = new Date(poly_min_max_date[1]);
-    }
-
-  }
-
-  min_max_date = [glo_start, glo_stop];
-
-  czml[0].clock = {
-    "interval" : glo_start.toISOString() +"/" + glo_stop.toISOString(),
-    "currentTime" : glo_start.toISOString(),
-    "multiplier" : multiplier
-  }
-
-  for (var p_id = 0 ; p_id < mf_arr.length ; p_id++){
-
-    var geometry = mf_arr[p_id].temporalGeometry;
-
-    var length = geometry.datetimes.length;
-    var start, stop;
-    start = new Date(geometry.datetimes[0]).toISOString();
-    stop = new Date(geometry.datetimes[length - 1]).toISOString();
-
-    var availability = start + "/" + stop;
-
-    if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
-      var interpolations;
-      if (geometry.interpolations == "Spline"){
-        interpolations = "HERMITE";
-      }
-      else{
-        interpolations = "LINEAR";
-      }
-      var v = {};
-      v.id = 'movingPoint_'+p_id;
-      v.point = {
-        "color" : {
-          "rgba" : [0, 0, 0, 255]
-        },
-        "outlineColor" : {
-          "rgba" : [255, 255, 255, 255]
-        },
-        "outlineWidth" : 4,
-        "pixelSize" : 20
-      };
-
-      var carto = [];
-      var point = geometry.coordinates;
-      for (var i = 0 ; i < geometry.coordinates.length ; i++){
-        carto.push(new Date(geometry.datetimes[i]).toISOString());
-        carto.push(point[i][0]);
-        carto.push(point[i][1]);
-        var normalize = normalizeTime(new Date(geometry.datetimes[i]), min_max_date);
-        if (with_height){
-          carto.push(normalize);
-        }
-        else{
-          carto.push(1000);
-        }
-
-      }
-      v.availability = availability;
-      v.position = {
-        "interpolationAlgorithm": interpolations,
-        "interpolationDegree": 2,
-        "interval" : availability,
-        "epoch" : start,
-        "cartographicDegrees" : carto
-      };
-      czml.push(v);
-    }
-    else {
-      var v = {};
-      v.id = 'movingPoint';
-      v.point = {
-        "color" : {
-          "rgba" : [0, 0, 0, 255]
-        },
-        "outlineColor" : {
-          "rgba" : [255, 255, 255, 255]
-        },
-        "outlineWidth" : 4,
-        "pixelSize" : 20
-      };
-
-      var carto = [];
-      var point = geometry.coordinates;
-      for (var i = 0 ; i < geometry.coordinates.length - 1 ; i++){
-        var obj ={};
-        if (geometry.interpolations == "Stepwise"){
-          var start_interval = new Date(geometry.datetimes[i]).toISOString();
-          var finish_interval = new Date(geometry.datetimes[i+1]).toISOString();
-          obj.interval = start_interval+"/"+finish_interval;
-        }
-        else{
-          var start_interval = new Date(geometry.datetimes[i]).toISOString();
-          var start_date = new Date(geometry.datetimes[i]);
-          var finish_date = start_date.setHours(start_date.getHours() + multiplier/10000);
-          var finish_interval = new Date(finish_date).toISOString();
-          obj.interval = start_interval+"/"+finish_interval;
-        }
-        obj.cartographicDegrees = [];
-        obj.cartographicDegrees.push(point[i][1]);
-        obj.cartographicDegrees.push(point[i][0]);
-
-        var normalize = normalizeTime(new Date(geometry.datetimes[i]), min_max_date);
-        if (with_height){
-          obj.cartographicDegrees.push(normalize);
-        }
-        else{
-          obj.cartographicDegrees.push(1000);
-        }
-        carto.push(obj);
-      }
-      v.availability = availability;
-      v.position = carto;
-      czml.push(v);
-    }
-  }
-
-
-  return czml;
-}
-
-var movePolygonArray = function(mf_arr, with_height = 1 ){
-
-  if (Array.isArray(mf_arr) == false){
-    var mf = mf_arr;
-    mf_arr = [];
-    mf_arr.push(mf);
-  }
-
-  var czml = [{
-    "id" : "document",
-    "name" : "polygon_highlight",
-    "version" : "1.0"
-  }];
-  var multiplier = 10000;
-
-  var global_availabilty, global_start, global_stop;
-
-
-  global_start = new Date(mf_arr[0].temporalGeometry.datetimes[0]);
-  global_stop = global_start;
-  var min_max_date = [];
-
-  for (var id = 0 ; id < mf_arr.length ; id++){
-
-    var geometry = mf_arr[id].temporalGeometry;
-    var poly_min_max_date = findMinMaxTime(geometry.datetimes);
-    if (poly_min_max_date[0] < new Date(global_start).getTime()){
-      global_start = new Date(poly_min_max_date[0]);
-    }
-    if (poly_min_max_date[1] > new Date(global_stop).getTime()){
-      global_stop = new Date(poly_min_max_date[1]);
-    }
-
-  }
-
-  min_max_date = [global_start, global_stop];
-
-  for (var id = 0 ; id < mf_arr.length ; id++){
-
-    var ref_obj = {
-      "id" : "dynamicPolygon_"+id,
-      "polygon": {
-        "positions": {
-          "references": [
-            "v_"+id+"_1#position",
-            "v_"+id+"_2#position",
-            "v_"+id+"_3#position",
-            "v_"+id+"_4#position",
-            "v_"+id+"_5#position",
-            "v_"+id+"_6#position",
-            "v_"+id+"_7#position",
-            "v_"+id+"_8#position",
-
-          ]
-        },
-        "perPositionHeight" : true,
-        "material": {
-          "solidColor": {
-            "color": {
-              "rgbaf" : [1, 0, 0, 1]
-            }
-          }
-        }
-      }
-    };
-
-    var geometry = mf_arr[id].temporalGeometry;
-    var length = geometry.datetimes.length;
-
-    var start, stop;
-    start = new Date(geometry.datetimes[0]).toISOString();
-    stop = new Date(geometry.datetimes[length-1]).toISOString();
-    var availability = start + "/" + stop;
-    ref_obj.availability = availability;
-
-    if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
-    {
-      czml.push(ref_obj);
-      var interpolations;
-      if (geometry.interpolations == "Spline"){
-        interpolations = "HERMITE";
-      }
-      else{
-        interpolations = "LINEAR";
-      }
-
-      if (geometry.coordinates.length == 0) continue;
-
-      for (var i = 0 ; i < geometry.coordinates[0].length-1 ; i++){
-        var v = {};
-        v.id = 'v_'+id+"_"+(i+1);
-        v.position = {
-          "interpolationAlgorithm": interpolations,
-          "interpolationDegree": 2,
-          "interval" : availability,
-          "epoch" : start,
-          "cartographicDegrees" : []
-        };
-        czml.push(v);
-
-        var start_second = new Date(geometry.datetimes[0]).getTime();
-        var carto = [];
-        for (var j = 0 ; j < geometry.datetimes.length ; j ++){
-          var seconds = new Date(geometry.datetimes[j]).getTime() - start_second;
-          var normalize = normalizeTime(new Date(geometry.datetimes[j]), min_max_date);
-          var polygon = geometry.coordinates[j];
-
-          carto.push(seconds / 1000);
-          carto.push(polygon[i][0]);
-          carto.push(polygon[i][1]);
-          if (with_height == false)
-          {
-            carto.push(10000);
-          }
-          else{
-            carto.push(normalize);
-          }
-
-
-        }
-
-        v.position.cartographicDegrees = carto;
-      }
-
-
-
-
-    }
-    else{
-      for (var i = 0 ; i < geometry.datetimes.length - 1  ; i++){
-        var start_date = new Date(geometry.datetimes[i]);
-        var start_iso = start_date.toISOString();
-
-        var finish_iso;
-        if (geometry.interpolations == "Stepwise"){
-          finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
-        }
-        else{
-          var finish_date = start_date;
-          finish_date.setHours(start_date.getHours() + multiplier/10000) ;
-          finish_iso = finish_date.toISOString();
-        }
-
-        var v = {};
-        v.id ="polygon_"+id+"_"+i;
-        v.availability = start_iso+"/"+finish_iso;
-        var carto = [];
-        var normalize = normalizeTime(new Date(geometry.datetimes[i]), min_max_date);
-        var polygon = geometry.coordinates[i];
-        for (var j = 0 ; j < polygon.length-1 ; j++){
-          carto.push(polygon[j][0]);
-          carto.push(polygon[j][1]);
-          if (with_height == 1)
-            carto.push(normalize);
-          else {
-            carto.push(0);
-          }
-        }
-
-        v.polygon = {
-          "positions" : {
-            "cartographicDegrees" : carto
-          },
-          "meterial" :{
-            "solidColor" :{
-              "color" : {
-                "rgbaf" : [1, 0, 1, 1]
-              }
-            }
-          },
-          "perPositionHeight" : true
-        };
-        czml.push(v);
-      }
-
-    }
-
-
-  }
-  czml[0].clock = {
-    "interval" : global_start.toISOString()+"/"+global_stop.toISOString(),
-    "currentTime" : global_start.toISOString(),
-    "multiplier" : multiplier
-  }
-  return czml;
-}
-
-var showProperty = function(object_arr, div_id){
+MFOC.prototype.showPropertyArray = function(object_arr, div_id){
+  console.log(colorType);
   document.getElementById(div_id).innerHTML = '';
 
   //if put empty array.
   if (object_arr == undefined || object_arr.length == 0){
     return;
   }
+  var min_max = MFOC.findMinMaxProperties(object_arr);
 
-  var min_max_date = findMinMaxTimeAndValue(object_arr);
   var svg = d3.select("#"+div_id).append("svg");
   svg.attr("width",$(window).width());
   svg.attr("height",$(window).height() / 5);
@@ -1407,26 +1813,27 @@ var showProperty = function(object_arr, div_id){
   .y(function(d) { return y(d.value)});
 
 
-  x.domain(min_max_date.date);
-  y.domain(min_max_date.value);
-
-  console.log(min_max_date);
+  x.domain(min_max.date);
+  y.domain(min_max.value);
 
   g.append("g")
   .attr("transform" , "translate(0,"+height+")")
+  .attr("class","axis")
   .call(d3.axisBottom(x))
   .select(".domain")
   .remove();
 
   g.append("g")
+  .attr("class","axis")
   .call(d3.axisLeft(y))
   .append("text")
-  .attr("fill", "#000")
+  .attr("fill", '#000')
   .attr("transform", "rotate(-90)")
   .attr("y", 6)
   .attr("dy", "0.71em")
   .attr("text-anchor", "end")
-  .text(object_arr[0].name+"("+object_arr[0].uom+")");
+  .text(object_arr[0].name+"("+object_arr[0].uom+")")  ;
+
 
   var graph_data = [];
   for (var id = 0 ; id < object_arr.length ; id++){
@@ -1438,7 +1845,7 @@ var showProperty = function(object_arr, div_id){
 
       comp.date = new Date(object.datetimes[i]);//dateparse(da);
       comp.value = object.values[i];
-      console.log(comp);
+
       data.push(comp);
     }
 
@@ -1485,66 +1892,76 @@ var showProperty = function(object_arr, div_id){
   });
 
 }
+MFOC.prototype.findMinMaxGeometry = function(mf_arr){
+  if (mf_arr == undefined){
+    mf_arr = this.features;
+  }
 
-
-
-function findMinMaxTimeAndValue(pro_arr){
-
-  var first_date = new Date(pro_arr[0].datetimes[0]);
-  var first_value = pro_arr[0].values[0];
   var min_max = {};
+  min_max.x = [];
+  min_max.y = [];
+  min_max.z = [];
+
+  min_max.date = [];
+
+  var first_date = new Date(mf_arr[0].temporalGeometry.datetimes[0]);
+
   min_max.date = [first_date,first_date];
-  min_max.value = [first_value,first_value];
-  for (var i = 0 ; i < pro_arr.length ; i++){
-    var temp_max_min = findMinMaxTime(pro_arr[i].datetimes);
+  for (var i = 0 ; i < mf_arr.length ; i++){
+    var mf_min_max_coord = {};
+    if (mf_arr[i].temporalGeometry.type == "MovingPoint"){
+      mf_min_max_coord = MFOC.findMinMaxCoord(mf_arr[i].temporalGeometry.coordinates);
+    }
+    else{
+      var coord_arr = mf_arr[i].temporalGeometry.coordinates;
+      mf_min_max_coord = MFOC.findMinMaxCoord(coord_arr[0]);
+      for (var j = 1 ; j < coord_arr.length ; j++){
+        mf_min_max_coord = MFOC.findBiggerCoord(mf_min_max_coord, MFOC.findMinMaxCoord(coord_arr[j]) );
+      }
+    }
+
+    if (min_max.x.length == 0){
+      min_max.x = mf_min_max_coord.x;
+      min_max.y = mf_min_max_coord.y;
+      min_max.z = mf_min_max_coord.z;
+    }
+    else{
+      var xyz = MFOC.findBiggerCoord(min_max, mf_min_max_coord);
+      min_max.x = xyz.x;
+      min_max.y = xyz.y;
+      min_max.z = xyz.z;
+    }
+
+    var temp_max_min = MFOC.findMinMaxTime(mf_arr[i].temporalGeometry.datetimes);
     if (temp_max_min[0].getTime() < min_max.date[0].getTime()){
       min_max.date[0] = temp_max_min[0];
     }
     if (temp_max_min[1].getTime() > min_max.date[1].getTime()){
       min_max.date[1] = temp_max_min[1];
     }
-    for (var j = 0 ; j < pro_arr[i].values.length ; j++){
-      if (min_max.value[0] > pro_arr[i].values[j]){
-        min_max.value[0] = pro_arr[i].values[j];
-      }
-      if (min_max.value[1] < pro_arr[i].values[j]){
-        min_max.value[1] = pro_arr[i].values[j];
-      }
-    }
 
   }
+
   return min_max;
-}
-function contains(a, obj) {
-    var i = a.length;
-    while (i--) {
-        if (a[i] === obj) {
-            return true;
-        }
-    }
-    return false;
+
 }
 
-function getParameterByName(name, url) {
-    if (!url) {
-      url = window.location.href;
-    }
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
+MFOC.prototype.getListOfHeight = function(datetimes, min_max_date){
+  if (min_max_date == undefined){
+    //console.log("use this object's min_max");
+    min_max_date = this.min_max.date;
+  }
+
+  var heights = [];
+  for(var i = 0 ; i < datetimes.length ; i++){
+    heights.push(MFOC.normalizeTime(new Date(datetimes[i]), min_max_date, this.max_height));
+  }
+  return heights;
 }
 
 
-var normalizeTime = function(date, min_max_date, value = 15000000){
-  var separation = min_max_date[1].getTime() - min_max_date[0].getTime()
-  return (date.getTime() - min_max_date[0].getTime())/separation * value;
-}
 
-
-var findMinMaxTime = function(datetimes){
+MFOC.findMinMaxTime = function(datetimes){
   var min_max_date = [];
   min_max_date[0] = new Date(datetimes[0]);
   min_max_date[1] = new Date(datetimes[0]);
@@ -1562,6 +1979,153 @@ for (var j = 1 ; j < datetimes.length ; j++){
   }
   return min_max_date;
 }
+
+MFOC.findMinMaxCoord = function(coordinates){
+  var min_max = {};
+  min_max.x = [];
+  min_max.y = [];
+  min_max.z = [];
+  min_max.x[0] = coordinates[0][0];
+  min_max.x[1] = coordinates[0][0];
+  min_max.y[0] = coordinates[0][1];
+  min_max.y[1] = coordinates[0][1];
+  min_max.z = [];
+  if (coordinates[0][2] != undefined){
+    min_max.z[0] = coordinates[0][2];
+    min_max.z[1] = coordinates[0][2];
+  }
+  for (var i = 0 ; i < coordinates.length ; i++){
+    var coord = coordinates[i];
+    if (min_max.x[0] > coord[0]){
+      min_max.x[0] = coord[0];
+    }
+    if (min_max.x[1] < coord[0]){
+      min_max.x[1] = coord[0];
+    }
+    if (min_max.y[0] > coord[1]){
+      min_max.y[0] = coord[1];
+    }
+    if (min_max.y[1] < coord[1]){
+      min_max.y[1] = coord[1];
+    }
+    if (coord[2] != undefined){
+      if (min_max.z[0] > coord[2]){
+        min_max.z[0] = coord[2];
+      }
+      if (min_max.z[1] < coord[2]){
+        min_max.z[1] = coord[2];
+      }
+    }
+  }
+
+  return min_max;
+
+}
+
+
+
+MFOC.findBiggerCoord = function(min_max_1, min_max_2){
+  var ret = {};
+  ret.x = [];
+  ret.y = [];
+  ret.z = [];
+  ret.x[0] = Math.min(min_max_1.x[0],min_max_2.x[0]);
+  ret.y[0] = Math.min(min_max_1.y[0],min_max_2.y[0]);
+  ret.x[1] = Math.max(min_max_1.x[1],min_max_2.x[1]);
+  ret.y[1] = Math.max(min_max_1.y[1],min_max_2.y[1]);
+
+  if (min_max_1.z.length != 0 && min_max_2.z.length != 0){
+    ret.z[0] = Math.min(min_max_1.z[0],min_max_2.z[0]);
+    ret.z[1] = Math.max(min_max_1.z[1],min_max_2.z[1]);
+  }
+  return ret;
+}
+
+
+MFOC.normalizeTime = function(date, min_max_date, value = 15000000){
+  var separation = min_max_date[1].getTime() - min_max_date[0].getTime()
+  return (date.getTime() - min_max_date[0].getTime())/separation * value;
+}
+
+
+
+function getParameterByName(name, url) {
+    if (!url) {
+      url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+
+
+MFOC.findMinMaxProperties = function(properties){
+  console.log(properties);
+  if (!Array.isArray(properties)){
+    properties = [properties];
+  }
+
+  var first_date = new Date(properties[0].datetimes[0]);
+  var first_value = properties[0].values[0];
+  var min_max = {};
+  min_max.date = [first_date,first_date];
+  min_max.value = [first_value,first_value];
+  for (var i = 0 ; i < properties.length ; i++){
+    var temp_max_min = MFOC.findMinMaxTime(properties[i].datetimes);
+    if (temp_max_min[0].getTime() < min_max.date[0].getTime()){
+      min_max.date[0] = temp_max_min[0];
+    }
+    if (temp_max_min[1].getTime() > min_max.date[1].getTime()){
+      min_max.date[1] = temp_max_min[1];
+    }
+    for (var j = 0 ; j < properties[i].values.length ; j++){
+      if (min_max.value[0] > properties[i].values[j]){
+        min_max.value[0] = properties[i].values[j];
+      }
+      if (min_max.value[1] < properties[i].values[j]){
+        min_max.value[1] = properties[i].values[j];
+      }
+    }
+
+  }
+  return min_max;
+}
+
+
+
+
+MFOC.getMBRFromPolygon = function(coordinates){
+
+  var mbr = MFOC.findMinMaxCoord(coordinates);
+  return mbr;
+}
+
+
+
+
+
+
+//----------------------it wiil be removed--------------
+
+/*
+
+
+
+function contains(a, obj) {
+    var i = a.length;
+    while (i--) {
+        if (a[i] === obj) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 
 function findAllMinMaxTimeAndZ(mf_arr, is_point = false){
 
@@ -1622,9 +2186,14 @@ function findAllMinMaxTime(mf_arr){
   return min_max_date;
 }
 
+var calculateDist = function(point_1, point_2){
+  return Math.sqrt(Math.pow(point_1[0] - point_2[0],2) + Math.pow(point_1[1] - point_2[1],2));
+}
+
 function findMinMaxCoordAndTimeInMFArray(mf_arr){
   var min_max = {};
   var first_date = new Date(mf_arr[0].temporalGeometry.datetimes[0]);
+
   min_max.date = [first_date,first_date];
   for (var i = 0 ; i < mf_arr.length ; i++){
     var mf_min_max_coord = {};
@@ -1662,64 +2231,36 @@ function findMinMaxCoordAndTimeInMFArray(mf_arr){
   return min_max;
 }
 
-function findBiggerCoord(min_max_1, min_max_2){
-  var ret = {};
-  ret.min_x = Math.min(min_max_1.min_x,min_max_2.min_x);
-  ret.min_y = Math.min(min_max_1.min_y,min_max_2.min_y);
-  ret.max_x = Math.max(min_max_1.max_x,min_max_2.max_x);
-  ret.max_y = Math.max(min_max_1.max_y,min_max_2.max_y);
-  return ret;
-}
 
-function findMinMaxCoord(coordinates){
+
+
+
+
+function findMinMaxTimeAndValue(pro_arr){
+
+  var first_date = new Date(pro_arr[0].datetimes[0]);
+  var first_value = pro_arr[0].values[0];
   var min_max = {};
-  min_max.min_x = coordinates[0][0];
-  min_max.max_x = coordinates[0][0];
-  min_max.min_y = coordinates[0][1];
-  min_max.max_y = coordinates[0][1];
+  min_max.date = [first_date,first_date];
+  min_max.value = [first_value,first_value];
+  for (var i = 0 ; i < pro_arr.length ; i++){
+    var temp_max_min = findMinMaxTime(pro_arr[i].datetimes);
+    if (temp_max_min[0].getTime() < min_max.date[0].getTime()){
+      min_max.date[0] = temp_max_min[0];
+    }
+    if (temp_max_min[1].getTime() > min_max.date[1].getTime()){
+      min_max.date[1] = temp_max_min[1];
+    }
+    for (var j = 0 ; j < pro_arr[i].values.length ; j++){
+      if (min_max.value[0] > pro_arr[i].values[j]){
+        min_max.value[0] = pro_arr[i].values[j];
+      }
+      if (min_max.value[1] < pro_arr[i].values[j]){
+        min_max.value[1] = pro_arr[i].values[j];
+      }
+    }
 
-  for (var i = 0 ; i < coordinates.length ; i++){
-    var coord = coordinates[i];
-    if (min_max.min_x > coord[0]){
-      min_max.min_x = coord[0];
-    }
-    if (min_max.max_x < coord[0]){
-      min_max.max_x = coord[0];
-    }
-    if (min_max.min_y > coord[1]){
-      min_max.min_y = coord[1];
-    }
-    if (min_max.max_y < coord[1]){
-      min_max.max_y = coord[1];
-    }
   }
-
   return min_max;
-
 }
-
-var getListOfHeight = function(datetimes, min_max_date, max_height = undefined){
-
-  for(var i = 0 ; i < datetimes.length ; i++){
-    datetimes[i] = new Date(datetimes[i]);
-  }
-
-  if (min_max_date == undefined){
-    console.log("undefined");
-    min_max_date = findMinMaxTime(datetimes);
-  }
-
-  var heights = [];
-  for(var i = 0 ; i < datetimes.length ; i++){
-    heights.push(normalizeTime(datetimes[i],min_max_date,max_height));
-  }
-  return heights;
-}
-
-
-
-function getMBRFromPolygon(coordinates){
-
-  var mbr = findMinMaxCoord(coordinates);
-  return mbr;
-}
+*/

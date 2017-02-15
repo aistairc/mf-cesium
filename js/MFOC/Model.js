@@ -1,5 +1,6 @@
 function MFOC(viewer){
   this.viewer = viewer;
+  this.primitives = viewer.scene.primitives;
   this.features = [];
   this.mode = '3D';
   this.max_height = 15000000;

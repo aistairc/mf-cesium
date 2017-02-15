@@ -1,13 +1,14 @@
 
-var showProperty = function(object_arr, div_id){
+MFOC.prototype.showPropertyArray = function(object_arr, div_id){
+  console.log(colorType);
   document.getElementById(div_id).innerHTML = '';
 
   //if put empty array.
   if (object_arr == undefined || object_arr.length == 0){
     return;
   }
+  var min_max = MFOC.findMinMaxProperties(object_arr);
 
-  var min_max_date = findMinMaxTimeAndValue(object_arr);
   var svg = d3.select("#"+div_id).append("svg");
   svg.attr("width",$(window).width());
   svg.attr("height",$(window).height() / 5);
@@ -29,26 +30,27 @@ var showProperty = function(object_arr, div_id){
   .y(function(d) { return y(d.value)});
 
 
-  x.domain(min_max_date.date);
-  y.domain(min_max_date.value);
-
-  console.log(min_max_date);
+  x.domain(min_max.date);
+  y.domain(min_max.value);
 
   g.append("g")
   .attr("transform" , "translate(0,"+height+")")
+  .attr("class","axis")
   .call(d3.axisBottom(x))
   .select(".domain")
   .remove();
 
   g.append("g")
+  .attr("class","axis")
   .call(d3.axisLeft(y))
   .append("text")
-  .attr("fill", "#000")
+  .attr("fill", '#000')
   .attr("transform", "rotate(-90)")
   .attr("y", 6)
   .attr("dy", "0.71em")
   .attr("text-anchor", "end")
-  .text(object_arr[0].name+"("+object_arr[0].uom+")");
+  .text(object_arr[0].name+"("+object_arr[0].uom+")")  ;
+
 
   var graph_data = [];
   for (var id = 0 ; id < object_arr.length ; id++){
@@ -60,7 +62,7 @@ var showProperty = function(object_arr, div_id){
 
       comp.date = new Date(object.datetimes[i]);//dateparse(da);
       comp.value = object.values[i];
-      console.log(comp);
+
       data.push(comp);
     }
 

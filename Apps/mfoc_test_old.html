@@ -11,13 +11,13 @@
 
   <script src="../Build/Cesium/Cesium.js"></script>
   <script src="jquery-3.1.1.js"></script>
-  <script src="../MFOC/src/draw.js"></script>
-  <script src="../MFOC/src/draw_indoor.js"></script>
-  <script src="../MFOC/src/moving.js"></script>
-  <script src="../MFOC/src/utility.js"></script>
-  <script src="../MFOC/src/hotspot.js"> </script>
-  <script src="../MFOC/src/Model.js"> </script>
-  <script src="../MFOC/src/property.js"></script>
+  <script src="old/draw.js"></script>
+  <script src="old/draw_indoor.js"></script>
+  <script src="old/moving.js"></script>
+  <script src="old/utility.js"></script>
+  <script src="old/hotspot.js"> </script>
+  <script src="old/Model.js"> </script>
+  <script src="old/property.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
 
 
@@ -212,8 +212,11 @@ Loading..
           mf_arr.push(data.features[j]);
         }
         viewer.clear();
-        scene.primitives.add(drawPointsPath(mf_arr, true));
-        scene.primitives.add(show3DHotSpotMovingPoint(mf_arr, 10, 10, 1500000, 15000000));
+        var primiti = show3DHotSpotMovingPoint(mf_arr, 10, 10, 1500000, 15000000);
+        console.log(primiti);
+        scene.primitives.add(drawMovingPointPath(mf_arr, true));
+                scene.primitives.add(primiti);
+        //scene.primitives.add(show3DHotSpotMovingPoint(mf_arr, 10, 10, 1500000, 15000000));
       }
     );
   }
@@ -227,18 +230,35 @@ Loading..
           mf_arr.push(data.features[j]);
         }
         viewer.clear();
+        var primiti = show3DHotSpotMovingPolygon(mf_arr, 10, 10, 1000000, 15000000);
+        console.log(primiti);
         //scene.primitives.add(drawPointsPath(mf_arr, true));
-        scene.primitives.add(show3DHotSpotMovingPolygon(mf_arr, 10, 10, 1000000, 15000000));
+        //scene.primitives.add(show3DHotSpotMovingPolygon(mf_arr, 10, 10, 1000000, 15000000));
         scene.primitives.add(drawVolumeMovingPolygonArray(mf_arr, true));
       }
     );
   }
 
 
+  function drawMovingLineStringArray_test(){
+    $.getJSON('json_data/polyline.json').then(
+      function(data){
+        var mf_arr = [];
+        for (var j = 0 ; j < data.features.length ; j++){
+          mf_arr.push(data.features[j]);
+        }
+        viewer.clear();
+        //scene.primitives.add(drawPointsPath(mf_arr, true));
+      //  scene.primitives.add(show3DHotSpotMovingPolygon(mf_arr, 10, 10, 1000000, 15000000));
+        scene.primitives.add(drawMovingLineStringArray(mf_arr, true));
+      }
+    );
 
 
+  }
 
-  drawPointsWithZvalue_test();
+
+  //drawPointsWithZvalue_test();
 //  property_test();
   //point_test();
   //polygon_test();

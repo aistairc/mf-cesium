@@ -446,6 +446,59 @@ MFOC.euclidianDistance3D = function(a, b) {
 }
 
 
+MFOC.drawOneCube = function(positions, rating = 1.0){
+  var red_rate = 1.0, green_rate = (-2 * rating) + 2;
+  var blue_rate = 0.0;
+  if (rating < 0.5){
+    blue_rate = (0.5 - rating) * 2 ;
+  }
+  var rating_color = new Cesium.Color(
+    1.0,
+    green_rate,
+    0.0,
+    rating
+  );
+
+  var size = MFOC.calcSidesBoxCoord(positions);
+
+  var geometry = Cesium.BoxGeometry.fromDimensions({
+    vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
+    dimensions :  new Cesium.Cartesian3( size[0], size[1], size[2] )
+  });
+  //console.log(positions, geometry);
+  var position = Cesium.Cartesian3.fromDegrees( (positions.minimum.x + positions.maximum.x) / 2, (positions.maximum.y + positions.minimum.y) /2 , (positions.minimum.z + positions.maximum.z) / 2);
+
+  var point3d = new Cesium.Cartesian3( 0.0, 0.0, 0.0 );
+  var translation = Cesium.Transforms.eastNorthUpToFixedFrame( position );
+  var matrix = Cesium.Matrix4.multiplyByTranslation( translation, point3d, new Cesium.Matrix4() );
+
+
+  var geo_instance = new Cesium.GeometryInstance({
+    geometry : geometry,
+    modelMatrix : matrix,
+    attributes : {
+      color : Cesium.ColorGeometryInstanceAttribute.fromColor(rating_color)
+    }
+
+  } );
+
+  return new Cesium.Primitive({
+    geometryInstances : geo_instance,
+    appearance : new Cesium.PerInstanceColorAppearance({
+      translucent : true
+    }),
+    show : true
+  });
+
+}
+
+MFOC.calcSidesBoxCoord = function(box_coord){
+  var x_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.maximum.x, box_coord.minimum.y, box_coord.minimum.z));
+  var y_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.maximum.y, box_coord.minimum.z));
+  var z_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.maximum.z));
+
+  return [x_dist, y_dist, z_dist];
+}
 
 
 
@@ -461,13 +514,7 @@ MFOC.euclidianDistance3D = function(a, b) {
 
 
 
-
-
-
-
-
-
-
+/*
 
 
 //return : Cesium.PrimitiveCollection
@@ -507,58 +554,4 @@ function calculateDistanceThree3D(p1, p2, p3) {
   var dis2 = euclidianDistance3D(p2, p3);
   return (dis1 + dis2) / 2;
 }
-
-
-function drawOneCube(positions, rating = 1.0){
-  var red_rate = 1.0, green_rate = (-2 * rating) + 2;
-  var blue_rate = 0.0;
-  if (rating < 0.5){
-    blue_rate = (0.5 - rating) * 2 ;
-  }
-  var rating_color = new Cesium.Color(
-    1.0,
-    green_rate,
-    0.0,
-    rating
-  );
-
-  var size = calcSidesBoxCoord(positions);
-
-  var geometry = Cesium.BoxGeometry.fromDimensions({
-    vertexFormat : Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
-    dimensions :  new Cesium.Cartesian3( size[0], size[1], size[2] )
-  });
-  //console.log(positions, geometry);
-  var position = Cesium.Cartesian3.fromDegrees( (positions.minimum.x + positions.maximum.x) / 2, (positions.maximum.y + positions.minimum.y) /2 , (positions.minimum.z + positions.maximum.z) / 2);
-
-  var point3d = new Cesium.Cartesian3( 0.0, 0.0, 0.0 );
-  var translation = Cesium.Transforms.eastNorthUpToFixedFrame( position );
-  var matrix = Cesium.Matrix4.multiplyByTranslation( translation, point3d, new Cesium.Matrix4() );
-
-
-  var geo_instance = new Cesium.GeometryInstance({
-    geometry : geometry,
-    modelMatrix : matrix,
-    attributes : {
-      color : Cesium.ColorGeometryInstanceAttribute.fromColor(rating_color)
-    }
-
-  } );
-
-  return new Cesium.Primitive({
-    geometryInstances : geo_instance,
-    appearance : new Cesium.PerInstanceColorAppearance({
-      translucent : true
-    }),
-    show : true
-  });
-
-}
-
-function calcSidesBoxCoord(box_coord){
-  var x_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.maximum.x, box_coord.minimum.y, box_coord.minimum.z));
-  var y_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.maximum.y, box_coord.minimum.z));
-  var z_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.maximum.z));
-
-  return [x_dist, y_dist, z_dist];
-}
+*/
