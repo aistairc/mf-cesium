@@ -49,18 +49,38 @@ function updateBuffer(id, feature, bool) {
     }
 
 }
+var urlParam = function(name, w){
+    w = w || window;
+    var rx,val;
+    if(name == "url"){
+      rx = new RegExp('[\&|\?]'+'url='+'([^\&\#]+)[\&|/]');
+      val = w.location.search.match(rx);
 
+    }
+    else if(name =='token'){
+      rx = new RegExp('[\&|\?]'+'token='+'([^\&\#]+)');
+      val = w.location.search.match(rx);
+    }
+
+    return !val ? '':val[1];
+}
 function getLayers() {
-    var url = window.location.href;
-    var url_arr = url.split('?token=');
-    url = "http://ec2-13-112-104-197.ap-northeast-1.compute.amazonaws.com:9876/";
-    var token = url_arr[1];
+    //var url = window.location.href;
+    //var url_arr = url.split('?token=');
+
+    //url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+    var url = urlParam('url');
+    var token = urlParam('token');
+    //var token = url_arr[1];
+    console.log(url);
     console.log(token);
     writeCookie('token', token);
-    url += "$ref";
+    url += "/$ref";
     var featureLayers;
     var printFeatureLayer_list = [];
     var promise = request1(url);
+
+    addCanvas();
     promise.then(function(arr) {
             featureLayers = arr;
             for (var i = 0; i < featureLayers.length; i++) {
@@ -70,7 +90,13 @@ function getLayers() {
                 }
             }
             url = url.replace("/$ref", "");
-            printFeatureLayerList(printFeatureLayer_list, url, "featureLayers");
+            var list = printFeatureLayerList(printFeatureLayer_list, url, "featureLayers");
+            var printArea = document.getElementById('featureLayers');
+            his_featurelayer = list;
+            printArea.innerHTML = "";
+            printArea.appendChild(list);
+            printMenuState = "layer";
+
         })
         .catch(function(err) {
             console.log(err);
@@ -95,6 +121,8 @@ function getFeatures(url, layerID) {
     var promise = request2(url);
     var promise_list = [];
     var get_data;
+    var title = document.getElementById("title");
+    title.innerHTML = "loading";
     promise.then(function(arr) {
             features = arr;
             for (var i = 0; i < features.length; i++) {
@@ -106,12 +134,18 @@ function getFeatures(url, layerID) {
                 }
             }
             Promise.all(promise_list).then(function(values) {
+                title.innerHTML = "finish";
                 get_data = values;
                 for (var i = 0; i < get_data.length; i++) {
                     updateBuffer([layerID, printFeatures_list[i]], get_data[i], true);
                 }
                 var new_url = url.replace("$ref", "");
-                printFeatures(layerID, printFeatures_list, "features");
+                var list = printFeatures(layerID, printFeatures_list, "features");
+                var printArea = document.getElementById('featureLayers');
+                his_features = list;
+                printArea.innerHTML = "";
+                printArea.appendChild(list);
+                printMenuState = "features";
             });
         })
         .catch(function(err) {
@@ -121,8 +155,14 @@ function getFeatures(url, layerID) {
 }
 
 function getFeature(layerID, featureID) {
+  default_set = true;
     var data = getBuffer([layerID, featureID]);
-    printFeature(featureID, data, "feature");
+    var list = printFeature(featureID, data, "feature");
+    his_feature = list;
+    var printArea = document.getElementById('featureLayers');
+    printArea.innerHTML = "";
+    printArea.appendChild(list);
+    printMenuState = "feature";
 }
 
 function receiveProgress(evt) {

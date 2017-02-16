@@ -56,9 +56,9 @@ MFOC.prototype.drawMovingPoint = function(geometry){
   var pointCollection = new Cesium.PointPrimitiveCollection();
 
   var r_color = Cesium.Color.fromRandom({
-    minimumRed : 0.8,
-    minimumBlue : 0.8,
-    minimumGreen : 0.8,
+    minimumRed : 0.9,
+    minimumBlue : 0.9,
+    minimumGreen : 0.9,
     alpha : 1.0
   });
 
@@ -105,10 +105,11 @@ MFOC.prototype.drawMovingPolygon = function(geometry){
   }
 
   for (var i = 0; i < coordinates.length; i++) {
+    var height = heights[i];
     if (!with_height){
-      heights[i] = 0;
+      height = 0;
     }
-    poly_list.push(MFOC.drawOnePolygon(coordinates[i], heights[i], with_height , color));
+    poly_list.push(MFOC.drawOnePolygon(coordinates[i], height, with_height , color));
   }
 
 
@@ -158,8 +159,8 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
 
   var vertexF = new Cesium.VertexFormat({
     position : true,
-    st : true,
-    normal : false,
+    st : false,
+    normal : true,
     color : true
   });
 
@@ -190,8 +191,10 @@ MFOC.prototype.drawPathMovingPoint = function(options){
 
   var data = options.temporalGeometry;
   var property = options.temporalProperty;
-  var heights = this.getListOfHeight(data.datetimes);
-
+  var heights = 0;
+  if (this.mode == '3D'){
+    heights = this.getListOfHeight(data.datetimes, this.min_max.date);
+  }
   var pro_min_max = null;
   if (property != undefined){
     pro_min_max = MFOC.findMinMaxProperties(property);
@@ -199,6 +202,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
 
   if (property == undefined){
     var positions = MFOC.makeDegreesArray(data.coordinates, heights);
+
     polylineCollection.add(MFOC.drawOneLine(positions, color));
   }
   else{
@@ -210,9 +214,17 @@ MFOC.prototype.drawPathMovingPoint = function(options){
       }
       color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
 
-      var positions =
-      (data.coordinates[index].concat(heights[index]))
-      .concat(data.coordinates[index+1].concat(heights[index+1]));
+      var positions;
+      if (this.mode == '2D'){
+        positions =
+        (data.coordinates[index].concat([0]))
+        .concat(data.coordinates[index+1].concat([0]));
+      }
+      else {
+        positions =
+        (data.coordinates[index].concat(heights[index]))
+        .concat(data.coordinates[index+1].concat(heights[index+1]));
+      }
 
       polylineCollection.add(MFOC.drawOneLine(positions, color));
     }
@@ -246,7 +258,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
     red : 0.8,
     minimumBlue : 0.8,
     minimumGreen : 0.8,
-    alpha : 1.0
+    alpha : 0.6
   });
 
   for (var i = 0; i < coordinates.length - 1; i++) {
@@ -341,9 +353,9 @@ MFOC.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, heig
     var new_color;
     if (color == undefined){
       new_color = Cesium.Color.fromRandom({
-        minimumRed : 0.6,
-        minimumBlue : 0.0,
-        minimumGreen : 0.0,
+        minimumRed : 0.8,
+        minimumBlue : 0.8,
+        minimumGreen : 0.8,
         alpha : 0.4
       });
     }
@@ -499,59 +511,3 @@ MFOC.calcSidesBoxCoord = function(box_coord){
 
   return [x_dist, y_dist, z_dist];
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-//return : Cesium.PrimitiveCollection
-var drawHighlightMovingFeature = function (mf, with_height, property_name){
-  var prim_collecion = new Cesium.PrimitiveCollection();
-  if (mf.type != "MovingFeature"){
-    LOG("it is not moving feature");
-  }
-
-  var type = mf.temporalGeometry.type;
-
-  if (type == 'MovingPolygon'){
-    prim_collecion.add(drawVolumeMovingPolygonArray(mf, with_height, property_name));
-  }
-  else if (type == 'MovingPoint'){
-    prim_collecion.add(drawMovingPointPath(mf, with_height, property_name));
-  }
-  else if (type == 'MovingLineString'){
-    prim_collecion.add(drawPathMovingLineString(mf, with_height, property_name));
-  }
-  else{
-    LOG('this type is not implemented.');
-  }
-  return prim_collecion;
-}
-
-
-
-function calculateDistanceThree2D(p1, p2, p3) {
-  var dis1 = euclidianDistance2D(p1, p3);
-  var dis2 = euclidianDistance2D(p2, p3);
-  return (dis1 + dis2) / 2;
-}
-
-function calculateDistanceThree3D(p1, p2, p3) {
-  var dis1 = euclidianDistance3D(p1, p3);
-  var dis2 = euclidianDistance3D(p2, p3);
-  return (dis1 + dis2) / 2;
-}
-*/

@@ -5,25 +5,38 @@ MFOC.prototype.drawPaths = null;
 MFOC.prototype.clear = null;
 MFOC.prototype.remove = null;
 MFOC.prototype.drawFeatures = null;
-MFOC.prototype.removeByIndex = null;
+MFOC.prototype.removeByName = null;
 MFOC.prototype.showProperty = null;
 MFOC.prototype.highlight = null;
-MFOC.prototype.showHOTSPOT = null;
+MFOC.prototype.showSpaceTimeCube = null;
 MFOC.prototype.animate = null;
 MFOC.prototype.changeMode = null;
-
+MFOC.prototype.showDirectionalRader = null;
+MFOC.prototype.setCameraView = null;
 MFOC.prototype.add = function(mf){
-  if (mf.type != 'MovingFeature'){
-    console.log("it is not MovingFeature!!@!@!");
-    return 0;
+  if (Array.isArray(mf)){
+    for (var i = 0 ; i < mf.length ; i++){
+      var mf_temp = mf[i];
+      if (mf_temp.type != 'MovingFeature'){
+        console.log("it is not MovingFeature!!@!@!");
+        return 0;
+      }
+      this.features.push(mf_temp);
+    }
   }
-  this.features.push(mf);
+  else{
+    if (mf.type != 'MovingFeature'){
+      console.log("it is not MovingFeature!!@!@!");
+      return 0;
+    }
+    this.features.push(mf);
+  }
+
   //this.min_max = this.findMinMax();
   return this.features.length;
 }
 
 MFOC.prototype.drawFeatures = function(options){
-
   var mf_arr;
   if (options != undefined){
     if (options.name == undefined){
@@ -52,19 +65,12 @@ MFOC.prototype.drawFeatures = function(options){
   }
 
   this.min_max = this.findMinMaxGeometry(mf_arr);
-
+  this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
 
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
     var feat_prim;
-    if (this.feature_prim_memory[feature.properties.name] != undefined){
-      if (this.mode == '2D'){
-        continue;
-      }
-      else{
-  //      this.viwer.scene.primitives.remove(this.feature_prim_memory[feature.properties.name]);
-      }
-    }
+
     if (feature.temporalGeometry.type == "MovingPoint"){
       feat_prim = this.viewer.scene.primitives.add(this.drawMovingPoint(feature.temporalGeometry));
     }
@@ -77,11 +83,10 @@ MFOC.prototype.drawFeatures = function(options){
     else{
       console.log("this type cannot be drawn", feature);
     }
-
     this.feature_prim_memory[feature.properties.name] = feat_prim;//찾아서 지울때 사용.
-
   }
 
+  this.adjustCameraView();
 }
 
 MFOC.prototype.drawPaths = function(options){
@@ -111,18 +116,12 @@ MFOC.prototype.drawPaths = function(options){
   }
 
   this.min_max = this.findMinMaxGeometry(mf_arr);
+  this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
 
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
     var path_prim;
-    if (this.path_prim_memory[feature.properties.name] != undefined){
-      if (this.mode == '2D'){
-        continue;
-      }
-      else{
-    //    this.viwer.scene.primitives.remove(this.path_prim_memory[feature.properties.name]);
-      }
-    }
+
     if (feature.temporalGeometry.type == "MovingPoint"){
       path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPoint({
         temporalGeometry : feature.temporalGeometry
@@ -144,6 +143,10 @@ MFOC.prototype.drawPaths = function(options){
 
     this.path_prim_memory[feature.properties.name] = path_prim;
   }
+
+  this.adjustCameraView();
+
+  //this.viewer.camera.flyTo({    destination : this.viewer.camera.position  });
 }
 
 MFOC.prototype.reset = function(){
@@ -244,18 +247,6 @@ MFOC.prototype.showProperty = function(propertyName, divID){
   this.showPropertyArray(pro_arr, divID);
 }
 
-MFOC.getPropertyByName = function(mf, name){
-  if (mf.temporalProperties == undefined) return -1;
-
-  for (var i = 0 ; i < mf.temporalProperties.length ; i++){
-    if (mf.temporalProperties[i].name == name){
-      return mf.temporalProperties[i];
-    }
-  }
-  return -1;
-}
-
-
 MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   var mf_name = movingfeatureName;
   var pro_name = propertyName;
@@ -280,72 +271,96 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
     this.feature_prim_memory[mf_name] = undefined;
   }
 
+  this.min_max = this.findMinMaxGeometry(this.features);
   var type = mf.temporalGeometry.type;
 
+  var mmtime = MFOC.findMinMaxTime(mf.temporalGeometry.datetimes);
+  var bounding_sphere = MFOC.getBoundingSphere(MFOC.findMinMaxCoord(mf.temporalGeometry.coordinates), [MFOC.normalizeTime(mmtime[0], this.min_max.date, this.max_height),
+  MFOC.normalizeTime(mmtime[1], this.min_max.date, this.max_height)]  );
+
+  var highlight_prim;
   if (type == 'MovingPolygon'){
-    this.viewer.scene.primitives.add(drawPathMovingPolygon({
-      temporalGeometry : mf,
+    highlight_prim = this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
+      temporalGeometry : mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else if (type == 'MovingPoint'){
-    this.viewer.scene.primitives.add(drawMovingPointPath({
-      temporalGeometry : mf,
+    highlight_prim = this.viewer.scene.primitives.add(this.drawPathMovingPoint({
+      temporalGeometry :  mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else if (type == 'MovingLineString'){
-    this.viewer.scene.primitives.add(drawPathMovingLineString({
-      temporalGeometry : mf,
+    highlight_prim = this.viewer.scene.primitives.add(this.drawPathMovingLineString({
+      temporalGeometry :  mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else{
     LOG('this type is not implemented.');
   }
+
+  this.path_prim_memory[mf_name] = highlight_prim;
+  var this_mfoc = this;
+  this.viewer.camera.flyToBoundingSphere(bounding_sphere, {
+    duration : 1.0
+  });
 }
 
-MFOC.prototype.showHOTSPOT = function(degree){
+MFOC.prototype.removeSpaceTimeCube = function(){
+  if (this.cube_primitives !=  null){
+    this.primitives.remove(this.cube_primitives);
+    this.cube_primitives = null;
+  }
+}
+
+MFOC.prototype.showSpaceTimeCube = function(degree){
   var x_deg = degree.x,
   y_deg = degree.y,
   z_deg = degree.time;
 
   var mf_arr = this.features;
 
+  degree.time = degree.time * 86400;
   this.min_max = this.findMinMaxGeometry(mf_arr);
-  this.cube_data = [];
   this.hotspot_maxnum = 0;
-
-  this.makeBasicCube(degree);
+  var cube_data = this.makeBasicCube(degree);
+  if (cube_data == -1){
+    console.log("time degree 너무 큼");
+    return;
+  }
 
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
 
     if (feature.temporalGeometry.type == "MovingPoint"){
-      this.drawHotSpotMovingPoint(feature.temporalGeometry, degree  );
+      this.drawSpaceTimeCubeMovingPoint(feature.temporalGeometry, degree, cube_data);
     }
     else if(feature.temporalGeometry.type == "MovingPolygon"){
-
-      this.drawHotSpotMovingPolygon(feature.temporalGeometry, degree);
+      this.drawSpaceTimeCubeMovingPolygon(feature.temporalGeometry, degree, cube_data);
     }
     else if(feature.temporalGeometry.type == "MovingLineString"){
-
+      this.drawSpaceTimeCubeMovingLineString(feature.temporalGeometry, degree, cube_data);
     }
     else{
       console.log("nono", feature);
     }
   }
+  if (this.hotspot_maxnum == 0){
+    console.log("datetimes of data have too long gap. There is no hotspot");
+    return;
+  }
+  var cube_prim = this.makeCube(degree, cube_data);
 
-  var cube_prim = this.makeCube(degree);
-
-  this.cube_data = this.primitives.add(cube_prim);
+  this.cube_primitives = this.primitives.add(cube_prim);
 
 }
 
 MFOC.prototype.getFeatureByName = function(name){
-  for (var i = 0 ; i < this.feature.length ; i++){
-    if (this.feature[i].properties.name == name){
-      return this.feature[i];
+  for (var i = 0 ; i < this.features.length ; i++){
+    if (this.features[i].properties.name == name){
+      return this.features[i];
     }
   }
   return -1;
@@ -431,5 +446,107 @@ MFOC.prototype.changeMode = function(mode){
   }
   else{
     this.mode = mode;
+  }
+}
+
+MFOC.prototype.showDirectionalRader = function(canvasID){
+  var cumulative = new SpatialInfo();
+
+  for (var index = 0 ; index < this.features.length ; index++){
+    var feature = this.features[index];
+    MFOC.addDirectionInfo(cumulative, feature.temporalGeometry);
+  }
+
+  var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
+  var total_length = cumulative.west.total_length + cumulative.east.total_length + cumulative.north.total_length + cumulative.south.total_length;
+  var cnvs = document.getElementById(canvasID);
+  if (cnvs.getContext){
+    var h_width = cnvs.width / 2;
+    var h_height = cnvs.height / 2;
+    var ctx = cnvs.getContext('2d');
+
+    var max_life = Math.max.apply(null, [cumulative.west.total_life , cumulative.east.total_life , cumulative.north.total_life, cumulative.south.total_life]);
+
+    var max_length = Math.max.apply(null, [cumulative.west.total_length , cumulative.east.total_length , cumulative.north.total_length, cumulative.south.total_length]);
+    var scale = 1 / (max_length/total_length) * 0.8;
+
+
+    var length = [cumulative.west.total_length, cumulative.east.total_length, cumulative.north.total_length, cumulative.south.total_length];
+    var length2 = [cumulative.west.total_length,- cumulative.east.total_length, cumulative.north.total_length, -cumulative.south.total_length];
+    var life = [cumulative.west.total_life, cumulative.east.total_life, cumulative.north.total_life, cumulative.south.total_life];
+    var velocity = [];
+    var total_velocity = 0.0;
+    for (var i = 0 ; i < length.length ; i++){
+      if (life[i] == 0){
+        velocity[i] = 0;
+        continue;
+      }
+      velocity[i] = length[i]/life[i];
+
+      total_velocity += velocity[i];
+    }
+
+    var color = ['rgb(255, 255, 0)','rgb(0, 255, 0)','blue','red'];
+
+    for (var i = 0 ; i < life.length ; i++){
+
+      for (var j = 0 ; j < 2 ; j += 0.1){
+        ctx.beginPath();
+        ctx.arc(h_width,h_height,h_width * life[i] / max_life, j * Math.PI,(j+0.05)*Math.PI);
+        ctx.strokeStyle= color[i];
+        ctx.stroke();
+      }
+    }
+
+    for (var i = 0 ; i < 2 ; i++){
+      ctx.beginPath();
+      ctx.moveTo(h_width,h_height);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.375 * 0.9 * h_width, h_height - 0.25 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.5 * 0.9 *  h_width, h_height - 0.5 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length2[i]/max_length * 1.0 * 0.9 *  h_width, h_height);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.5 * 0.9 *  h_width, h_height + 0.5 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.375 * 0.9 *  h_width, h_height + 0.25 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.fillStyle= color[i];
+      ctx.fill();
+    }
+
+    for (var i = 2 ; i < 4 ; i++){
+      ctx.beginPath();
+      ctx.moveTo(h_width,h_height);
+      ctx.lineTo(h_width - velocity[i]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * 0.9* h_height * length2[i]/max_length);
+      ctx.lineTo(h_width - velocity[i]/total_velocity* 0.5 * 1 * h_width, h_height - 0.5 * 0.9  * h_height * length2[i]/max_length);
+      ctx.lineTo(h_width, h_height - 1.0 * 0.9 *  h_height * length2[i]/max_length);
+      ctx.lineTo(h_width +  velocity[i]/total_velocity * 0.5 * 1 * h_width, h_height - 0.5 * 0.9 * h_height * length2[i]/max_length);
+      ctx.lineTo(h_width +  velocity[i]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * 0.9 * h_height * length2[i]/max_length);
+      ctx.fillStyle = color[i];
+      ctx.fill();
+    }
+
+
+  }
+  else{
+    alert('canvas를 지원하지 않는 브라우저');
+  }
+}
+
+
+MFOC.prototype.adjustCameraView = function(){
+  var this_mfoc = this;
+  var bounding = this.bounding_sphere;
+  console.log(bounding);
+  if (this.mode == '3D'){
+    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+      duration : 1.0,
+      complete : function(){
+        var sin = Math.sin(Math.PI / 2) * bounding.radius;
+        console.log(this_mfoc.viewer.camera.position);
+        this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
+      }
+    });
+  }
+  else{
+    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+      duration : 1.0
+    });
   }
 }
