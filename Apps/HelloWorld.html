@@ -8,7 +8,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
-    <title>Hello World!</title>
+    <title id="title">Hello World!</title>
+
+    <script src="../js/jquery-3.1.1.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <link type="text/css" href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
 
 
     <script type="text/javascript" src="Sandcastle/Sandcastle-header.js"></script>
@@ -26,26 +31,23 @@
         #cesiumContainer {
             width: 100%;
             height: 100%;
-            margin: 0;
+            margin-bottom: 0%;
             padding: 0;
-            overflow: hidden;
-        }
-
-        html,
-        body,
-        #cesiumContainer {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+            overflow: auto;
+            position: absolute;
         }
 
         #toolbar {
-            background: rgba(42, 42, 42, 0.8);
-            padding: 2px;
-            border-radius: 4px;
             height: auto;
+        }
+
+        #geoInfo {
+            height: auto;
+            position: absolute;
+            float: right;
+            right: 0px;
+            top: 100px;
+            z-index: 3;
         }
 
         #toolbar input {
@@ -67,13 +69,13 @@
 
         .graph {
             position: absolute;
+            ;
             bottom: 0px;
             width: 100%;
             height: 0%;
-            z-index: 2;
+            z-index: 4;
             color: white;
-            float : right;
-            background : white;
+            background: white;
         }
 
         .wrapper {
@@ -91,12 +93,12 @@
         }
 
         body {
-            font: 16px/1 sans-serif
+            font: 16px/1 sans-serif;
         }
         /*VERTICAL MENU*/
 
         nav.vertical {
-            position: relative;
+            position: absolute;
             width: 150px;
         }
         /* ALL UL */
@@ -145,23 +147,68 @@
             opacity: 1;
             transform: translateX(0px);
         }
+
+
+
+        #canvas_geoinfo {
+            border: 1px solid black;
+            background-color: transparent;
+            float: right;
+            right: 0px;
+            position: absolute;
+            bottom: 100px;
+        }
     </style>
 </head>
 
-<body style="margin-bottom:10px">
-    <div id="toolbar" class="wrapper" style="z-index:3">
-        <nav class="vertical">
-            <ul>
-                <li><a onclick="getLayers()">data</a>
-                    <ul name="featureLayer"></ul>
+<body style="margin-bottom:20%">
+    <div id="toolbar" class="list-group-item active" style="z-index:3" onclick="getLayers()"> data
+
+      <ul name="featureLayer" class = "list-group"></ul>
+
+    </div>
+    <div id="geoInfo" class="list-group-item active"> Analysis
+        <div id="heatmap" class="list-group-item dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true">
+          heatmap
+          <span class="caret"></span>
+        </button>
+            <ul class="dropdown-menu " aria-labelledby="dropdownMenu" >
+                <li class="dropdown-submenu pull-left" >
+                    <form id="heatmap_value">
+                        <div class="input-group">
+                            <span class="input-group-addon">x</span>
+                            <input type="text" class="form-control" name="x_value">
+                        </div>
+                        </br>
+                        <div class="input-group">
+                            <span class="input-group-addon">y</span>
+                            <input type="text" class="form-control" name="y_value">
+                        </div>
+                        </br>
+                        <div class="input-group">
+                            <span class="input-group-addon">z</span>
+                            <input type="text" class="form-control" name="z_value">
+                        </div>
+                        </br>
+                        <div class="input-group">
+                            <input type="button" class="btn btn-default" onclick="getHeatmap()" value="submit">
+                        </div>
+
+                    </form>
                 </li>
+
             </ul>
-        </nav>
+        </div>
+        <div id="temporalProperties" class="list-group-item">temporalProperties</div>
+        <div id="movement" class="list-group-item">movement</div>
+    </div>
+    <canvas id="canvas_geoinfo" style="z-index:3"></canvas>
+    <div id="cesiumContainer" style="position:absolute; top:0px; z-index:1; margin-bottom : 20%;">
+
+    </div>
 
     <div id="graph" class="graph"></div>
-    </div>
-    <div id="cesiumContainer" style="position:absolute; top:0px; z-index:1;"></div>
-
     <script>
         var viewer = new Cesium.Viewer('cesiumContainer', {
             orderIndependentTranslucency: false
