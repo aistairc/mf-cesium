@@ -13,6 +13,10 @@ MFOC.prototype.makeBasicCube = function(degree){
   var y_length = Math.ceil(y_band/y_deg);
 
   var time_length = (min_max.date[1].getTime() - min_max.date[0].getTime())/(time_deg * 1000);
+  if (time_length < 1){
+    return -1;
+  }
+  console.log(time_length);
   var start = Cesium.JulianDate.fromDate(min_max.date[0]);
 
   for (var i = 0 ; i < time_length + 1 ; i++){
@@ -33,7 +37,7 @@ MFOC.prototype.makeBasicCube = function(degree){
   return cube_data;
 }
 
-MFOC.prototype.drawHotSpotMovingPolygon = function(geometry, degree, cube_data){
+MFOC.prototype.drawSpaceTimeCubeMovingPolygon = function(geometry, degree, cube_data){
   var min_max = this.min_max;
 
   var x_deg = degree.x,
@@ -141,7 +145,7 @@ MFOC.prototype.drawHotSpotMovingPolygon = function(geometry, degree, cube_data){
   this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
 }
 
-MFOC.prototype.drawHotSpotMovingPoint = function(geometry, degree, cube_data){
+MFOC.prototype.drawSpaceTimeCubeMovingPoint = function(geometry, degree, cube_data){
   var min_max = this.min_max;
 
   var x_deg = degree.x,
@@ -199,6 +203,85 @@ MFOC.prototype.drawHotSpotMovingPoint = function(geometry, degree, cube_data){
   this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
 }
 
+MFOC.prototype.drawSpaceTimeCubeMovingLineString = function(geometry, degree, cube_data){
+  var min_max = this.min_max;
+
+  var x_deg = degree.x,
+  y_deg = degree.y,
+  time_deg = degree.time;
+
+  var time_length = (min_max.date[1].getTime() - min_max.date[0].getTime())/(time_deg * 1000);
+  var start = Cesium.JulianDate.fromDate(min_max.date[0]);
+
+  var x_band = min_max.x[1] - min_max.x[0],
+  y_band = min_max.y[1] - min_max.y[0];
+
+  var x_length = Math.ceil(x_band/x_deg);
+  var y_length = Math.ceil(y_band/y_deg);
+
+  var max_num = this.hotspot_maxnum;
+  var datetimes = geometry.datetimes;
+
+  var x_property = [];
+  var y_property = [];
+
+  for (var i = 0 ; i < 2 ; i++){
+    x_property[i] = new Cesium.SampledProperty(Number);
+    y_property[i] = new Cesium.SampledProperty(Number);
+  }
+
+  if (geometry.interpolations == "Spline"){
+    for (var i = 0 ; i < 2 ; i++){
+      x_property[i].setInterpolationOptions({
+        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+        interpolationDegree : 2
+      });
+      y_property[i].setInterpolationOptions({
+        interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
+        interpolationDegree : 2
+      });
+    }
+  }
+
+  for (var time = 0 ; time < datetimes.length ; time++){
+    var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
+    var normalize = MFOC.normalizeTime(new Date(datetimes[time]), this.min_max.date, this.max_height);
+
+    var coordinates = geometry.coordinates[time];
+
+    for (var i = 0 ; i < 2 ; i++){
+      x_property[i].addSample(jul_time, coordinates[(coordinates.length - 1) * i][0]);
+      y_property[i].addSample(jul_time, coordinates[(coordinates.length - 1) * i][1]);
+    }
+
+  }
+
+  for (var i = 0 ; i < time_length - 1 ; i++){
+    var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time, time_deg/2, new Cesium.JulianDate());
+    var x_value = [];
+    var y_value = [];
+
+    for (var j = 0 ; j < 2 ; j++){
+      x_value[j] = x_property[j].getValue(middle_time);
+      y_value[j] = y_property[j].getValue(middle_time);
+    }
+
+    if (x_value[0] != undefined && y_value[0] != undefined){
+      var x_min = MFOC.getCubeIndexFromSample(x_value[0], x_deg, min_max.x[0]);
+      var y_min = MFOC.getCubeIndexFromSample(y_value[0], y_deg, min_max.y[0]);
+      var x_max = MFOC.getCubeIndexFromSample(x_value[1], x_deg, min_max.x[0]);
+      var y_max = MFOC.getCubeIndexFromSample(y_value[1], y_deg, min_max.y[0]);
+
+      cube_data[i].count[x_min][y_min] += 1;
+      cube_data[i].count[x_max][y_max] += 1;
+
+      max_num = Math.max(cube_data[i].count[x_min][y_min],max_num);
+      max_num = Math.max(cube_data[i].count[x_max][y_max],max_num);
+    }
+  }
+  console.log(max_num);
+  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
+}
 
 MFOC.prototype.makeCube = function(degree, cube_data){
   var boxCollection = new Cesium.PrimitiveCollection();
@@ -247,8 +330,6 @@ MFOC.prototype.makeCube = function(degree, cube_data){
   }
   return boxCollection;
 }
-
-
 
 MFOC.getCubeIndexFromSample = function(value, deg, min){
   return Math.floor((value - min) / deg);

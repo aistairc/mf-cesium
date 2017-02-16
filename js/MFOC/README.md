@@ -305,7 +305,7 @@ MFOC 객체를 초기화 합니다.
  </br>  </br> </br>  </br>
 > #### Moving Feature Statistic
 
-* showHOTSPOT(degree)
+* showSpaceTimeCube(degree)
 
 가지고 있는 movingFeature들의 temporalGeometry를 분석하여 HotSpot을 출력합니다.
 
@@ -320,11 +320,11 @@ degree = {
 | ---------- | :--------- | :---------- | :---------- |
 |   x  |  Number   |        |  degree of x   |
 |   y  |  Number   |        |  degree of y   |
-|   time  |  Number   |        |  degree of time(seconds)  |
+|   time  |  Number   |        |  degree of time(days)  |
 
 Example
 ```js
-mfoc.showHOTSPOT({
+mfoc.showSpaceTimeCube({
   x : 10,
   y : 10,
   time : 1500000
@@ -333,13 +333,13 @@ mfoc.showHOTSPOT({
 
   </br>
 
-* removeHOTSPOT()
+* removeSpaceTimeCube()
 
 핫스팟 큐브들을 지웁니다.
 
 Example
 ```js
-mfoc.removeHOTSPOT()
+mfoc.removeSpaceTimeCube()
 ```
 
   </br>

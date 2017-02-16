@@ -338,43 +338,49 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   });
 }
 
-MFOC.prototype.removeHOTSPOT = function(){
+MFOC.prototype.removeSpaceTimeCube = function(){
   if (this.cube_primitives !=  null){
     this.primitives.remove(this.cube_primitives);
     this.cube_primitives = null;
   }
 }
 
-MFOC.prototype.showHOTSPOT = function(degree){
+MFOC.prototype.showSpaceTimeCube = function(degree){
   var x_deg = degree.x,
   y_deg = degree.y,
   z_deg = degree.time;
 
   var mf_arr = this.features;
 
-
+  degree.time = degree.time * 86400;
   this.min_max = this.findMinMaxGeometry(mf_arr);
   this.hotspot_maxnum = 0;
   var cube_data = this.makeBasicCube(degree);
-
+  if (cube_data == -1){
+    console.log("time degree 너무 큼");
+    return;
+  }
 
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
 
     if (feature.temporalGeometry.type == "MovingPoint"){
-      this.drawHotSpotMovingPoint(feature.temporalGeometry, degree, cube_data);
+      this.drawSpaceTimeCubeMovingPoint(feature.temporalGeometry, degree, cube_data);
     }
     else if(feature.temporalGeometry.type == "MovingPolygon"){
-      this.drawHotSpotMovingPolygon(feature.temporalGeometry, degree, cube_data);
+      this.drawSpaceTimeCubeMovingPolygon(feature.temporalGeometry, degree, cube_data);
     }
     else if(feature.temporalGeometry.type == "MovingLineString"){
-
+      this.drawSpaceTimeCubeMovingLineString(feature.temporalGeometry, degree, cube_data);
     }
     else{
       console.log("nono", feature);
     }
   }
-
+  if (this.hotspot_maxnum == 0){
+    console.log("datetimes of data have too long gap. There is no hotspot");
+    return;
+  }
   var cube_prim = this.makeCube(degree, cube_data);
 
   this.cube_primitives = this.primitives.add(cube_prim);
