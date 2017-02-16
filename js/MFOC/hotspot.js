@@ -1,6 +1,6 @@
 MFOC.prototype.makeBasicCube = function(degree){
   var min_max = this.min_max;
-  var cube_data = this.cube_data;
+  var cube_data = [];
 
   var x_deg = degree.x,
   y_deg = degree.y,
@@ -30,11 +30,11 @@ MFOC.prototype.makeBasicCube = function(degree){
       }
     }
   }
+  return cube_data;
 }
 
-MFOC.prototype.drawHotSpotMovingPolygon = function(geometry, degree){
+MFOC.prototype.drawHotSpotMovingPolygon = function(geometry, degree, cube_data){
   var min_max = this.min_max;
-  var cube_data = this.cube_data;
 
   var x_deg = degree.x,
   y_deg = degree.y,
@@ -91,7 +91,7 @@ MFOC.prototype.drawHotSpotMovingPolygon = function(geometry, degree){
     lower_y_property.addSample(jul_time, mbr.y[0]);
     upper_y_property.addSample(jul_time, mbr.y[1]);
   }
-  
+
   for (var i = 0 ; i < time_length - 1 ; i++){
     var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time, time_deg/2, new Cesium.JulianDate());
     var mbr = {
@@ -141,9 +141,8 @@ MFOC.prototype.drawHotSpotMovingPolygon = function(geometry, degree){
   this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
 }
 
-MFOC.prototype.drawHotSpotMovingPoint = function(geometry, degree){
+MFOC.prototype.drawHotSpotMovingPoint = function(geometry, degree, cube_data){
   var min_max = this.min_max;
-  var cube_data = this.cube_data;
 
   var x_deg = degree.x,
   y_deg = degree.y,
@@ -201,10 +200,10 @@ MFOC.prototype.drawHotSpotMovingPoint = function(geometry, degree){
 }
 
 
-MFOC.prototype.makeCube = function(degree){
+MFOC.prototype.makeCube = function(degree, cube_data){
   var boxCollection = new Cesium.PrimitiveCollection();
   var num = 0;
-  var data = this.cube_data;
+  var data = cube_data;
   var min_max = this.min_max;
 
   var max_count = this.hotspot_maxnum;

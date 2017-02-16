@@ -105,10 +105,11 @@ MFOC.prototype.drawMovingPolygon = function(geometry){
   }
 
   for (var i = 0; i < coordinates.length; i++) {
+    var height = heights[i];
     if (!with_height){
-      heights[i] = 0;
+      height = 0;
     }
-    poly_list.push(MFOC.drawOnePolygon(coordinates[i], heights[i], with_height , color));
+    poly_list.push(MFOC.drawOnePolygon(coordinates[i], height, with_height , color));
   }
 
 
@@ -190,8 +191,10 @@ MFOC.prototype.drawPathMovingPoint = function(options){
 
   var data = options.temporalGeometry;
   var property = options.temporalProperty;
-  var heights = this.getListOfHeight(data.datetimes);
-
+  var heights = 0;
+  if (this.mode == '3D'){
+    heights = this.getListOfHeight(data.datetimes);
+  }
   var pro_min_max = null;
   if (property != undefined){
     pro_min_max = MFOC.findMinMaxProperties(property);
@@ -199,6 +202,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
 
   if (property == undefined){
     var positions = MFOC.makeDegreesArray(data.coordinates, heights);
+    
     polylineCollection.add(MFOC.drawOneLine(positions, color));
   }
   else{
@@ -210,9 +214,17 @@ MFOC.prototype.drawPathMovingPoint = function(options){
       }
       color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
 
-      var positions =
-      (data.coordinates[index].concat(heights[index]))
-      .concat(data.coordinates[index+1].concat(heights[index+1]));
+      var positions;
+      if (this.mode == '2D'){
+        positions =
+        (data.coordinates[index].concat([0]))
+        .concat(data.coordinates[index+1].concat([0]));
+      }
+      else {
+        positions =
+        (data.coordinates[index].concat(heights[index]))
+        .concat(data.coordinates[index+1].concat(heights[index+1]));
+      }
 
       polylineCollection.add(MFOC.drawOneLine(positions, color));
     }
