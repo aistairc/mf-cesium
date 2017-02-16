@@ -71,9 +71,10 @@ var mfoc = new MFOC(viewer);
 
 * add(movingFeature)
 
+
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
-|   movingFeature  |  JSON Object   |        |        |
+|   movingFeature  |  JSON Object or JSON ObjectArray   |        |     movingFeature.type 은 'MovingFeature' 이어야한다.  |
 
 Returns:
 현재 가지고 있는 feature 개수
@@ -88,6 +89,12 @@ $.getJSON('json_data/polygon2015.json').then(
         }
       }
     );
+```
+
+or
+
+```js
+mfoc.add(data.features);//is array.
 ```
 
   <br />  <br />
@@ -111,9 +118,13 @@ options = {
   name : String
 }
 ```
+
+
+
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
-|   name  |  String   |        |   (properties.name) 만약 이 이름을 가진 movingfeature를 MFOC객체가 가지고 있다면 ( add 한 상태) 그 feature만 그립니다.     |
+|   name  |  String   |        |  [_optional_] (properties.name) 만약 이 이름을 가진 movingfeature를 MFOC객체가 가지고 있다면 ( add 한 상태) 그 feature만 그립니다.     |
+
 
 Returns:
 Null
@@ -149,7 +160,7 @@ options = {
 ```
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
-|   name  |  String   |        |   (properties.name) 만약 이 이름을 가진 movingfeature를 MFOC객체가 가지고 있다면 ( add 한 상태) 그 feature의 path만 그립니다.     |
+|   name  |  String   |        |  [_optional_] (properties.name) 만약 이 이름을 가진 movingfeature를 MFOC객체가 가지고 있다면 ( add 한 상태) 그 feature의 path만 그립니다.     |
 
 Example
 ```js
@@ -204,7 +215,7 @@ options = {
 ```
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
-|   name  |  String   |        |   (properties.name) 만약 이 이름을 가진 movingfeature를 MFOC객체가 가지고 있다면 ( add 한 상태) 그 feature의 animation만을 그립니다.     |
+|   name  |  String   |        |  [_optional_] (properties.name) 만약 이 이름을 가진 movingfeature를 MFOC객체가 가지고 있다면 ( add 한 상태) 그 feature의 animation만을 그립니다.     |
 
 Example
 ```js
@@ -234,7 +245,7 @@ mode 변경후에 primitives를 지우고 다시 그려주어야 모드가 적�
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
-|   mode  |  String   |        |   '2D' or '3D'     |
+|   mode  |  String   |        |  [_optional_] '2D' or '3D'     |
 
 Example
 ```js
@@ -368,7 +379,7 @@ mfoc.showProperty('central pressure', 'graph');
 
   </br>
 
-* analyzeSpatialInfo(canvasID)
+* showDirectionalRader(canvasID)
 
 canvas tag의 id를 받아 분석한 movement,velocity,life 정보를 화살표로 그립니다.
 

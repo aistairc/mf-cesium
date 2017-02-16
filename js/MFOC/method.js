@@ -15,11 +15,24 @@ MFOC.prototype.analyzeSpatialInfo = null;
 MFOC.prototype.setCameraOnFeatures = null;
 
 MFOC.prototype.add = function(mf){
-  if (mf.type != 'MovingFeature'){
-    console.log("it is not MovingFeature!!@!@!");
-    return 0;
+  if (Array.isArray(mf)){
+    for (var i = 0 ; i < mf.length ; i++){
+      var mf_temp = mf[i];
+      if (mf_temp.type != 'MovingFeature'){
+        console.log("it is not MovingFeature!!@!@!");
+        return 0;
+      }
+      this.features.push(mf_temp);
+    }
   }
-  this.features.push(mf);
+  else{
+    if (mf.type != 'MovingFeature'){
+      console.log("it is not MovingFeature!!@!@!");
+      return 0;
+    }
+    this.features.push(mf);
+  }
+
   //this.min_max = this.findMinMax();
   return this.features.length;
 }
@@ -74,18 +87,16 @@ MFOC.prototype.drawFeatures = function(options){
     }
     this.feature_prim_memory[feature.properties.name] = feat_prim;//찾아서 지울때 사용.
   }
-
   var this_mfoc = this;
+  var bounding = this.bounding_sphere;
+  console.log(bounding);
   this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
     duration : 1.0,
     complete : function(){
-      this_mfoc.viewer.camera.setView({
-        orientation: {
-            heading : Cesium.Math.toRadians(0.0), // east, default value is 0.0 (north)
-            pitch : Cesium.Math.toRadians(-45.0),    // default value (looking down)
-            roll : 0.0                             // default value
-        }
-      });
+      var sin = Math.sin(Math.PI / 2) * bounding.radius;
+      console.log(this_mfoc.viewer.camera.position);
+      this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
+
     }
   });
 }
@@ -146,16 +157,23 @@ MFOC.prototype.drawPaths = function(options){
   }
 
   var this_mfoc = this;
+  var bounding = this.bounding_sphere;
+  console.log(bounding);
   this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
     duration : 1.0,
     complete : function(){
-      this_mfoc.viewer.camera.setView({
-        orientation: {
-            heading : Cesium.Math.toRadians(0.0), // east, default value is 0.0 (north)
-            pitch : Cesium.Math.toRadians(-45.0),    // default value (looking down)
-            roll : 0.0                             // default value
-        }
-      });
+      var sin = Math.sin(Math.PI / 2) * bounding.radius;
+      console.log(this_mfoc.viewer.camera.position);
+      this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
+      // this_mfoc.viewer.camera.setView({
+      //
+      //   destination : new Cesium.Cartesian3(bounding.center.x,  bounding.center.y + sin, bounding.center.z + sin),
+      //   orientation: {
+      //     heading : Cesium.Math.toRadians(0.0),
+      //     pitch : Cesium.Math.toRadians(-35.0),
+      //     roll : 0.0
+      //   }
+      // });
     }
   });
   //this.viewer.camera.flyTo({    destination : this.viewer.camera.position  });
