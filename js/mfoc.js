@@ -56,9 +56,9 @@ MFOC.prototype.drawMovingPoint = function(geometry){
   var pointCollection = new Cesium.PointPrimitiveCollection();
 
   var r_color = Cesium.Color.fromRandom({
-    minimumRed : 0.8,
-    minimumBlue : 0.8,
-    minimumGreen : 0.8,
+    minimumRed : 0.9,
+    minimumBlue : 0.9,
+    minimumGreen : 0.9,
     alpha : 1.0
   });
 
@@ -159,8 +159,8 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
 
   var vertexF = new Cesium.VertexFormat({
     position : true,
-    st : true,
-    normal : false,
+    st : false,
+    normal : true,
     color : true
   });
 
@@ -258,7 +258,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
     red : 0.8,
     minimumBlue : 0.8,
     minimumGreen : 0.8,
-    alpha : 1.0
+    alpha : 0.6
   });
 
   for (var i = 0; i < coordinates.length - 1; i++) {
@@ -353,9 +353,9 @@ MFOC.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, heig
     var new_color;
     if (color == undefined){
       new_color = Cesium.Color.fromRandom({
-        minimumRed : 0.6,
-        minimumBlue : 0.0,
-        minimumGreen : 0.0,
+        minimumRed : 0.8,
+        minimumBlue : 0.8,
+        minimumGreen : 0.8,
         alpha : 0.4
       });
     }
@@ -995,7 +995,7 @@ MFOC.prototype.drawFeatures = function(options){
   var this_mfoc = this;
   var bounding = this.bounding_sphere;
   console.log(bounding);
-  if (this.mode == '2D'){
+  if (this.mode == '3D'){
     this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
       duration : 1.0,
       complete : function(){
@@ -1071,7 +1071,7 @@ MFOC.prototype.drawPaths = function(options){
   var this_mfoc = this;
   var bounding = this.bounding_sphere;
   console.log(bounding);
-  if (this.mode == '2D'){
+  if (this.mode == '3D'){
     this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
       duration : 1.0,
       complete : function(){
@@ -1219,20 +1219,21 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   var bounding_sphere = MFOC.getBoundingSphere(MFOC.findMinMaxCoord(mf.temporalGeometry.coordinates), [MFOC.normalizeTime(mmtime[0], this.min_max.date, this.max_height),
   MFOC.normalizeTime(mmtime[1], this.min_max.date, this.max_height)]  );
 
+  var highlight_prim;
   if (type == 'MovingPolygon'){
-    this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
+    highlight_prim = this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
       temporalGeometry : mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else if (type == 'MovingPoint'){
-    this.viewer.scene.primitives.add(this.drawPathMovingPoint({
+    highlight_prim = this.viewer.scene.primitives.add(this.drawPathMovingPoint({
       temporalGeometry :  mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else if (type == 'MovingLineString'){
-    this.viewer.scene.primitives.add(this.drawPathMovingLineString({
+    highlight_prim = this.viewer.scene.primitives.add(this.drawPathMovingLineString({
       temporalGeometry :  mf.temporalGeometry,
       temporalProperty : property
     }));
@@ -1241,11 +1242,10 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
     LOG('this type is not implemented.');
   }
 
+  this.path_prim_memory[mf_name] = highlight_prim;
   var this_mfoc = this;
-  console.log(bounding_sphere);
   this.viewer.camera.flyToBoundingSphere(bounding_sphere, {
     duration : 1.0
-
   });
 }
 
@@ -1478,7 +1478,7 @@ function MFOC(viewer){
   this.primitives = viewer.scene.primitives;
   this.features = [];
   this.mode = '3D';
-  this.max_height = 15000000;
+  this.max_height = 30000000;
   this.path_prim_memory = {};
   this.feature_prim_memory = {};
   this.cube_primitives = null;
@@ -1486,7 +1486,7 @@ function MFOC(viewer){
 
 
 
-    
+
 
 }
 

@@ -5,13 +5,13 @@ MFOC.prototype.drawPaths = null;
 MFOC.prototype.clear = null;
 MFOC.prototype.remove = null;
 MFOC.prototype.drawFeatures = null;
-MFOC.prototype.removeByIndex = null;
+MFOC.prototype.removeByName = null;
 MFOC.prototype.showProperty = null;
 MFOC.prototype.highlight = null;
-MFOC.prototype.showHOTSPOT = null;
+MFOC.prototype.showSpaceTimeCube = null;
 MFOC.prototype.animate = null;
 MFOC.prototype.changeMode = null;
-MFOC.prototype.analyzeSpatialInfo = null;
+MFOC.prototype.showDirectionalRader = null;
 MFOC.prototype.setCameraOnFeatures = null;
 
 MFOC.prototype.add = function(mf){
@@ -90,7 +90,7 @@ MFOC.prototype.drawFeatures = function(options){
   var this_mfoc = this;
   var bounding = this.bounding_sphere;
   console.log(bounding);
-  if (this.mode == '2D'){
+  if (this.mode == '3D'){
     this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
       duration : 1.0,
       complete : function(){
@@ -166,7 +166,7 @@ MFOC.prototype.drawPaths = function(options){
   var this_mfoc = this;
   var bounding = this.bounding_sphere;
   console.log(bounding);
-  if (this.mode == '2D'){
+  if (this.mode == '3D'){
     this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
       duration : 1.0,
       complete : function(){
@@ -314,20 +314,21 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   var bounding_sphere = MFOC.getBoundingSphere(MFOC.findMinMaxCoord(mf.temporalGeometry.coordinates), [MFOC.normalizeTime(mmtime[0], this.min_max.date, this.max_height),
   MFOC.normalizeTime(mmtime[1], this.min_max.date, this.max_height)]  );
 
+  var highlight_prim;
   if (type == 'MovingPolygon'){
-    this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
+    highlight_prim = this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
       temporalGeometry : mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else if (type == 'MovingPoint'){
-    this.viewer.scene.primitives.add(this.drawPathMovingPoint({
+    highlight_prim = this.viewer.scene.primitives.add(this.drawPathMovingPoint({
       temporalGeometry :  mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else if (type == 'MovingLineString'){
-    this.viewer.scene.primitives.add(this.drawPathMovingLineString({
+    highlight_prim = this.viewer.scene.primitives.add(this.drawPathMovingLineString({
       temporalGeometry :  mf.temporalGeometry,
       temporalProperty : property
     }));
@@ -336,8 +337,8 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
     LOG('this type is not implemented.');
   }
 
+  this.path_prim_memory[mf_name] = highlight_prim;
   var this_mfoc = this;
-  console.log(bounding_sphere);
   this.viewer.camera.flyToBoundingSphere(bounding_sphere, {
     duration : 1.0
   });
