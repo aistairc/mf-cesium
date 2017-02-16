@@ -193,7 +193,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
   var property = options.temporalProperty;
   var heights = 0;
   if (this.mode == '3D'){
-    heights = this.getListOfHeight(data.datetimes);
+    heights = this.getListOfHeight(data.datetimes, this.min_max.date);
   }
   var pro_min_max = null;
   if (property != undefined){
@@ -202,7 +202,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
 
   if (property == undefined){
     var positions = MFOC.makeDegreesArray(data.coordinates, heights);
-    
+
     polylineCollection.add(MFOC.drawOneLine(positions, color));
   }
   else{

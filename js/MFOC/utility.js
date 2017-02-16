@@ -225,6 +225,36 @@ MFOC.calculateDist = function(point_1, point_2){
   return Math.sqrt(Math.pow(point_1[0] - point_2[0],2) + Math.pow(point_1[1] - point_2[1],2));
 }
 
+MFOC.calculateCarteDist = function(point1, point2){
+  if (point1.length == 2 && point1.length == point2.length)
+  {
+    var carte3_1 = Cesium.Cartesian3.fromDegrees(point1[0], point1[1]),
+    carte3_2 =  Cesium.Cartesian3.fromDegrees(point2[0], point2[1]);
+  }
+  else if (point1.length == 3 && point1.length == point2.length){
+    var carte3_1 = Cesium.Cartesian3.fromDegrees(point1[0], point1[1], point1[2]),
+    carte3_2 =  Cesium.Cartesian3.fromDegrees(point2[0], point2[1], point2[2]);
+  }
+  else{
+    alert("dist error");
+    return;
+  }
+
+  return Cesium.Cartesian2.distance(Cesium.Cartesian2.fromCartesian3(carte3_1),Cesium.Cartesian2.fromCartesian3(carte3_2));
+}
+
+
+MFOC.getBoundingSphere = function(min_max, height){
+  console.log(min_max,height);
+  var middle_x = ( min_max.x[0] + min_max.x[1] ) / 2;
+  var middle_y = ( min_max.y[0] + min_max.y[1] ) / 2;
+  var middle_height = (height[0] + height[1]) / 2;
+
+  var radius = MFOC.calculateCarteDist([middle_x,middle_y,middle_height], [min_max.x[0],min_max.y[0],height[0]]);
+  return new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(middle_x,middle_y,middle_height), radius);
+}
+
+
 
 
 

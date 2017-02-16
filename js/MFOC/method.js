@@ -54,7 +54,7 @@ MFOC.prototype.drawFeatures = function(options){
   }
 
   this.min_max = this.findMinMaxGeometry(mf_arr);
-
+  this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
 
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
@@ -74,6 +74,20 @@ MFOC.prototype.drawFeatures = function(options){
     }
     this.feature_prim_memory[feature.properties.name] = feat_prim;//찾아서 지울때 사용.
   }
+
+  var this_mfoc = this;
+  this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+    duration : 1.0,
+    complete : function(){
+      this_mfoc.viewer.camera.setView({
+        orientation: {
+            heading : Cesium.Math.toRadians(0.0), // east, default value is 0.0 (north)
+            pitch : Cesium.Math.toRadians(-45.0),    // default value (looking down)
+            roll : 0.0                             // default value
+        }
+      });
+    }
+  });
 }
 
 MFOC.prototype.drawPaths = function(options){
@@ -103,6 +117,7 @@ MFOC.prototype.drawPaths = function(options){
   }
 
   this.min_max = this.findMinMaxGeometry(mf_arr);
+  this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
 
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
@@ -129,6 +144,21 @@ MFOC.prototype.drawPaths = function(options){
 
     this.path_prim_memory[feature.properties.name] = path_prim;
   }
+
+  var this_mfoc = this;
+  this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+    duration : 1.0,
+    complete : function(){
+      this_mfoc.viewer.camera.setView({
+        orientation: {
+            heading : Cesium.Math.toRadians(0.0), // east, default value is 0.0 (north)
+            pitch : Cesium.Math.toRadians(-45.0),    // default value (looking down)
+            roll : 0.0                             // default value
+        }
+      });
+    }
+  });
+  //this.viewer.camera.flyTo({    destination : this.viewer.camera.position  });
 }
 
 MFOC.prototype.reset = function(){
@@ -253,28 +283,47 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
     this.feature_prim_memory[mf_name] = undefined;
   }
 
+  this.min_max = this.findMinMaxGeometry(this.features);
   var type = mf.temporalGeometry.type;
 
+  var mmtime = MFOC.findMinMaxTime(mf.temporalGeometry.datetimes);
+  var bounding_sphere = MFOC.getBoundingSphere(MFOC.findMinMaxCoord(mf.temporalGeometry.coordinates), [MFOC.normalizeTime(mmtime[0], this.min_max.date, this.max_height),
+  MFOC.normalizeTime(mmtime[1], this.min_max.date, this.max_height)]  );
+
   if (type == 'MovingPolygon'){
-    this.viewer.scene.primitives.add(drawPathMovingPolygon({
-      temporalGeometry : mf,
+    this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
+      temporalGeometry : mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else if (type == 'MovingPoint'){
-    this.viewer.scene.primitives.add(drawMovingPointPath({
-      temporalGeometry : mf,
+    this.viewer.scene.primitives.add(this.drawPathMovingPoint({
+      temporalGeometry :  mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else if (type == 'MovingLineString'){
-    this.viewer.scene.primitives.add(drawPathMovingLineString({
-      temporalGeometry : mf,
+    this.viewer.scene.primitives.add(this.drawPathMovingLineString({
+      temporalGeometry :  mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else{
     LOG('this type is not implemented.');
+  }
+
+  var this_mfoc = this;
+  console.log(bounding_sphere);
+  this.viewer.camera.flyToBoundingSphere(bounding_sphere, {
+    duration : 1.0
+
+  });
+}
+
+MFOC.prototype.removeHOTSPOT = function(){
+  if (this.cube_primitives !=  null){
+    this.primitives.remove(this.cube_primitives);
+    this.cube_primitives = null;
   }
 }
 
@@ -315,9 +364,9 @@ MFOC.prototype.showHOTSPOT = function(degree){
 }
 
 MFOC.prototype.getFeatureByName = function(name){
-  for (var i = 0 ; i < this.feature.length ; i++){
-    if (this.feature[i].properties.name == name){
-      return this.feature[i];
+  for (var i = 0 ; i < this.features.length ; i++){
+    if (this.features[i].properties.name == name){
+      return this.features[i];
     }
   }
   return -1;
@@ -409,8 +458,6 @@ MFOC.prototype.changeMode = function(mode){
 MFOC.prototype.analyzeSpatialInfo = function(canvasID){
   var cumulative = new SpatialInfo();
 
-//  this.min_max = this.findMinMaxGeometry(this.features);
-
   for (var index = 0 ; index < this.features.length ; index++){
     var feature = this.features[index];
     MFOC.addDirectionInfo(cumulative, feature.temporalGeometry);
@@ -430,8 +477,8 @@ MFOC.prototype.analyzeSpatialInfo = function(canvasID){
     var scale = 1 / (max_length/total_length) * 0.8;
 
 
-    //west
     var length = [cumulative.west.total_length, cumulative.east.total_length, cumulative.north.total_length, cumulative.south.total_length];
+    var length2 = [cumulative.west.total_length,- cumulative.east.total_length, cumulative.north.total_length, -cumulative.south.total_length];
     var life = [cumulative.west.total_life, cumulative.east.total_life, cumulative.north.total_life, cumulative.south.total_life];
     var velocity = [];
     var total_velocity = 0.0;
@@ -445,59 +492,42 @@ MFOC.prototype.analyzeSpatialInfo = function(canvasID){
       total_velocity += velocity[i];
     }
 
-    var color = ['rgb(255, 255, 0)','green','blue','red'];
+    var color = ['rgb(255, 255, 0)','rgb(0, 255, 0)','blue','red'];
 
     for (var i = 0 ; i < life.length ; i++){
 
-      for (var j = 0 ; j < 20 ; j += 0.2){
+      for (var j = 0 ; j < 2 ; j += 0.1){
         ctx.beginPath();
-        ctx.arc(h_width,h_height,h_width * life[i] / max_life, j * Math.PI,(j+0.1)*Math.PI);
+        ctx.arc(h_width,h_height,h_width * life[i] / max_life, j * Math.PI,(j+0.05)*Math.PI);
         ctx.strokeStyle= color[i];
         ctx.stroke();
       }
     }
 
-    ctx.beginPath();
-    ctx.moveTo(h_width,h_height);
-    ctx.lineTo(h_width - cumulative.west.total_length/max_length * 0.375 * h_width, h_height - 0.25 * 1 * h_height * velocity[0]/total_velocity);
-    ctx.lineTo(h_width - cumulative.west.total_length/max_length * 0.5 *  h_width, h_height - 0.5 * 1 * h_height * velocity[0]/total_velocity);
-    ctx.lineTo(h_width - cumulative.west.total_length/max_length * 1.0 *  h_width, h_height);
-    ctx.lineTo(h_width - cumulative.west.total_length/max_length * 0.5 *  h_width, h_height + 0.5 * 1 * h_height * velocity[0]/total_velocity);
-    ctx.lineTo(h_width - cumulative.west.total_length/max_length * 0.375 *  h_width, h_height + 0.25 * 1 * h_height * velocity[0]/total_velocity);
-    //ctx.closePath();
-    ctx.fillStyle= 'rgb(255, 255, 0)';
-    ctx.fill();
-    //east
+    for (var i = 0 ; i < 2 ; i++){
+      ctx.beginPath();
+      ctx.moveTo(h_width,h_height);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.375 * 0.9 * h_width, h_height - 0.25 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.5 * 0.9 *  h_width, h_height - 0.5 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length2[i]/max_length * 1.0 * 0.9 *  h_width, h_height);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.5 * 0.9 *  h_width, h_height + 0.5 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.375 * 0.9 *  h_width, h_height + 0.25 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.fillStyle= color[i];
+      ctx.fill();
+    }
 
-    ctx.beginPath();
-    ctx.moveTo(h_width,h_height);
-    ctx.lineTo(h_width + cumulative.east.total_length/max_length * 0.375 *  h_width, h_height - 0.25 * 1 * h_height * velocity[1]/total_velocity);
-    ctx.lineTo(h_width + cumulative.east.total_length/max_length * 0.5 *  h_width, h_height - 0.5 * 1 * h_height * velocity[1]/total_velocity);
-    ctx.lineTo(h_width + cumulative.east.total_length/max_length * 1.0 *  h_width, h_height);
-    ctx.lineTo(h_width + cumulative.east.total_length/max_length * 0.5 *  h_width, h_height + 0.5 * 1 * h_height * velocity[1]/total_velocity);
-    ctx.lineTo(h_width + cumulative.east.total_length/max_length * 0.375 * h_width, h_height + 0.25 * 1 * h_height * velocity[1]/total_velocity);
-    ctx.fillStyle = 'rgb(0, 255, 0)';
-    ctx.fill();
-    //north
-    ctx.beginPath();
-    ctx.moveTo(h_width,h_height);
-    ctx.lineTo(h_width - velocity[2]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375* h_height * cumulative.north.total_length/max_length);
-    ctx.lineTo(h_width - velocity[2]/total_velocity* 0.5 * 1 * h_width, h_height - 0.5  * h_height * cumulative.north.total_length/max_length);
-    ctx.lineTo(h_width, h_height - 1.0 *  h_height * cumulative.north.total_length/max_length);
-    ctx.lineTo(h_width +  velocity[2]/total_velocity * 0.5 * 1 * h_width, h_height - 0.5 * h_height * cumulative.north.total_length/max_length);
-    ctx.lineTo(h_width +  velocity[2]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * h_height * cumulative.north.total_length/max_length);
-    ctx.fillStyle = 'blue';
-    ctx.fill();
-    //south
-    ctx.beginPath();
-    ctx.moveTo(h_width,h_height);
-    ctx.lineTo(h_width -  velocity[2]/total_velocity* 0.25 * 1 * h_width, h_height + 0.375  * h_height * cumulative.south.total_length/max_length);
-    ctx.lineTo(h_width -  velocity[2]/total_velocity* 0.5 * 1 * h_width, h_height + 0.5 * h_height * cumulative.south.total_length/max_length);
-    ctx.lineTo(h_width, h_height + 1.0 * h_height * cumulative.south.total_length/max_length);
-    ctx.lineTo(h_width +  velocity[2]/total_velocity* 0.5 * 1 * h_width, h_height + 0.5 * h_height * cumulative.south.total_length/max_length);
-    ctx.lineTo(h_width +  velocity[2]/total_velocity * 0.25 * 1 * h_width, h_height + 0.375  * h_height * cumulative.south.total_length/max_length);
-    ctx.fillStyle = 'red';
-    ctx.fill();
+    for (var i = 2 ; i < 4 ; i++){
+      ctx.beginPath();
+      ctx.moveTo(h_width,h_height);
+      ctx.lineTo(h_width - velocity[i]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * 0.9* h_height * length2[i]/max_length);
+      ctx.lineTo(h_width - velocity[i]/total_velocity* 0.5 * 1 * h_width, h_height - 0.5 * 0.9  * h_height * length2[i]/max_length);
+      ctx.lineTo(h_width, h_height - 1.0 * 0.9 *  h_height * length2[i]/max_length);
+      ctx.lineTo(h_width +  velocity[i]/total_velocity * 0.5 * 1 * h_width, h_height - 0.5 * 0.9 * h_height * length2[i]/max_length);
+      ctx.lineTo(h_width +  velocity[i]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * 0.9 * h_height * length2[i]/max_length);
+      ctx.fillStyle = color[i];
+      ctx.fill();
+    }
+
 
   }
   else{
