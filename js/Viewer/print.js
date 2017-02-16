@@ -1,6 +1,12 @@
+
+function changeMode(){
+  mfoc.reset();
+  drawFeature();
+  drawMoving();
+}
+
 function putProperties(id, name) {
     var obj = searchPropertyInfo(id, name);
-    //obj = JSON.parse(obj);
     console.log(obj);
     if (obj !== null) {
         var isExistPro = false;
@@ -33,7 +39,6 @@ function delProperties(id, name) {
 function updateProperties(id, name) {
     var elem = document.getElementById(id + "_" + name);
     var prop_info = searchPropertyInfo(id, name);
-    //comnpare prop_info with already_selected prop at properties
     if (properties.length !== 0) {
         if (prop_info.name == properties[0].name) {
             if (properties.contains(prop_info)) {
@@ -43,7 +48,6 @@ function updateProperties(id, name) {
             }
         } else {
             $('input:checkbox[name="' + properties[0].name + '"]').each(function() {
-                //this.checked = true; //checked 처리
                 if (this.checked) { //checked 처리된 항목의 값
                     this.checked = false;
                 }
@@ -54,10 +58,11 @@ function updateProperties(id, name) {
     } else {
         putProperties(id, name);
     }
-    showProperty(properties, "graph");
+    mfoc.showProperty(properties, "graph");
 }
 
-function searchPropertyInfo(id, name) {
+
+function searchPropertyInfo(id, name) { //
     for (var i = 0; i < features.length; i++) {
         if (features[i].features[0].properties.name == id) {
             var temporalProperties = features[i].features[0].temporalProperties;
@@ -80,190 +85,169 @@ Array.prototype.contains = function(obj) {
     return false;
 }
 
-function printFeature(data, id) {
-    var div = document.createElement("div");
-    var json = JSON.parse(data);
-    features.push(json);
-    var name = json.features[0].properties.name;
-    var temporalProperties = json.features[0].temporalProperties;
+function printFeatureLayerList(arr, url, id) { //출력할피쳐리스트, 베이스주소, 출력할화면요소아이디
+    var target = document.getElementsByClassName("vertical");
+    var upper_ul = document.getElementsByName('featureLayer');
+    upper_ul.style = "overflow-y : scroll;";
+    console.log(upper_ul);
+    for(var i = 0 ; i < arr.length ; i++){
+      var li  = document.createElement('li');
+      var a  = document.createElement('a');
+      var ul  = document.createElement('ul');
 
-    div.innerText = name;
-    var target = document.getElementById("feature");
-    target.appendChild(div);
-    for (var i = 0; i < temporalProperties.length; i++) {
-        var temp_div = document.createElement("div");
-        temp_div.innerText = temporalProperties[i].name;
-        target.appendChild(temp_div);
+      var new_url = url + "/" + arr[i] + "/$ref";
 
-        var chk = document.createElement("input");
-        chk.id = name + "_" + temporalProperties[i].name;
-        chk.name = temporalProperties[i].name;
-        //chk.name = temporalProperties[i].name;
-        chk.type = "checkbox";
+      ul.id = arr[i];
+      a.innerText = arr[i];
+      a.onclick = (function(url, id) {
+          return function() {
+              getFeatures(url, id);
+          };
+      })(new_url, arr[i]);
 
-        chk.onclick = (function(id) {
-            var getid = id.split("_");
+      li.appendChild(a);
+      li.appendChild(ul);
 
-            //var checked = $("input:checkbox[id='"+id+"']").is(':checked');
-            return function() {
-                //console.log(checked);
-                updateProperties(getid[0], getid[1]);
-            };
-        })(chk.id);
-        target.appendChild(chk);
+      upper_ul[0].appendChild(li);
     }
-}
 
-
-
-function printFeatureLayerList(arr, url, id) {
-    //label_list += "<form name = 'featureLayers'>";
-    for (var i = 0; i < arr.length; i++) {
-        var parameter = arr[i];
-        var div = document.createElement("div");
-        var new_url = url + "/" + parameter + "/$ref";
-        div.id = arr[i];
-        div.innerText = arr[i];
-        div.name = "Layer";
-        div.onclick = (function(url, p, id) {
-            return function() {
-                getFeatures(url, p, id);
-            };
-        })(new_url, parameter, div.id);
-
-        var target = document.getElementById("featureLayers");
-        target.appendChild(div);
-        var chk = document.createElement("input");
-        target = document.getElementById("featureLayers");
-        target.appendChild(div);
-    }
 }
 var feature = new Array();
 var checked_list = [];
 var url_list = [];
 
-function getCheckedFeatures(id, name, url){
-    return new Promise(function(resolved, rejected) {
-      $('input:checkbox[name="' + name + '"]').each(function() {
-          if (this.checked) {
-              var feature_layer = this.id;
-              feature_layer = feature_layer.split("_");
-              feature_layer = feature_layer[1];
-              var new_url = url + feature_layer;
-              new_url += getToken(url);
-              url_list.push(new_url);
+function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
+    var target = document.getElementById(layerID);
+    for(var i = 0 ; i < features_list.length ; i++){
+      var li = document.createElement("li");
+      var a = document.createElement("a");
+      var ul = document.createElement("ul");
+      var chk = document.createElement("input");
+
+      a.innerText = features_list[i];
+      a.onclick = (function(layerid, featureid) {
+          return function() {
+              getFeature(layerid, featureid);
+          };
+      })(layerID, features_list[i]);
+      ul.id = features_list[i];
+      chk.type = "checkbox";
+      chk.checked = "true";
+      chk.name = 'chkf[]';
+      chk.id = features_list[i]+"_"+layerID;
+      chk.onclick = (function() {
+          return function() {
+              drawFeature();
           }
-      });
-      var geometryInstances = new Array();
-      for (var l = 0; l < url_list.length; l++) {
-          var promise = request3(url_list[l]);
-          promise.then(function(feature_data) {
-              feature_data = JSON.parse(feature_data);
-              for (var i = 0; i < feature_data.features.length; i++) {
-                  geometryInstances.push(feature_data.features[i]);
-              }
+      })();
 
-          }).catch(function(error) {
-              console.log(error);
-          });
-      }
-      resolved(geometryInstances);
+      li.appendChild(a);
+      li.appendChild(chk);
+      li.appendChild(ul);
+      target.appendChild(li);
+
     }
+
+    var but = document.createElement("button");
+    but.onclick = (function() {
+        return function() {
+            drawMoving();
+        }
+    })();
+
+    drawFeature();
+    drawMoving();
 }
-function drawFeature(id, name, url) {
-    var geometryInstances = new Array();
-    var promise = getCheckedFeatures(id, name, url);
-      promise.then(function(feature_data){
-      geometryInstances = feature_data;
-      var type = geometryInstances[0].features[0].temporalGeometry.type;
-      var print;
-      var hight_option;
 
-      if(scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
-        hight_option = true;
-      }
-      else{
-        hight_option = false;
-      }
+function printFeature(featureID, data, id) {
 
-      if(type == "MovingPoint"){
-        print = drawPoints(geometryInstances,hight_option);
-      }
-      else if(type == "MovingPolygon"){
-        print = drawLines(geometryInstances,hight_option);
-      }
-      else if(type == "MovingLine"){
-        print = drawPolygons(geometryInstances, hight_option);
-      }
-      //all clear
-      viewer.scene.primitives.add(print);
-    }).catch(function(error){
-      console.log(error);
-    });
+    var target = document.getElementById(featureID);
+    if(!features.contains(data)){
+      features.push(data);
+      var name = data.features[0].properties.name;
+      var temporalProperties = data.features[0].temporalProperties;
+      var li = document.createElement("li");
+      var a = document.createElement("a");
+      var ul = document.createElement("ul");
 
+      ul.id = name;
+      a.innerText = name;
 
+      for (var i = 0; i < temporalProperties.length; i++) {
+        var li_temp = document.createElement("li");
+        var a_temp = document.createElement("a");
+        var ul_temp = document.createElement("ul");
+        var div_temp = document.createElement("div");
+        var chk_temp = document.createElement("input");
 
-}
-function drawMoving(id, name, url){
-  var geometryInstances = new Array();
-  var promise = getCheckedFeatures(id, name, url);
-    promise.then(function(feature_data){
-    geometryInstances = feature_data;
-    var type = geometryInstances[0].features[0].temporalGeometry.type;
-    var print;
-    var hight_option;
-
-    if(scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
-      hight_option = true;
-    }
-    else{
-      hight_option = false;
-    }
-
-    if(type == "MovingPoint"){
-      //print = drawPoints(geometryInstances,hight_option);
-    }
-    else if(type == "MovingPolygon"){
-      //print = drawLines(geometryInstances,hight_option);
-    }
-    else if(type == "MovingLine"){
-      //print = drawPolygons(geometryInstances, hight_option);
-    }
-    //all clear
-    viewer.scene.primitives.add(print);
-  }).catch(function(error){
-    console.log(error);
-  });
-}
-function printFeatures(layerID, arr, url, id) {
-
-    var label_list;
-    for (var i = 0; i < arr.length; i++) {
-        var parameter = arr[i];
-        var div = document.createElement("div");
-        div.id = arr[i];
-        div.innerText = arr[i];
-        var chk = document.createElement("input");
-        chk.type = "checkbox";
-        chk.checked = "true";
-        chk.name = layerID;
-        chk.id = layerID + "_" + arr[i];
-        var new_url = url + "/" + arr[i];
-        chk.onclick = (function(d_id, name, b_url) {
+        a_temp.innerText = temporalProperties[i].name;
+        chk_temp.id = name + "_" + temporalProperties[i].name;
+        chk_temp.name = temporalProperties[i].name;
+        chk_temp.type = "checkbox";
+        chk_temp.onclick = (function(id) {
+            var getid = id.split("_");
             return function() {
-                drawFeature(d_id, name, b_url);
-            }
-        })(div.id, chk.name, url);
-
-        div.onclick = (function(url) {
-            return function() {
-                getFeature(url);
+                updateProperties(getid[0], getid[1]);
             };
-        })(new_url);
+        })(chk_temp.id);
 
-        var target = document.getElementById("features");
-        target.appendChild(div);
-        target.appendChild(chk);
+        div_temp.appendChild(a_temp);
+        div_temp.appendChild(chk_temp);
+        //li_temp.appendChild(a_temp);
+        //li_temp.appendChild(chk_temp);
+        li_temp.appendChild(div_temp);
+        ul.appendChild(li_temp);
+      }
+      li.appendChild(a);
+      li.appendChild(ul);
+      target.appendChild(li);
 
     }
+
+}
+
+function getCheckedFeatures() {
+    var features_data = [];
+    var checked = document.getElementsByName("chkf[]");
+    for(var i = 0 ; i < checked.length ; i++){
+      if(checked[i].checked == true){
+        var temp = checked[i].id;
+        temp = temp.split("_");
+        var feature_layer = temp[1];
+        var feature_name = temp[0];
+        features_data.push(getBuffer([feature_layer, feature_name]));
+      }
+    }
+    return features_data;
+}
+
+function drawFeature() { //아이디로 찾을까
+
+    var geometryInstances = getCheckedFeatures();
+    console.log(geometryInstances);
+    if(geometryInstances.length !== 0){
+      var temp = geometryInstances[0];
+      var t_features = [];
+
+      for (var i = 0; i < geometryInstances.length; i++) {
+          var json = geometryInstances[i];
+          mfoc.add(json.features[0]);
+
+      }
+      mfoc.drawPaths();
+    }
+}
+
+function drawMoving() {
+
+    geometryInstances = getCheckedFeatures();
+    if(geometryInstances.length !== 0){
+      var t_features = [];
+      for (var i = 0; i < geometryInstances.length; i++) {
+          var json = geometryInstances[i];
+          mfoc.add(json.features[0]);
+      }
+      mfoc.animate();
+    }
+
 }
