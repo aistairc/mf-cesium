@@ -62,13 +62,13 @@ MFOC.prototype.moveMovingPoint = function(options){
     v.id = 'movingPoint_'+number;
     v.point = {
       "color" : {
-        "rgba" : [0, 0, 0, 255]
+        "rgba" : [255, 0, 0, 255]
       },
       "outlineColor" : {
         "rgba" : [255, 255, 255, 255]
       },
-      "outlineWidth" : 4,
-      "pixelSize" : 20
+      "outlineWidth" : 2,
+      "pixelSize" : 10
     };
 
     var carto = [];
@@ -427,8 +427,8 @@ MFOC.findMapping = function(line_1, line_2){
     var next_point_1 = line_1[i+1];
     var next_point_2 = line_2[j+1];
 
-    var dist1 = calculateDist(point_1, next_point_2);
-    var dist2 = calculateDist(point_2, next_point_1);
+    var dist1 = MFOC.calculateCarteDist(point_1, next_point_2);
+    var dist2 = MFOC.calculateCarteDist(point_2, next_point_1);
 
     var triangle = [];
     if (dist1 > dist2){

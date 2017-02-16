@@ -34,20 +34,12 @@ We are developing API for this project.
   TOC
 <!-- toc orderedList:0 depthFrom:1 depthTo:6 -->
 
-* [Cesium Examples](#cesium-examples)
-  * [License](#license)
-  * [API](#api)
-    * [List of API be used in this project.](#list-of-api-be-used-in-this-project)
-    * [Cesium](#cesium)
-    * [Moving Feature On Cesium (MFOC)](#moving-feature-on-cesium-mfoc)
-      * [How to Use API](#how-to-use-api)
-      * [Create new MFOC Object](#create-new-mfoc-object)
-      * [Add Moving Features](#add-moving-features)
-      * [Moving Feature Visualization](#moving-feature-visualization)
-      * [Control Feature Data](#control-feature-data)
-      * [Moving Feature Statistic](#moving-feature-statistic)
-  * [Building](#building)
-  * [Getting Started](#getting-started)
+* [How to Use API](#how-to-use-api)
+* [Create new MFOC Object](#create-new-mfoc-object)
+* [Add Moving Features](#add-moving-features)
+* [Moving Feature Visualization](#moving-feature-visualization)
+* [Control Feature Data](#control-feature-data)
+* [Moving Feature Statistic](#moving-feature-statistic)
 
 <!-- tocstop -->
 
@@ -133,9 +125,6 @@ options = {
 | ---------- | :--------- | :---------- | :---------- |
 |   name  |  String   |        |  [_optional_] (properties.name) 만약 이 이름을 가진 movingfeature를 MFOC객체가 가지고 있다면 ( add 한 상태) 그 feature만 그립니다.     |
 
-  |   |   |  
---|---|---|--
-  |   |   |  
 
 Returns:
 Null
@@ -273,7 +262,14 @@ mfoc.drawPaths();
 ```
 
 
-</br>  </br> </br>  </br>
+</br>
+* adjustCameraView()
+
+전체 movingfeature가 보이는 각도로 카메라를 조정한다.
+
+
+
+ </br> </br>  </br>
 > #### Control Feature Data
 
 * remove(movingFeature)
@@ -316,7 +312,7 @@ MFOC 객체를 초기화 합니다.
  </br>  </br> </br>  </br>
 > #### Moving Feature Statistic
 
-* showHOTSPOT(degree)
+* showSpaceTimeCube(degree)
 
 가지고 있는 movingFeature들의 temporalGeometry를 분석하여 HotSpot을 출력합니다.
 
@@ -331,11 +327,11 @@ degree = {
 | ---------- | :--------- | :---------- | :---------- |
 |   x  |  Number   |        |  degree of x   |
 |   y  |  Number   |        |  degree of y   |
-|   time  |  Number   |        |  degree of time(seconds)  |
+|   time  |  Number   |        |  degree of time(days)  |
 
 Example
 ```js
-mfoc.showHOTSPOT({
+mfoc.showSpaceTimeCube({
   x : 10,
   y : 10,
   time : 1500000
@@ -344,13 +340,13 @@ mfoc.showHOTSPOT({
 
   </br>
 
-* removeHOTSPOT()
+* removeSpaceTimeCube()
 
 핫스팟 큐브들을 지웁니다.
 
 Example
 ```js
-mfoc.removeHOTSPOT()
+mfoc.removeSpaceTimeCube()
 ```
 
   </br>
