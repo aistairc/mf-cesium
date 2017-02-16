@@ -90,6 +90,7 @@ $.getJSON('json_data/polygon2015.json').then(
 
 의 집합으로 그려집니다.
 
+그린 뒤에 Camera를 이동합니다.
 ```
 options = {
   name : String
@@ -125,6 +126,7 @@ mfoc.drawFeatures('台風201513号 (LINEAR) ');
 로 그려집니다.
 
 
+그린 뒤에 Camera를 이동합니다.
 ```
 options = {
   name : String
@@ -255,6 +257,7 @@ mfoc.remove(mf);
 * removeByName(name)
 
 해당 movingfeature 의 정보를 MFOC객체에서 모두 제거하고 화면에 그려진 primitives를 지웁니다.
+
 animation은 제거되지 않습니다. 진행중인 animation을 제거하고 다시 animation을 만들어야 합니다.
 
 | Name | Type | Default | Description |
@@ -304,6 +307,17 @@ mfoc.showHOTSPOT({
 
   </br>
 
+* removeHOTSPOT()
+
+핫스팟 큐브들을 지웁니다.
+
+Example
+```js
+mfoc.removeHOTSPOT()
+```
+
+  </br>
+
 
 * showProperty(propertyName, divID)
 
@@ -336,6 +350,25 @@ mfoc.showProperty('central pressure', 'graph');
     stroke : red;
   }
 ```
+
+  </br>
+
+* analyzeSpatialInfo(canvasID)
+
+canvas tag의 id를 받아 분석한 movement,velocity,life 정보를 화살표로 그립니다.
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   canvasID  |  String   |        |  canvas tag id   |
+
+Example
+
+```js
+<canvas id="canvas" width="300" height="300" style="background-color: transparent; border: 1px solid black;">
+...
+mfoc.analyzeSpatialInfo('canvas');
+```
+
 
 - - -
 

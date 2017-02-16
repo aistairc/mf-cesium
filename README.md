@@ -90,6 +90,7 @@ $.getJSON('json_data/polygon2015.json').then(
 
 의 집합으로 그려집니다.
 
+그린 뒤에 Camera를 이동합니다.
 ```
 options = {
   name : String
@@ -125,6 +126,7 @@ mfoc.drawFeatures('台風201513号 (LINEAR) ');
 로 그려집니다.
 
 
+그린 뒤에 Camera를 이동합니다.
 ```
 options = {
   name : String
@@ -255,6 +257,7 @@ mfoc.remove(mf);
 * removeByName(name)
 
 해당 movingfeature 의 정보를 MFOC객체에서 모두 제거하고 화면에 그려진 primitives를 지웁니다.
+
 animation은 제거되지 않습니다. 진행중인 animation을 제거하고 다시 animation을 만들어야 합니다.
 
 | Name | Type | Default | Description |
@@ -300,6 +303,17 @@ mfoc.showHOTSPOT({
   y : 10,
   time : 1500000
 })
+```
+
+  </br>
+
+* removeHOTSPOT()
+
+핫스팟 큐브들을 지웁니다.
+
+Example
+```js
+mfoc.removeHOTSPOT()
 ```
 
   </br>

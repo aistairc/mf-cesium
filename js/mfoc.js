@@ -193,7 +193,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
   var property = options.temporalProperty;
   var heights = 0;
   if (this.mode == '3D'){
-    heights = this.getListOfHeight(data.datetimes);
+    heights = this.getListOfHeight(data.datetimes, this.min_max.date);
   }
   var pro_min_max = null;
   if (property != undefined){
@@ -202,7 +202,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
 
   if (property == undefined){
     var positions = MFOC.makeDegreesArray(data.coordinates, heights);
-    
+
     polylineCollection.add(MFOC.drawOneLine(positions, color));
   }
   else{
@@ -935,7 +935,7 @@ MFOC.prototype.drawFeatures = function(options){
   }
 
   this.min_max = this.findMinMaxGeometry(mf_arr);
-
+  this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
 
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
@@ -955,6 +955,20 @@ MFOC.prototype.drawFeatures = function(options){
     }
     this.feature_prim_memory[feature.properties.name] = feat_prim;//찾아서 지울때 사용.
   }
+
+  var this_mfoc = this;
+  this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+    duration : 1.0,
+    complete : function(){
+      this_mfoc.viewer.camera.setView({
+        orientation: {
+            heading : Cesium.Math.toRadians(0.0), // east, default value is 0.0 (north)
+            pitch : Cesium.Math.toRadians(-45.0),    // default value (looking down)
+            roll : 0.0                             // default value
+        }
+      });
+    }
+  });
 }
 
 MFOC.prototype.drawPaths = function(options){
@@ -984,6 +998,7 @@ MFOC.prototype.drawPaths = function(options){
   }
 
   this.min_max = this.findMinMaxGeometry(mf_arr);
+  this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
 
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
@@ -1010,6 +1025,21 @@ MFOC.prototype.drawPaths = function(options){
 
     this.path_prim_memory[feature.properties.name] = path_prim;
   }
+
+  var this_mfoc = this;
+  this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+    duration : 1.0,
+    complete : function(){
+      this_mfoc.viewer.camera.setView({
+        orientation: {
+            heading : Cesium.Math.toRadians(0.0), // east, default value is 0.0 (north)
+            pitch : Cesium.Math.toRadians(-45.0),    // default value (looking down)
+            roll : 0.0                             // default value
+        }
+      });
+    }
+  });
+  //this.viewer.camera.flyTo({    destination : this.viewer.camera.position  });
 }
 
 MFOC.prototype.reset = function(){
@@ -1134,28 +1164,47 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
     this.feature_prim_memory[mf_name] = undefined;
   }
 
+  this.min_max = this.findMinMaxGeometry(this.features);
   var type = mf.temporalGeometry.type;
 
+  var mmtime = MFOC.findMinMaxTime(mf.temporalGeometry.datetimes);
+  var bounding_sphere = MFOC.getBoundingSphere(MFOC.findMinMaxCoord(mf.temporalGeometry.coordinates), [MFOC.normalizeTime(mmtime[0], this.min_max.date, this.max_height),
+  MFOC.normalizeTime(mmtime[1], this.min_max.date, this.max_height)]  );
+
   if (type == 'MovingPolygon'){
-    this.viewer.scene.primitives.add(drawPathMovingPolygon({
-      temporalGeometry : mf,
+    this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
+      temporalGeometry : mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else if (type == 'MovingPoint'){
-    this.viewer.scene.primitives.add(drawMovingPointPath({
-      temporalGeometry : mf,
+    this.viewer.scene.primitives.add(this.drawPathMovingPoint({
+      temporalGeometry :  mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else if (type == 'MovingLineString'){
-    this.viewer.scene.primitives.add(drawPathMovingLineString({
-      temporalGeometry : mf,
+    this.viewer.scene.primitives.add(this.drawPathMovingLineString({
+      temporalGeometry :  mf.temporalGeometry,
       temporalProperty : property
     }));
   }
   else{
     LOG('this type is not implemented.');
+  }
+
+  var this_mfoc = this;
+  console.log(bounding_sphere);
+  this.viewer.camera.flyToBoundingSphere(bounding_sphere, {
+    duration : 1.0
+    
+  });
+}
+
+MFOC.prototype.removeHOTSPOT = function(){
+  if (this.cube_primitives !=  null){
+    this.primitives.remove(this.cube_primitives);
+    this.cube_primitives = null;
   }
 }
 
@@ -1196,9 +1245,9 @@ MFOC.prototype.showHOTSPOT = function(degree){
 }
 
 MFOC.prototype.getFeatureByName = function(name){
-  for (var i = 0 ; i < this.feature.length ; i++){
-    if (this.feature[i].properties.name == name){
-      return this.feature[i];
+  for (var i = 0 ; i < this.features.length ; i++){
+    if (this.features[i].properties.name == name){
+      return this.features[i];
     }
   }
   return -1;
@@ -1290,8 +1339,6 @@ MFOC.prototype.changeMode = function(mode){
 MFOC.prototype.analyzeSpatialInfo = function(canvasID){
   var cumulative = new SpatialInfo();
 
-//  this.min_max = this.findMinMaxGeometry(this.features);
-
   for (var index = 0 ; index < this.features.length ; index++){
     var feature = this.features[index];
     MFOC.addDirectionInfo(cumulative, feature.temporalGeometry);
@@ -1311,8 +1358,8 @@ MFOC.prototype.analyzeSpatialInfo = function(canvasID){
     var scale = 1 / (max_length/total_length) * 0.8;
 
 
-    //west
     var length = [cumulative.west.total_length, cumulative.east.total_length, cumulative.north.total_length, cumulative.south.total_length];
+    var length2 = [cumulative.west.total_length,- cumulative.east.total_length, cumulative.north.total_length, -cumulative.south.total_length];
     var life = [cumulative.west.total_life, cumulative.east.total_life, cumulative.north.total_life, cumulative.south.total_life];
     var velocity = [];
     var total_velocity = 0.0;
@@ -1326,7 +1373,7 @@ MFOC.prototype.analyzeSpatialInfo = function(canvasID){
       total_velocity += velocity[i];
     }
 
-    var color = ['rgb(255, 255, 0)','green','blue','red'];
+    var color = ['rgb(255, 255, 0)','rgb(0, 255, 0)','blue','red'];
 
     for (var i = 0 ; i < life.length ; i++){
 
@@ -1338,47 +1385,30 @@ MFOC.prototype.analyzeSpatialInfo = function(canvasID){
       }
     }
 
-    ctx.beginPath();
-    ctx.moveTo(h_width,h_height);
-    ctx.lineTo(h_width - cumulative.west.total_length/max_length * 0.375 * h_width, h_height - 0.25 * 1 * h_height * velocity[0]/total_velocity);
-    ctx.lineTo(h_width - cumulative.west.total_length/max_length * 0.5 *  h_width, h_height - 0.5 * 1 * h_height * velocity[0]/total_velocity);
-    ctx.lineTo(h_width - cumulative.west.total_length/max_length * 1.0 *  h_width, h_height);
-    ctx.lineTo(h_width - cumulative.west.total_length/max_length * 0.5 *  h_width, h_height + 0.5 * 1 * h_height * velocity[0]/total_velocity);
-    ctx.lineTo(h_width - cumulative.west.total_length/max_length * 0.375 *  h_width, h_height + 0.25 * 1 * h_height * velocity[0]/total_velocity);
-    //ctx.closePath();
-    ctx.fillStyle= 'rgb(255, 255, 0)';
-    ctx.fill();
-    //east
+    for (var i = 0 ; i < 2 ; i++){
+      ctx.beginPath();
+      ctx.moveTo(h_width,h_height);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.375 * 0.9 * h_width, h_height - 0.25 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.5 * 0.9 *  h_width, h_height - 0.5 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length2[i]/max_length * 1.0 * 0.9 *  h_width, h_height);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.5 * 0.9 *  h_width, h_height + 0.5 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length2[i]/max_length * 0.375 * 0.9 *  h_width, h_height + 0.25 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.fillStyle= color[i];
+      ctx.fill();
+    }
 
-    ctx.beginPath();
-    ctx.moveTo(h_width,h_height);
-    ctx.lineTo(h_width + cumulative.east.total_length/max_length * 0.375 *  h_width, h_height - 0.25 * 1 * h_height * velocity[1]/total_velocity);
-    ctx.lineTo(h_width + cumulative.east.total_length/max_length * 0.5 *  h_width, h_height - 0.5 * 1 * h_height * velocity[1]/total_velocity);
-    ctx.lineTo(h_width + cumulative.east.total_length/max_length * 1.0 *  h_width, h_height);
-    ctx.lineTo(h_width + cumulative.east.total_length/max_length * 0.5 *  h_width, h_height + 0.5 * 1 * h_height * velocity[1]/total_velocity);
-    ctx.lineTo(h_width + cumulative.east.total_length/max_length * 0.375 * h_width, h_height + 0.25 * 1 * h_height * velocity[1]/total_velocity);
-    ctx.fillStyle = 'rgb(0, 255, 0)';
-    ctx.fill();
-    //north
-    ctx.beginPath();
-    ctx.moveTo(h_width,h_height);
-    ctx.lineTo(h_width - velocity[2]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375* h_height * cumulative.north.total_length/max_length);
-    ctx.lineTo(h_width - velocity[2]/total_velocity* 0.5 * 1 * h_width, h_height - 0.5  * h_height * cumulative.north.total_length/max_length);
-    ctx.lineTo(h_width, h_height - 1.0 *  h_height * cumulative.north.total_length/max_length);
-    ctx.lineTo(h_width +  velocity[2]/total_velocity * 0.5 * 1 * h_width, h_height - 0.5 * h_height * cumulative.north.total_length/max_length);
-    ctx.lineTo(h_width +  velocity[2]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * h_height * cumulative.north.total_length/max_length);
-    ctx.fillStyle = 'blue';
-    ctx.fill();
-    //south
-    ctx.beginPath();
-    ctx.moveTo(h_width,h_height);
-    ctx.lineTo(h_width -  velocity[2]/total_velocity* 0.25 * 1 * h_width, h_height + 0.375  * h_height * cumulative.south.total_length/max_length);
-    ctx.lineTo(h_width -  velocity[2]/total_velocity* 0.5 * 1 * h_width, h_height + 0.5 * h_height * cumulative.south.total_length/max_length);
-    ctx.lineTo(h_width, h_height + 1.0 * h_height * cumulative.south.total_length/max_length);
-    ctx.lineTo(h_width +  velocity[2]/total_velocity* 0.5 * 1 * h_width, h_height + 0.5 * h_height * cumulative.south.total_length/max_length);
-    ctx.lineTo(h_width +  velocity[2]/total_velocity * 0.25 * 1 * h_width, h_height + 0.375  * h_height * cumulative.south.total_length/max_length);
-    ctx.fillStyle = 'red';
-    ctx.fill();
+    for (var i = 2 ; i < 4 ; i++){
+      ctx.beginPath();
+      ctx.moveTo(h_width,h_height);
+      ctx.lineTo(h_width - velocity[i]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * 0.9* h_height * length2[i]/max_length);
+      ctx.lineTo(h_width - velocity[i]/total_velocity* 0.5 * 1 * h_width, h_height - 0.5 * 0.9  * h_height * length2[i]/max_length);
+      ctx.lineTo(h_width, h_height - 1.0 * 0.9 *  h_height * length2[i]/max_length);
+      ctx.lineTo(h_width +  velocity[i]/total_velocity * 0.5 * 1 * h_width, h_height - 0.5 * 0.9 * h_height * length2[i]/max_length);
+      ctx.lineTo(h_width +  velocity[i]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * 0.9 * h_height * length2[i]/max_length);
+      ctx.fillStyle = color[i];
+      ctx.fill();
+    }
+
 
   }
   else{
@@ -1393,11 +1423,17 @@ function MFOC(viewer){
   this.viewer = viewer;
   this.primitives = viewer.scene.primitives;
   this.features = [];
-  this.mode = '2D';
+  this.mode = '3D';
   this.max_height = 15000000;
   this.path_prim_memory = {};
   this.feature_prim_memory = {};
   this.cube_primitives = null;
+  this.bounding_sphere = null;
+
+
+
+    
+
 }
 
 
@@ -1952,10 +1988,11 @@ MFOC.calculateLength = function(geometry){
       point2 = geometry.coordinates[i+1];
     }
     else{
-      point1 =MFOC.getCenter(geometry.coordinates[i], geometry.type);
-      point2=MFOC.getCenter(geometry.coordinates[i+1], geometry.type);
+      point1 = MFOC.getCenter(geometry.coordinates[i], geometry.type);
+      point2 = MFOC.getCenter(geometry.coordinates[i+1], geometry.type);
     }
-    total += MFOC.calculateDist(point1, point2);
+    //total += MFOC.calculateDist(point1, point2);
+    total += MFOC.calculateCarteDist(point1, point2);
   }
   return total;
 };
@@ -2317,6 +2354,36 @@ MFOC.getPropertyByName = function(mf, name){
 MFOC.calculateDist = function(point_1, point_2){
   return Math.sqrt(Math.pow(point_1[0] - point_2[0],2) + Math.pow(point_1[1] - point_2[1],2));
 }
+
+MFOC.calculateCarteDist = function(point1, point2){
+  if (point1.length == 2 && point1.length == point2.length)
+  {
+    var carte3_1 = Cesium.Cartesian3.fromDegrees(point1[0], point1[1]),
+    carte3_2 =  Cesium.Cartesian3.fromDegrees(point2[0], point2[1]);
+  }
+  else if (point1.length == 3 && point1.length == point2.length){
+    var carte3_1 = Cesium.Cartesian3.fromDegrees(point1[0], point1[1], point1[2]),
+    carte3_2 =  Cesium.Cartesian3.fromDegrees(point2[0], point2[1], point2[2]);
+  }
+  else{
+    alert("dist error");
+    return;
+  }
+
+  return Cesium.Cartesian2.distance(Cesium.Cartesian2.fromCartesian3(carte3_1),Cesium.Cartesian2.fromCartesian3(carte3_2));
+}
+
+
+MFOC.getBoundingSphere = function(min_max, height){
+  console.log(min_max,height);
+  var middle_x = ( min_max.x[0] + min_max.x[1] ) / 2;
+  var middle_y = ( min_max.y[0] + min_max.y[1] ) / 2;
+  var middle_height = (height[0] + height[1]) / 2;
+
+  var radius = MFOC.calculateCarteDist([middle_x,middle_y,middle_height], [min_max.x[0],min_max.y[0],height[0]]);
+  return new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(middle_x,middle_y,middle_height), radius);
+}
+
 
 
 

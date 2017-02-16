@@ -70,10 +70,11 @@ MFOC.calculateLength = function(geometry){
       point2 = geometry.coordinates[i+1];
     }
     else{
-      point1 =MFOC.getCenter(geometry.coordinates[i], geometry.type);
-      point2=MFOC.getCenter(geometry.coordinates[i+1], geometry.type);
+      point1 = MFOC.getCenter(geometry.coordinates[i], geometry.type);
+      point2 = MFOC.getCenter(geometry.coordinates[i+1], geometry.type);
     }
-    total += MFOC.calculateDist(point1, point2);
+    //total += MFOC.calculateDist(point1, point2);
+    total += MFOC.calculateCarteDist(point1, point2);
   }
   return total;
 };
