@@ -114,7 +114,7 @@
   scene = viewer.scene;
   //scene.primitives.destroyPrimitives = false;
   viewer.clock.shouldAnimate = false;
-  scene.morphToColumbusView(0.5);
+  scene.morphToColumbusView(0.1);
 
   var mfoc = new MFOC(viewer);
 
@@ -129,7 +129,7 @@
       function(data){
 
         for (var i = 0 ; i < data.features.length ; i++){
-        //  mfoc.add(data.features[i]);
+          mfoc.add(data.features[i]);
         }
       }
     );
@@ -145,7 +145,7 @@
       function(data){
     //    var mf_arr = [];
         for (var i = 0 ; i < 2 ; i++){
-      //    mfoc.add(data.features[i]);
+          mfoc.add(data.features[i]);
         //  console.log(mfoc);
         }
       }
