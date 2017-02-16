@@ -1,56 +1,138 @@
+var buffer = {};
+
+function getBuffer(id) {
+    if (id.length == 1) {
+        if (buffer.hasOwnProperty(id[0])) {
+            return buffer[id[0]];
+        }
+    } else if (id.length == 2) {
+        if (buffer.hasOwnProperty(id[0])) {
+            var temp = buffer[id[0]];
+            if (temp.hasOwnProperty(id[1])) {
+                return temp[id[1]];
+            }
+        }
+    }
+    return null;
+}
+
+function updateBuffer(id, feature, bool) {
+    if (bool == true) {
+        if (id.length == 1) {
+            if (!buffer.hasOwnProperty(id[0])) {
+                buffer[id[0]] = {};
+            }
+        } else if (id.length == 2) {
+            if (!buffer.hasOwnProperty(id[0])) {
+                buffer[id[0]] = {};
+                buffer[id[0]][id[1]] = {};
+                buffer[id[0]][id[1]] = JSON.parse(feature);
+                console.log(buffer);
+                //buffer[id[0]][id[1]] = feature;
+            } else {
+                if (!buffer[id[0]].hasOwnProperty(id[1])) {
+                    buffer[id[0]][id[1]] = {};
+                    buffer[id[0]][id[1]] = JSON.parse(feature);
+                }
+            }
+        }
+    } else {
+        if (id.length == 1) {
+            if (getBuffer(id) !== null) {
+                delete buffer[id[0]];
+            }
+        } else if (id.length == 2) {
+            if (getBuffer(id) !== null) {
+                delete buffer[id[0]][id[1]];
+            }
+        }
+    }
+
+}
+
 function getLayers() {
-    var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+    var url = window.location.href;
+    var url_arr = url.split('?token=');
+    url = "http://ec2-13-112-104-197.ap-northeast-1.compute.amazonaws.com:9876/";
+    var token = url_arr[1];
+    console.log(token);
+    writeCookie('token', token);
     url += "$ref";
     var featureLayers;
+    var printFeatureLayer_list = [];
     var promise = request1(url);
-
     promise.then(function(arr) {
             featureLayers = arr;
+            for (var i = 0; i < featureLayers.length; i++) {
+                if (getBuffer([featureLayers[i]]) == null) {
+                    updateBuffer([featureLayers[i]], null, true);
+                    printFeatureLayer_list.push(featureLayers[i]);
+                }
+            }
             url = url.replace("/$ref", "");
-            printFeatureLayerList(featureLayers, url, "featureLayers");
+            printFeatureLayerList(printFeatureLayer_list, url, "featureLayers");
         })
-        .catch(function() {
-            console.log("error");
+        .catch(function(err) {
+            console.log(err);
         });
 
 }
 
-function getFeatures(url, feature, layerID) {
+function getParameterByName(name, url) {
+    if (!url) {
+        url = window.location.href;
+    }
+
+    url = url.split("?" + name + "=");
+
+    return url[1];
+}
+
+function getFeatures(url, layerID) {
     var features;
     console.log(url);
+    var printFeatures_list = [];
     var promise = request2(url);
+    var promise_list = [];
+    var get_data;
     promise.then(function(arr) {
-            features = arr[1];
-            var new_url = url.replace("$ref", "");
-            printFeatures(layerID, features, new_url, "features");
+            features = arr;
+            for (var i = 0; i < features.length; i++) {
+                if (getBuffer([layerID, features[i]]) == null) {
+                    printFeatures_list.push(features[i]);
+                    var new_url = url.replace("$ref", "");
+                    new_url += features[i] + "?token=" + readCookie('token');
+                    promise_list.push(request3(new_url));
+                }
+            }
+            Promise.all(promise_list).then(function(values) {
+                get_data = values;
+                for (var i = 0; i < get_data.length; i++) {
+                    updateBuffer([layerID, printFeatures_list[i]], get_data[i], true);
+                }
+                var new_url = url.replace("$ref", "");
+                printFeatures(layerID, printFeatures_list, "features");
+            });
         })
-        .catch(function() {
-            console.log("error");
+        .catch(function(err) {
+            console.log(err);
         });
 
 }
 
-function getFeature(url) {
-    //var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
-    var feature;
-    if (readCookie('token') !== '') {
-        url += "?token=" + readCookie('token');
-    } else {
-        console.log("not have");
-        var token = prompt("token", "");
-        url += "?token=" + token;
-        writeCookie('token', token, 1);
-    }
-    console.log(url);
-    var promise = request3(url);
-    promise.then(function(arr) {
-            feature = arr;
-            printFeature(feature, "feature");
-            return arr;
-        })
-        .catch(function() {
-            console.log("error");
-        });
+function getFeature(layerID, featureID) {
+    var data = getBuffer([layerID, featureID]);
+    printFeature(featureID, data, "feature");
+}
+
+function receiveProgress(evt) {
+  if (evt.lengthComputable)
+ {  //evt.loaded the bytes browser receive
+    //evt.total the total bytes seted by the header
+    //
+   var percentComplete = (evt.loaded / evt.total)*100;
+   $('#progressbar').progressbar( "option", "value", percentComplete );
+ }
 }
 var request1 = function(url) {
     return new Promise(function(resolved, rejected) {
@@ -75,24 +157,31 @@ var request1 = function(url) {
         xhr.send();
     });
 };
+
 var request2 = function(url) {
     return new Promise(function(resolved, rejected) {
+        var date = new Date();
         var xhr = createCORSRequest('GET', url);
         if (!xhr) {
             alert('CORS not supported');
             return;
         }
+
+      xhr.onprogress = function () {
+        console.log('LOADING', xhr.readyState); // readyState will be 3
+    };
+
+
         xhr.onload = function() {
+            console.log('DONE', xhr.readyState);
+            var temp = new Date();
             var text = xhr.responseText;
             var arr = JSON.parse("[" + text + "]");
 
             arr = $.map(arr[0], function(el) {
                 return el
             });
-            var info = new Array();
-            info.push(url);
-            info.push(arr);
-            resolved(info);
+            resolved(arr);
         };
 
         xhr.onerror = function() {
@@ -100,6 +189,7 @@ var request2 = function(url) {
         };
         xhr.send();
 
+        xhr.addEvent
     });
 };
 var request3 = function(url) {
@@ -123,6 +213,7 @@ var request3 = function(url) {
 };
 
 function createCORSRequest(method, url) {
+  console.log(url);
     var xhr = new XMLHttpRequest();
     if ("withCredentials" in xhr) {
         // XHR for Chrome/Firefox/Opera/Safari.
