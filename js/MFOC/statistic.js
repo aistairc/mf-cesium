@@ -1,5 +1,5 @@
 MFOC.addDirectionInfo = function(cumulative, geometry){
-  var life = MFOC.calculateLife(geometry);
+  var life = MFOC.calculateLife(geometry) /1000000;
   var length = MFOC.calculateLength(geometry);
 
   var start_point = geometry.coordinates[0];
@@ -57,12 +57,12 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
 
 
 MFOC.calculateLife = function(geometry){
-  return new Date(geometry.datetimes[0]).getTime() - new Date(geometry.datetimes[geometry.datetimes.length-1]).getTime();
+  return - new Date(geometry.datetimes[0]).getTime() + new Date(geometry.datetimes[geometry.datetimes.length-1]).getTime();
 };
 
 MFOC.calculateLength = function(geometry){
   var total = 0;
-  for (var i = 0 ; i < geometry.coordinates - 1 ; i++){
+  for (var i = 0 ; i < geometry.coordinates.length - 1 ; i++){
     var point1;
     var point2;
     if (geometry.type == "MovingPoint"){
