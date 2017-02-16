@@ -141,7 +141,7 @@ MFOC.prototype.drawSpaceTimeCubeMovingPolygon = function(geometry, degree, cube_
       max_num = Math.max(cube_data[i].count[x_max][y_max],max_num);
     }
   }
-  console.log(max_num);
+
   this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
 }
 
@@ -279,7 +279,6 @@ MFOC.prototype.drawSpaceTimeCubeMovingLineString = function(geometry, degree, cu
       max_num = Math.max(cube_data[i].count[x_max][y_max],max_num);
     }
   }
-  console.log(max_num);
   this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
 }
 

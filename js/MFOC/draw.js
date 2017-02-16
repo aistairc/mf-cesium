@@ -56,9 +56,9 @@ MFOC.prototype.drawMovingPoint = function(geometry){
   var pointCollection = new Cesium.PointPrimitiveCollection();
 
   var r_color = Cesium.Color.fromRandom({
-    minimumRed : 0.8,
-    minimumBlue : 0.8,
-    minimumGreen : 0.8,
+    minimumRed : 0.9,
+    minimumBlue : 0.9,
+    minimumGreen : 0.9,
     alpha : 1.0
   });
 
@@ -159,8 +159,8 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
 
   var vertexF = new Cesium.VertexFormat({
     position : true,
-    st : true,
-    normal : false,
+    st : false,
+    normal : true,
     color : true
   });
 
@@ -258,7 +258,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
     red : 0.8,
     minimumBlue : 0.8,
     minimumGreen : 0.8,
-    alpha : 1.0
+    alpha : 0.6
   });
 
   for (var i = 0; i < coordinates.length - 1; i++) {
@@ -353,9 +353,9 @@ MFOC.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, heig
     var new_color;
     if (color == undefined){
       new_color = Cesium.Color.fromRandom({
-        minimumRed : 0.6,
-        minimumBlue : 0.0,
-        minimumGreen : 0.0,
+        minimumRed : 0.8,
+        minimumBlue : 0.8,
+        minimumGreen : 0.8,
         alpha : 0.4
       });
     }

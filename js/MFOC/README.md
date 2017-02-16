@@ -262,7 +262,14 @@ mfoc.drawPaths();
 ```
 
 
-</br>  </br> </br>  </br>
+</br>
+* adjustCameraView()
+
+전체 movingfeature가 보이는 각도로 카메라를 조정한다.
+
+
+
+ </br> </br>  </br>
 > #### Control Feature Data
 
 * remove(movingFeature)
