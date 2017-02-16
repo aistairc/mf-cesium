@@ -240,6 +240,7 @@ MFOC.prototype.removeByName = function(name){
 }
 
 MFOC.prototype.showProperty = function(propertyName, divID){
+  document.getElementById(divID).style.height = '20%';
   var pro_arr = [];
   for (var i = 0 ; i < this.features.length ; i ++){
     var property = MFOC.getPropertyByName(this.features[i], propertyName);
@@ -247,7 +248,6 @@ MFOC.prototype.showProperty = function(propertyName, divID){
       pro_arr.push(property);
     }
   }
-  console.log(pro_arr);
   this.showPropertyArray(pro_arr, divID);
 }
 
@@ -543,4 +543,49 @@ MFOC.prototype.adjustCameraView = function(){
       duration : 1.0
     });
   }
+}
+
+
+MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
+  var div = document.getElementById(div_id);
+  div.innerHTML = '';
+  var table = document.createElement("table");
+
+  var tr1 = document.createElement("tr"),
+  tr2 = document.createElement("tr"),
+  tr3 = document.createElement("tr");
+
+  var properties_graph = document.createElement("td"),
+  show_space_cube = document.createElement("td"),
+  show_direction_rade = document.createElement("td");
+
+  properties_graph.appendChild(document.createTextNode("SHOW PROPERTY GRAPH"));
+  show_space_cube.appendChild(document.createTextNode("SHOW HOTSPOT CUBE"));
+  show_direction_rade.appendChild(document.createTextNode("DRAW DIRECTION RADER"));
+
+  properties_graph.onclick = (function(glo_mfoc, graph){
+    return function(){
+      glo_mfoc.showProperty('central pressure', graph);
+    };
+  })(this, graph_id);
+
+  show_space_cube.onclick = (function(mfoc)){
+    return function(){
+      var
+      this.appendChild
+    }
+  }
+  tr1.appendChild(properties_graph);
+  tr2.appendChild(show_space_cube);
+  tr3.appendChild(show_direction_rade);
+
+  table.appendChild(tr1);
+  table.appendChild(tr2);
+  table.appendChild(tr3);
+
+  div.appendChild(table);
+
+
+
+
 }

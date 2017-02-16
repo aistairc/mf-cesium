@@ -26,82 +26,58 @@
 
   @import url(../Build/Cesium/Widgets/widgets.css);
   html, body, #cesiumContainer {
-    width: 80%; height: 80%; margin: 0; padding: 0; overflow: hidden;
+    width: 80%; height: 100%; margin: 0; padding: 0; overflow: hidden;
   }
   @import url(Sandcastle/templates/bucket.css);
 
-  #name_list {
+  #list {
+    position : absolute;
+    left : 0px;
+    width : 10%;
+    height : 100%;
     cursor: pointer;
   }
-  .graph{
+
+  #analysis {
+    width : 10%;
+    height : 100%;
+    position : absolute;
+    background-color : blue;
+    right : 0px;
+  }
+
+  #graph{
     position : absolute;
     bottom : 0px;
-    width : 80%; height : 20%;
+    left : 10%;
+    width : 80%; height : 0%;
     z-index:2;
-    color:white;
+    background-color: rgba(255, 255, 255, 0.5);
   }
-  .canvas{
-    width : 200px;
-    height : 200px;
-    background-color: black;
-  }
+
   .axis text{
-    fill : red;
+    fill : black;
   }
 
   .axis line{
-    stroke : red;
+    stroke : black;
   }
 
   .axis path{
-    stroke : red;
+    stroke : black;
   }
 
   </style>
 </head>
 <body style="margin-bottom:10px">
+<div id = "list" > </div>
+<div id="cesiumContainer" style="position:absolute; top:0px; left:10%; right:10%; z-index:1;"></div>
+<div id="analysis" >
 
-
-  <div id="list" style="background-color:transparent; color:white; margin:5px;
-  position:absolute; top:0px; width:260px; z-index:2;">
-  <canvas id="canvas" width="300" height="300" style="background-color: transparent; border: 1px solid black;">
-  </canvas>
-  <div id="title"></div>
-  <table style="width:520px;">
-  <tr>
-    <td>
-      <table id="name_list" style="width:260px; background-color:rgba(200,200,200,0.3);">
-
-      </table>
-    </td>
-    <td>
-      <table id="property_list" style="visibility:hidden; width:260px; background-color:rgba(200,200,200,0.3);">
-
-      </table>
-    </td>
-  </tr>
-  </table>
-
-  <br />
-      <input id="btn_main" type="button" onclick="viewMain()" value="Main"> </input>
-  <br />
-  <div id="btn_div" style="visibility:visiblie">
-    <input type="button" value="LINEPATH" onclick="linepath_test()" > </input>
-    <input type="button" value="INDOOR AND HOTSPOT" onclick="indoorGML_And_HotSpot_test()" > </input>
-    <input type="button" value="PROPERTY" onclick="property_test()" > </input>
-    <input type="button" value="HotSpot" onclick="show3DHotSpotMovingPolygon_test()" > </input>
-    <input type="button" value="typhoon" onclick="typhoon_test()" > </input>
-  </div>
-  <div id="property_dd">
-  </div>
-  <br />
 
 </div>
-<div id="cesiumContainer" style="position:absolute; top:0px; z-index:1;"></div>
 
-
-<div id="graph" class="graph" >
-
+<div id="graph">
 </div>
 
 </body>
@@ -112,10 +88,11 @@
     orderIndependentTranslucency: false
   });
   scene = viewer.scene;
-  //scene.primitives.destroyPrimitives = false;
+
   viewer.clock.shouldAnimate = false;
   scene.morphToColumbusView(0.1);
 
+  //scene.primitives.destroyPrimitives = false;
   var mfoc = new MFOC(viewer);
 
 

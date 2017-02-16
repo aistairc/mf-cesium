@@ -105,9 +105,11 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
   document.getElementById(div_id).innerHTML = '';
 
   //if put empty array.
-  if (object_arr == undefined || object_arr.length == 0){
+  if (array == undefined || array.length == 0){
     return;
   }
+
+
   var name_arr = [];
   var object_arr = [];
 
@@ -119,18 +121,21 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
   var min_max = MFOC.findMinMaxProperties(object_arr);
 
   var svg = d3.select("#"+div_id).append("svg");
-  svg.attr("width",$(window).width());
-  svg.attr("height",$(window).height() / 5);
-  var margin = {top: 10, right: 20, bottom: 10, left: 50},
-  width = $(window).width() - margin.left - margin.right,
-  height = $(window).height() /5 - margin.top - margin.bottom;
+  svg.attr("width",$("#"+div_id).width());
+  svg.attr("height",$("#"+div_id).height());
+
+  var margin = {top: 10, right: 20, bottom: 30, left: 50},
+  width = $("#"+div_id).width() - margin.left - margin.right,
+  height = $("#"+div_id).height() - margin.top - margin.bottom;
+
 
   var g = svg.append("g")
-        .attr("transform", "translate("+ margin.left +"," + 0 + " )");
+        .attr("transform", "translate("+ margin.left +"," + margin.top + " )")
+        .attr("width", width)
+        .attr("height", height);
 
   var x = d3.scaleTime()
   .rangeRound([0, width]);
-  LOG(height);
   var y = d3.scaleLinear()
   .rangeRound([height, 0]);
 
@@ -182,9 +187,9 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
       line.curve(d3.curveStepAfter)
     }
 
-    console.log(d3.rgb(Math.random() *255,Math.random() *255,0));
-    var r_color = this.getColor(name_arr[id]).toRgba();
-    console.log(r_color);
+    var color = this.getColor(name_arr[id]);
+    var r_color = d3.rgb(color.red * 255, color.green * 255, color.blue * 255);
+
     graph_data.push(data);
     if(object.interpolations == 'Discrete'){
       for (var i = 0 ; i < data.length ; i++){
