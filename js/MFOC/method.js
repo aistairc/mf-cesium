@@ -455,7 +455,7 @@ MFOC.prototype.changeMode = function(mode){
   }
 }
 
-MFOC.prototype.analyzeSpatialInfo = function(canvasID){
+MFOC.prototype.showDirectionalRader = function(canvasID){
   var cumulative = new SpatialInfo();
 
   for (var index = 0 ; index < this.features.length ; index++){

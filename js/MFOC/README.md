@@ -29,6 +29,21 @@ We are developing API for this project.
 [OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/)
 
 
+  </br>
+
+  TOC
+<!-- toc orderedList:0 depthFrom:1 depthTo:6 -->
+
+* [How to Use API](#how-to-use-api)
+* [Create new MFOC Object](#create-new-mfoc-object)
+* [Add Moving Features](#add-moving-features)
+* [Moving Feature Visualization](#moving-feature-visualization)
+* [Control Feature Data](#control-feature-data)
+* [Moving Feature Statistic](#moving-feature-statistic)
+
+<!-- tocstop -->
+
+
 #### How to Use API
 
 > #### Create new MFOC Object
@@ -366,10 +381,9 @@ Example
 ```js
 <canvas id="canvas" width="300" height="300" style="background-color: transparent; border: 1px solid black;">
 ...
-mfoc.analyzeSpatialInfo('canvas');
+mfoc.showDirectionalRader('canvas');
 ```
-
-
+![Capture](http://i.imgur.com/In7T0e2.png)
 - - -
 
 ## Building

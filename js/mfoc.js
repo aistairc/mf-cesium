@@ -1197,7 +1197,7 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   console.log(bounding_sphere);
   this.viewer.camera.flyToBoundingSphere(bounding_sphere, {
     duration : 1.0
-    
+
   });
 }
 
@@ -1336,7 +1336,7 @@ MFOC.prototype.changeMode = function(mode){
   }
 }
 
-MFOC.prototype.analyzeSpatialInfo = function(canvasID){
+MFOC.prototype.showDirectionalRader = function(canvasID){
   var cumulative = new SpatialInfo();
 
   for (var index = 0 ; index < this.features.length ; index++){
@@ -1377,9 +1377,9 @@ MFOC.prototype.analyzeSpatialInfo = function(canvasID){
 
     for (var i = 0 ; i < life.length ; i++){
 
-      for (var j = 0 ; j < 20 ; j += 0.2){
+      for (var j = 0 ; j < 2 ; j += 0.1){
         ctx.beginPath();
-        ctx.arc(h_width,h_height,h_width * life[i] / max_life, j * Math.PI,(j+0.1)*Math.PI);
+        ctx.arc(h_width,h_height,h_width * life[i] / max_life, j * Math.PI,(j+0.05)*Math.PI);
         ctx.strokeStyle= color[i];
         ctx.stroke();
       }
