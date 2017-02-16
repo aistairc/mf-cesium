@@ -910,15 +910,14 @@ MFOC.prototype.drawPaths = null;
 MFOC.prototype.clear = null;
 MFOC.prototype.remove = null;
 MFOC.prototype.drawFeatures = null;
-MFOC.prototype.removeByIndex = null;
+MFOC.prototype.removeByName = null;
 MFOC.prototype.showProperty = null;
 MFOC.prototype.highlight = null;
-MFOC.prototype.showHOTSPOT = null;
+MFOC.prototype.showSpaceTimeCube = null;
 MFOC.prototype.animate = null;
 MFOC.prototype.changeMode = null;
-MFOC.prototype.analyzeSpatialInfo = null;
-MFOC.prototype.setCameraOnFeatures = null;
-
+MFOC.prototype.showDirectionalRader = null;
+MFOC.prototype.setCameraView = null;
 MFOC.prototype.add = function(mf){
   if (Array.isArray(mf)){
     for (var i = 0 ; i < mf.length ; i++){
@@ -943,7 +942,6 @@ MFOC.prototype.add = function(mf){
 }
 
 MFOC.prototype.drawFeatures = function(options){
-
   var mf_arr;
   if (options != undefined){
     if (options.name == undefined){
@@ -992,25 +990,8 @@ MFOC.prototype.drawFeatures = function(options){
     }
     this.feature_prim_memory[feature.properties.name] = feat_prim;//찾아서 지울때 사용.
   }
-  var this_mfoc = this;
-  var bounding = this.bounding_sphere;
-  console.log(bounding);
-  if (this.mode == '3D'){
-    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
-      duration : 1.0,
-      complete : function(){
-        var sin = Math.sin(Math.PI / 2) * bounding.radius;
-        console.log(this_mfoc.viewer.camera.position);
-        this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
-      }
-    });
-  }
-  else{
-    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
-      duration : 1.0
-    });
-  }
 
+  this.adjustCameraView();
 }
 
 MFOC.prototype.drawPaths = function(options){
@@ -1068,24 +1049,7 @@ MFOC.prototype.drawPaths = function(options){
     this.path_prim_memory[feature.properties.name] = path_prim;
   }
 
-  var this_mfoc = this;
-  var bounding = this.bounding_sphere;
-  console.log(bounding);
-  if (this.mode == '3D'){
-    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
-      duration : 1.0,
-      complete : function(){
-        var sin = Math.sin(Math.PI / 2) * bounding.radius;
-        console.log(this_mfoc.viewer.camera.position);
-        this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
-      }
-    });
-  }
-  else{
-    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
-      duration : 1.0
-    });
-  }
+  this.adjustCameraView();
 
   //this.viewer.camera.flyTo({    destination : this.viewer.camera.position  });
 }
@@ -1470,8 +1434,26 @@ MFOC.prototype.showDirectionalRader = function(canvasID){
   }
 }
 
-MFOC.prototype.setCameraOnFeatures = function(){
 
+MFOC.prototype.adjustCameraView = function(){
+  var this_mfoc = this;
+  var bounding = this.bounding_sphere;
+  console.log(bounding);
+  if (this.mode == '3D'){
+    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+      duration : 1.0,
+      complete : function(){
+        var sin = Math.sin(Math.PI / 2) * bounding.radius;
+        console.log(this_mfoc.viewer.camera.position);
+        this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
+      }
+    });
+  }
+  else{
+    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+      duration : 1.0
+    });
+  }
 }
 function MFOC(viewer){
   this.viewer = viewer;
