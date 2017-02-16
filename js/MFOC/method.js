@@ -90,15 +90,22 @@ MFOC.prototype.drawFeatures = function(options){
   var this_mfoc = this;
   var bounding = this.bounding_sphere;
   console.log(bounding);
-  this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
-    duration : 1.0,
-    complete : function(){
-      var sin = Math.sin(Math.PI / 2) * bounding.radius;
-      console.log(this_mfoc.viewer.camera.position);
-      this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
+  if (this.mode == '2D'){
+    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+      duration : 1.0,
+      complete : function(){
+        var sin = Math.sin(Math.PI / 2) * bounding.radius;
+        console.log(this_mfoc.viewer.camera.position);
+        this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
+      }
+    });
+  }
+  else{
+    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+      duration : 1.0
+    });
+  }
 
-    }
-  });
 }
 
 MFOC.prototype.drawPaths = function(options){
@@ -159,23 +166,22 @@ MFOC.prototype.drawPaths = function(options){
   var this_mfoc = this;
   var bounding = this.bounding_sphere;
   console.log(bounding);
-  this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
-    duration : 1.0,
-    complete : function(){
-      var sin = Math.sin(Math.PI / 2) * bounding.radius;
-      console.log(this_mfoc.viewer.camera.position);
-      this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
-      // this_mfoc.viewer.camera.setView({
-      //
-      //   destination : new Cesium.Cartesian3(bounding.center.x,  bounding.center.y + sin, bounding.center.z + sin),
-      //   orientation: {
-      //     heading : Cesium.Math.toRadians(0.0),
-      //     pitch : Cesium.Math.toRadians(-35.0),
-      //     roll : 0.0
-      //   }
-      // });
-    }
-  });
+  if (this.mode == '2D'){
+    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+      duration : 1.0,
+      complete : function(){
+        var sin = Math.sin(Math.PI / 2) * bounding.radius;
+        console.log(this_mfoc.viewer.camera.position);
+        this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
+      }
+    });
+  }
+  else{
+    this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
+      duration : 1.0
+    });
+  }
+
   //this.viewer.camera.flyTo({    destination : this.viewer.camera.position  });
 }
 
@@ -334,7 +340,6 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   console.log(bounding_sphere);
   this.viewer.camera.flyToBoundingSphere(bounding_sphere, {
     duration : 1.0
-
   });
 }
 
