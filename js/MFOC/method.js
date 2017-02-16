@@ -72,13 +72,13 @@ MFOC.prototype.drawFeatures = function(options){
     var feat_prim;
 
     if (feature.temporalGeometry.type == "MovingPoint"){
-      feat_prim = this.viewer.scene.primitives.add(this.drawMovingPoint(feature.temporalGeometry));
+      feat_prim = this.viewer.scene.primitives.add(this.drawMovingPoint(feature.temporalGeometry,feature.properties.name));
     }
     else if(feature.temporalGeometry.type == "MovingPolygon"){
-      feat_prim = this.viewer.scene.primitives.add(this.drawMovingPolygon(feature.temporalGeometry));
+      feat_prim = this.viewer.scene.primitives.add(this.drawMovingPolygon(feature.temporalGeometry,feature.properties.name));
     }
     else if(feature.temporalGeometry.type == "MovingLineString"){
-      feat_prim = this.viewer.scene.primitives.add(this.drawMovingLineString(feature.temporalGeometry));
+      feat_prim = this.viewer.scene.primitives.add(this.drawMovingLineString(feature.temporalGeometry,feature.properties.name));
     }
     else{
       console.log("this type cannot be drawn", feature);
@@ -124,17 +124,20 @@ MFOC.prototype.drawPaths = function(options){
 
     if (feature.temporalGeometry.type == "MovingPoint"){
       path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPoint({
-        temporalGeometry : feature.temporalGeometry
+        temporalGeometry : feature.temporalGeometry,
+        name : feature.properties.name
       }));
     }
     else if(feature.temporalGeometry.type == "MovingPolygon"){
       path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
-        temporalGeometry : feature.temporalGeometry
+        temporalGeometry : feature.temporalGeometry,
+        name : feature.properties.name
       }));
     }
     else if(feature.temporalGeometry.type == "MovingLineString"){
       path_prim = this.viewer.scene.primitives.add(this.drawPathMovingLineString({
-        temporalGeometry : feature.temporalGeometry
+        temporalGeometry : feature.temporalGeometry,
+        name : feature.properties.name
       }));
     }
     else{
@@ -244,6 +247,7 @@ MFOC.prototype.showProperty = function(propertyName, divID){
       pro_arr.push(property);
     }
   }
+  console.log(pro_arr);
   this.showPropertyArray(pro_arr, divID);
 }
 
@@ -355,15 +359,6 @@ MFOC.prototype.showSpaceTimeCube = function(degree){
 
   this.cube_primitives = this.primitives.add(cube_prim);
 
-}
-
-MFOC.prototype.getFeatureByName = function(name){
-  for (var i = 0 ; i < this.features.length ; i++){
-    if (this.features[i].properties.name == name){
-      return this.features[i];
-    }
-  }
-  return -1;
 }
 
 MFOC.prototype.animate = function(options){
@@ -539,7 +534,6 @@ MFOC.prototype.adjustCameraView = function(){
       duration : 1.0,
       complete : function(){
         var sin = Math.sin(Math.PI / 2) * bounding.radius;
-        console.log(this_mfoc.viewer.camera.position);
         this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
       }
     });

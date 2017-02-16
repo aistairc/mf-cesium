@@ -100,7 +100,7 @@ MFOC.getCenter = function(coordinates, type){
 
 
 
-MFOC.prototype.showPropertyArray = function(object_arr, div_id){
+MFOC.prototype.showPropertyArray = function(array, div_id){
 
   document.getElementById(div_id).innerHTML = '';
 
@@ -108,6 +108,14 @@ MFOC.prototype.showPropertyArray = function(object_arr, div_id){
   if (object_arr == undefined || object_arr.length == 0){
     return;
   }
+  var name_arr = [];
+  var object_arr = [];
+
+  for (var i = 0 ; i < array.length ; i++){
+    object_arr.push(array[i][0]);
+    name_arr.push(array[i][1]);
+  }
+
   var min_max = MFOC.findMinMaxProperties(object_arr);
 
   var svg = d3.select("#"+div_id).append("svg");
@@ -174,8 +182,9 @@ MFOC.prototype.showPropertyArray = function(object_arr, div_id){
       line.curve(d3.curveStepAfter)
     }
 
-    var r_color = d3.rgb(Math.random() *255,Math.random() *255,0);
-
+    console.log(d3.rgb(Math.random() *255,Math.random() *255,0));
+    var r_color = this.getColor(name_arr[id]).toRgba();
+    console.log(r_color);
     graph_data.push(data);
     if(object.interpolations == 'Discrete'){
       for (var i = 0 ; i < data.length ; i++){

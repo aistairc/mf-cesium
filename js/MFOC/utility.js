@@ -215,7 +215,7 @@ MFOC.getPropertyByName = function(mf, name){
 
   for (var i = 0 ; i < mf.temporalProperties.length ; i++){
     if (mf.temporalProperties[i].name == name){
-      return mf.temporalProperties[i];
+      return [mf.temporalProperties[i], mf.properties.name];
     }
   }
   return -1;
@@ -255,8 +255,27 @@ MFOC.getBoundingSphere = function(min_max, height){
 }
 
 
+MFOC.prototype.getColor = function(name){
+  if (this.color_arr[name] != undefined){
+    return this.color_arr[name];
+  }
+  var color = Cesium.Color.fromRandom({
+    red : 0.0,
+    alpha : 1.0
+  });
+  this.color_arr[name] = color;
+  return color;
+}
 
 
+MFOC.prototype.getFeatureByName = function(name){
+  for (var i = 0 ; i < this.features.length ; i++){
+    if (this.features[i].properties.name == name){
+      return this.features[i];
+    }
+  }
+  return -1;
+}
 
 //----------------------it wiil be removed--------------
 

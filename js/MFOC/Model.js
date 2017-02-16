@@ -8,11 +8,7 @@ function MFOC(viewer){
   this.feature_prim_memory = {};
   this.cube_primitives = null;
   this.bounding_sphere = null;
-
-
-
-
-
+  this.color_arr = {};
 }
 
 
