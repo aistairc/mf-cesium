@@ -2,7 +2,9 @@ Build/
 node_modules/
 Source/
 Specs/
+dongmin/
 ThirdParty/
+*/old/
 **/CesiumViewer/
 **/SampleData/
 **/Sandcastle/

@@ -1,147 +1,423 @@
-# Moving Feature On Cesium (MFOC)
+# Cesium Examples
+
+## License
+
+Cesium Examples licensed under the [MIT](https://opensource.org/licenses/MIT)
+
+## API
+
+### List of API be used in this project.
+
+1. Cesium
+
+2. MovingFeatureOnCesium
+
+3. d3
+
+and so on...
+
+
+### Cesium
+
+[Ceisum](https://cesiumjs.org/) - An open-source JavaScript library for world-class 3D globes and maps
+
+
+### Moving Feature On Cesium (MFOC)
 
 We are developing API for this project.
 
 [OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/)
 
 
-#### Visualize Movement
+  </br>
 
-* movePolygonArray([movingfeature_array], with_height);
+  TOC
+<!-- toc orderedList:0 depthFrom:1 depthTo:6 -->
 
-movingfeature is moving feature json object array.
+* [How to Use API](#how-to-use-api)
+* [Create new MFOC Object](#create-new-mfoc-object)
+* [Add Moving Features](#add-moving-features)
+* [Moving Feature Visualization](#moving-feature-visualization)
+* [Control Feature Data](#control-feature-data)
+* [Moving Feature Statistic](#moving-feature-statistic)
 
-It should be have 'temporalGeometry' key.
+<!-- tocstop -->
 
-'with_height' means path of animation with own height.(boolean)
 
-Returns [czml](https://github.com/AnalyticalGraphicsInc/czml-writer/wiki/CZML-Guide) object.
+#### How to Use API
+
+> #### Create new MFOC Object
+
+* new MFOC(viewer)
+
+먼저 Cesium.Viewer 객체를 생성하고 MFOC 객체의 생성자에 만든 Viewer를 넘겨준다.  
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+| viewer    | Cesium.Viewer     |        |        |
+
+
+Example
 
 ```js
-var mf1 = {
-    "type" : "MovingFeature",
-    "properties" : {
-      "name" : "台風201513号 (LINEAR) "
-    },
-    "temporalGeometry" : {
-      "type" : "MovingPolygon",
-      "datetimes" : [ "2015-07-30 03:00:00",..., "2015-08-12 09:00:00" ],
-      "coordinates" : [ [ [ 163.2, 13.3 ], [ 162.90710678118654, 12.592893218813453 ], ..., [ 123.7, 33.3 ], [ 124.57867965644036, 35.42132034355964 ], [ 126.7, 36.3 ], [ 128.82132034355965, 35.42132034355964 ], [ 129.7, 33.3 ] ] ],
-      "interpolations" : "Linear"
-    },
-    "temporalProperties" : [ {
-      "name" : "central pressure",
-      "uom" : "hPa",
-      "values" : [ 1006.0, 1004.0, 1004.0,..., 1000.0, 1000.0, 1000.0 ],
-      "datetimes" : [ "2015-07-30 03:00:00", ..., "2015-08-12 09:00:00" ],
-      "interpolations" : "Linear"
-    }, {
-      "name" : "Max wind speed",
-      "uom" : "kt",
-      "values" : [ 0.0, 0.0,..., 0.0, 0.0 ],
-      "datetimes" : [ "2015-07-30 03:00:00",.., "2015-08-12 09:00:00" ],
-      "interpolations" : "Linear"
-    } ]
-  }
-var mf_arr = [ mf1, mf2 ]; //mf is movingfeature object.
-var czml = movePolygonArray(mf_arr);
+var viewer = new Cesium.Viewer('cesiumContainer', { });
+var mfoc = new MFOC(viewer);
 ```
 
-* movePointArray([mf_arr], with_height)
 
-Returns czml object.
-
-* moveLineStringArray([mf_arr], with_height)
-
-Returns czml object.
+  <br />  <br />
 
 
-#### Draw Primitive
+> #### Add Moving Features
 
-* drawPolygons([mf_arr], with_height)
-
-Draw multiple Polygon.
-
-Return Cesium.primitiveCollection.
-
-* drawTyphoons([mf_arr], with_height)
-
-draw multiple Polygon With Volume.
-
-* drawPoints([mf_arr], with_height)
-
-draw multiple Point.
-
-* drawLines([mf_arr], with_height)
-
-draw multiple LineString.
-
-* drawPointsPath([mf_arr], with_height)
-
-Returns Cesium.PolylineCollection. Draw path for MovingPoint.
-
-* drawLinesPath([mf_arr], with_height)
-
-Returns Cesium.PrimitiveCollection. Draw triangles using each linestring points.
+* add(movingFeature)
 
 
-#### Draw IndoorGML Data (With Z-value)
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   movingFeature  |  JSON Object or JSON ObjectArray   |        |     movingFeature.type 은 'MovingFeature' 이어야한다.  |
 
-* drawPointsWithZvalue([mf_arr], with_height);
+Returns:
+현재 가지고 있는 feature 개수
 
-Returns Cesium.PointPrimitiveCollection. z-value apperas in color.
-
+Example
 ```js
-$.getJSON('json_data/indoor.json').then(
-  function(data){
-    var mf_arr = [];
-    for (var i = 0 ; i < data.features.length ; i++){
-      mf_arr.push(data.features[i]);
-    }
-    scene.primitives.add(drawPointsWithZvalue(mf_arr, true));
-  }
-);
+$.getJSON('json_data/polygon2015.json').then(
+      function(data){
+
+        for (var i = 0 ; i < data.features.length ; i++){
+          mfoc.add(data.features[i]);
+        }
+      }
+    );
 ```
 
-#### View Properties graph
-
-* showProperty([obj_arr], div_id)
-
-Show Property graph by [d3](https://github.com/d3/d3/blob/master/API.md).
-
-It is recommended that propery objects have same attributes.
+or
 
 ```js
-<div id="graph" class="graph" > </div>
-var property1 = {
-  "name" : "central pressure",
-  "uom" : "hPa",
-  "values" : [ 1006.0, ..., 1000.0 ],
-  "datetimes" : [ "2015-07-30 03:00:00",..., "2015-08-12 09:00:00" ],
-  "interpolations" : "Linear"
+mfoc.add(data.features);//is array.
+```
+
+  <br />  <br />
+
+> #### Moving Feature Visualization
+
+
+* drawFeatures(options)
+
+인자가 없다면 가지고 있는 모든 Moving Feature의 각 time의 Geometry를 그립니다.
+
+    MovingPoint -> Point
+    MovingPolygon -> Polygon
+    MovingLineString -> Polyline
+
+의 집합으로 그려집니다.
+
+그린 뒤에 Camera를 이동합니다.
+```
+options = {
+  name : String
 }
-var property2 = { ...}
-showProperty([property1, property2,..], 'graph');
 ```
 
-#### View hotspot cube
 
-* show3DHotSpotMovingPoint([mf_arr], x_deg, y_deg, time_deg, max_height)
 
-Show Hotspot cube for MovingPoint Array.
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   name  |  String   |        |  [_optional_] (properties.name) 만약 이 이름을 가진 movingfeature를 MFOC객체가 가지고 있다면 ( add 한 상태) 그 feature만 그립니다.     |
 
-'x_deg' is how much divide longitude.
 
-'y_deg' is latitude.
+Returns:
+Null
 
-'time_deg' is seconds.
-
-'max_height' is meters that assume how much maximum height. it can be omitted.(default 15000000)
+Example
 
 ```js
-scene.primitives.add(show3DHotSpotMovingPoint(mf_arr, 1, 1, 3600));
+mfoc.drawFeatures();
+```
+or
+```js
+mfoc.drawFeatures('台風201513号 (LINEAR) ');
 ```
 
-e.g.
+  </br>
 
-![hotspotPoint](http://i.imgur.com/7pN8bDz.png)
+* drawPaths(options)
+
+인자가 없다면 가지고 있는 모든 movingfeature들의 path를 그립니다.
+
+      MovingPoint -> Line
+      MovingPolygon -> Volume
+      MovingLineString -> Triangle Set
+
+로 그려집니다.
+
+
+그린 뒤에 Camera를 이동합니다.
+```
+options = {
+  name : String
+}
+```
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   name  |  String   |        |  [_optional_] (properties.name) 만약 이 이름을 가진 movingfeature를 MFOC객체가 가지고 있다면 ( add 한 상태) 그 feature의 path만 그립니다.     |
+
+Example
+```js
+mfoc.drawPaths();
+```
+or
+```js
+mfoc.drawPaths('台風201513号 (LINEAR) ');
+```
+  </br>
+
+* highlight(movingFeatureName, propertyName)
+
+movingfeature의 색상을 선택된 Property 의 value를 반영하도록 변경합니다.
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   movingFeatureName  |  String   |        |  (properties.name) 무빙 피처의 이름   |
+|   propertyName  |  String   |        |   (temporalProperties[i].name) temporalProperties 요소의 이름     |
+
+Example
+```js
+mfoc.highlight('台風201513号 (LINEAR) ','central pressure');
+```
+
+  </br>
+
+* clearViewer()
+
+화면에 출력된 primitives를 전부 지웁니다.
+진행중인 애니메이션을 제거 합니다.
+MFOC가 가지고 있는 movingfeature 데이터는 지워지지 않습니다.
+
+Example
+```js
+mfoc.clearViewer();
+
+mfoc.drawPaths(); //mfoc에 들어있는 mf들이 다시 그려집니다.
+```
+
+</br>
+
+* animate(options)
+
+가지고 있는 모든 무빙 피처를 animation합니다.
+
+
+```
+options = {
+  name : String
+}
+```
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   name  |  String   |        |  [_optional_] (properties.name) 만약 이 이름을 가진 movingfeature를 MFOC객체가 가지고 있다면 ( add 한 상태) 그 feature의 animation만을 그립니다.     |
+
+Example
+```js
+mfoc.animate();
+```
+or
+```js
+mfoc.animate('台風201513号 (LINEAR) ');
+```
+  </br>
+
+* clearAnimation()
+
+진행중인 애니메이션을 제거합니다.
+primitive는 제거되지 않습니다.
+
+  </br>
+
+* changeMode(mode)
+
+그리는 mode('2D','3D') 를 변경합니다. 인자가 없다면 현재 모드와 다른 모드로 변경됩니다.
+
+mode 변경후에 primitives를 지우고 다시 그려주어야 모드가 적용된 그림을 볼 수 있습니다.
+
+    '2D' : movingfeature visualization doesn't have height.
+    '3D' : movingfeature visualization has height.
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   mode  |  String   |        |  [_optional_] '2D' or '3D'     |
+
+Example
+```js
+mfoc.changeMode();
+mfoc.clearViewer();
+mfoc.drawPaths();
+```
+or
+
+```js
+mfoc.changeMode('2D');
+mfoc.clearViewer();
+mfoc.drawPaths();
+```
+
+
+</br>
+* adjustCameraView()
+
+전체 movingfeature가 보이는 각도로 카메라를 조정한다.
+
+
+
+ </br> </br>  </br>
+> #### Control Feature Data
+
+* remove(movingFeature)
+
+해당 movingfeature 의 정보를 MFOC객체에서 모두 제거하고 화면에 그려진 primitives를 지웁니다.
+
+animation은 제거되지 않습니다. 진행중인 animation을 제거하고 다시 animation을 만들어야 합니다.
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   movingFeature  |  JSON Object   |        |  지워질 무빙 피처   |
+
+Example
+```js
+mfoc.remove(mf);
+```
+</br>
+* removeByName(name)
+
+해당 movingfeature 의 정보를 MFOC객체에서 모두 제거하고 화면에 그려진 primitives를 지웁니다.
+
+animation은 제거되지 않습니다. 진행중인 animation을 제거하고 다시 animation을 만들어야 합니다.
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   movingFeatureName  |  String   |        |  지워질 무빙 피처의 name   |
+
+Example
+```js
+mfoc.removeByName('MF name');
+```
+
+  </br>
+
+* reset()
+
+MFOC 객체를 초기화 합니다.
+
+
+ </br>  </br> </br>  </br>
+> #### Moving Feature Statistic
+
+* showSpaceTimeCube(degree)
+
+가지고 있는 movingFeature들의 temporalGeometry를 분석하여 HotSpot을 출력합니다.
+
+```
+degree = {
+  x : Number,
+  y : Number,
+  time : Number
+}
+```
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   x  |  Number   |        |  degree of x   |
+|   y  |  Number   |        |  degree of y   |
+|   time  |  Number   |        |  degree of time(days)  |
+
+Example
+```js
+mfoc.showSpaceTimeCube({
+  x : 10,
+  y : 10,
+  time : 1500000
+})
+```
+
+  </br>
+
+* removeSpaceTimeCube()
+
+핫스팟 큐브들을 지웁니다.
+
+Example
+```js
+mfoc.removeSpaceTimeCube()
+```
+
+  </br>
+
+
+* showProperty(propertyName, divID)
+
+가지고 있는 movingFeature들의 temporalProperties를 분석하여 그래프를 출력한다.
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   propertyName  |  String   |        |  분석할 property name   |
+|   divID  |  String   |        |  그래프를 그릴 html div태그의 id   |
+
+Example
+```js
+<div id="graph" class="graph" >
+...
+mfoc.showProperty('central pressure', 'graph');
+```
+
+만약 axis의 색상을 바꾸고 싶으면 다음과 같은 css코드를 추가한다.
+
+```css
+  .axis text{
+    fill : red;
+  }
+
+  .axis line{
+    stroke : red;
+  }
+
+  .axis path{
+    stroke : red;
+  }
+```
+
+  </br>
+
+* showDirectionalRader(canvasID)
+
+canvas tag의 id를 받아 분석한 movement,velocity,life 정보를 화살표로 그립니다.
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   canvasID  |  String   |        |  canvas tag id   |
+
+Example
+
+```js
+<canvas id="canvas" width="300" height="300" style="background-color: transparent; border: 1px solid black;">
+...
+mfoc.showDirectionalRader('canvas');
+```
+![Capture](http://i.imgur.com/In7T0e2.png)
+- - -
+
+## Building
+
+    Don't need to build
+
+
+
+- - -
+
+## Getting Started
+
+> 1. Download Cesium.
+
+> 2. Clone this Project and paste Cesium Folder.
+
+> 3. Start Cesium Server - type "node server.js" in Cesium foler with console
+
+> 4. localhost:8080/Apps/mfoc_test.html

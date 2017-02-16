@@ -5,7 +5,7 @@ var drawPolygonsWithZvalue = function(mf_arr, with_height){
 }
 
 
-var drawPointsWithZvalue = function(mf_arr, with_height){
+var drawPointsWithZvalue = function(mf_arr, with_height, max_height = 1000){
   var pointCollection = new Cesium.PointPrimitiveCollection();
   var min_max = findAllMinMaxTimeAndZ(mf_arr, true);
 
@@ -18,7 +18,7 @@ var drawPointsWithZvalue = function(mf_arr, with_height){
     });
 
     var buffer = mf_arr[id];
-    var heights = getListOfHeight(buffer.temporalGeometry.datetimes, min_max.date, 1000);
+    var heights = getListOfHeight(buffer.temporalGeometry.datetimes, min_max.date, max_height);
     var data = buffer.temporalGeometry.coordinates;
     for(var i = 0 ; i < data.length ; i++ ){
       var p_color = r_color.clone();
