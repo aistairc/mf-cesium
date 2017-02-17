@@ -277,6 +277,33 @@ MFOC.prototype.getFeatureByName = function(name){
   return -1;
 }
 
+
+
+
+
+
+MFOC.prototype.getAllTypeFromProperties = function(){
+  var array = [];
+  for (var i = 0 ; i < this.features.length ; i++){
+
+    if (this.features[i].temporalProperties == undefined) continue;
+    for (var j = 0 ; j < this.features[i].temporalProperties.length ; j++){
+      var name = this.features[i].temporalProperties[j].name;
+      var push = true;
+      for (var k = 0 ; k < array.length ; k++){
+        if (array[k] == name){
+          push = false;
+        }
+      }
+      if (push){
+        array.push(name);
+      }
+    }
+
+  }
+  return array;
+}
+
 //----------------------it wiil be removed--------------
 
 /*
