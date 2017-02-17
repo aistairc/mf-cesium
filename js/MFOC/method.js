@@ -13,6 +13,7 @@ MFOC.prototype.animate = null;
 MFOC.prototype.changeMode = null;
 MFOC.prototype.showDirectionalRader = null;
 MFOC.prototype.setCameraView = null;
+
 MFOC.prototype.add = function(mf){
   if (Array.isArray(mf)){
     for (var i = 0 ; i < mf.length ; i++){
@@ -21,6 +22,9 @@ MFOC.prototype.add = function(mf){
         console.log("it is not MovingFeature!!@!@!");
         return 0;
       }
+      if (this.contains(mf_temp)){
+        return this.features.length;
+      }
       this.features.push(mf_temp);
     }
   }
@@ -28,6 +32,9 @@ MFOC.prototype.add = function(mf){
     if (mf.type != 'MovingFeature'){
       console.log("it is not MovingFeature!!@!@!");
       return 0;
+    }
+    if (this.contains(mf)){
+      return this.features.length;
     }
     this.features.push(mf);
   }
@@ -64,6 +71,9 @@ MFOC.prototype.drawFeatures = function(options){
     mf_arr = this.features;
   }
 
+    if (mf_arr.length == 0){
+      return;
+    }
   this.min_max = this.findMinMaxGeometry(mf_arr);
   this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
 
@@ -89,7 +99,18 @@ MFOC.prototype.drawFeatures = function(options){
   this.adjustCameraView();
 }
 
+MFOC.prototype.contains = function(obj) {
+   var i = this.features.length;
+   while (i--) {
+       if (this.features[i] === obj) {
+           return true;
+       }
+   }
+   return false;
+}
+
 MFOC.prototype.drawPaths = function(options){
+
 
   var mf_arr;
   if (options != undefined){
@@ -115,6 +136,9 @@ MFOC.prototype.drawPaths = function(options){
     mf_arr = this.features;
   }
 
+  if (mf_arr.length == 0){
+    return;
+  }
   this.min_max = this.findMinMaxGeometry(mf_arr);
   this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
 
@@ -185,12 +209,13 @@ MFOC.prototype.clearAnimation = function(){
 MFOC.prototype.remove = function(mf){
   var index = this.features.indexOf(mf);
   if(index === -1){
-    console.log("this mf is not exist in array");
+    console.log("this mf is not exist in array", mf);
   }
   else{
     console.log(this.features, this.features[index], mf);
-    return;
+
     var remove_mf = this.features.splice(index, 1);
+
     if (remove_mf[0] != mf){
       console.log(index, remove_mf[0], mf);
       console.log("it is something wrong!!!");
@@ -204,6 +229,7 @@ MFOC.prototype.remove = function(mf){
       this.viewer.scene.primitives.remove(this.feature_prim_memory[mf.properties.name]);
       this.feature_prim_memory[mf.properties.name] = undefined;
     }
+    console.log(this.features, this.features[index]);
   }
   return this.features.length;
 }
@@ -248,6 +274,9 @@ MFOC.prototype.showProperty = function(propertyName, divID){
     if (property != -1){
       pro_arr.push(property);
     }
+  }
+  if (pro_arr.length == 0){
+    return;
   }
   this.showPropertyArray(pro_arr, divID);
 }
@@ -321,12 +350,17 @@ MFOC.prototype.removeSpaceTimeCube = function(){
 }
 
 MFOC.prototype.showSpaceTimeCube = function(degree){
+
+
+
   var x_deg = degree.x,
   y_deg = degree.y,
   z_deg = degree.time;
 
   var mf_arr = this.features;
-
+  if (mf_arr.length == 0){
+    return;
+  }
   degree.time = degree.time * 86400;
   this.min_max = this.findMinMaxGeometry(mf_arr);
   this.hotspot_maxnum = 0;
@@ -387,7 +421,9 @@ MFOC.prototype.animate = function(options){
     mf_arr = this.features;
   }
 
-
+  if (mf_arr.length == 0){
+    return;
+  }
   this.min_max = this.findMinMaxGeometry(mf_arr);
   var multiplier = 10000;
   var czml = [{
@@ -525,7 +561,6 @@ MFOC.prototype.showDirectionalRader = function(canvasID){
   }
 }
 
-
 MFOC.prototype.adjustCameraView = function(){
   var this_mfoc = this;
   var bounding = this.bounding_sphere;
@@ -546,7 +581,6 @@ MFOC.prototype.adjustCameraView = function(){
   }
 }
 
-
 MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
 
   var mfoc = this;
@@ -556,11 +590,8 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
   div.style.paddingTop = 0;
   div.style.color = 'white';
   div.style.backgroundColor = 'rgba(255,255,255,0.5)';
-
+  div.style.right = '5px';
   div.style.border = '1px solid white';
-//  div.className = "panel panel-default";
-
-
   var title = document.createElement("div");
   title.appendChild(document.createTextNode("ANALYSIS"));
   title.style.paddingTop = '4px';
@@ -583,9 +614,6 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
     div_arr[i].style.display = 'flex';
     div_arr[i].style.alignItems = 'center';
     div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
-//    div_arr[i].style.border = '2px solid black';
-//    div_arr[i].className = 'list-group-item active';
-
   }
 
   var properties_graph = div_arr[0],
@@ -609,9 +637,6 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
   })(mfoc, div_id, graph_id);
 
 
-
-
-
   show_direction_rade.onclick = (function(glo_mfoc, canvas){
     return function(){
       glo_mfoc.showDirectionalRader(canvas);
@@ -623,7 +648,5 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
   div.appendChild(show_space_cube);
   div.appendChild(show_direction_rade);
 
-  //document.body.appendChild(back_canvas);
-  //document.body.appendChild(rader_canvas);
   MFOC.drawBackRader(div_id);
 }

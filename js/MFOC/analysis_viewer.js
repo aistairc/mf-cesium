@@ -6,19 +6,19 @@ MFOC.drawBackRader = function(div_id){
   var top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight;
   var left = document.getElementById(div_id).offsetLeft;
   back_canvas.style.top = (top + 15) + 'px';
-  back_canvas.style.left = (left - 15) + 'px';
+
   back_canvas.style.position = 'absolute';
   back_canvas.style.zIndex = '20';
-  back_canvas.style.right = '0px';
+  back_canvas.style.right = '5px';
 //  back_canvas.width = $('#'+div_id).width() + 'px';
 //  back_canvas.height = $('#'+div_id).width() + 'px';
 //  back_canvas.id ='canvas';
 
   rader_canvas.style.top = (top + 15) + 'px';
-  rader_canvas.style.left = (left - 15) + 'px';
+
   rader_canvas.style.position = 'absolute';
   rader_canvas.style.zIndex = '21';
-  back_canvas.style.right = '0px';
+  back_canvas.style.right = '5px';
 //  rader_canvas.width = $('#'+div_id).width() + 'px';
 //  rader_canvas.height = $('#'+div_id).width()  + 'px';
 
@@ -36,11 +36,11 @@ MFOC.drawBackRader = function(div_id){
     //var h_height = ctx.canvas.clientHeight / 2;
     var color = 'rgb(0,255,0)';
 
-    for (var id = 0 ; id < 4 ; id++){
+    for (var id = 0 ; id < 2 ; id++){
 
       for (var j = 0 ; j < 2 ; j += 0.05){
         ctx.beginPath();
-        ctx.arc(h_width,h_height,h_width * (id + 1)/4 , j * Math.PI,(j+0.025)*Math.PI);
+        ctx.arc(h_width,h_height,h_width * (id + 1)/2 , j * Math.PI,(j+0.025)*Math.PI);
         ctx.strokeStyle= color;
         ctx.stroke();
       }
