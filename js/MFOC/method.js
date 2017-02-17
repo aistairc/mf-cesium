@@ -241,6 +241,7 @@ MFOC.prototype.removeByName = function(name){
 
 MFOC.prototype.showProperty = function(propertyName, divID){
   document.getElementById(divID).style.height = '20%';
+  document.getElementById(divID).style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
   var pro_arr = [];
   for (var i = 0 ; i < this.features.length ; i ++){
     var property = MFOC.getPropertyByName(this.features[i], propertyName);
@@ -546,8 +547,8 @@ MFOC.prototype.adjustCameraView = function(){
 }
 
 
-mfoc.prototype.setAnalysisDIV = function(div_id, graph_id){
-  
+MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
+
   var mfoc = this;
   var div = document.getElementById(div_id);
   div.innerHTML ='';
@@ -568,7 +569,6 @@ mfoc.prototype.setAnalysisDIV = function(div_id, graph_id){
   title.style.textAlign = 'center';
   title.style.verticalAlign = 'middle';
   title.style.backgroundColor = 'rgba(5,5,5,0.5)';
-
   title.style.borderBottom = '3px double white';
 
   var div_arr = [];

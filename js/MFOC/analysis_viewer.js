@@ -5,21 +5,20 @@ MFOC.drawBackRader = function(div_id){
 
   var top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight;
   var left = document.getElementById(div_id).offsetLeft;
-  back_canvas.style.top = top + 'px';
-  back_canvas.style.left = left + 'px';
+  back_canvas.style.top = (top + 15) + 'px';
+  back_canvas.style.left = (left - 15) + 'px';
   back_canvas.style.position = 'absolute';
   back_canvas.style.zIndex = '20';
-  back_canvas.style.verticalAlign = 'initial';
-  back_canvas.style.display = 'initial';
-  back_canvas.style.boxSizing =  'border-box';
+  back_canvas.style.right = '0px';
 //  back_canvas.width = $('#'+div_id).width() + 'px';
 //  back_canvas.height = $('#'+div_id).width() + 'px';
 //  back_canvas.id ='canvas';
 
-  rader_canvas.style.top = top + 'px';
-  rader_canvas.style.left = left + 'px';
+  rader_canvas.style.top = (top + 15) + 'px';
+  rader_canvas.style.left = (left - 15) + 'px';
   rader_canvas.style.position = 'absolute';
   rader_canvas.style.zIndex = '21';
+  back_canvas.style.right = '0px';
 //  rader_canvas.width = $('#'+div_id).width() + 'px';
 //  rader_canvas.height = $('#'+div_id).width()  + 'px';
 
@@ -75,9 +74,11 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
   div.style.display = 'block';
   div.style.alignItems = 'initial';
   div.style.height = div.offsetHeight * 1 + 'px';
+
   div.onclick = null;
   var table = document.createElement('table');
   table.style.paddingTop = '10px';
+
   var degree_string = ['longitude','latitude','time(days)'];
   for (var i = 0 ; i < 3 ; i++){
     var row = table.insertRow(table.rows.length);
@@ -88,7 +89,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
     var input = document.createElement('input');
     input.id = 'degree_' + i;
     input.value = 5;
-
+    input.style.color = 'black';
     cell2.appendChild(input);
   }
   div.appendChild(table);
@@ -120,13 +121,13 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
         time : time
       });
 
-      MFOC.setAnalysisDIV(mfoc, parent, graph_id);
+      mfoc.setAnalysisDIV(parent, graph_id);
     };
   })(mfoc, parent, graph_id);
 
   back_btn.onclick = (function(mfoc, parent, graph_id){
     return function(){
-      MFOC.setAnalysisDIV(mfoc, parent, graph_id);
+      mfoc.setAnalysisDIV(parent, graph_id);
     };
   })(mfoc, parent, graph_id);
 
@@ -141,10 +142,21 @@ MFOC.selectProperty = function(mfoc, graph_id){
     console.log("no features");
     return;
   }
-  var graph = document.getElementById(graph_id);
-  graph.innerHTML='';
-  graph.style.height = "5%";
-  graph.style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
+  if (document.getElementById('close_div')){
+    document.getElementById('close_div').remove();
+  }
+
+  var pro_menu = document.createElement('div');
+  pro_menu.style.width='80%';
+  pro_menu.style.position ='absolute';
+  pro_menu.style.left='20%';
+  pro_menu.style.bottom='0';
+  pro_menu.style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
+  pro_menu.style.height = "5%";
+  pro_menu.style.zIndex = "20";
+  pro_menu.id = 'pro_menu';
+
+
   var pro_type_arr = mfoc.getAllTypeFromProperties();
 
   for (var i = 0 ; i < pro_type_arr.length ; i++){
@@ -159,10 +171,11 @@ MFOC.selectProperty = function(mfoc, graph_id){
     div.innerHTML = pro_type_arr[i];
     div.onclick = (function (mfoc, name, graph){
         return function(){
+          document.getElementById('pro_menu').style.bottom='20%';
           mfoc.showProperty(name, graph);
         };
     })(mfoc, pro_type_arr[i], graph_id);
-    graph.appendChild(div);
+    pro_menu.appendChild(div);
   }
 
   var close_div = document.createElement('div');
@@ -174,12 +187,14 @@ MFOC.selectProperty = function(mfoc, graph_id){
   close_div.style.verticalAlign = 'middle';
   close_div.style.width = 100/(pro_type_arr.length+1)-3 + '%';
   close_div.innerHTML = 'CLOSE';
-  graph.appendChild(close_div);
+  pro_menu.appendChild(close_div);
 
-  close_div.onclick = (function(p_graph){
+  close_div.onclick = (function(graph_id){
     return function(){
-      p_graph.style.height = "0%";
+      document.getElementById('pro_menu').remove();
+      document.getElementById(graph_id).style.height="0%";
     }
-  })(graph);
+  })(graph_id);
 
+  document.body.appendChild(pro_menu);
 }
