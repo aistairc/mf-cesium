@@ -13,6 +13,7 @@ MFOC.prototype.animate = null;
 MFOC.prototype.changeMode = null;
 MFOC.prototype.showDirectionalRader = null;
 MFOC.prototype.setCameraView = null;
+
 MFOC.prototype.add = function(mf){
   if (Array.isArray(mf)){
     for (var i = 0 ; i < mf.length ; i++){
@@ -21,6 +22,9 @@ MFOC.prototype.add = function(mf){
         console.log("it is not MovingFeature!!@!@!");
         return 0;
       }
+      if (this.contains(mf_temp)){
+        return this.features.length;
+      }
       this.features.push(mf_temp);
     }
   }
@@ -28,6 +32,9 @@ MFOC.prototype.add = function(mf){
     if (mf.type != 'MovingFeature'){
       console.log("it is not MovingFeature!!@!@!");
       return 0;
+    }
+    if (this.contains(mf)){
+      return this.features.length;
     }
     this.features.push(mf);
   }
@@ -64,6 +71,9 @@ MFOC.prototype.drawFeatures = function(options){
     mf_arr = this.features;
   }
 
+    if (mf_arr.length == 0){
+      return;
+    }
   this.min_max = this.findMinMaxGeometry(mf_arr);
   this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
 
@@ -72,13 +82,13 @@ MFOC.prototype.drawFeatures = function(options){
     var feat_prim;
 
     if (feature.temporalGeometry.type == "MovingPoint"){
-      feat_prim = this.viewer.scene.primitives.add(this.drawMovingPoint(feature.temporalGeometry));
+      feat_prim = this.viewer.scene.primitives.add(this.drawMovingPoint(feature.temporalGeometry,feature.properties.name));
     }
     else if(feature.temporalGeometry.type == "MovingPolygon"){
-      feat_prim = this.viewer.scene.primitives.add(this.drawMovingPolygon(feature.temporalGeometry));
+      feat_prim = this.viewer.scene.primitives.add(this.drawMovingPolygon(feature.temporalGeometry,feature.properties.name));
     }
     else if(feature.temporalGeometry.type == "MovingLineString"){
-      feat_prim = this.viewer.scene.primitives.add(this.drawMovingLineString(feature.temporalGeometry));
+      feat_prim = this.viewer.scene.primitives.add(this.drawMovingLineString(feature.temporalGeometry,feature.properties.name));
     }
     else{
       console.log("this type cannot be drawn", feature);
@@ -89,7 +99,18 @@ MFOC.prototype.drawFeatures = function(options){
   this.adjustCameraView();
 }
 
+MFOC.prototype.contains = function(obj) {
+   var i = this.features.length;
+   while (i--) {
+       if (this.features[i] === obj) {
+           return true;
+       }
+   }
+   return false;
+}
+
 MFOC.prototype.drawPaths = function(options){
+
 
   var mf_arr;
   if (options != undefined){
@@ -115,32 +136,37 @@ MFOC.prototype.drawPaths = function(options){
     mf_arr = this.features;
   }
 
+  if (mf_arr.length == 0){
+    return;
+  }
   this.min_max = this.findMinMaxGeometry(mf_arr);
   this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
-
+  
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
     var path_prim;
 
     if (feature.temporalGeometry.type == "MovingPoint"){
       path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPoint({
-        temporalGeometry : feature.temporalGeometry
+        temporalGeometry : feature.temporalGeometry,
+        name : feature.properties.name
       }));
     }
     else if(feature.temporalGeometry.type == "MovingPolygon"){
       path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
-        temporalGeometry : feature.temporalGeometry
+        temporalGeometry : feature.temporalGeometry,
+        name : feature.properties.name
       }));
     }
     else if(feature.temporalGeometry.type == "MovingLineString"){
       path_prim = this.viewer.scene.primitives.add(this.drawPathMovingLineString({
-        temporalGeometry : feature.temporalGeometry
+        temporalGeometry : feature.temporalGeometry,
+        name : feature.properties.name
       }));
     }
     else{
       console.log("this type cannot be drawn", feature);
     }
-
     this.path_prim_memory[feature.properties.name] = path_prim;
   }
 
@@ -182,12 +208,13 @@ MFOC.prototype.clearAnimation = function(){
 MFOC.prototype.remove = function(mf){
   var index = this.features.indexOf(mf);
   if(index === -1){
-    console.log("this mf is not exist in array");
+    console.log("this mf is not exist in array", mf);
   }
   else{
     console.log(this.features, this.features[index], mf);
-    return;
+
     var remove_mf = this.features.splice(index, 1);
+
     if (remove_mf[0] != mf){
       console.log(index, remove_mf[0], mf);
       console.log("it is something wrong!!!");
@@ -201,6 +228,7 @@ MFOC.prototype.remove = function(mf){
       this.viewer.scene.primitives.remove(this.feature_prim_memory[mf.properties.name]);
       this.feature_prim_memory[mf.properties.name] = undefined;
     }
+    console.log(this.features, this.features[index]);
   }
   return this.features.length;
 }
@@ -237,12 +265,17 @@ MFOC.prototype.removeByName = function(name){
 }
 
 MFOC.prototype.showProperty = function(propertyName, divID){
+  document.getElementById(divID).style.height = '20%';
+  document.getElementById(divID).style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
   var pro_arr = [];
   for (var i = 0 ; i < this.features.length ; i ++){
     var property = MFOC.getPropertyByName(this.features[i], propertyName);
     if (property != -1){
       pro_arr.push(property);
     }
+  }
+  if (pro_arr.length == 0){
+    return;
   }
   this.showPropertyArray(pro_arr, divID);
 }
@@ -316,12 +349,24 @@ MFOC.prototype.removeSpaceTimeCube = function(){
 }
 
 MFOC.prototype.showSpaceTimeCube = function(degree){
+  if (degree == undefined){
+    degree = {};
+    degree.x = 5;
+    degree.y = 5;
+    degree.time = 5;
+  }
   var x_deg = degree.x,
   y_deg = degree.y,
   z_deg = degree.time;
 
   var mf_arr = this.features;
-
+  if (mf_arr.length == 0){
+    return;
+  }
+  if (this.cube_primitives != null){
+    this.primitives.remove(this.cube_primitives);
+    this.cube_primitives == null;
+  }
   degree.time = degree.time * 86400;
   this.min_max = this.findMinMaxGeometry(mf_arr);
   this.hotspot_maxnum = 0;
@@ -357,15 +402,6 @@ MFOC.prototype.showSpaceTimeCube = function(degree){
 
 }
 
-MFOC.prototype.getFeatureByName = function(name){
-  for (var i = 0 ; i < this.features.length ; i++){
-    if (this.features[i].properties.name == name){
-      return this.features[i];
-    }
-  }
-  return -1;
-}
-
 MFOC.prototype.animate = function(options){
   var mf_arr;
   if (options != undefined){
@@ -391,7 +427,9 @@ MFOC.prototype.animate = function(options){
     mf_arr = this.features;
   }
 
-
+  if (mf_arr.length == 0){
+    return;
+  }
   this.min_max = this.findMinMaxGeometry(mf_arr);
   var multiplier = 10000;
   var czml = [{
@@ -455,6 +493,7 @@ MFOC.prototype.showDirectionalRader = function(canvasID){
   for (var index = 0 ; index < this.features.length ; index++){
     var feature = this.features[index];
     MFOC.addDirectionInfo(cumulative, feature.temporalGeometry);
+
   }
 
   var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
@@ -464,7 +503,6 @@ MFOC.prototype.showDirectionalRader = function(canvasID){
     var h_width = cnvs.width / 2;
     var h_height = cnvs.height / 2;
     var ctx = cnvs.getContext('2d');
-
     var max_life = Math.max.apply(null, [cumulative.west.total_life , cumulative.east.total_life , cumulative.north.total_life, cumulative.south.total_life]);
 
     var max_length = Math.max.apply(null, [cumulative.west.total_length , cumulative.east.total_length , cumulative.north.total_length, cumulative.south.total_length]);
@@ -486,7 +524,7 @@ MFOC.prototype.showDirectionalRader = function(canvasID){
       total_velocity += velocity[i];
     }
 
-    var color = ['rgb(255, 255, 0)','rgb(0, 255, 0)','blue','red'];
+    var color = ['rgb(255, 255, 0)','rgb(0, 255, 255)','blue','red'];
 
     for (var i = 0 ; i < life.length ; i++){
 
@@ -529,17 +567,14 @@ MFOC.prototype.showDirectionalRader = function(canvasID){
   }
 }
 
-
 MFOC.prototype.adjustCameraView = function(){
   var this_mfoc = this;
   var bounding = this.bounding_sphere;
-  console.log(bounding);
   if (this.mode == '3D'){
     this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
       duration : 1.0,
       complete : function(){
         var sin = Math.sin(Math.PI / 2) * bounding.radius;
-        console.log(this_mfoc.viewer.camera.position);
         this_mfoc.viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
       }
     });
@@ -549,4 +584,74 @@ MFOC.prototype.adjustCameraView = function(){
       duration : 1.0
     });
   }
+}
+
+MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
+
+  var mfoc = this;
+  var div = document.getElementById(div_id);
+  div.innerHTML ='';
+  div.style.top = '10%'
+  div.style.paddingTop = 0;
+  div.style.color = 'white';
+  div.style.backgroundColor = 'rgba(255,255,255,0.5)';
+  div.style.right = '5px';
+  div.style.border = '1px solid white';
+  var title = document.createElement("div");
+  title.appendChild(document.createTextNode("ANALYSIS"));
+  title.style.paddingTop = '4px';
+  title.style.height = '9%';
+  title.style.width = '100%';
+  title.style.textAlign = 'center';
+  title.style.verticalAlign = 'middle';
+  title.style.backgroundColor = 'rgba(5,5,5,0.5)';
+  title.style.borderBottom = '3px double white';
+
+  var div_arr = [];
+  for (var i= 0 ; i < 3 ; i++){
+    div_arr[i] = document.createElement("div");
+    div_arr[i].style.height = '30%';
+    div_arr[i].style.width = '100%';
+    div_arr[i].style.verticalAlign = 'middle';
+    div_arr[i].style.padding = '2%';
+    div_arr[i].style.textAlign = 'center';
+    div_arr[i].style.borderBottom = '1px solid white';
+    div_arr[i].style.display = 'flex';
+    div_arr[i].style.alignItems = 'center';
+    div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
+  }
+
+  var properties_graph = div_arr[0],
+  show_space_cube = div_arr[1],
+  show_direction_rade = div_arr[2];
+
+  properties_graph.appendChild(document.createTextNode("PROPERTY GRAPH"));
+  show_space_cube.appendChild(document.createTextNode("TOGGLE HOTSPOT"));
+  show_direction_rade.appendChild(document.createTextNode("DIRECTION RADER"));
+
+  properties_graph.onclick = (function(glo_mfoc, graph){
+    return function(){
+      MFOC.selectProperty(glo_mfoc, graph);
+    };
+  })(mfoc, graph_id);
+
+  show_space_cube.onclick = (function(glo_mfoc, div, graph){
+    return function(){
+      MFOC.selectDegree(mfoc, this, div, graph);
+    }
+  })(mfoc, div_id, graph_id);
+
+
+  show_direction_rade.onclick = (function(glo_mfoc, canvas){
+    return function(){
+      glo_mfoc.showDirectionalRader(canvas);
+    }
+  })(mfoc, 'rader');
+
+  div.appendChild(title);
+  div.appendChild(properties_graph);
+  div.appendChild(show_space_cube);
+  div.appendChild(show_direction_rade);
+
+  MFOC.drawBackRader(div_id);
 }
