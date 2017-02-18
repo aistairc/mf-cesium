@@ -48,7 +48,6 @@ MFOC.prototype.findMinMaxGeometry = function(mf_arr){
     }
 
   }
-
   return min_max;
 
 }
@@ -85,6 +84,14 @@ for (var j = 1 ; j < datetimes.length ; j++){
     }
   }
   return min_max_date;
+}
+
+MFOC.findMinMaxCoordArray = function(coordinates_arr){
+  var mf_min_max_coord = MFOC.findMinMaxCoord(coordinates_arr[0]);
+  for (var j = 1 ; j < coordinates_arr.length ; j++){
+    mf_min_max_coord = MFOC.findBiggerCoord(mf_min_max_coord, MFOC.findMinMaxCoord(coordinates_arr[j]) );
+  }
+  return mf_min_max_coord;
 }
 
 MFOC.findMinMaxCoord = function(coordinates){
