@@ -349,9 +349,12 @@ MFOC.prototype.removeSpaceTimeCube = function(){
 }
 
 MFOC.prototype.showSpaceTimeCube = function(degree){
-
-
-
+  if (degree == undefined){
+    degree = {};
+    degree.x = 5;
+    degree.y = 5;
+    degree.time = 5;
+  }
   var x_deg = degree.x,
   y_deg = degree.y,
   z_deg = degree.time;
@@ -359,6 +362,10 @@ MFOC.prototype.showSpaceTimeCube = function(degree){
   var mf_arr = this.features;
   if (mf_arr.length == 0){
     return;
+  }
+  if (this.cube_primitives != null){
+    this.primitives.remove(this.cube_primitives);
+    this.cube_primitives == null;
   }
   degree.time = degree.time * 86400;
   this.min_max = this.findMinMaxGeometry(mf_arr);
