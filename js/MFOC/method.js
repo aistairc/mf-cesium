@@ -141,7 +141,7 @@ MFOC.prototype.drawPaths = function(options){
   }
   this.min_max = this.findMinMaxGeometry(mf_arr);
   this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
-
+  
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
     var path_prim;
@@ -167,7 +167,6 @@ MFOC.prototype.drawPaths = function(options){
     else{
       console.log("this type cannot be drawn", feature);
     }
-
     this.path_prim_memory[feature.properties.name] = path_prim;
   }
 
@@ -564,7 +563,6 @@ MFOC.prototype.showDirectionalRader = function(canvasID){
 MFOC.prototype.adjustCameraView = function(){
   var this_mfoc = this;
   var bounding = this.bounding_sphere;
-  console.log(bounding);
   if (this.mode == '3D'){
     this.viewer.camera.flyToBoundingSphere(this.bounding_sphere, {
       duration : 1.0,

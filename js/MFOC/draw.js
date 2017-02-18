@@ -11,6 +11,7 @@ MFOC.prototype.drawMovingLineString = function(geometry, name){
   var data = geometry;
   var heights = this.getListOfHeight(data.datetimes);
 
+
   for (var j = 0 ; j < data.coordinates.length ; j++){
     if (this.mode == '2D'){
       heights[j] = 0;
@@ -295,10 +296,11 @@ MFOC.prototype.drawPathMovingLineString = function(options){
   }
 
   var color = this.getColor(options.name).withAlpha(0.7);
-  
+
   //;
 
   var heights = this.getListOfHeight(data.datetimes);
+
   var coord_arr = data.coordinates;
   for (var i = 0; i < coord_arr.length ; i++){
 

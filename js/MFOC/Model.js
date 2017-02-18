@@ -9,6 +9,10 @@ function MFOC(viewer){
   this.cube_primitives = null;
   this.bounding_sphere = null;
   this.color_arr = {};
+
+  if (isNaN( new Date("2015-07-30 09:00:00").getTime() )){
+    alert("this browser maybe something error to draw MovingFeatures.. i recommend chrome.");
+  }
 }
 
 

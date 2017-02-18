@@ -39,6 +39,7 @@ MFOC.prototype.findMinMaxGeometry = function(mf_arr){
     }
 
     var temp_max_min = MFOC.findMinMaxTime(mf_arr[i].temporalGeometry.datetimes);
+
     if (temp_max_min[0].getTime() < min_max.date[0].getTime()){
       min_max.date[0] = temp_max_min[0];
     }
@@ -245,7 +246,6 @@ MFOC.calculateCarteDist = function(point1, point2){
 
 
 MFOC.getBoundingSphere = function(min_max, height){
-  console.log(min_max,height);
   var middle_x = ( min_max.x[0] + min_max.x[1] ) / 2;
   var middle_y = ( min_max.y[0] + min_max.y[1] ) / 2;
   var middle_height = (height[0] + height[1]) / 2;
@@ -278,7 +278,15 @@ MFOC.prototype.getFeatureByName = function(name){
 }
 
 
-
+MFOC.findMaxCoordinatesLine = function(geometry){
+  var max_length = 0;
+  for (var i = 0 ; i < geometry.coordinates.length ; i++){
+    if (max_length < geometry.coordinates[i].length){
+      max_length = geometry.coordinates[i].length;
+    }
+  }
+  return max_length;
+}
 
 
 
