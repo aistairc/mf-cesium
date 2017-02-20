@@ -446,8 +446,12 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
 
   var heights = this.getListOfHeight(datetimes);
 
-  var color = this.getColor(options.name).withAlpha(0.7);
 
+  var color = this.getColor(options.name).withAlpha(0.6);
+
+  if (this.mode == '2D'){
+    color = this.getColor(options.name).withAlpha(0.2);
+  }
   for (var i = 0; i < coordinates.length - 1; i++) {
     for (var j = 0; j < coordinates[i].length - 1 ; j++) {
       var temp_poly = new Array();
@@ -656,11 +660,13 @@ MFOC.drawOneCube = function(positions, rating = 1.0){
   if (green_rate > 1.0){
     green_rate = 1.0;
   }
+  var alpha = rating + 0.4;
+  if (alpha > 1.0) alpha = 1.0;
   var rating_color = new Cesium.Color(
     red_rate,
     green_rate,
     blue_rate,
-    rating
+    alpha
   );
 
   var size = MFOC.calcSidesBoxCoord(positions);
@@ -1234,7 +1240,6 @@ MFOC.prototype.showSpaceTimeCube = function(degree){
 
     for (var index = 0 ; index < mf_arr.length ; index++){
       var feature = mf_arr[index];
-
       if (feature.temporalGeometry.type == "MovingPoint"){
         this.drawSpaceTimeMapMovingPoint(feature.temporalGeometry, degree, map_data);
       }
@@ -2115,7 +2120,7 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
       cumulative.north.total_length += length;
       r_color = Cesium.Color.fromRandom({
         maximumRed : 0.3,
-        minimumBlue : 0.5,
+        minimumBlue : 0.7,
         maximumGreen : 0.3,
         alpha : 1.0
       });
@@ -2124,7 +2129,7 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
       cumulative.south.total_life += life;
       cumulative.south.total_length += length;
       r_color = Cesium.Color.fromRandom({
-        minimumRed : 0.5,
+        minimumRed : 0.7,
         maximumBlue : 0.3,
         maximumGreen : 0.3,
         alpha : 1.0
@@ -2143,7 +2148,7 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         r_color = Cesium.Color.fromRandom({
           maximumRed : 0.3,
           maximumBlue : 0.3,
-          minimumGreen : 0.5,
+          minimumGreen : 0.7,
           alpha : 1.0
         });
       }
@@ -2151,9 +2156,9 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         cumulative.west.total_life += life;
         cumulative.west.total_length += length;
         r_color = Cesium.Color.fromRandom({
-          minimumRed : 0.5,
+          minimumRed : 0.7,
           maximumBlue : 0.3,
-          minimumGreen : 0.5,
+          minimumGreen : 0.7,
           alpha : 1.0
         });
       }
@@ -2164,7 +2169,7 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         cumulative.north.total_length += length;
         r_color = Cesium.Color.fromRandom({
           maximumRed : 0.3,
-          minimumBlue : 0.5,
+          minimumBlue : 0.7,
           maximumGreen : 0.3,
           alpha : 1.0
         });
@@ -2173,7 +2178,7 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         cumulative.south.total_life += life;
         cumulative.south.total_length += length;
         r_color = Cesium.Color.fromRandom({
-          minimumRed : 0.5,
+          minimumRed : 0.7,
           maximumBlue : 0.3,
           maximumGreen : 0.3,
           alpha : 1.0
@@ -2419,10 +2424,10 @@ MFOC.prototype.drawSpaceTimeMapMovingPolygon = function(geometry, degree, map_da
     }
   }
 
-
   for (var index = 0 ; index < geometry.coordinates.length ; index++){
     var coord = geometry.coordinates[index];
-    for (var point = 0 ; point < coord.length - 1; point){
+
+    for (var point = 0 ; point < coord.length - 1; point++){
       value_property[point].addSample(coord[point][0], coord[point][1]);
     }
   }
@@ -2440,7 +2445,6 @@ MFOC.prototype.drawSpaceTimeMapMovingPolygon = function(geometry, degree, map_da
 
     }
   }
-
   for (var x = 0 ; x < x_length ; x++){
     for (var y = 0 ; y < y_length ; y++){
       if (temp_map[x][y] == 1){
@@ -2593,7 +2597,8 @@ MFOC.prototype.makeMap = function(degree, map_data){
       var color = new Cesium.Color(1.0, green_rate, 0.0, rating);
       instances.push(new Cesium.GeometryInstance({
         geometry : new Cesium.RectangleGeometry({
-          rectangle : Cesium.Rectangle.fromDegrees(min_max.x[0] + x_deg * x, min_max.y[0] + y_deg * y , min_max.x[0] + x_deg * (x+1), min_max.y[0] + y_deg * (y+1))
+          rectangle : Cesium.Rectangle.fromDegrees(min_max.x[0] + x_deg * x, min_max.y[0] + y_deg * y , min_max.x[0] + x_deg * (x+1), min_max.y[0] + y_deg * (y+1)),
+          height : 50000
         }),
         attributes : {
           color : Cesium.ColorGeometryInstanceAttribute.fromColor(color)
@@ -2949,7 +2954,6 @@ MFOC.prototype.makeCube = function(degree, cube_data){
           //rating = 0.1;
         }
 
-        console.log(rating);
         var prim = MFOC.drawOneCube(positions, rating) ;
         boxCollection.add(prim);
         num += count;

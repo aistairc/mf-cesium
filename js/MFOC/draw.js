@@ -241,8 +241,12 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
 
   var heights = this.getListOfHeight(datetimes);
 
-  var color = this.getColor(options.name).withAlpha(0.7);
 
+  var color = this.getColor(options.name).withAlpha(0.6);
+
+  if (this.mode == '2D'){
+    color = this.getColor(options.name).withAlpha(0.2);
+  }
   for (var i = 0; i < coordinates.length - 1; i++) {
     for (var j = 0; j < coordinates[i].length - 1 ; j++) {
       var temp_poly = new Array();
@@ -451,11 +455,13 @@ MFOC.drawOneCube = function(positions, rating = 1.0){
   if (green_rate > 1.0){
     green_rate = 1.0;
   }
+  var alpha = rating + 0.4;
+  if (alpha > 1.0) alpha = 1.0;
   var rating_color = new Cesium.Color(
     red_rate,
     green_rate,
     blue_rate,
-    rating
+    alpha
   );
 
   var size = MFOC.calcSidesBoxCoord(positions);
