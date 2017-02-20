@@ -11,7 +11,7 @@ MFOC.prototype.highlight = null;
 MFOC.prototype.showSpaceTimeCube = null;
 MFOC.prototype.animate = null;
 MFOC.prototype.changeMode = null;
-MFOC.prototype.showDirectionalRader = null;
+MFOC.prototype.showDirectionalRadar = null;
 MFOC.prototype.setCameraView = null;
 
 MFOC.prototype.add = function(mf){
@@ -318,7 +318,7 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
     this.feature_prim_memory[mf_name] = undefined;
   }
 
-  var min_max = this.findMinMaxGeometry([mf]);
+  this.min_max = this.findMinMaxGeometry([mf]);
   var type = mf.temporalGeometry.type;
 
   var mmtime = MFOC.findMinMaxTime(mf.temporalGeometry.datetimes);
@@ -326,8 +326,8 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
 
   var bounding_sphere;
   if (this.mode == '3D'){
-    bounding_sphere = MFOC.getBoundingSphere(MFOC.findMinMaxCoordArray(mf.temporalGeometry.coordinates), [MFOC.normalizeTime(mmtime[0], min_max.date, this.max_height),
-    MFOC.normalizeTime(mmtime[1], min_max.date, this.max_height)]  );
+    bounding_sphere = MFOC.getBoundingSphere(MFOC.findMinMaxCoordArray(mf.temporalGeometry.coordinates), [MFOC.normalizeTime(mmtime[0], this.min_max.date, this.max_height),
+    MFOC.normalizeTime(mmtime[1], this.min_max.date, this.max_height)]  );
   }
   else{
     bounding_sphere = MFOC.getBoundingSphere(MFOC.findMinMaxCoordArray(mf.temporalGeometry.coordinates), [0,0] );
@@ -508,7 +508,7 @@ MFOC.prototype.changeMode = function(mode){
   }
 }
 
-MFOC.prototype.showDirectionalRader = function(canvasID){
+MFOC.prototype.showDirectionalRadar = function(canvasID){
   var cumulative = new SpatialInfo();
 
   for (var index = 0 ; index < this.features.length ; index++){
@@ -615,17 +615,18 @@ MFOC.adjustCameraView = function(viewer, bounding){
 
 
 MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
-
   var mfoc = this;
   var div = document.getElementById(div_id);
   div.innerHTML ='';
-  div.style.top = '10%'
+  div.style.top = '120px'
   div.style.paddingTop = 0;
-  div.style.color = 'white';
+  div.style.color = 'black';
   div.style.backgroundColor = 'rgba(255,255,255,0.5)';
   div.style.right = '5px';
-  div.style.border = '1px solid white';
+  div.style.border = '1px solid black';
   div.style.width = '200px'
+
+  div.className = "list-group-item active";
 
   var title = document.createElement("div");
   title.appendChild(document.createTextNode("ANALYSIS"));
@@ -634,30 +635,33 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
   title.style.width = '100%';
   title.style.textAlign = 'center';
   title.style.verticalAlign = 'middle';
-  title.style.backgroundColor = 'rgba(5,5,5,0.5)';
-  title.style.borderBottom = '3px double white';
+  title.style.display = 'flex';
+  title.style.alignItems = 'center';
+  //title.style.backgroundColor = 'rgba(5,5,5,0.5)';
+  title.style.borderBottom = '3px double black';
 
   var div_arr = [];
   for (var i= 0 ; i < 3 ; i++){
     div_arr[i] = document.createElement("div");
     div_arr[i].style.height = '30%';
     div_arr[i].style.width = '100%';
+    div_arr[i].style.cursor = "pointer";
     div_arr[i].style.verticalAlign = 'middle';
     div_arr[i].style.padding = '2%';
     div_arr[i].style.textAlign = 'center';
-    div_arr[i].style.borderBottom = '1px solid white';
+    div_arr[i].style.borderBottom = '1px solid black';
     div_arr[i].style.display = 'flex';
     div_arr[i].style.alignItems = 'center';
-    div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
+    //div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
   }
 
   var properties_graph = div_arr[0],
   show_space_cube = div_arr[1],
-  show_direction_rade = div_arr[2];
+  show_direction_radar = div_arr[2];
 
   properties_graph.appendChild(document.createTextNode("PROPERTY GRAPH"));
-  show_space_cube.appendChild(document.createTextNode("TOGGLE HOTSPOT"));
-  show_direction_rade.appendChild(document.createTextNode("DIRECTION RADER"));
+  show_space_cube.appendChild(document.createTextNode("TOGGLE HEATCUBE"));
+  show_direction_radar.appendChild(document.createTextNode("DIRECTION RADAR"));
 
   properties_graph.onclick = (function(glo_mfoc, graph){
     return function(){
@@ -667,21 +671,22 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
 
   show_space_cube.onclick = (function(glo_mfoc, div, graph){
     return function(){
+      this.style.cursor = 'auto';
       MFOC.selectDegree(mfoc, this, div, graph);
     }
   })(mfoc, div_id, graph_id);
 
 
-  show_direction_rade.onclick = (function(glo_mfoc, canvas){
+  show_direction_radar.onclick = (function(glo_mfoc, canvas){
     return function(){
-      glo_mfoc.showDirectionalRader(canvas);
+      glo_mfoc.showDirectionalRadar(canvas);
     }
   })(mfoc, 'rader');
 
   div.appendChild(title);
   div.appendChild(properties_graph);
   div.appendChild(show_space_cube);
-  div.appendChild(show_direction_rade);
+  div.appendChild(show_direction_radar);
 
-  MFOC.drawBackRader(div_id);
+  MFOC.drawBackRadar(div_id);
 }

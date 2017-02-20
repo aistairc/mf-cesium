@@ -1,5 +1,5 @@
 //draw movingfeature with z-value.
-
+/*
 var drawPolygonsWithZvalue = function(mf_arr, with_height){
 
 }
@@ -55,3 +55,4 @@ var drawPointsPathWithZvalue = function(mf_arr, with_height){
 
 
 }
+*/
