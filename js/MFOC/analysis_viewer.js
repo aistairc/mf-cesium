@@ -1,5 +1,5 @@
 
-MFOC.drawBackRader = function(div_id){
+MFOC.drawBackRadar = function(div_id){
   var back_canvas = document.getElementById('canvas');
   var rader_canvas = document.getElementById('rader');
 
@@ -56,18 +56,21 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
 
   if (mfoc.features.length == 0){
     console.log("no features");
+    mfoc.setAnalysisDIV(parent, graph_id);
     return;
   }
   if (mfoc.cube_primitives != null){
     mfoc.removeSpaceTimeCube();
+    mfoc.setAnalysisDIV(parent, graph_id);
     return;
   }
   if (mfoc.mode != '3D'){
     alert('only perspective mode');
+    mfoc.setAnalysisDIV(parent, graph_id);
     return;
   }
 
-  div.innerHTML ='Set Degree </ br>';
+  div.innerHTML ='Set Degree' + '<br><br>';
 
 
   div.style.verticalAlign = 'initial';
@@ -79,7 +82,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
   var table = document.createElement('table');
   table.style.paddingTop = '10px';
 
-  var degree_string = ['longitude','latitude','time(days)'];
+  var degree_string = ['longitude(°) : ','latitude(°) : ','time(days) : '];
   for (var i = 0 ; i < 3 ; i++){
     var row = table.insertRow(table.rows.length);
     var celll = row.insertCell(0);
@@ -90,6 +93,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
     input.id = 'degree_' + i;
     input.value = 5;
     input.style.color = 'black';
+    input.style.width = '50px';
     cell2.appendChild(input);
   }
   div.appendChild(table);
@@ -139,23 +143,29 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
 
 MFOC.selectProperty = function(mfoc, graph_id){
   if (mfoc.features.length == 0){
-    console.log("no features");
+    alert("no features");
     return;
   }
-  if (document.getElementById('close_div')){
-    document.getElementById('close_div').remove();
+  if (document.getElementById('pro_menu')){
+    document.getElementById('pro_menu').remove();
   }
+  document.getElementById(graph_id).innerHTML = '';
+  document.getElementById(graph_id).style.cursor = 'pointer';
+  document.getElementById(graph_id).style.height = '0%';
+//  document.getElementById(graph_id).style.width = '85%';
+//  document.getElementById(graph_id).style.left = '15%';
 
   var pro_menu = document.createElement('div');
-  pro_menu.style.width='80%';
-  pro_menu.style.position ='absolute';
-  pro_menu.style.left='20%';
+//  pro_menu.style.width='85%';
+//  pro_menu.style.position ='absolute';
+//  pro_menu.style.right='0';
   pro_menu.style.bottom='0';
   pro_menu.style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
   pro_menu.style.height = "5%";
-  pro_menu.style.zIndex = "20";
+  pro_menu.style.zIndex = "25";
   pro_menu.id = 'pro_menu';
-
+  pro_menu.style.cursor = 'pointer';
+  pro_menu.className = 'graph';
 
   var pro_type_arr = mfoc.getAllTypeFromProperties();
 

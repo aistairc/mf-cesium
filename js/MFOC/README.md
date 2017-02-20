@@ -386,7 +386,7 @@ mfoc.showProperty('central pressure', 'graph');
 
   </br>
 
-* showDirectionalRader(canvasID)
+* showDirectionalRadar(canvasID)
 
 canvas tag의 id를 받아 분석한 movement,velocity,life 정보를 화살표로 그립니다.
 
@@ -399,7 +399,7 @@ Example
 ```js
 <canvas id="canvas" width="300" height="300" style="background-color: transparent; border: 1px solid black;">
 ...
-mfoc.showDirectionalRader('canvas');
+mfoc.showDirectionalRadar('canvas');
 ```
 ![Capture](http://i.imgur.com/In7T0e2.png)
 - - -
