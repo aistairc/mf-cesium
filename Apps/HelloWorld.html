@@ -56,8 +56,8 @@
 
         #property_panel {
             position: absolute;
-            min-height: 20%;
-            height: 20%;
+            min-height: 30%;
+            height: 30%;
             bottom: 0px;
             z-index: 3;
             float: left;
@@ -66,12 +66,13 @@
             width: 100%;
             text-decoration: none;
             color: white;
+            visibility: hidden;
         }
         #layer_list{
           position: absolute;
           min-height: 20%;
-          height: 20%;
-          bottom: 20%;
+          height: 30%;
+          bottom: 0;
           z-index: 3;
           float: left;
           overflow: auto;
@@ -243,6 +244,7 @@
           visibility : hidden;
           z-index : 10;
           display:inline-block;
+          font-size : xx-large;
         }
 
         .graph {
@@ -263,7 +265,7 @@
 
 <body style="margin-bottom:20%">
     <div id="left_toolbar" style="z-index:3 ; width:15% ;position:absolute;  height : 100% ;min-height:100%; ">
-        <div class="panel panel-default" style="z-index:3 ;   height : 60%; min-height : 60%; ">
+        <div class="panel panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
             <ul class="list-group" style=" height: 100%;display : -webkit-flex; display : flex; flex-direction:column;">
                 <li class="list-group-item" onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black">Back</li>
                 <li id = "printMenuState" role="presentation" class="list-group-item active list-title" style="flex-grow : 0;"></li>
