@@ -1,5 +1,104 @@
 var buffer = {};
 
+function readTextFile(file, callback) {
+    var rawFile = new XMLHttpRequest();
+    rawFile.overrideMimeType("application/json");
+    rawFile.open("GET", file, true);
+    rawFile.onreadystatechange = function() {
+        if (rawFile.readyState === 4 && rawFile.status == "200") {
+            callback(rawFile.responseText);
+        }
+    }
+    rawFile.send(null);
+}
+var featurelayer_local = [];
+
+function getLayer_local() {
+  
+    var baseURL = "../miniserver";
+    readTextFile("../miniserver/featureLayer.json", function(text) {
+        var data = JSON.parse(text);
+        var printFeatureLayer_list = [];
+        console.log(data['url']);
+        for (var i = 0; i < data['url'].length; i++) {
+            printFeatureLayer_list.push(data['url'][i]);
+            updateBuffer([data['url'][i]], null, true);
+        }
+        var list = printFeatureLayerList_local(printFeatureLayer_list, baseURL, 'featureLayer');
+        console.log(list);
+        var print = document.getElementById('featureLayer');
+        print.innerHTML = "";
+        printMenuState = 'layer';
+        print.appendChild(list);
+        console.log(buffer);
+    });
+}
+
+var read_local = function(url) {
+    return new Promise(function(resolve, reject) {
+        var rawFile = new XMLHttpRequest();
+        rawFile.overrideMimeType("application/json");
+        rawFile.open("GET", url, true);
+        rawFile.onload  = function(){
+            resolve(rawFile.responseText);
+        };
+        rawFile.send(null);
+    });
+}
+
+function getFeatures_local(url, layerID) {
+    var features;
+    var promise_list = [];
+    var printFeatures_list = [];
+    var promise = read_local(url);
+    var getdata;
+    console.log(url);
+    promise.then(function(arr) {
+        features = JSON.parse(arr);
+        for (var i = 0; i < features['features'].length; i++) {
+            if (getBuffer([layerID, features['features'][i]]) == null) {
+                printFeatures_list.push(features['features'][i]);
+                var new_url = url.replace(".json", "");
+                new_url += "/" + features['features'][i] + ".json";
+                console.log(new_url);
+                promise_list.push(read_local(new_url));
+            }
+
+        }
+        if (promise_list.length == 0) { //이미 불러온 적이 있다
+            var list = printFeatures(layerID, features['features'], "features");
+            var printArea = document.getElementById('featureLayer');
+            his_features = list;
+            printArea.innerHTML = "";
+            printArea.appendChild(list);
+            printMenuState = "features";
+            drawFeature();
+        } else {
+            Promise.all(promise_list).then(function(values) {
+                getdata = values;
+                for (var i = 0; i < getdata.length; i++) {
+                    updateBuffer([layerID, printFeatures_list[i]], getdata[i], true);
+
+                }
+                var list = printFeatures(layerID, features['features'], "features");
+                var printArea = document.getElementById('featureLayer');
+                his_features = list;
+                printArea.innerHTML = "";
+                printArea.appendChild(list);
+                printMenuState = "features";
+                drawFeature();
+            }).catch(function(err) {
+                console.log(err);
+            });
+        }
+
+    });
+}
+
+function getfeature_local() {
+
+}
+
 function getBuffer(id) {
     if (id.length == 1) {
         if (buffer.hasOwnProperty(id[0])) {
@@ -49,21 +148,21 @@ function updateBuffer(id, feature, bool) {
     }
 
 }
-var urlParam = function(name, w){
+var urlParam = function(name, w) {
     w = w || window;
-    var rx,val;
-    if(name == "url"){
-      rx = new RegExp('[\&|\?]'+'url='+'([^\&\#]+)[\&|/]');
-      val = w.location.search.match(rx);
+    var rx, val;
+    if (name == "url") {
+        rx = new RegExp('[\&|\?]' + 'url=' + '([^\&\#]+)[\&|/]');
+        val = w.location.search.match(rx);
 
-    }
-    else if(name =='token'){
-      rx = new RegExp('[\&|\?]'+'token='+'([^\&\#]+)');
-      val = w.location.search.match(rx);
+    } else if (name == 'token') {
+        rx = new RegExp('[\&|\?]' + 'token=' + '([^\&\#]+)');
+        val = w.location.search.match(rx);
     }
 
-    return !val ? '':val[1];
+    return !val ? '' : val[1];
 }
+
 function getLayers() {
     //var url = window.location.href;
     //var url_arr = url.split('?token=');
@@ -80,7 +179,7 @@ function getLayers() {
     var printFeatureLayer_list = [];
     var promise = request1(url);
 
-    addCanvas();
+    mfoc.setAnalysisDIV('analysis', 'graph');
     promise.then(function(arr) {
             featureLayers = arr;
             for (var i = 0; i < featureLayers.length; i++) {
@@ -90,8 +189,8 @@ function getLayers() {
                 }
             }
             url = url.replace("/$ref", "");
-            var list = printFeatureLayerList(printFeatureLayer_list, url, "featureLayers");
-            var printArea = document.getElementById('featureLayers');
+            var list = printFeatureLayerList(printFeatureLayer_list, url, "featureLayer");
+            var printArea = document.getElementById('featureLayer');
             his_featurelayer = list;
             printArea.innerHTML = "";
             printArea.appendChild(list);
@@ -132,21 +231,38 @@ function getFeatures(url, layerID) {
                     new_url += features[i] + "?token=" + readCookie('token');
                     promise_list.push(request3(new_url));
                 }
+
             }
-            Promise.all(promise_list).then(function(values) {
+            if (promise_list.length == 0) { //이미 불러온 적이 있다
                 title.innerHTML = "finish";
-                get_data = values;
-                for (var i = 0; i < get_data.length; i++) {
-                    updateBuffer([layerID, printFeatures_list[i]], get_data[i], true);
-                }
                 var new_url = url.replace("$ref", "");
-                var list = printFeatures(layerID, printFeatures_list, "features");
-                var printArea = document.getElementById('featureLayers');
+                var list = printFeatures(layerID, features, "features");
+                var printArea = document.getElementById('featureLayer');
                 his_features = list;
                 printArea.innerHTML = "";
                 printArea.appendChild(list);
                 printMenuState = "features";
-            });
+                drawFeature();
+            } else {
+                Promise.all(promise_list).then(function(values) {
+                    title.innerHTML = "finish";
+                    get_data = values;
+                    for (var i = 0; i < get_data.length; i++) {
+                        updateBuffer([layerID, printFeatures_list[i]], get_data[i], true);
+                    }
+                    console.log(buffer);
+                    var new_url = url.replace("$ref", "");
+                    var list = printFeatures(layerID, printFeatures_list, "features");
+
+                    var printArea = document.getElementById('featureLayer');
+                    his_features = list;
+                    printArea.innerHTML = "";
+                    printArea.appendChild(list);
+                    printMenuState = "features";
+                    drawFeature();
+                });
+            }
+
         })
         .catch(function(err) {
             console.log(err);
@@ -155,25 +271,20 @@ function getFeatures(url, layerID) {
 }
 
 function getFeature(layerID, featureID) {
-  default_set = true;
+    default_set = true;
     var data = getBuffer([layerID, featureID]);
     var list = printFeature(featureID, data, "feature");
     his_feature = list;
-    var printArea = document.getElementById('featureLayers');
+    var printArea = document.getElementById('featureLayer');
+    var printProper = document.getElementById('property');
+    printProper.innerHTML = "";
+    var pro = printProperty(data)
+    printProper.appendChild(pro);
     printArea.innerHTML = "";
     printArea.appendChild(list);
     printMenuState = "feature";
 }
 
-function receiveProgress(evt) {
-  if (evt.lengthComputable)
- {  //evt.loaded the bytes browser receive
-    //evt.total the total bytes seted by the header
-    //
-   var percentComplete = (evt.loaded / evt.total)*100;
-   $('#progressbar').progressbar( "option", "value", percentComplete );
- }
-}
 var request1 = function(url) {
     return new Promise(function(resolved, rejected) {
         var xhr = createCORSRequest('GET', url);
@@ -207,9 +318,9 @@ var request2 = function(url) {
             return;
         }
 
-      xhr.onprogress = function () {
-        console.log('LOADING', xhr.readyState); // readyState will be 3
-    };
+        xhr.onprogress = function() {
+            console.log('LOADING', xhr.readyState); // readyState will be 3
+        };
 
 
         xhr.onload = function() {
@@ -253,7 +364,7 @@ var request3 = function(url) {
 };
 
 function createCORSRequest(method, url) {
-  console.log(url);
+    console.log(url);
     var xhr = new XMLHttpRequest();
     if ("withCredentials" in xhr) {
         // XHR for Chrome/Firefox/Opera/Safari.
