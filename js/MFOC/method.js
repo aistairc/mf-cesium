@@ -444,7 +444,6 @@ MFOC.prototype.showSpaceTimeCube = function(degree){
 
     for (var index = 0 ; index < mf_arr.length ; index++){
       var feature = mf_arr[index];
-
       if (feature.temporalGeometry.type == "MovingPoint"){
         this.drawSpaceTimeMapMovingPoint(feature.temporalGeometry, degree, map_data);
       }
