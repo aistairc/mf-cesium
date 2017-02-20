@@ -18,5 +18,5 @@ ThirdParty/
 /package.json
 /server.js
 /web.config
-*/bootstrap
+Apps/bootstrap/
 miniserver/
