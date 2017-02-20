@@ -199,6 +199,9 @@ MFOC.prototype.drawPathMovingPoint = function(options){
       if (blue_rate < 0.2){
         blue_rate = 0.2;
       }
+      if (blue_rate > 0.9){
+        blue_rate = 0.9;
+      }
       color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
 
       var positions;
@@ -262,6 +265,9 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
         if (blue_rate < 0.2){
           blue_rate = 0.2;
         }
+        if (blue_rate > 0.9){
+          blue_rate = 0.9;
+        }
 
         color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
       }
@@ -318,6 +324,9 @@ MFOC.prototype.drawPathMovingLineString = function(options){
       var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
       if (blue_rate < 0.2){
         blue_rate = 0.2;
+      }
+      if (blue_rate > 0.9){
+        blue_rate = 0.9;
       }
 
       color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
