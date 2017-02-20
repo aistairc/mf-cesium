@@ -14,7 +14,7 @@ function readTextFile(file, callback) {
 var featurelayer_local = [];
 
 function getLayer_local() {
-  
+
     var baseURL = "../miniserver";
     readTextFile("../miniserver/featureLayer.json", function(text) {
         var data = JSON.parse(text);
@@ -27,7 +27,9 @@ function getLayer_local() {
         var list = printFeatureLayerList_local(printFeatureLayer_list, baseURL, 'featureLayer');
         console.log(list);
         var print = document.getElementById('featureLayer');
+
         print.innerHTML = "";
+
         printMenuState = 'layer';
         print.appendChild(list);
         console.log(buffer);

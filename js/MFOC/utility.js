@@ -39,6 +39,7 @@ MFOC.prototype.findMinMaxGeometry = function(mf_arr){
     }
 
     var temp_max_min = MFOC.findMinMaxTime(mf_arr[i].temporalGeometry.datetimes);
+
     if (temp_max_min[0].getTime() < min_max.date[0].getTime()){
       min_max.date[0] = temp_max_min[0];
     }
@@ -47,7 +48,6 @@ MFOC.prototype.findMinMaxGeometry = function(mf_arr){
     }
 
   }
-
   return min_max;
 
 }
@@ -84,6 +84,14 @@ for (var j = 1 ; j < datetimes.length ; j++){
     }
   }
   return min_max_date;
+}
+
+MFOC.findMinMaxCoordArray = function(coordinates_arr){
+  var mf_min_max_coord = MFOC.findMinMaxCoord(coordinates_arr[0]);
+  for (var j = 1 ; j < coordinates_arr.length ; j++){
+    mf_min_max_coord = MFOC.findBiggerCoord(mf_min_max_coord, MFOC.findMinMaxCoord(coordinates_arr[j]) );
+  }
+  return mf_min_max_coord;
 }
 
 MFOC.findMinMaxCoord = function(coordinates){
@@ -215,7 +223,7 @@ MFOC.getPropertyByName = function(mf, name){
 
   for (var i = 0 ; i < mf.temporalProperties.length ; i++){
     if (mf.temporalProperties[i].name == name){
-      return mf.temporalProperties[i];
+      return [mf.temporalProperties[i], mf.properties.name];
     }
   }
   return -1;
@@ -245,7 +253,6 @@ MFOC.calculateCarteDist = function(point1, point2){
 
 
 MFOC.getBoundingSphere = function(min_max, height){
-  console.log(min_max,height);
   var middle_x = ( min_max.x[0] + min_max.x[1] ) / 2;
   var middle_y = ( min_max.y[0] + min_max.y[1] ) / 2;
   var middle_height = (height[0] + height[1]) / 2;
@@ -255,8 +262,62 @@ MFOC.getBoundingSphere = function(min_max, height){
 }
 
 
+MFOC.prototype.getColor = function(name){
+  if (this.color_arr[name] != undefined){
+    return this.color_arr[name];
+  }
+  var color = Cesium.Color.fromRandom({
+    red : 0.0,
+    alpha : 1.0
+  });
+  this.color_arr[name] = color;
+  return color;
+}
 
 
+MFOC.prototype.getFeatureByName = function(name){
+  for (var i = 0 ; i < this.features.length ; i++){
+    if (this.features[i].properties.name == name){
+      return this.features[i];
+    }
+  }
+  return -1;
+}
+
+
+MFOC.findMaxCoordinatesLine = function(geometry){
+  var max_length = 0;
+  for (var i = 0 ; i < geometry.coordinates.length ; i++){
+    if (max_length < geometry.coordinates[i].length){
+      max_length = geometry.coordinates[i].length;
+    }
+  }
+  return max_length;
+}
+
+
+
+MFOC.prototype.getAllTypeFromProperties = function(){
+  var array = [];
+  for (var i = 0 ; i < this.features.length ; i++){
+
+    if (this.features[i].temporalProperties == undefined) continue;
+    for (var j = 0 ; j < this.features[i].temporalProperties.length ; j++){
+      var name = this.features[i].temporalProperties[j].name;
+      var push = true;
+      for (var k = 0 ; k < array.length ; k++){
+        if (array[k] == name){
+          push = false;
+        }
+      }
+      if (push){
+        array.push(name);
+      }
+    }
+
+  }
+  return array;
+}
 
 //----------------------it wiil be removed--------------
 

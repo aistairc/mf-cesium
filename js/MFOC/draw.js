@@ -2,18 +2,15 @@ var LOG = console.log;
 
 
 
-MFOC.prototype.drawMovingLineString = function(geometry){
+MFOC.prototype.drawMovingLineString = function(geometry, name){
   var polylineCollection = new Cesium.PolylineCollection();
 
-  var r_color = Cesium.Color.fromRandom({
-    minimumRed : 0.8,
-    minimumBlue : 0.8,
-    minimumGreen : 0.8,
-    alpha : 1.0
-  });
+  var r_color = this.getColor(name);
+
 
   var data = geometry;
   var heights = this.getListOfHeight(data.datetimes);
+
 
   for (var j = 0 ; j < data.coordinates.length ; j++){
     if (this.mode == '2D'){
@@ -52,16 +49,10 @@ MFOC.drawOneLine = function(positions, r_color){
   return line;
 }
 
-MFOC.prototype.drawMovingPoint = function(geometry){
+MFOC.prototype.drawMovingPoint = function(geometry, name){
   var pointCollection = new Cesium.PointPrimitiveCollection();
 
-  var r_color = Cesium.Color.fromRandom({
-    minimumRed : 0.9,
-    minimumBlue : 0.9,
-    minimumGreen : 0.9,
-    alpha : 1.0
-  });
-
+  var r_color = this.getColor(name);
 
   var data = geometry.coordinates;
   if(this.mode == '3D'){
@@ -87,8 +78,9 @@ MFOC.drawOnePoint = function(onePoint,height,r_color){ //it gets one point
   return pointInstance;
 }
 
-MFOC.prototype.drawMovingPolygon = function(geometry){
-  var color = Cesium.Color.ORANGE.withAlpha(0.5);
+MFOC.prototype.drawMovingPolygon = function(geometry,color){
+
+  var r_color = this.getColor(name);
 
   var min_max_date = this.min_max.date;
   var coordinates = geometry.coordinates;
@@ -109,7 +101,7 @@ MFOC.prototype.drawMovingPolygon = function(geometry){
     if (!with_height){
       height = 0;
     }
-    poly_list.push(MFOC.drawOnePolygon(coordinates[i], height, with_height , color));
+    poly_list.push(MFOC.drawOnePolygon(coordinates[i], height, with_height , r_color));
   }
 
 
@@ -182,12 +174,7 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
 MFOC.prototype.drawPathMovingPoint = function(options){
   var polylineCollection = new Cesium.PolylineCollection();
 
-  var color = Cesium.Color.fromRandom({
-    red : 0.8,
-    minimumBlue : 0.8,
-    minimumGreen : 0.8,
-    alpha : 1.0
-  });
+  var color = this.getColor(options.name);
 
   var data = options.temporalGeometry;
   var property = options.temporalProperty;
@@ -254,12 +241,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
 
   var heights = this.getListOfHeight(datetimes);
 
-  var color = Cesium.Color.fromRandom({
-    red : 0.8,
-    minimumBlue : 0.8,
-    minimumGreen : 0.8,
-    alpha : 0.6
-  });
+  var color = this.getColor(options.name).withAlpha(0.7);
 
   for (var i = 0; i < coordinates.length - 1; i++) {
     for (var j = 0; j < coordinates[i].length - 1 ; j++) {
@@ -313,10 +295,14 @@ MFOC.prototype.drawPathMovingLineString = function(options){
     pro_min_max = MFOC.findMinMaxProperties(property);
   }
 
+  var color = this.getColor(options.name).withAlpha(0.7);
+
+  //;
+
   var heights = this.getListOfHeight(data.datetimes);
+
   var coord_arr = data.coordinates;
   for (var i = 0; i < coord_arr.length ; i++){
-    var color = undefined;
 
     if (i == 0){
       pre_polyline = coord_arr[0];

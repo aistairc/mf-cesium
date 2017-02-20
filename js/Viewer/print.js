@@ -121,13 +121,15 @@ function printProperty(data){
   li.innerText = name;
   li2.innerText = description;
 
+
   li.className = "list-group-item active";
+
   li2.className = "list-group-item";
 
   var ul = document.createElement('ul');
   ul.className = "list-group-item";
   var upper_ul = document.createElement('ul');
-  //upper_ul.className = "list-group-item";
+
   for(var i = 0 ; i < feature_property.length; i++){
     var temp_li = document.createElement('li');
     var temp_li2 = document.createElement('li');
@@ -280,7 +282,9 @@ function printFeatureLayerList_local(arr,url,id){
   var target = document.getElementsByClassName("vertical");
   //var upper_ul = document.getElementsByName('featureLayer');
   var upper_ul = document.createElement('ul');
+  
   upper_ul.className = "list-group-item";
+
   //upper_ul.style = "overflow-y : scroll;";
   //console.log(upper_ul);
   for (var i = 0; i < arr.length; i++) {
@@ -312,7 +316,9 @@ function printFeatureLayerList_local(arr,url,id){
 }
 function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
     var target = document.createElement('ul');
+
     target.className = "list-group-item";
+
     printMenuState = "features";
     for (var i = 0; i < features_list.length; i++) {
         var li = document.createElement("li");
@@ -326,7 +332,9 @@ function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
         div.className = "input-group";
         li.className = "list-group-item";
         ul.className = "list-group";
+
         li.role = "presentation";
+
         a.innerText = features_list[i];
         a.onclick = (function(layer, feature){
           return function(){
@@ -378,8 +386,9 @@ function printFeature(featureID, data, id) {
         var ul = document.createElement("ul");
 
         li.className = "list-group-item";
+
         li.role = "presentation";
-        //ul.className = "list-group";
+
         ul.id = name;
         a.innerText = name;
 
@@ -391,7 +400,9 @@ function printFeature(featureID, data, id) {
             var chk_temp = document.createElement("input");
 
             li_temp.className = "list-group-item";
+
             li_temp.role = "presentation";
+
             ul_temp.className = "list-group";
 
             a_temp.innerText = temporalProperties[i].name;
@@ -401,7 +412,7 @@ function printFeature(featureID, data, id) {
                   MFOC.adjustCameraView(viewer,bouding);
                 }
             })(name, temporalProperties[i].name);
-            /*
+
             chk_temp.id = name + "_" + temporalProperties[i].name;
             chk_temp.name = temporalProperties[i].name;
             chk_temp.type = "checkbox";
@@ -411,10 +422,10 @@ function printFeature(featureID, data, id) {
                     updateProperties(f_name, tp_name);
                 };
             })(name, chk_temp.name);
-            */
+
 
             div_temp.appendChild(a_temp);
-          //  div_temp.appendChild(chk_temp);
+
             //li_temp.appendChild(a_temp);
             //li_temp.appendChild(chk_temp);
             li_temp.appendChild(div_temp);
