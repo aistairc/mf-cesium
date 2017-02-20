@@ -18,15 +18,9 @@
     <script src="../Build/Cesium/Cesium.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
-  <!--  <script src="../js/MFOC.js"></script> -->
-  <script src="../js/MFOC/Model.js"> </script>
-  <script src="../js/MFOC/draw_indoor.js"></script>
-  <script src="../js/MFOC/moving.js"></script>
-  <script src="../js/MFOC/utility.js"></script>
-  <script src="../js/MFOC/statistic.js"></script>
-  <script src="../js/MFOC/method.js"></script>
-  <script src="../js/MFOC/draw.js"></script>
-  <script src="../js/MFOC/analysis_viewer.js"></script>
+
+    <script src="../js/MFOC.js"></script>
+
     <script src="../js/connection.js"></script>
     <script src="../js/print.js"></script>
     <style>
@@ -54,18 +48,37 @@
             z-index: 1;
         }
 
+        #left_toolbar {
+          color : white;
+          background-color:rgba(0, 0, 0, 0.5);
+          text-align: center;
+
+        }
+
         #toolbar {
             height: 100%
         }
 
         #property_panel {
             position: absolute;
-            height: 20%;
+
+            min-height: 20%;
+            height: 30%;
+
             bottom: 0px;
             z-index: 3;
             float: left;
             overflow: auto;
             margin-bottom: 0px;
+
+            width : 100%;
+            text-decoration: none;
+
+            color : white;
+        }
+        #property{
+
+
         }
 
         #geoInfo {
@@ -94,7 +107,67 @@
             cursor: pointer;
         }
 
+        .list-group-item.active:hover {
+          background-color: #787878;
+          border-color : #000000;
 
+
+
+        }
+        .panel{
+
+          text-align: center;
+
+        }
+        .list-group-item{
+          padding: 5px;
+          color : #FFFFFF;
+          text-align: center;
+          white-space: pre-wrap;
+          color : white;
+          text-decoration: none;
+          border : none;
+          background-color: rgba(1, 1, 1,1);
+
+        }
+        .list-group-item:hover{
+          color : white;
+          text-decoration: none;
+          border : 1px;
+          background-color: rgba(1, 1, 1,1);
+        }
+        a{
+          color : white;
+          text-decoration: none;
+          background-color: rgba(1, 1, 1,1);
+        }
+        a:hover {
+          color : white;
+          text-decoration: none;
+        }
+        .list-group{
+          padding:0px;
+          white-space: pre-wrap;
+          text-align: center;
+          background-color: rgba(1, 1, 1,1);
+          color : white;
+
+        }
+        .cesium-viewer-toolbar {
+          z-index : 30;
+        }
+        .cesium-svgPath-svg.cesium-sceneModePicker-slide-svg{
+          z-index : 30;
+        }
+        .cesium-svgPath-svg{
+          z-index : 30;
+        }
+        .list-group-item.active{
+          background-color: #787878;
+          border-color : #000000;
+          border : 1px;
+
+        }
 
 
         .axis text {
@@ -129,6 +202,10 @@
             width: 30%;
         }
 
+        .panel {
+          background-color: rgba(1, 1, 1,1);
+        }
+
         * {
             padding: 0;
             margin: 0;
@@ -139,56 +216,6 @@
         }
         /*VERTICAL MENU*/
 
-        nav.vertical {
-            position: absolute;
-            width: 150px;
-        }
-        /* ALL UL */
-
-        nav.vertical ul {
-            list-style: none;
-        }
-        /* ALL LI */
-
-        nav.vertical li {
-            position: relative;
-            width: auto;
-        }
-        /* ALL A */
-
-        nav.vertical li a,
-        nav.vertical li input {
-            display: block;
-            color: #eee;
-            text-decoration: none;
-            background: #667;
-            transition: 0.2s;
-        }
-        /* ALL A HOVER */
-
-        nav.vertical li:hover>a {
-            background: #778;
-        }
-        /* INNER UL HIDE */
-
-        nav.vertical ul ul {
-            position: absolute;
-            left: 0%;
-            top: 0;
-            width: auto;
-            visibility: hidden;
-            opacity: 0;
-            transition: transform 0.2s;
-            transform: translateX(50px);
-        }
-        /* INNER UL SHOW */
-
-        nav.vertical li:hover>ul {
-            left: 100%;
-            visibility: visible;
-            opacity: 1;
-            transform: translateX(0px);
-        }
 
 
         #analysis {
@@ -200,35 +227,43 @@
 
         }
 
-        #graph {
-            position: absolute;
-            bottom: 0px;
-            left: 20%;
-            width: 80%;
-            height: 0%;
-            z-index: 20;
+        .graph {
+          position: absolute;
+          bottom: 0px;
+          height: 0%;
+          z-index: 20;
+          right : 0;
+          width : 85%;
+      }
+        .list-group-item.active.list-title{
+          font-size : 20px;
+          padding: 10px;
 
         }
     </style>
 </head>
 
 <body style="margin-bottom:20%">
-    <div style="z-index:3 ; width:15% ;position:absolute;  height : 100% ;min-height:100%; ">
-        <div class="panel panel-default" style="z-index:3 ;   height : 80%; min-height : 80%; ">
-            <ul style=" height: 100%;display : -webkit-flex; display : flex; flex-direction:column;">
-                <li class="list-group-item active" onclick="getLayers()" style="flex-grow : 0;">data</li>
-                <li class="list-group-item active" onclick="backButton()" style="flex-grow : 0;">back</li>
-                <li class="list-group-item" style="flex-grow : 1 ; overflow : auto">
-                    <ul id="featureLayer" name="featureLayer" class="list-group"></ul>
+
+    <div id = "left_toolbar" style="z-index:3 ; width:15% ;position:absolute;  height : 100% ;min-height:100%; ">
+        <div class="panel panel-default" style="z-index:3 ;   height : 70%; min-height : 80%; ">
+            <ul class = "list-group" style=" height: 100%;display : -webkit-flex; display : flex; flex-direction:column;">
+
+                <li role = "presentation" class="list-group-item active list-title" onclick="backButton()" style="flex-grow : 0;">back</li>
+                <li id="featureLayer" role = "presentation" class="list-group-item" style="flex-grow : 1 ; overflow : auto">
+
+
                 </li>
             </ul>
 
         </div>
-        <div id="property_panel" class="panel panel-default" style="min-width : 100%;">
+
+        <div id="property_panel" class="panel panel-default" style = "overflow : auto">
 
             <ul>
-                <li class="list-group-item active">properties</li>
-                <li id="property" class="list-group-item">
+                <li role = "presentation" class="list-group-item active list-title">properties</li>
+                <li id="property" role = "presentation" class="list-group-item">
+
 
                 </li>
             </ul>
@@ -240,7 +275,9 @@
     </div>
     <div id="analysis">
     </div>
-    <div id="graph">
+
+    <div id="graph" class="graph">
+
     </div>
     <canvas id="canvas" width="200" height="200" style="position: absolute; right:0; background-color:rgba(0,0,0,0)"></canvas>
     <canvas id="rader" width="200" height="200" style="position: absolute;right:0; background-color:rgba(0,0,0,0)"></canvas>
@@ -253,33 +290,45 @@
 
 
     <script>
-        var viewer = new Cesium.Viewer('cesiumContainer', {
-          //  orderIndependentTranslucency: false
-        });
-        var mfoc = new MFOC(viewer);
 
-        viewer.scene.morphComplete.addEventListener(function() {
-            if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
-                mfoc.changeMode('3D');
-            } else {
-                mfoc.changeMode('2D');
-            }
-            changeMode();
+    var properties = new Array();
+    var checked_property = new Array();
+    var features = new Array();
+    var feature = new Array();
+    var viewer;
+    var mfoc;
 
-        });
+    (function(){
+      viewer = new Cesium.Viewer('cesiumContainer', {
+          orderIndependentTranslucency: false
+      });
 
-        viewer.scene.mode = Cesium.SceneMode.SCENE2D;
+      mfoc = new MFOC(viewer);
+      viewer.scene.morphComplete.addEventListener(function() {
+          if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
+              mfoc.changeMode('3D');
+          } else {
+              mfoc.changeMode('2D');
+          }
+          changeMode();
 
-        scene = viewer.scene;
-        viewer.clock.shouldAnimate = false;
-        String.prototype.replaceAll = function(org, dest) {
-            return this.split(org).join(dest);
-        }
+      });
 
-        var properties = new Array();
-        var checked_property = new Array();
-        var features = new Array();
-        var feature = new Array();
+      viewer.scene.mode = Cesium.SceneMode.SCENE2D;
+
+      scene = viewer.scene;
+      viewer.clock.shouldAnimate = false;
+
+
+
+
+        mfoc.setAnalysisDIV('analysis', 'graph');
+      getLayer_local();
+    })()
+    String.prototype.replaceAll = function(org, dest) {
+        return this.split(org).join(dest);
+    }
+
     </script>
 </body>
 
