@@ -28,9 +28,14 @@ function backButton(){
 
   }
   else if(printMenuState == "feature"){
+
    printMenuState = 'features';
    printState.innerText = printMenuState;
    drawFeature();
+   var printedLayer = document.getElementById('layer_list');
+   printedLayer.style.visibility = "visible";
+   var property_panel = document.getElementById("property_panel");
+   property_panel.style.visibility = "hidden";
    printArea.innerHTML = "";
    printProperty.innerHTML = "";
    printGraph.innerHTML = "";
@@ -54,27 +59,7 @@ function changeMode() {
         MFOC.adjustCameraView(viewer, bounding);
     }
 }
-function getHeatmap(){
-  var form = document.getElementById('heatmap_value');
-  var x = form.elements[0].value;
-  var y = form.elements[1].value;
-  var z = form.elements[2].value;
-  if(x == "" || y == "" || z == ""){
-    console.log("warning!");
-  }
 
-  //console.log(x,y,z);
-  //
-}
-function addCanvas() {
-    var getInfo = document.getElementById('movement');
-    getInfo.onclick = (function() {
-        return function() {
-            console.log("click");
-            mfoc.showDirectionalRader('canvas_geoinfo');
-        }
-    })();
-}
 
 function putProperties(id, name) {
     var obj = searchPropertyInfo(id, name);
@@ -146,29 +131,7 @@ function printProperty(data){
 
 }
 function updateProperties(id, name) {
-    /*
-    var elem = document.getElementById(id + "_" + name);
-    var prop_info = searchPropertyInfo(id, name);
-    if (properties.length !== 0) {
-        if (prop_info.name == properties[0].name) {
-            if (properties.contains(prop_info)) {
-                delProperties(id, name);
-            } else {
-                putProperties(id, name);
-            }
-        } else {
-            $('input:checkbox[name="' + properties[0].name + '"]').each(function() {
-                if (this.checked) { //checked 처리된 항목의 값
-                    this.checked = false;
-                }
-            });
-            properties = [];
-            putProperties(id, name);
-        }
-    } else {
-        putProperties(id, name);
-    }
-    */
+
     var chk = document.getElementById(id + "_" + name);
     console.log(id, name, chk);
     if (chk.checked == true) {
@@ -239,10 +202,8 @@ function printFeatureLayerList(arr, url, id) { //출력할피쳐리스트, 베�
     var printState = document.getElementById('printMenuState');
     printState.innerText = printMenuState;
     var target = document.getElementsByClassName("vertical");
-    //var upper_ul = document.getElementsByName('featureLayer');
     var upper_ul = document.createElement('ul');
-    //upper_ul.style = "overflow-y : scroll;";
-    //console.log(upper_ul);
+
     for (var i = 0; i < arr.length; i++) {
         var li = document.createElement('li');
         var a = document.createElement('a');
@@ -250,7 +211,7 @@ function printFeatureLayerList(arr, url, id) { //출력할피쳐리스트, 베�
 
         var new_url = url + "/" + arr[i] + "/$ref";
 
-        ul.id = arr[i];
+
         //ul.style = "overflow-y : scroll;";
 
         a.innerText = parse_layer_name(arr[i]);
@@ -277,11 +238,9 @@ function printFeatureLayerList_local(arr,url,id){
   var printState = document.getElementById('printMenuState');
   printState.innerText = printMenuState;
   var target = document.getElementsByClassName("vertical");
-  //var upper_ul = document.getElementsByName('featureLayer');
   var upper_ul = document.createElement('ul');
   upper_ul.className = "list-group-item";
-  //upper_ul.style = "overflow-y : scroll;";
-  //console.log(upper_ul);
+
   for (var i = 0; i < arr.length; i++) {
       var li = document.createElement('li');
       var a = document.createElement('a');
@@ -290,7 +249,6 @@ function printFeatureLayerList_local(arr,url,id){
       var new_url = url + "/" + arr[i] + ".json";
 
       ul.id = arr[i];
-      //ul.style = "overflow-y : scroll;";
       a.innerText = arr[i];
       a.onclick = (function(url, id) {
           return function() {
@@ -314,20 +272,74 @@ function printFeatureLayerList_local(arr,url,id){
 function printPrintedLayersList(){
   var list = document.createElement('ul');
 
+
   list.innerHTML = '';
   for(var i = 0 ; i < printedLayerList.length ; i++){
+    var input_group = document.createElement('div');
     var temp_list = document.createElement('li');
-    temp_list.className = "list-group-item";
-    temp_list.value = printedLayerList[i];
-    temp_list.innerText = printedLayerList[i];
+    var chk = document.createElement("input");
+    var a = document.createElement('a');
 
+
+    input_group.className = "input-group";
+    chk.type = "checkbox";
+
+    temp_list.className = "list-group-item";
+    chk.id = printedLayerList[i];
+    chk.checked = true;
+    chk.onclick = (function(layerID){
+      return function(){
+        printWhole(layerID);
+      }
+    })(printedLayerList[i]);
+    a.innerText = parse_layer_name(printedLayerList[i]);
+    input_group.appendChild(a);
+    input_group.appendChild(chk);
+    temp_list.appendChild(input_group);
     list.appendChild(temp_list);
   }
   return list;
 }
+function printWhole(layerID){
+  var feature_list = getBuffer([layerID]);
+  var chk = document.getElementById(layerID);
+  if(feature_list.length !== 0){
+    console.log(chk);
+    if(chk.checked == true){
+      console.log('check');
+      console.log(layerID);
+      for(var key in feature_list){
+        var data = getBuffer([layerID,key]);
+          for(var i = 0 ; i < data.features.length ; i++){
+            console.log(data.features[0]);
+            mfoc.add(data.features[0]);
+          }
 
+      }
+      layer_checkAll(layerID,'chkf[]');
+    }
+    else{
+      console.log('uncheck');
+      for(var key in feature_list){
+        var data = getBuffer([layerID,key]);
+        //console.log(data);
+          for(var i = 0 ; i < data.features.length ; i++){
+            mfoc.remove(data.features[0]);
+          }
+        }
+        layer_uncheckAll(layerID,'chkf[]');
+        if (document.getElementById('pro_menu'))
+          document.getElementById('pro_menu').remove();
+        document.getElementById('graph').style.height="0%";
+    }
+    mfoc.clearViewer();
+    var bounding = mfoc.drawPaths();
+    mfoc.animate();
+    MFOC.adjustCameraView(viewer, bounding);
+  }
+
+}
 function checkAll(name){
-
   var layerID;
   var checked = document.getElementsByName(name);
   for (var i = 0; i < checked.length; i++) {
@@ -338,20 +350,106 @@ function checkAll(name){
       var feature_name = temp[0];
       var data = getBuffer([feature_layer, feature_name]);
       if (checked[i].checked == true) {
-          //console.log(data);
           mfoc.add(data.features[0]);
       } else {
         checked[i].checked = true;
           mfoc.add(data.features[0]);
       }
   }
-  if(!printedLayerList.contains(parse_layer_name(layerID))){
-    printedLayerList.push(parse_layer_name(layerID));
+  if(!printedLayerList.contains(layerID)){
+    printedLayerList.push(layerID);
   }
   var layerlist = document.getElementById('list');
   layerlist.innerHTML = "";
   layerlist.appendChild(printPrintedLayersList());
   drawFeature();
+}
+function layer_checkAll(featureLayerID, name){
+  var layerID;
+
+  if(printMenuState == "features"){
+    var checked = document.getElementsByName(name);
+    var temp = checked[0].id;
+    temp = temp.split("_");
+    if(temp[1] == featureLayerID){
+      for (var i = 0; i < checked.length; i++) {
+          var temp = checked[i].id;
+          temp = temp.split("_");
+          var feature_layer = temp[1];
+          layerID = feature_layer;
+          var feature_name = temp[0];
+          var data = getBuffer([feature_layer, feature_name]);
+          if (checked[i].checked == true) {
+              mfoc.add(data.features[0]);
+          } else {
+            checked[i].checked = true;
+              mfoc.add(data.features[0]);
+          }
+      }
+        if(!printedLayerList.contains(featureLayerID)){
+          printedLayerList.push(featureLayerID);
+        }
+        var layerlist = document.getElementById('list');
+        layerlist.innerHTML = "";
+        layerlist.appendChild(printPrintedLayersList());
+        drawFeature();
+    }
+  }
+  else{
+    if(!printedLayerList.contains(featureLayerID)){
+      printedLayerList.push(featureLayerID);
+    }
+    var layerlist = document.getElementById('list');
+    layerlist.innerHTML = "";
+    layerlist.appendChild(printPrintedLayersList());
+    drawFeature();
+  }
+
+}
+function layer_uncheckAll(featureLayerID, name){
+  var layerID;
+  if(printMenuState == "features"){
+    var checked = document.getElementsByName(name);
+    var temp = checked[0].id;
+    temp = temp.split("_");
+    if(temp[1] == featureLayerID){
+
+      for (var i = 0; i < checked.length; i++) {
+          temp = checked[i].id;
+          temp = temp.split("_");
+          var feature_layer = temp[1];
+          layerID = feature_layer;
+          var feature_name = temp[0];
+          var data = getBuffer([feature_layer, feature_name]);
+          if (checked[i].checked == true) {
+              checked[i].checked = false;
+              mfoc.remove(data.features[0]);
+          } else {
+            mfoc.remove(data.features[0]);
+          }
+      }
+    }
+      if(printedLayerList.contains(featureLayerID)){
+        printedLayerList.splice(printedLayerList.indexOf(featureLayerID),1);
+        console.log('splice!!');
+      }
+      var layerlist = document.getElementById('list');
+      layerlist.innerHTML = "";
+      layerlist.appendChild(printPrintedLayersList());
+      drawFeature();
+
+
+  }
+  else{
+    if(printedLayerList.contains(featureLayerID)){
+      printedLayerList.splice(printedLayerList.indexOf(featureLayerID),1);
+    }
+    var layerlist = document.getElementById('list');
+    layerlist.innerHTML = "";
+    layerlist.appendChild(printPrintedLayersList());
+    drawFeature();
+  }
+
 }
 
 function parse_layer_name(layerID){
@@ -380,7 +478,7 @@ function uncheckAll(name){
       }
   }
 
-  if(printedLayerList.contains(parse_layer_name(layerID))){
+  if(printedLayerList.contains(layerID)){
     printedLayerList.splice(printedLayerList.indexOf(layerID),1);
   }
   var layerlist = document.getElementById('list');
@@ -389,7 +487,10 @@ function uncheckAll(name){
   drawFeature();
 }
 function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
-
+    var printedLayer = document.getElementById('layer_list');
+    printedLayer.style.visibility = "visible";
+    var property_panel = document.getElementById("property_panel");
+    property_panel.style.visibility = "hidden";
     var target = document.createElement('ul');
     var check_all = document.createElement('li');
     //check_all.innerText = "check all";
@@ -417,9 +518,10 @@ function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
 
 
     target.className = "list-group-item";
-    var printState = document.getElementById('printMenuState');
-    printState.innerText = printMenuState;
     printMenuState = "features";
+    var printState = document.getElementById('printMenuState');
+    printState.innerText = printMenuState + " :" + parse_layer_name(layerID);
+
     for (var i = 0; i < features_list.length; i++) {
         var li = document.createElement("li");
         var a = document.createElement("a");
@@ -477,7 +579,12 @@ function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
 function printFeature(featureID, data, id) {
     printMenuState = 'feature';
     var printState = document.getElementById('printMenuState');
-    printState.innerText = printMenuState;
+    var property_panel = document.getElementById('property_panel');
+    printState.innerText = printMenuState +" : "+featureID;
+    var printedLayers = document.getElementById('layer_list');
+    printedLayers.style.visibility = "hidden";
+    property_panel.style.visibility = "visible";
+
     //var target = document.getElementById(featureID);
     var target = document.createElement('ul');
     if (!features.contains(data)) {
@@ -513,29 +620,12 @@ function printFeature(featureID, data, id) {
                   MFOC.adjustCameraView(viewer,bouding);
                 }
             })(name, temporalProperties[i].name);
-            /*
-            chk_temp.id = name + "_" + temporalProperties[i].name;
-            chk_temp.name = temporalProperties[i].name;
-            chk_temp.type = "checkbox";
-            chk_temp.onclick = (function(f_name, tp_name) {
-                var getid = id.split("_");
-                return function() {
-                    updateProperties(f_name, tp_name);
-                };
-            })(name, chk_temp.name);
-            */
-
             div_temp.appendChild(a_temp);
-          //  div_temp.appendChild(chk_temp);
-            //li_temp.appendChild(a_temp);
-            //li_temp.appendChild(chk_temp);
             li_temp.appendChild(div_temp);
             ul.appendChild(li_temp);
         }
         li.appendChild(a);
         li.appendChild(ul);
-
-        //console.log(target);
         his_feature = target;
         return li;
 
@@ -551,16 +641,25 @@ function getCheckedFeatures() {
         temp = temp.split("_");
         var feature_layer = temp[1];
         var feature_name = temp[0];
+
         var data = getBuffer([feature_layer, feature_name]);
         if (checked[i].checked == true) {
             //console.log(data);
+            if(!printedLayerList.contains(feature_layer)){
+              printedLayerList.push(feature_layer);
+            }
             mfoc.add(data.features[0]);
         } else {
             mfoc.remove(data.features[0]);
         }
     }
-}
 
+
+
+    var layer_list = document.getElementById('list');
+    layer_list.innerHTML = "";
+    layer_list.appendChild(printPrintedLayersList());
+}
 
 function drawFeature() { //아이디로 찾을까
     mfoc.clearViewer();

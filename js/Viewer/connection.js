@@ -234,9 +234,9 @@ function getFeatures(url, layerID) {
     parse_name = parse_name.replace('(','');
     parse_name = parse_name.replace(")","");
     parse_name = parse_name.replaceAll("\'","");
-    if(!printedLayerList.contains(parse_name)){
+    if(!printedLayerList.contains(layerID)){
 
-      printedLayerList.push(parse_name);
+      printedLayerList.push(layerID);
     }
     promise.then(function(arr) {
             features = arr;
@@ -255,7 +255,7 @@ function getFeatures(url, layerID) {
               layerlist.innerHTML = "";
               layerlist.appendChild(printPrintedLayersList());
               var serverState = document.getElementById('serverState');
-              serverState.style.visibility = "visible";
+              serverState.style.visibility = "hidden";
               serverState.innerText = "finish";
                 var new_url = url.replace("$ref", "");
                 var list = printFeatures(layerID, features, "features");
@@ -267,9 +267,7 @@ function getFeatures(url, layerID) {
                 drawFeature();
             } else {
                 Promise.all(promise_list).then(function(values) {
-                  var layerlist = document.getElementById('list');
-                  layerlist.innerHTML = "";
-                  layerlist.appendChild(printPrintedLayersList());
+
                   var serverState = document.getElementById('serverState');
                   serverState.style.visibility = "visible";
                   serverState.innerText = "finish";
@@ -285,6 +283,9 @@ function getFeatures(url, layerID) {
                     his_features = list;
                     printArea.innerHTML = "";
                     printArea.appendChild(list);
+                    var layerlist = document.getElementById('list');
+                    layerlist.innerHTML = "";
+                    layerlist.appendChild(printPrintedLayersList());
                     printMenuState = "features";
                     drawFeature();
                     setTimeout(function(){serverState.style.visibility = "hidden";},2000);
@@ -312,6 +313,8 @@ function getFeature(layerID, featureID) {
     printArea.innerHTML = "";
     printArea.appendChild(list);
     printMenuState = "feature";
+
+
 }
 
 var request1 = function(url) {
