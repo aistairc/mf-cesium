@@ -267,13 +267,18 @@ MFOC.prototype.getColor = function(name){
     return this.color_arr[name];
   }
   var color = Cesium.Color.fromRandom({
-    red : 0.0,
+    minimumRed : 0.2,
+    minimumBlue : 0.2,
+    minimumGreen : 0.2,
     alpha : 1.0
   });
   this.color_arr[name] = color;
   return color;
 }
 
+MFOC.prototype.setColor = function(name, color){
+  this.color_arr[name] = color;
+}
 
 MFOC.prototype.getFeatureByName = function(name){
   for (var i = 0 ; i < this.features.length ; i++){

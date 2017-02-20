@@ -15,14 +15,27 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
   dist_x = end_point[0] - start_point[0];
   dist_y = end_point[1] - start_point[1];
 
+  var r_color ;
   if (dist_x == 0){
     if (dist_y > 0){
       cumulative.north.total_life += life;
       cumulative.north.total_length += length;
+      r_color = Cesium.Color.fromRandom({
+        maximumRed : 0.3,
+        minimumBlue : 0.5,
+        maximumGreen : 0.3,
+        alpha : 1.0
+      });
     }
     else if (dist_y < 0){
       cumulative.south.total_life += life;
       cumulative.south.total_length += length;
+      r_color = Cesium.Color.fromRandom({
+        minimumRed : 0.5,
+        maximumBlue : 0.3,
+        maximumGreen : 0.3,
+        alpha : 1.0
+      });
     }
     else{
 
@@ -34,23 +47,49 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
       if (dist_x > 0 ){
         cumulative.east.total_life += life;
         cumulative.east.total_length += length;
+        r_color = Cesium.Color.fromRandom({
+          maximumRed : 0.3,
+          maximumBlue : 0.3,
+          minimumGreen : 0.5,
+          alpha : 1.0
+        });
       }
       else{
         cumulative.west.total_life += life;
         cumulative.west.total_length += length;
+        r_color = Cesium.Color.fromRandom({
+          minimumRed : 0.5,
+          maximumBlue : 0.3,
+          minimumGreen : 0.5,
+          alpha : 1.0
+        });
       }
     }
     else {
       if (dist_y >0){
         cumulative.north.total_life += life;
         cumulative.north.total_length += length;
+        r_color = Cesium.Color.fromRandom({
+          maximumRed : 0.3,
+          minimumBlue : 0.5,
+          maximumGreen : 0.3,
+          alpha : 1.0
+        });
       }
       else{
         cumulative.south.total_life += life;
         cumulative.south.total_length += length;
+        r_color = Cesium.Color.fromRandom({
+          minimumRed : 0.5,
+          maximumBlue : 0.3,
+          maximumGreen : 0.3,
+          alpha : 1.0
+        });
       }
     }
   }
+
+  return r_color;
 
 
 }
@@ -158,7 +197,8 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
   .select(".domain")
   .remove();
 
-  g.append("g")
+  var y_axis = g.append("g");
+  y_axis
   .attr("class","axis")
   .call(d3.axisLeft(y))
   .append("text")
@@ -219,10 +259,14 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
 
   }
   svg.on("click", function () {
+
     var coords = d3.mouse(this);
     var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
 
-    var isodate = formatDate(x.invert(coords[0]));
+    if (coords[0]-margin.right <= 0){
+      return;
+    }
+    var isodate = formatDate(x.invert(coords[0]-51.09));
     viewer.clock.currentTime=Cesium.JulianDate.fromDate(new Date(isodate));
     viewer.clock.shouldAnimate = false;
   });
@@ -231,9 +275,248 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
 
 
 
+MFOC.prototype.makeBasicMap = function(degree){
+  var x_deg = degree.x,
+  y_deg = degree.y;
+
+  var cube_data = [];
+  var min_max = this.min_max;
+
+  var x_band = min_max.x[1] - min_max.x[0],
+  y_band = min_max.y[1] - min_max.y[0];
+
+  var x_length = Math.ceil(x_band/x_deg);
+  var y_length = Math.ceil(y_band/y_deg);
+
+  for (var x = 0 ; x < x_length ; x++){
+    cube_data[x] = [];
+    for (var y = 0 ; y < y_length ; y++){
+      cube_data[x][y] = 0;
+    }
+  }
+  return cube_data;
+}
+
+MFOC.prototype.drawSpaceTimeMapMovingPolygon = function(geometry, degree, map_data){
+  var min_max = this.min_max;
+
+  var x_deg = degree.x,
+  y_deg = degree.y;
+
+  var x_band = min_max.x[1] - min_max.x[0],
+  y_band = min_max.y[1] - min_max.y[0];
+
+  var x_length = Math.ceil(x_band/x_deg);
+  var y_length = Math.ceil(y_band/y_deg);
+
+  var max_num = this.hotspot_maxnum;
+
+  var value_property = [];
+
+  for (var point = 0 ; point < geometry.coordinates[0].length - 1; point++){
+    var temp = new SampledProperty(Number);
+    value_property[point] = temp;
+  }
+
+  var temp_map = [];
+  for (var x = 0 ; x < x_length ; x++){
+    temp_map[x] = [];
+    for (var y = 0 ; y < y_length ; y++){
+      temp_map[x][y] = 0;
+    }
+  }
 
 
+  for (var index = 0 ; index < geometry.coordinates.length ; index++){
+    var coord = geometry.coordinates[index];
+    for (var point = 0 ; point < coord.length - 1; point){
+      value_property[point].addSample(coord[point][0], coord[point][1]);
+    }
+  }
 
+  for (var x_index = 0 ; x_index < x_length ; x_index++){
+    for (var point = 0 ; point < value_property.length ; point++){
+      var x_value = min_max.x[0] + x_deg * x_index;
+      var y_value = value_property[point].getValue(x_value);
+      if (y_value != undefined){
+        var y_index = MFOC.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
+        if (temp_map[x_index][y_index] == 0){
+          temp_map[x_index][y_index] = 1;
+        }
+      }
+
+    }
+  }
+
+  for (var x = 0 ; x < x_length ; x++){
+    for (var y = 0 ; y < y_length ; y++){
+      if (temp_map[x][y] == 1){
+        map_data[x][y] += 1;
+        max_num = Math.max(map_data[x][y],max_num);
+      }
+    }
+  }
+
+  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
+
+}
+
+MFOC.prototype.drawSpaceTimeMapMovingLineString = function(geometry, degree, map_data){
+  var min_max = this.min_max;
+
+  var x_deg = degree.x,
+  y_deg = degree.y;
+
+  var x_band = min_max.x[1] - min_max.x[0],
+  y_band = min_max.y[1] - min_max.y[0];
+
+  var x_length = Math.ceil(x_band/x_deg);
+  var y_length = Math.ceil(y_band/y_deg);
+
+  var max_num = this.hotspot_maxnum;
+
+  var max_coordinates_length = MFOC.findMaxCoordinatesLine(geometry);
+
+  var value_property = [];
+
+  for (var point = 0 ; point < max_coordinates_length; point++){
+    var temp = new SampledProperty(Number);
+    value_property[point] = temp;
+  }
+
+  var temp_map = [];
+  for (var x = 0 ; x < x_length ; x++){
+    temp_map[x] = [];
+    for (var y = 0 ; y < y_length ; y++){
+      temp_map[x][y] = 0;
+    }
+  }
+
+
+  for (var index = 0 ; index < geometry.coordinates.length ; index++){
+    var coord = geometry.coordinates[index];
+    for (var point = 0 ; point < max_coordinates_length; point){
+      value_property[point].addSample(coord[point][0], coord[point][1]);
+    }
+  }
+
+  for (var x_index = 0 ; x_index < x_length ; x_index++){
+    for (var point = 0 ; point < value_property.length ; point++){
+      var x_value = min_max.x[0] + x_deg * x_index;
+      var y_value = value_property[point].getValue(x_value);
+      if (y_value != undefined){
+        var y_index = MFOC.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
+        if (temp_map[x_index][y_index] == 0){
+          temp_map[x_index][y_index] = 1;
+        }
+      }
+
+    }
+  }
+
+  for (var x = 0 ; x < x_length ; x++){
+    for (var y = 0 ; y < y_length ; y++){
+      if (temp_map[x][y] == 1){
+        map_data[x][y] += 1;
+        max_num = Math.max(map_data[x][y],max_num);
+      }
+    }
+  }
+
+  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
+
+}
+
+MFOC.prototype.drawSpaceTimeMapMovingPoint = function(geometry, degree, map_data){
+  var min_max = this.min_max;
+
+  var x_deg = degree.x,
+  y_deg = degree.y;
+
+  var x_band = min_max.x[1] - min_max.x[0],
+  y_band = min_max.y[1] - min_max.y[0];
+
+  var x_length = Math.ceil(x_band/x_deg);
+  var y_length = Math.ceil(y_band/y_deg);
+
+  var max_num = this.hotspot_maxnum;
+
+  var value_property = new SampledProperty(Number);
+
+
+  var temp_map = [];
+  for (var x = 0 ; x < x_length ; x++){
+    temp_map[x] = [];
+    for (var y = 0 ; y < y_length ; y++){
+      temp_map[x][y] = 0;
+    }
+  }
+
+
+  for (var index = 0 ; index < geometry.coordinates.length ; index++){
+    var coord = geometry.coordinates[index];
+
+    value_property.addSample(coord[0], coord[1]);
+
+  }
+  for (var x_index = 0 ; x_index < x_length ; x_index++){
+      var x_value = min_max.x[0] + x_deg * x_index;
+      var y_value = value_property.getValue(x_value);
+
+      if (y_value != undefined){
+
+        var y_index = MFOC.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
+        map_data[x_index][y_index] += 1;
+        max_num = Math.max(map_data[x_index][y_index],max_num);
+      }
+
+  }
+
+  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
+
+}
+
+MFOC.prototype.makeMap = function(degree, map_data){
+  //var boxCollection = new Cesium.PrimitiveCollection();
+  var num = 0;
+  var data = map_data;
+  var min_max = this.min_max;
+
+  var max_count = this.hotspot_maxnum;
+  var x_deg = degree.x,
+  y_deg = degree.y;
+
+  var instances = [];
+
+  for (var x = 0 ; x < data.length - 1 ; x++){
+    for (var y = 0 ; y < data[x].length ; y++){
+      var count = data[x][y];
+      var rating = count/max_count;
+      if (rating < 0.1){
+        continue;
+      }
+      var green_rate = 2.0 - 2.0 * rating;
+      if (green_rate > 1.0) green_rate = 1.0;
+      var color = new Cesium.Color(1.0, green_rate, 0.0, rating);
+      instances.push(new Cesium.GeometryInstance({
+        geometry : new Cesium.RectangleGeometry({
+          rectangle : Cesium.Rectangle.fromDegrees(min_max.x[0] + x_deg * x, min_max.y[0] + y_deg * y , min_max.x[0] + x_deg * (x+1), min_max.y[0] + y_deg * (y+1))
+        }),
+        attributes : {
+          color : Cesium.ColorGeometryInstanceAttribute.fromColor(color)
+        }
+      }));
+
+    }
+
+    //  return boxCollection;
+  }
+
+  return new Cesium.Primitive({
+    geometryInstances : instances,
+    appearance : new Cesium.PerInstanceColorAppearance()
+  });
+}
 
 
 MFOC.prototype.makeBasicCube = function(degree){
@@ -254,7 +537,6 @@ MFOC.prototype.makeBasicCube = function(degree){
   if (time_length < 1){
     return -1;
   }
-  console.log(time_length);
   var start = Cesium.JulianDate.fromDate(min_max.date[0]);
 
   for (var i = 0 ; i < time_length + 1 ; i++){
@@ -336,51 +618,57 @@ MFOC.prototype.drawSpaceTimeCubeMovingPolygon = function(geometry, degree, cube_
 
   for (var i = 0 ; i < time_length - 1 ; i++){
     var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time, time_deg/2, new Cesium.JulianDate());
-    var mbr = {
-      x : [],
-      y : []
-    };
+    var time = [cube_data[i].time, middle_time, cube_data[i+1].time];
 
-    mbr.x[0] = lower_x_property.getValue(middle_time);
-    mbr.x[1] = upper_x_property.getValue(middle_time);
-    mbr.y[0] = lower_y_property.getValue(middle_time);
-    mbr.y[1] = upper_y_property.getValue(middle_time);
+    for (var ti = 0 ; ti <time.length ; ti++){
+      var mbr = {
+        x : [],
+        y : []
+      };
+
+      mbr.x[0] = lower_x_property.getValue(time[ti]);
+      mbr.x[1] = upper_x_property.getValue(time[ti]);
+      mbr.y[0] = lower_y_property.getValue(time[ti]);
+      mbr.y[1] = upper_y_property.getValue(time[ti]);
 
 
-    if (mbr.y[1] != undefined){
-      var x_min = MFOC.getCubeIndexFromSample(mbr.x[0], x_deg, min_max.x[0]);
-      var y_min = MFOC.getCubeIndexFromSample(mbr.y[0], y_deg, min_max.y[0]);
-      var x_max = MFOC.getCubeIndexFromSample(mbr.x[1], x_deg, min_max.x[0]);
-      var y_max = MFOC.getCubeIndexFromSample(mbr.y[1], y_deg, min_max.y[0]);
+      if (mbr.y[1] != undefined){
+        var x_min = MFOC.getCubeIndexFromSample(mbr.x[0], x_deg, min_max.x[0]);
+        var y_min = MFOC.getCubeIndexFromSample(mbr.y[0], y_deg, min_max.y[0]);
+        var x_max = MFOC.getCubeIndexFromSample(mbr.x[1], x_deg, min_max.x[0]);
+        var y_max = MFOC.getCubeIndexFromSample(mbr.y[1], y_deg, min_max.y[0]);
 
-      var x_equal = (x_min == x_max);
-      var y_equal = (y_min == y_max);
+        var x_equal = (x_min == x_max);
+        var y_equal = (y_min == y_max);
 
-      if (x_equal && y_equal){
-        cube_data[i].count[x_min][y_min] += 1;
+        if (x_equal && y_equal){
+          cube_data[i].count[x_min][y_min] += 1;
+        }
+        else if(x_equal){
+          cube_data[i].count[x_min][y_min] += 1;
+          cube_data[i].count[x_min][y_max] += 1;
+        }
+        else if(y_equal){
+          cube_data[i].count[x_min][y_min] += 1;
+          cube_data[i].count[x_max][y_min] += 1;
+        }
+        else{
+          cube_data[i].count[x_max][y_min] += 1;
+          cube_data[i].count[x_max][y_max] += 1;
+          cube_data[i].count[x_min][y_min] += 1;
+          cube_data[i].count[x_min][y_max] += 1;
+        }
+        max_num = Math.max(cube_data[i].count[x_min][y_min],max_num);
+        max_num = Math.max(cube_data[i].count[x_min][y_max],max_num);
+        max_num = Math.max(cube_data[i].count[x_max][y_min],max_num);
+        max_num = Math.max(cube_data[i].count[x_max][y_max],max_num);
       }
-      else if(x_equal){
-        cube_data[i].count[x_min][y_min] += 1;
-        cube_data[i].count[x_min][y_max] += 1;
-      }
-      else if(y_equal){
-        cube_data[i].count[x_min][y_min] += 1;
-        cube_data[i].count[x_max][y_min] += 1;
-      }
-      else{
-        cube_data[i].count[x_max][y_min] += 1;
-        cube_data[i].count[x_max][y_max] += 1;
-        cube_data[i].count[x_min][y_min] += 1;
-        cube_data[i].count[x_min][y_max] += 1;
-      }
-      max_num = Math.max(cube_data[i].count[x_min][y_min],max_num);
-      max_num = Math.max(cube_data[i].count[x_min][y_max],max_num);
-      max_num = Math.max(cube_data[i].count[x_max][y_min],max_num);
-      max_num = Math.max(cube_data[i].count[x_max][y_max],max_num);
+
     }
-  }
 
+  }
   this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
+
 }
 
 MFOC.prototype.drawSpaceTimeCubeMovingPoint = function(geometry, degree, cube_data){
@@ -417,7 +705,7 @@ MFOC.prototype.drawSpaceTimeCubeMovingPoint = function(geometry, degree, cube_da
     });
   }
 
-  for (var time = 0 ; time < datetimes.length ; time++){
+  for (var time = 0 ; time < datetimes.length; time++){
     var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
     var position = {        x : geometry.coordinates[time][0],y : geometry.coordinates[time][1]      };
 
@@ -427,17 +715,23 @@ MFOC.prototype.drawSpaceTimeCubeMovingPoint = function(geometry, degree, cube_da
 
   for (var i = 0 ; i < time_length - 1 ; i++){
     var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time,time_deg/2,new Cesium.JulianDate());
-    var x_position = x_property.getValue(middle_time);
-    var y_position = y_property.getValue(middle_time);
+    var time = [cube_data[i].time, middle_time, cube_data[i+1].time];
 
-    if (x_position != undefined && y_position != undefined){
-      var x = MFOC.getCubeIndexFromSample(x_position, x_deg, min_max.x[0]);
-      var y = MFOC.getCubeIndexFromSample(y_position, y_deg, min_max.y[0]);
-      cube_data[i].count[x][y] += 1;
-      console.log(i,x,y);
-      max_num = Math.max(cube_data[i].count[x][y],max_num);
+    for (var ti = 0 ; ti <time.length ; ti++){
+      var x_position = x_property.getValue(time[ti]);
+      var y_position = y_property.getValue(time[ti]);
+
+      if (x_position != undefined && y_position != undefined){
+        var x = MFOC.getCubeIndexFromSample(x_position, x_deg, min_max.x[0]);
+        var y = MFOC.getCubeIndexFromSample(y_position, y_deg, min_max.y[0]);
+        cube_data[i].count[x][y] += 1;
+        max_num = Math.max(cube_data[i].count[x][y],max_num);
+      }
+
     }
+
   }
+
   this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
 }
 
@@ -492,7 +786,7 @@ MFOC.prototype.drawSpaceTimeCubeMovingLineString = function(geometry, degree, cu
     for (var i = 0 ; i < max_coordinates_length ; i++){
       if (coordinates[i] != undefined){
         x_property[i].addSample(jul_time, coordinates[i][0]);
-        y_property[i].addSample(jul_time, coordinates[i][1]);  
+        y_property[i].addSample(jul_time, coordinates[i][1]);
       }
     }
 
@@ -500,24 +794,29 @@ MFOC.prototype.drawSpaceTimeCubeMovingLineString = function(geometry, degree, cu
 
   for (var i = 0 ; i < time_length - 1 ; i++){
     var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time, time_deg/2, new Cesium.JulianDate());
-    var x_value = [];
-    var y_value = [];
+    var time = [cube_data[i].time, middle_time, cube_data[i+1].time];
 
-    var is_undefined = false;
-    for (var j = 0 ; j < max_coordinates_length ; j++){
-      x_value[j] = x_property[j].getValue(middle_time);
-      y_value[j] = y_property[j].getValue(middle_time);
-      if (x_value[j] != undefined && y_value[j] != undefined){
-        var x_index = MFOC.getCubeIndexFromSample(x_value[j], x_deg, min_max.x[0]);
-        var y_index = MFOC.getCubeIndexFromSample(y_value[j], y_deg, min_max.y[0]);
+    for (var ti = 0 ; ti <time.length ; ti++){
+      var x_value = [];
+      var y_value = [];
 
-        cube_data[i].count[x_index][y_index] += 1;
+      var is_undefined = false;
+      for (var j = 0 ; j < max_coordinates_length ; j++){
+        x_value[j] = x_property[j].getValue(middle_time);
+        y_value[j] = y_property[j].getValue(middle_time);
+        if (x_value[j] != undefined && y_value[j] != undefined){
+          var x_index = MFOC.getCubeIndexFromSample(x_value[j], x_deg, min_max.x[0]);
+          var y_index = MFOC.getCubeIndexFromSample(y_value[j], y_deg, min_max.y[0]);
 
-        max_num = Math.max(cube_data[i].count[x_index][y_index],max_num);
+          cube_data[i].count[x_index][y_index] += 1;
+
+          max_num = Math.max(cube_data[i].count[x_index][y_index],max_num);
+        }
       }
     }
 
-    
+
+
   }
   this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
 }
@@ -529,6 +828,7 @@ MFOC.prototype.makeCube = function(degree, cube_data){
   var min_max = this.min_max;
 
   var max_count = this.hotspot_maxnum;
+  console.log(max_count);
   var x_deg = degree.x,
   y_deg = degree.y;
 
@@ -556,7 +856,7 @@ MFOC.prototype.makeCube = function(degree, cube_data){
           //rating = 0.1;
         }
 
-
+        console.log(rating);
         var prim = MFOC.drawOneCube(positions, rating) ;
         boxCollection.add(prim);
         num += count;

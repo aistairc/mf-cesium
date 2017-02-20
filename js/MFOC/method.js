@@ -79,6 +79,8 @@ MFOC.prototype.drawFeatures = function(options){
   this.min_max = this.findMinMaxGeometry(mf_arr);
   if (this.mode == '3D'){
     this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
+    this.viewer.scene.primitives.add(this.drawZaxis());
+    this.viewer.entities.add(this.drawZaxisLabel());
   }
   else{
     this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,0] );
@@ -118,7 +120,6 @@ MFOC.prototype.contains = function(obj) {
 
 MFOC.prototype.drawPaths = function(options){
 
-  console.log("drawPaths", this.features.length);
   var mf_arr;
   if (options != undefined){
     if (options.name == undefined){
@@ -151,6 +152,8 @@ MFOC.prototype.drawPaths = function(options){
 
   if (this.mode == '3D'){
     this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
+    this.viewer.scene.primitives.add(this.drawZaxis());
+    this.viewer.entities.add(this.drawZaxisLabel());
   }
   else{
     this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,0] );
@@ -225,12 +228,10 @@ MFOC.prototype.remove = function(mf){
     console.log("this mf is not exist in array", mf);
   }
   else{
-    console.log(this.features, this.features[index], mf);
 
     var remove_mf = this.features.splice(index, 1);
 
     if (remove_mf[0] != mf){
-      console.log(index, remove_mf[0], mf);
       console.log("it is something wrong!!!");
       return;
     }
@@ -242,7 +243,6 @@ MFOC.prototype.remove = function(mf){
       this.viewer.scene.primitives.remove(this.feature_prim_memory[mf.properties.name]);
       this.feature_prim_memory[mf.properties.name] = undefined;
     }
-    console.log(this.features, this.features[index]);
   }
   return this.features.length;
 }
@@ -321,16 +321,14 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   this.min_max = this.findMinMaxGeometry([mf]);
   var type = mf.temporalGeometry.type;
 
-  var mmtime = MFOC.findMinMaxTime(mf.temporalGeometry.datetimes);
-
-
   var bounding_sphere;
   if (this.mode == '3D'){
-    bounding_sphere = MFOC.getBoundingSphere(MFOC.findMinMaxCoordArray(mf.temporalGeometry.coordinates), [MFOC.normalizeTime(mmtime[0], this.min_max.date, this.max_height),
-    MFOC.normalizeTime(mmtime[1], this.min_max.date, this.max_height)]  );
+    bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0, this.max_height]  );
+    this.viewer.scene.primitives.add(this.drawZaxis());
+    this.viewer.entities.add(this.drawZaxisLabel());
   }
   else{
-    bounding_sphere = MFOC.getBoundingSphere(MFOC.findMinMaxCoordArray(mf.temporalGeometry.coordinates), [0,0] );
+    bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,0] );
   }
 
   this.clearViewer();
@@ -376,50 +374,99 @@ MFOC.prototype.showSpaceTimeCube = function(degree){
     degree.y = 5;
     degree.time = 5;
   }
-  var x_deg = degree.x,
-  y_deg = degree.y,
-  z_deg = degree.time;
 
-  var mf_arr = this.features;
-  if (mf_arr.length == 0){
-    return;
-  }
-  if (this.cube_primitives != null){
-    this.primitives.remove(this.cube_primitives);
-    this.cube_primitives == null;
-  }
-  degree.time = degree.time * 86400;
-  this.min_max = this.findMinMaxGeometry(mf_arr);
-  this.hotspot_maxnum = 0;
-  var cube_data = this.makeBasicCube(degree);
-  if (cube_data == -1){
-    console.log("time degree 너무 큼");
-    return;
-  }
+  if (this.mode == '3D'){
+    var x_deg = degree.x,
+    y_deg = degree.y,
+    z_deg = degree.time;
 
-  for (var index = 0 ; index < mf_arr.length ; index++){
-    var feature = mf_arr[index];
+    var mf_arr = this.features;
+    if (mf_arr.length == 0){
+      return;
+    }
+    if (this.cube_primitives != null){
+      this.primitives.remove(this.cube_primitives);
+      this.cube_primitives == null;
+    }
+    degree.time = degree.time * 86400;
+    this.min_max = this.findMinMaxGeometry(mf_arr);
+    this.hotspot_maxnum = 0;
+    var cube_data = this.makeBasicCube(degree);
+    if (cube_data == -1){
+      console.log("time degree 너무 큼");
+      return;
+    }
 
-    if (feature.temporalGeometry.type == "MovingPoint"){
-      this.drawSpaceTimeCubeMovingPoint(feature.temporalGeometry, degree, cube_data);
-    }
-    else if(feature.temporalGeometry.type == "MovingPolygon"){
-      this.drawSpaceTimeCubeMovingPolygon(feature.temporalGeometry, degree, cube_data);
-    }
-    else if(feature.temporalGeometry.type == "MovingLineString"){
-      this.drawSpaceTimeCubeMovingLineString(feature.temporalGeometry, degree, cube_data);
-    }
-    else{
-      console.log("nono", feature);
-    }
-  }
-  if (this.hotspot_maxnum == 0){
-    console.log("datetimes of data have too long gap. There is no hotspot");
-    return;
-  }
-  var cube_prim = this.makeCube(degree, cube_data);
+    for (var index = 0 ; index < mf_arr.length ; index++){
+      var feature = mf_arr[index];
 
-  this.cube_primitives = this.primitives.add(cube_prim);
+      if (feature.temporalGeometry.type == "MovingPoint"){
+        this.drawSpaceTimeCubeMovingPoint(feature.temporalGeometry, degree, cube_data);
+      }
+      else if(feature.temporalGeometry.type == "MovingPolygon"){
+        this.drawSpaceTimeCubeMovingPolygon(feature.temporalGeometry, degree, cube_data);
+      }
+      else if(feature.temporalGeometry.type == "MovingLineString"){
+        this.drawSpaceTimeCubeMovingLineString(feature.temporalGeometry, degree, cube_data);
+      }
+      else{
+        console.log("nono", feature);
+      }
+    }
+    if (this.hotspot_maxnum == 0){
+      console.log("datetimes of data have too long gap. There is no hotspot");
+      return;
+    }
+    var cube_prim = this.makeCube(degree, cube_data);
+
+    this.cube_primitives = this.primitives.add(cube_prim);
+  }
+  else{
+    var x_deg = degree.x,
+    y_deg = degree.y;
+
+    var mf_arr = this.features;
+    if (mf_arr.length == 0){
+      return;
+    }
+    if (this.cube_primitives != null){
+      this.primitives.remove(this.cube_primitives);
+      this.cube_primitives == null;
+    }
+
+    this.min_max = this.findMinMaxGeometry(mf_arr);
+    this.hotspot_maxnum = 0;
+    var map_data = this.makeBasicMap(degree);
+    if (cube_data == -1){
+      console.log("time degree 너무 큼");
+      return;
+    }
+
+    for (var index = 0 ; index < mf_arr.length ; index++){
+      var feature = mf_arr[index];
+
+      if (feature.temporalGeometry.type == "MovingPoint"){
+        this.drawSpaceTimeMapMovingPoint(feature.temporalGeometry, degree, map_data);
+      }
+      else if(feature.temporalGeometry.type == "MovingPolygon"){
+        this.drawSpaceTimeMapMovingPolygon(feature.temporalGeometry, degree, map_data);
+      }
+      else if(feature.temporalGeometry.type == "MovingLineString"){
+        this.drawSpaceTimeMapMovingLineString(feature.temporalGeometry, degree, map_data);
+      }
+      else{
+        console.log("nono", feature);
+      }
+    }
+    if (this.hotspot_maxnum == 0){
+      console.log("datetimes of data have too long gap. There is no hotspot");
+      return;
+    }
+
+    var cube_prim = this.makeMap(degree, map_data);
+
+    this.cube_primitives = this.primitives.add(cube_prim);
+  }
 
 }
 
@@ -506,15 +553,29 @@ MFOC.prototype.changeMode = function(mode){
   else{
     this.mode = mode;
   }
+  this.setAnalysisDIV('analysis','graph');
 }
 
 MFOC.prototype.showDirectionalRadar = function(canvasID){
+  var radar_canvas = document.getElementById(canvasID);
+
+  radar_canvas.innerHTML = '';
+  radar_canvas.getContext('2d').clearRect(0, 0, radar_canvas.width, radar_canvas.height);
+
+  if (this.radar_on){
+    console.log('off radar');
+    MFOC.drawBackRadar('analysis');
+    this.color_arr ={};
+    this.radar_on = false;
+    return;
+  }
+  this.radar_on = true;
+
   var cumulative = new SpatialInfo();
 
   for (var index = 0 ; index < this.features.length ; index++){
     var feature = this.features[index];
-    MFOC.addDirectionInfo(cumulative, feature.temporalGeometry);
-
+    this.setColor(feature.properties.name, MFOC.addDirectionInfo(cumulative, feature.temporalGeometry));
   }
 
   var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
@@ -545,7 +606,7 @@ MFOC.prototype.showDirectionalRadar = function(canvasID){
       total_velocity += velocity[i];
     }
 
-    var color = ['rgb(255, 255, 0)','rgb(0, 255, 255)','blue','red'];
+    var color = ['rgb(255, 255, 0)','rgb(0, 255, 0)','blue','red'];
 
     for (var i = 0 ; i < life.length ; i++){
 
@@ -609,27 +670,35 @@ MFOC.adjustCameraView = function(viewer, bounding){
         duration : 1.0
       });
     }
-  }, 1000);
+  }, 700);
 
 }
 
 
 MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
+  if (div_id == undefined){
+    div_id = this.analysis_id;
+    graph_id = this.graph_id;
+  }
+
   var mfoc = this;
+  this.graph_id = graph_id;
+  this.analysis_id = div_id;
+
   var div = document.getElementById(div_id);
   div.innerHTML ='';
   div.style.top = '120px'
-  div.style.paddingTop = 0;
-  div.style.color = 'black';
-  div.style.backgroundColor = 'rgba(255,255,255,0.5)';
+  //div.style.paddingTop = 0;
+  div.style.color = 'white';
+  div.style.backgroundColor = 'rgba(0,0,0,0)';
   div.style.right = '5px';
   div.style.border = '1px solid black';
   div.style.width = '200px'
-
+  div.style.padding = '0px';
   div.className = "list-group-item active";
 
   var title = document.createElement("div");
-  title.appendChild(document.createTextNode("ANALYSIS"));
+  title.appendChild(document.createTextNode("  ANALYSIS"));
   title.style.paddingTop = '4px';
   title.style.height = '9%';
   title.style.width = '100%';
@@ -637,8 +706,9 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
   title.style.verticalAlign = 'middle';
   title.style.display = 'flex';
   title.style.alignItems = 'center';
-  //title.style.backgroundColor = 'rgba(5,5,5,0.5)';
-  title.style.borderBottom = '3px double black';
+  //title.style.marginLeft = '5px';
+  title.style.backgroundColor = '#787878';
+  title.style.borderBottom = '3px double white';
 
   var div_arr = [];
   for (var i= 0 ; i < 3 ; i++){
@@ -649,10 +719,12 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
     div_arr[i].style.verticalAlign = 'middle';
     div_arr[i].style.padding = '2%';
     div_arr[i].style.textAlign = 'center';
-    div_arr[i].style.borderBottom = '1px solid black';
+    div_arr[i].style.borderBottom = '1px solid white';
     div_arr[i].style.display = 'flex';
     div_arr[i].style.alignItems = 'center';
-    //div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
+    div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
+    div_arr[i].style.border = '1px solid white';
+    //div_arr[i].style.borderRadius = '15px';
   }
 
   var properties_graph = div_arr[0],
@@ -680,8 +752,13 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
   show_direction_radar.onclick = (function(glo_mfoc, canvas){
     return function(){
       glo_mfoc.showDirectionalRadar(canvas);
+      glo_mfoc.clearViewer();
+      glo_mfoc.drawPaths();
+      if (document.getElementById('pro_menu'))
+      document.getElementById('pro_menu').remove();
+      document.getElementById(glo_mfoc.graph_id).style.height="0%";
     }
-  })(mfoc, 'rader');
+  })(mfoc, 'radar');
 
   div.appendChild(title);
   div.appendChild(properties_graph);

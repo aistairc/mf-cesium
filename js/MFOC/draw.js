@@ -445,15 +445,16 @@ MFOC.euclidianDistance3D = function(a, b) {
 
 
 MFOC.drawOneCube = function(positions, rating = 1.0){
-  var red_rate = 1.0, green_rate = (-2 * rating) + 2;
+  var red_rate = 1.0, green_rate = 1.9 - rating * 1.9;
   var blue_rate = 0.0;
-  if (rating < 0.5){
-    blue_rate = (0.5 - rating) * 2 ;
+
+  if (green_rate > 1.0){
+    green_rate = 1.0;
   }
   var rating_color = new Cesium.Color(
-    1.0,
+    red_rate,
     green_rate,
-    0.0,
+    blue_rate,
     rating
   );
 
@@ -496,4 +497,31 @@ MFOC.calcSidesBoxCoord = function(box_coord){
   var z_dist = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.minimum.z), Cesium.Cartesian3.fromDegrees(box_coord.minimum.x, box_coord.minimum.y, box_coord.maximum.z));
 
   return [x_dist, y_dist, z_dist];
+}
+
+
+MFOC.prototype.drawZaxis = function(){
+  var polylineCollection = new Cesium.PolylineCollection();
+  var positions = [0,0,0,0,0,this.max_height/2];
+
+  polylineCollection.add(MFOC.drawOneLine(positions,Cesium.Color.WHITE));
+  polylineCollection.add(MFOC.drawOneLine([5,0,this.max_height/2*0.9,0,0,this.max_height/2,-5,0,this.max_height/2*0.9],Cesium.Color.WHITE));
+
+  return polylineCollection;
+}
+
+MFOC.prototype.drawZaxisLabel = function(){
+  var label = {
+    position : Cesium.Cartesian3.fromDegrees(5, 5, this.max_height/2),
+
+    label : {
+      text : 'time',
+      font : '14pt monospace',
+      style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+      outlineWidth : 2,
+      verticalOrigin : Cesium.VerticalOrigin.TOP,
+      pixelOffset : new Cesium.Cartesian2(0, 32)
+    }
+  };
+  return label;
 }

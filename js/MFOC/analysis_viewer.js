@@ -1,37 +1,23 @@
 
 MFOC.drawBackRadar = function(div_id){
-  var back_canvas = document.getElementById('canvas');
-  var rader_canvas = document.getElementById('rader');
+  var radar_canvas = document.getElementById('radar');
 
-  var top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight;
-  var left = document.getElementById(div_id).offsetLeft;
-  back_canvas.style.top = (top + 15) + 'px';
-
-  back_canvas.style.position = 'absolute';
-  back_canvas.style.zIndex = '20';
-  back_canvas.style.right = '5px';
-//  back_canvas.width = $('#'+div_id).width() + 'px';
-//  back_canvas.height = $('#'+div_id).width() + 'px';
-//  back_canvas.id ='canvas';
-
-  rader_canvas.style.top = (top + 15) + 'px';
-
-  rader_canvas.style.position = 'absolute';
-  rader_canvas.style.zIndex = '21';
-  back_canvas.style.right = '5px';
-//  rader_canvas.width = $('#'+div_id).width() + 'px';
-//  rader_canvas.height = $('#'+div_id).width()  + 'px';
+  radar_canvas.style.top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight + 10 + 'px';
+  radar_canvas.style.position = 'absolute';
+  radar_canvas.style.zIndex = '21';
+  radar_canvas.style.right = '5px';
 
 
-  document.body.appendChild(rader_canvas);
-  document.body.appendChild(back_canvas);
-  if (back_canvas.getContext){
+//  radar_canvas.width = $('#'+div_id).width() + 'px';
+//  radar_canvas.height = $('#'+div_id).width()  + 'px';
 
-    var h_width = back_canvas.width / 2;
-    var h_height = back_canvas.height / 2;
-    var ctx = back_canvas.getContext('2d');
-    console.log(h_width, h_height);
-    //console.log(h_width,h_height);
+
+  if (radar_canvas.getContext){
+
+    var h_width = radar_canvas.width / 2;
+    var h_height = radar_canvas.height / 2;
+    var ctx = radar_canvas.getContext('2d');
+
     //var h_width = ctx.canvas.clientWidth / 2;
     //var h_height = ctx.canvas.clientHeight / 2;
     var color = 'rgb(0,255,0)';
@@ -64,11 +50,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
     mfoc.setAnalysisDIV(parent, graph_id);
     return;
   }
-  if (mfoc.mode != '3D'){
-    alert('only perspective mode');
-    mfoc.setAnalysisDIV(parent, graph_id);
-    return;
-  }
+
 
   div.innerHTML ='Set Degree' + '<br><br>';
 
@@ -85,6 +67,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
   var degree_string = ['longitude(°) : ','latitude(°) : ','time(days) : '];
   for (var i = 0 ; i < 3 ; i++){
     var row = table.insertRow(table.rows.length);
+    row.id = 'degree_row_'+i;
     var celll = row.insertCell(0);
     celll.innerHTML = degree_string[i];
 
@@ -95,8 +78,10 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
     input.style.color = 'black';
     input.style.width = '50px';
     cell2.appendChild(input);
+
   }
   div.appendChild(table);
+
 
   var btn_div = document.createElement('div');
 
@@ -139,6 +124,10 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
   btn_div.appendChild(submit_btn);
 
   div.appendChild(btn_div);
+
+  if (mfoc.mode == '2D'){
+    document.getElementById('degree_row_2').style.visibility = 'hidden';
+  }
 }
 
 MFOC.selectProperty = function(mfoc, graph_id){
@@ -179,12 +168,18 @@ MFOC.selectProperty = function(mfoc, graph_id){
     div.style.verticalAlign = 'middle';
     div.style.width = 100/(pro_type_arr.length+1)-3 + '%';
     div.innerHTML = pro_type_arr[i];
-    div.onclick = (function (mfoc, name, graph){
+    div.id = 'btn'+pro_type_arr[i];
+    div.onclick = (function (mfoc, name_arr, index, graph){
         return function(){
           document.getElementById('pro_menu').style.bottom='20%';
-          mfoc.showProperty(name, graph);
+          document.getElementById('btn'+name_arr[index]).style.backgroundColor = 'rgba(100,100,100,0.8)';
+          for (var i = 0 ; i < name_arr.length ; i++){
+            if (i == index) continue;
+            document.getElementById('btn'+name_arr[i]).style.backgroundColor = 'transparent';
+          }
+          mfoc.showProperty(name_arr[index], graph);
         };
-    })(mfoc, pro_type_arr[i], graph_id);
+    })(mfoc, pro_type_arr, i, graph_id);
     pro_menu.appendChild(div);
   }
 
