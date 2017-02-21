@@ -36,13 +36,31 @@ MFOC.makeDegreesArray = function(pos_2d, height){
   return points;
 }
 
-MFOC.drawOneLine = function(positions, r_color){
+MFOC.drawInstanceOneLine = function(positions, r_color, width = 5){
+  var carte = Cesium.Cartesian3.fromDegreesArrayHeights(positions);
+  //console.log(positions,carte);
+  var polyline =  new Cesium.PolylineGeometry({
+    positions : carte,
+    width : width
+  });
+
+  var geoInstance = new Cesium.GeometryInstance({
+    geometry : Cesium.PolylineGeometry.createGeometry(polyline),
+    attributes : {
+      color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
+    }
+  });
+
+  return geoInstance;
+}
+
+MFOC.drawOneLine = function(positions, r_color, width = 5){
   var material = new Cesium.Material.fromType('Color');
   material.uniforms.color = r_color;
 
   var line = {
     positions :  Cesium.Cartesian3.fromDegreesArrayHeights(positions) ,
-    width : 5,
+    width : width,
     material : material
   };
 
@@ -147,7 +165,6 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
   position = Cesium.Cartesian3.fromDegreesArrayHeights(points);
 
   var polygonHierarchy = new Cesium.PolygonHierarchy(position);
-  var color = Cesium.ColorGeometryInstanceAttribute.fromColor(r_color);
 
   var vertexF = new Cesium.VertexFormat({
     position : true,
@@ -165,14 +182,14 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
   var geoInstance = new Cesium.GeometryInstance({
     geometry : geometry,
     attributes : {
-      color : color
+      color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
     }
   });
   return geoInstance;
 }
 
 MFOC.prototype.drawPathMovingPoint = function(options){
-  var polylineCollection = new Cesium.PolylineCollection();
+  var instances = [];
 
   var color = this.getColor(options.name);
 
@@ -190,7 +207,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
   if (property == undefined){
     var positions = MFOC.makeDegreesArray(data.coordinates, heights);
 
-    polylineCollection.add(MFOC.drawOneLine(positions, color));
+    instances.push(MFOC.drawInstanceOneLine(positions, color));
   }
   else{
     for (var index = 0 ; index < data.coordinates.length - 1; index++){
@@ -198,6 +215,9 @@ MFOC.prototype.drawPathMovingPoint = function(options){
       var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
       if (blue_rate < 0.2){
         blue_rate = 0.2;
+      }
+      if (blue_rate > 0.9){
+        blue_rate = 0.9;
       }
       color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
 
@@ -213,14 +233,19 @@ MFOC.prototype.drawPathMovingPoint = function(options){
         .concat(data.coordinates[index+1].concat(heights[index+1]));
       }
 
-      polylineCollection.add(MFOC.drawOneLine(positions, color));
+      instances.push(MFOC.drawInstanceOneLine(positions, color));
     }
 
   }
 
+  var prim = new Cesium.Primitive({
+    geometryInstances: instances,
+    appearance: new Cesium.PolylineColorAppearance(),
+    allowPicking : true
+  });
+  prim.name = options.name;
+  return prim;
 
-
-  return polylineCollection;
 }
 
 MFOC.prototype.drawPathMovingPolygon = function(options){
@@ -262,6 +287,9 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
         if (blue_rate < 0.2){
           blue_rate = 0.2;
         }
+        if (blue_rate > 0.9){
+          blue_rate = 0.9;
+        }
 
         color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
       }
@@ -284,6 +312,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
     appearance: new Cesium.PerInstanceColorAppearance()
   });
 
+  typhoon.name = options.name;
   return typhoon;
 
 }
@@ -318,6 +347,9 @@ MFOC.prototype.drawPathMovingLineString = function(options){
       var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
       if (blue_rate < 0.2){
         blue_rate = 0.2;
+      }
+      if (blue_rate > 0.9){
+        blue_rate = 0.9;
       }
 
       color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
@@ -508,26 +540,99 @@ MFOC.calcSidesBoxCoord = function(box_coord){
 
 MFOC.prototype.drawZaxis = function(){
   var polylineCollection = new Cesium.PolylineCollection();
-  var positions = [0,0,0,0,0,this.max_height/2];
+  var positions = [179,89,0,179,89,this.max_height];
 
   polylineCollection.add(MFOC.drawOneLine(positions,Cesium.Color.WHITE));
-  polylineCollection.add(MFOC.drawOneLine([5,0,this.max_height/2*0.9,0,0,this.max_height/2,-5,0,this.max_height/2*0.9],Cesium.Color.WHITE));
+  polylineCollection.add(MFOC.drawOneLine([178,88,this.max_height*0.95,179,89,this.max_height,179.9,89.9,this.max_height*0.95],Cesium.Color.WHITE));
+
+  for (var height = 10 ; height < 100 ; height += 20){
+    for (var long = -179 ; long < 179 ; long += 10){
+      polylineCollection.add(MFOC.drawOneLine([long,88,this.max_height * height / 100,long+5,89,this.max_height/100 * height],Cesium.Color.WHITE, 1));
+    }
+    for (var lat = -89 ; lat < 89 ; lat += 10){
+      polylineCollection.add(MFOC.drawOneLine([179,lat,this.max_height * height / 100,179,lat+5,this.max_height/100 * height],Cesium.Color.WHITE, 1));
+    }
+  }
+
 
   return polylineCollection;
 }
 
 MFOC.prototype.drawZaxisLabel = function(){
   var label = {
-    position : Cesium.Cartesian3.fromDegrees(5, 5, this.max_height/2),
-
+    position : Cesium.Cartesian3.fromDegrees(178, 88, this.max_height/2 + 50000),
     label : {
       text : 'time',
-      font : '14pt monospace',
+      font : '15pt monospace',
       style: Cesium.LabelStyle.FILL_AND_OUTLINE,
       outlineWidth : 2,
       verticalOrigin : Cesium.VerticalOrigin.TOP,
-      pixelOffset : new Cesium.Cartesian2(0, 32)
+      pixelOffsetScaleByDistance : new Cesium.NearFarScalar(1.5e2, 1.5, 1.5e7, 0.1)
     }
   };
   return label;
+}
+
+
+MFOC.prototype.showProjection = function(name){
+  if (this.projection != null){
+    if (!this.projection.isDestroyed()){
+      this.primitives.remove(this.projection);
+    }
+    this.projection = null;
+  }
+
+  var mf = this.getFeatureByName(name);
+  var color = this.getColor(name);
+
+  var geometry = mf.temporalGeometry;
+  var instances = [];
+  var time_label = [];
+  //upper
+  var upper_pos = [];
+  var right_pos = [];
+
+  var heights = this.getListOfHeight(geometry.datetimes);
+
+  for (var index = 0 ; index < geometry.coordinates.length ; index++){
+    var xy;
+    if (geometry.type != 'MovingPoint'){
+      xy = MFOC.getCenter(geometry.coordinates[index], geometry.type);
+    }
+    else{
+      xy = geometry.coordinates[index];
+    }
+    upper_pos = upper_pos.concat([xy[0], 89, heights[index]]);
+    right_pos = right_pos.concat([179, xy[1], heights[index]]);
+  }
+
+  instances.push(MFOC.drawInstanceOneLine(upper_pos, color.withAlpha(1.0)));
+  instances.push(MFOC.drawInstanceOneLine(right_pos, color.withAlpha(1.0)));
+
+  for (var index = 0 ; index < 2 ; index++){
+    var i = index * (geometry.coordinates.length-1);
+    var xy;
+    if (geometry.type != 'MovingPoint'){
+      xy = MFOC.getCenter(geometry.coordinates[i], geometry.type);
+    }
+    else{
+      xy = geometry.coordinates[i];
+    }
+    var h = heights[i];
+    for (var j = xy[1] ; j < 87.4 ; j += 2.5){
+      instances.push(MFOC.drawInstanceOneLine([xy[0], j, h, xy[0], j+1.25, h], Cesium.Color.WHITE.withAlpha(0.5)));
+    }
+    for (var j = xy[0] ; j < 177.4 ; j += 2.5){
+      instances.push(MFOC.drawInstanceOneLine([j, xy[1], h, j+1.25, xy[1], h], Cesium.Color.WHITE.withAlpha(0.5)));
+    }
+
+  }
+  //right
+
+  var prim = new Cesium.Primitive({
+    geometryInstances: instances,
+    appearance: new Cesium.PolylineColorAppearance(),
+    allowPicking : false
+  });
+  return prim;
 }

@@ -404,6 +404,9 @@ MFOC.prototype.drawPathMovingPoint = function(options){
       if (blue_rate < 0.2){
         blue_rate = 0.2;
       }
+      if (blue_rate > 0.9){
+        blue_rate = 0.9;
+      }
       color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
 
       var positions;
@@ -467,6 +470,9 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
         if (blue_rate < 0.2){
           blue_rate = 0.2;
         }
+        if (blue_rate > 0.9){
+          blue_rate = 0.9;
+        }
 
         color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
       }
@@ -523,6 +529,9 @@ MFOC.prototype.drawPathMovingLineString = function(options){
       var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
       if (blue_rate < 0.2){
         blue_rate = 0.2;
+      }
+      if (blue_rate > 0.9){
+        blue_rate = 0.9;
       }
 
       color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
@@ -1152,7 +1161,9 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   }
 
   this.path_prim_memory[mf_name] = highlight_prim;
-
+  this.animate({
+    name : movingfeatureName
+  });
   return bounding_sphere;
 }
 
@@ -1289,6 +1300,8 @@ MFOC.prototype.animate = function(options){
   else{
     mf_arr = this.features;
   }
+
+  console.log(mf_arr);
 
   if (mf_arr.length == 0){
     return -1;
@@ -1549,6 +1562,7 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
       glo_mfoc.showDirectionalRadar(canvas);
       glo_mfoc.clearViewer();
       glo_mfoc.drawPaths();
+      glo_mfoc.animate();
       if (document.getElementById('pro_menu'))
       document.getElementById('pro_menu').remove();
       document.getElementById(glo_mfoc.graph_id).style.height="0%";

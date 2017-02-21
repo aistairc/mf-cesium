@@ -34,20 +34,12 @@ We are developing API for this project.
   TOC
 <!-- toc orderedList:0 depthFrom:1 depthTo:6 -->
 
-* [Cesium Examples](#cesium-examples)
-  * [License](#license)
-  * [API](#api)
-    * [List of API be used in this project.](#list-of-api-be-used-in-this-project)
-    * [Cesium](#cesium)
-    * [Moving Feature On Cesium (MFOC)](#moving-feature-on-cesium-mfoc)
-      * [How to Use API](#how-to-use-api)
-      * [Create new MFOC Object](#create-new-mfoc-object)
-      * [Add Moving Features](#add-moving-features)
-      * [Moving Feature Visualization](#moving-feature-visualization)
-      * [Control Feature Data](#control-feature-data)
-      * [Moving Feature Statistic](#moving-feature-statistic)
-  * [Building](#building)
-  * [Getting Started](#getting-started)
+* [How to Use API](#how-to-use-api)
+* [Create new MFOC Object](#create-new-mfoc-object)
+* [Add Moving Features](#add-moving-features)
+* [Moving Feature Visualization](#moving-feature-visualization)
+* [Control Feature Data](#control-feature-data)
+* [Moving Feature Statistic](#moving-feature-statistic)
 
 <!-- tocstop -->
 
@@ -320,7 +312,7 @@ MFOC 객체를 초기화 합니다.
  </br>  </br> </br>  </br>
 > #### Moving Feature Statistic
 
-* showHeatMap(degree)
+* showSpaceTimeCube(degree)
 
 가지고 있는 movingFeature들의 temporalGeometry를 분석하여 HotSpot을 출력합니다.
 
@@ -339,7 +331,7 @@ degree = {
 
 Example
 ```js
-mfoc.showHeatMap({
+mfoc.showSpaceTimeCube({
   x : 10,
   y : 10,
   time : 1500000
@@ -348,13 +340,13 @@ mfoc.showHeatMap({
 
   </br>
 
-* removeHeatMap()
+* removeSpaceTimeCube()
 
 핫스팟 큐브들을 지웁니다.
 
 Example
 ```js
-mfoc.removeHeatMap()
+mfoc.removeSpaceTimeCube()
 ```
 
   </br>

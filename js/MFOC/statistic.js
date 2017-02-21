@@ -297,7 +297,7 @@ MFOC.prototype.makeBasicMap = function(degree){
   return cube_data;
 }
 
-MFOC.prototype.drawSpaceTimeMapMovingPolygon = function(geometry, degree, map_data){
+MFOC.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data){
   var min_max = this.min_max;
 
   var x_deg = degree.x,
@@ -360,7 +360,7 @@ MFOC.prototype.drawSpaceTimeMapMovingPolygon = function(geometry, degree, map_da
 
 }
 
-MFOC.prototype.drawSpaceTimeMapMovingLineString = function(geometry, degree, map_data){
+MFOC.prototype.draw2DHeatMapMovingLineString = function(geometry, degree, map_data){
   var min_max = this.min_max;
 
   var x_deg = degree.x,
@@ -426,7 +426,7 @@ MFOC.prototype.drawSpaceTimeMapMovingLineString = function(geometry, degree, map
 
 }
 
-MFOC.prototype.drawSpaceTimeMapMovingPoint = function(geometry, degree, map_data){
+MFOC.prototype.draw2DHeatMapMovingPoint = function(geometry, degree, map_data){
   var min_max = this.min_max;
 
   var x_deg = degree.x,
@@ -557,7 +557,7 @@ MFOC.prototype.makeBasicCube = function(degree){
   return cube_data;
 }
 
-MFOC.prototype.drawSpaceTimeCubeMovingPolygon = function(geometry, degree, cube_data){
+MFOC.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data){
   var min_max = this.min_max;
 
   var x_deg = degree.x,
@@ -671,7 +671,7 @@ MFOC.prototype.drawSpaceTimeCubeMovingPolygon = function(geometry, degree, cube_
 
 }
 
-MFOC.prototype.drawSpaceTimeCubeMovingPoint = function(geometry, degree, cube_data){
+MFOC.prototype.draw3DHeatMapMovingPoint = function(geometry, degree, cube_data){
   var min_max = this.min_max;
 
   var x_deg = degree.x,
@@ -735,7 +735,7 @@ MFOC.prototype.drawSpaceTimeCubeMovingPoint = function(geometry, degree, cube_da
   this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
 }
 
-MFOC.prototype.drawSpaceTimeCubeMovingLineString = function(geometry, degree, cube_data){
+MFOC.prototype.draw3DHeatMapMovingLineString = function(geometry, degree, cube_data){
   var min_max = this.min_max;
 
   var x_deg = degree.x,

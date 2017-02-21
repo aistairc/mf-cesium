@@ -213,7 +213,6 @@ MFOC.findMinMaxProperties = function(properties){
 
 
 MFOC.getMBRFromPolygon = function(coordinates){
-
   var mbr = MFOC.findMinMaxCoord(coordinates);
   return mbr;
 }
@@ -323,6 +322,12 @@ MFOC.prototype.getAllTypeFromProperties = function(){
   }
   return array;
 }
+
+
+
+
+
+
 
 //----------------------it wiil be removed--------------
 
