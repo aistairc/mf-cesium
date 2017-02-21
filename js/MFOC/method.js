@@ -8,7 +8,7 @@ MFOC.prototype.drawFeatures = null;
 MFOC.prototype.removeByName = null;
 MFOC.prototype.showProperty = null;
 MFOC.prototype.highlight = null;
-MFOC.prototype.showSpaceTimeCube = null;
+MFOC.prototype.showHeatMap = null;
 MFOC.prototype.animate = null;
 MFOC.prototype.changeMode = null;
 MFOC.prototype.showDirectionalRadar = null;
@@ -362,14 +362,14 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   return bounding_sphere;
 }
 
-MFOC.prototype.removeSpaceTimeCube = function(){
+MFOC.prototype.removeHeatMap = function(){
   if (this.cube_primitives !=  null){
     this.primitives.remove(this.cube_primitives);
     this.cube_primitives = null;
   }
 }
 
-MFOC.prototype.showSpaceTimeCube = function(degree){
+MFOC.prototype.showHeatMap = function(degree){
   if (degree == undefined){
     degree = {};
     degree.x = 5;
@@ -403,13 +403,13 @@ MFOC.prototype.showSpaceTimeCube = function(degree){
       var feature = mf_arr[index];
 
       if (feature.temporalGeometry.type == "MovingPoint"){
-        this.drawSpaceTimeCubeMovingPoint(feature.temporalGeometry, degree, cube_data);
+        this.draw3DHeatMapMovingPoint(feature.temporalGeometry, degree, cube_data);
       }
       else if(feature.temporalGeometry.type == "MovingPolygon"){
-        this.drawSpaceTimeCubeMovingPolygon(feature.temporalGeometry, degree, cube_data);
+        this.draw3DHeatMapMovingPolygon(feature.temporalGeometry, degree, cube_data);
       }
       else if(feature.temporalGeometry.type == "MovingLineString"){
-        this.drawSpaceTimeCubeMovingLineString(feature.temporalGeometry, degree, cube_data);
+        this.draw3DHeatMapMovingLineString(feature.temporalGeometry, degree, cube_data);
       }
       else{
         console.log("nono", feature);
@@ -447,13 +447,13 @@ MFOC.prototype.showSpaceTimeCube = function(degree){
     for (var index = 0 ; index < mf_arr.length ; index++){
       var feature = mf_arr[index];
       if (feature.temporalGeometry.type == "MovingPoint"){
-        this.drawSpaceTimeMapMovingPoint(feature.temporalGeometry, degree, map_data);
+        this.draw2DHeatMapMovingPoint(feature.temporalGeometry, degree, map_data);
       }
       else if(feature.temporalGeometry.type == "MovingPolygon"){
-        this.drawSpaceTimeMapMovingPolygon(feature.temporalGeometry, degree, map_data);
+        this.draw2DHeatMapMovingPolygon(feature.temporalGeometry, degree, map_data);
       }
       else if(feature.temporalGeometry.type == "MovingLineString"){
-        this.drawSpaceTimeMapMovingLineString(feature.temporalGeometry, degree, map_data);
+        this.draw2DHeatMapMovingLineString(feature.temporalGeometry, degree, map_data);
       }
       else{
         console.log("nono", feature);
@@ -609,7 +609,7 @@ MFOC.prototype.showDirectionalRadar = function(canvasID){
       total_velocity += velocity[i];
     }
 
-    var color = ['rgb(255, 255, 0)','rgb(0, 255, 0)','blue','red'];
+    var color = ['rgb(255, 255, 0)','rgb(0, 255, 0)','Cyan','red'];
 
     for (var i = 0 ; i < life.length ; i++){
 

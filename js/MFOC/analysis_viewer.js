@@ -46,14 +46,12 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
     return;
   }
   if (mfoc.cube_primitives != null){
-    mfoc.removeSpaceTimeCube();
+    mfoc.removeHeatMap();
     mfoc.setAnalysisDIV(parent, graph_id);
     return;
   }
 
-
   div.innerHTML ='Set Degree' + '<br><br>';
-
 
   div.style.verticalAlign = 'initial';
   div.style.display = 'block';
@@ -82,15 +80,12 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
   }
   div.appendChild(table);
 
-
   var btn_div = document.createElement('div');
-
   var back_btn= document.createElement('input'),
   submit_btn = document.createElement('input');
 
   back_btn.type = 'button';
   submit_btn.type = 'button'
-
   back_btn.style.float = 'right';
   submit_btn.style.float = 'left';
   back_btn.style.color = 'black';
@@ -104,7 +99,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
       y = document.getElementById('degree_1').value,
       time = document.getElementById('degree_2').value;
       document.getElementById(parent).innerHTML = 'Analysing...';
-      mfoc.showSpaceTimeCube({
+      mfoc.showHeatMap({
         x : x,
         y : y,
         time : time
@@ -148,7 +143,7 @@ MFOC.selectProperty = function(mfoc, graph_id){
 //  pro_menu.style.width='85%';
 //  pro_menu.style.position ='absolute';
 //  pro_menu.style.right='0';
-  pro_menu.style.bottom='0';
+  pro_menu.style.bottom = '0';
   pro_menu.style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
   pro_menu.style.height = "5%";
   pro_menu.style.zIndex = "25";
