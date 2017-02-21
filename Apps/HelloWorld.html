@@ -241,10 +241,10 @@
           position : relative;
           left: 57%;
           top: 50%;
-          background: rgba(0, 0, 0, 0.5);
+          background: rgba(0, 0, 0, 0);
           visibility : hidden;
           z-index : 10;
-          display:inline-block;
+          color : black;
           font-size : xx-large;
         }
 
@@ -260,6 +260,16 @@
         .list-group-item.active.list-title {
             font-size: 20px;
             padding: 10px;
+        }
+        #featureName{
+          background: rgba(0, 0, 0, 0);
+          z-index : 30;
+          visibility : hidden;
+          color : black;
+          font-size : xx-large;
+          position : relative;
+          top : 5%;
+          left : 57%;
         }
     </style>
 </head>
@@ -306,6 +316,9 @@
 
 
     </div>
+
+
+
     <div id="analysis">
     </div>
     <div id="graph" class="graph">
@@ -313,12 +326,15 @@
     <canvas id="canvas" width="200" height="200" style="position: absolute; right:0; background-color:rgba(0,0,0,0)"></canvas>
     <canvas id="radar" width="200" height="200" style="position: absolute;right:0; background-color:rgba(0,0,0,0)"></canvas>
 
-
-    <div id = "serverState" > </div>
     <div id="cesiumContainer">
 
     </div>
 
+        <div id = "featureName">
+
+        </div>
+        <div id = "serverState" >
+        </div>
 
 
     <script>
@@ -328,12 +344,27 @@
         var feature = new Array();
         var viewer;
         var mfoc;
+        var labelEntity;
+        var handler;
+        var labelEntity;
+
+
 
         (function() {
             viewer = new Cesium.Viewer('cesiumContainer', {
-                orderIndependentTranslucency: false
+                orderIndependentTranslucency: false,
+                imageryProvider : new Cesium.createOpenStreetMapImageryProvider({
+                    url : 'https://a.tile.openstreetmap.org/'
+                   }),
+              baseLayerPicker : false
             });
 
+            labelEntity = viewer.entities.add({
+                label : {
+                    show : false,
+                    horizontalOrigin : Cesium.HorizontalOrigin.LEFT
+                }
+            });
             mfoc = new MFOC(viewer);
             viewer.scene.morphComplete.addEventListener(function() {
                 if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
@@ -349,6 +380,20 @@
 
             scene = viewer.scene;
             viewer.clock.shouldAnimate = false;
+
+            handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+          this.handler.setInputAction(function (movement) {
+            var pick = mfoc.viewer.scene.pick(movement.position);
+            if (Cesium.defined(pick)) {
+              mfoc.clickMovingFeature(pick.primitive.name);
+              var featureName = document.getElementById('featureName');
+              var cesiumContainer = document.getElementById('cesiumContainer');
+
+              featureName.innerText = pick.primitive.name;
+              featureName.style.visibility = 'visible';
+              setTimeout(function(){featureName.style.visibility = "hidden"; featureName.style.height = "0%"; cesiumContainer.style = "min-height:100%"},1200);
+            }
+          }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 
 

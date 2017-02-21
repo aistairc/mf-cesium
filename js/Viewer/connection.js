@@ -110,12 +110,18 @@ function getBuffer(id) {
             return buffer[id[0]];
         }
     } else if (id.length == 2) {
-        if (buffer.hasOwnProperty(id[0])) {
-            var temp = buffer[id[0]];
-            if (temp.hasOwnProperty(id[1])) {
-                return temp[id[1]];
-            }
-        }
+      if(buffer[id[0]][id[1]] !== undefined){
+        return buffer[id[0]][id[1]];
+      }
+      /*
+      if (buffer.hasOwnProperty(id[0])) {
+          var temp = buffer[id[0]];
+          if (temp.hasOwnProperty(id[1])) {
+              return temp[id[1]];
+          }
+      }
+      */
+
     }
     return null;
 }
@@ -131,12 +137,13 @@ function updateBuffer(id, feature, bool) {
                 buffer[id[0]] = {};
                 buffer[id[0]][id[1]] = {};
                 buffer[id[0]][id[1]] = JSON.parse(feature);
-                console.log(buffer);
+                console.log(buffer[id[0]][id[1]]);
                 //buffer[id[0]][id[1]] = feature;
             } else {
                 if (!buffer[id[0]].hasOwnProperty(id[1])) {
                     buffer[id[0]][id[1]] = {};
                     buffer[id[0]][id[1]] = JSON.parse(feature);
+                    console.log(buffer[id[0]][id[1]]);
                 }
             }
         }
@@ -220,6 +227,7 @@ function getParameterByName(name, url) {
 
 function getFeatures(url, layerID) {
     var features;
+
     console.log(url);
     var printFeatures_list = [];
     var promise = request2(url);
@@ -273,9 +281,11 @@ function getFeatures(url, layerID) {
                   serverState.innerText = "finish";
                     get_data = values;
                     for (var i = 0; i < get_data.length; i++) {
+
                         updateBuffer([layerID, printFeatures_list[i]], get_data[i], true);
+
                     }
-                    console.log(buffer);
+
                     var new_url = url.replace("$ref", "");
                     var list = printFeatures(layerID, printFeatures_list, "features");
 
