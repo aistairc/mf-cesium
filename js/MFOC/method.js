@@ -658,6 +658,7 @@ MFOC.adjustCameraView = function(viewer, bounding){
     return;
   }
 
+  console.log(bounding);
   setTimeout(function(){
     if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
       viewer.camera.flyToBoundingSphere(bounding, {
@@ -770,4 +771,39 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
   div.appendChild(show_direction_radar);
 
   MFOC.drawBackRadar(div_id);
+}
+
+
+
+MFOC.prototype.clickMovingFeature = function(name){
+
+  if (this.projection != null){
+    if (!this.projection.isDestroyed()){
+      this.primitives.remove(this.projection);
+    }
+    this.projection = null;
+  }
+  if (this.time_label.length != 0){
+    for (var i = 0 ; i < this.time_label.length ; i++){
+      if (this.time_label[i] != null && this.time_label[i] != undefined)
+        this.viewer.entities.remove(this.time_label[i]);
+    }
+  }
+
+  this.time_label = [];
+
+  if (this.mode == '3D'){
+    var ret = mfoc.showHeightBar(name);
+    this.projection = this.primitives.add(ret[0]);
+
+    var time_label = ret[1];
+    for (var i  = 0 ; i < time_label.length ; i++){
+      this.time_label.push(this.viewer.entities.add(time_label[i]));
+    }
+
+  }
+
+
+  return 1;
+
 }

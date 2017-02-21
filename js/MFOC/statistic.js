@@ -23,7 +23,7 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
       r_color = Cesium.Color.fromRandom({
         maximumRed : 0.3,
         minimumBlue : 0.7,
-        maximumGreen : 0.3,
+        minimumGreen : 0.6,
         alpha : 1.0
       });
     }
@@ -72,7 +72,7 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         r_color = Cesium.Color.fromRandom({
           maximumRed : 0.3,
           minimumBlue : 0.7,
-          maximumGreen : 0.3,
+          minimumGreen : 0.6,
           alpha : 1.0
         });
       }

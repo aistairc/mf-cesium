@@ -16,20 +16,14 @@ function MFOC(viewer){
   this.radar_id = null;
 
   this.projection = null;
+  this.time_label = [];
 
   if (isNaN( new Date("2015-07-30 09:00:00").getTime() )){
     alert("this browser maybe something error to draw MovingFeatures.. i recommend chrome.");
   };
 
   var mfoc = this;
-  this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
-  this.handler.setInputAction(function (movement) {
-    var pick = mfoc.viewer.scene.pick(movement.position);
-    if (Cesium.defined(pick)) {
-      //console.log(pick.primitive.name);
-      mfoc.projection = mfoc.primitives.add(mfoc.showProjection(pick.primitive.name));
-    }
-  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
 }
 
 
