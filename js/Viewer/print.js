@@ -14,6 +14,9 @@ var printMenuState = "layer";
 var printedLayerList = [];
 var check_button;
 
+
+
+
 function backButton(){
   var printArea = document.getElementById('featureLayer');
   var printProperty = document.getElementById('property');
@@ -96,7 +99,7 @@ function delProperties(id, name) {
 }
 function printProperty(data){
   var feature_property = [];
-  var feature_list = data.features;
+  var feature_list = data;
   var upper_ul = document.createElement("ul");
   console.log(feature_list);
   for(var i = 0 ; i < feature_list.length ; i++){
@@ -173,8 +176,8 @@ function updateProperties(id, name) {
 
 function searchPropertyInfo(id, name) { //
     for (var i = 0; i < features.length; i++) {
-        if (features[i].features[0].properties.name == id) {
-            var temporalProperties = features[i].features[0].temporalProperties;
+        if (features[i].properties.name == id) {
+            var temporalProperties = features[i].temporalProperties;
             for (var j = 0; j < temporalProperties.length; j++) {
                 if (temporalProperties[j].name == name) {
                     return temporalProperties[j];
@@ -300,28 +303,23 @@ function printWhole(layerID){
   var feature_list = getBuffer([layerID]);
   var chk = document.getElementById(layerID);
   if(feature_list.length !== 0){
-    console.log(chk);
+    console.log(chk.checked);
     if(chk.checked == true){
       console.log('check');
       console.log(layerID);
       for(var key in feature_list){
         var data = getBuffer([layerID,key]);
-          for(var i = 0 ; i < data.features.length ; i++){
-            console.log(data.features[0]);
-            mfoc.add(data.features[0]);
-          }
-
+        mfoc.add(data);
       }
       layer_checkAll(layerID,'chkf[]');
     }
     else{
       console.log('uncheck');
+
       for(var key in feature_list){
         var data = getBuffer([layerID,key]);
-        //console.log(data);
-          for(var i = 0 ; i < data.features.length ; i++){
-            mfoc.remove(data.features[0]);
-          }
+        console.log(data);
+        mfoc.remove(data);
         }
         layer_uncheckAll(layerID,'chkf[]');
         if (document.getElementById('pro_menu'))
@@ -346,18 +344,13 @@ function checkAll(name){
       var feature_name = temp[0];
       var data = getBuffer([feature_layer, feature_name]);
       if (checked[i].checked == true) {
-          mfoc.add(data.features[0]);
+          mfoc.add(data);
       } else {
         checked[i].checked = true;
-          mfoc.add(data.features[0]);
+          mfoc.add(data);
       }
   }
-  if(!printedLayerList.contains(layerID)){
-    printedLayerList.push(layerID);
-  }
-  var layerlist = document.getElementById('list');
-  layerlist.innerHTML = "";
-  layerlist.appendChild(printPrintedLayersList());
+
   drawFeature();
 }
 function layer_checkAll(featureLayerID, name){
@@ -376,30 +369,18 @@ function layer_checkAll(featureLayerID, name){
           var feature_name = temp[0];
           var data = getBuffer([feature_layer, feature_name]);
           if (checked[i].checked == true) {
-              mfoc.add(data.features[0]);
+              mfoc.add(data);
           } else {
             checked[i].checked = true;
-              mfoc.add(data.features[0]);
+              mfoc.add(data);
           }
       }
-        if(!printedLayerList.contains(featureLayerID)){
-          printedLayerList.push(featureLayerID);
-        }
-        var layerlist = document.getElementById('list');
-        layerlist.innerHTML = "";
-        layerlist.appendChild(printPrintedLayersList());
-        drawFeature();
+
+
     }
   }
-  else{
-    if(!printedLayerList.contains(featureLayerID)){
-      printedLayerList.push(featureLayerID);
-    }
-    var layerlist = document.getElementById('list');
-    layerlist.innerHTML = "";
-    layerlist.appendChild(printPrintedLayersList());
     drawFeature();
-  }
+
 
 }
 function layer_uncheckAll(featureLayerID, name){
@@ -419,35 +400,18 @@ function layer_uncheckAll(featureLayerID, name){
           var data = getBuffer([feature_layer, feature_name]);
           if (checked[i].checked == true) {
               checked[i].checked = false;
-              mfoc.remove(data.features[0]);
+              mfoc.remove(data);
           } else {
-            mfoc.remove(data.features[0]);
+            mfoc.remove(data);
           }
       }
     }
-      /*
-      if(printedLayerList.contains(featureLayerID)){
-        printedLayerList.splice(printedLayerList.indexOf(featureLayerID),1);
-        console.log('splice!!');
-      }
-      var layerlist = document.getElementById('list');
-      layerlist.innerHTML = "";
-      layerlist.appendChild(printPrintedLayersList());
-      */
 
       drawFeature();
 
 
   }
   else{
-    /*
-    if(printedLayerList.contains(featureLayerID)){
-      printedLayerList.splice(printedLayerList.indexOf(featureLayerID),1);
-    }
-    var layerlist = document.getElementById('list');
-    layerlist.innerHTML = "";
-    layerlist.appendChild(printPrintedLayersList());
-    */
 
     drawFeature();
   }
@@ -474,20 +438,12 @@ function uncheckAll(name){
       var data = getBuffer([feature_layer, feature_name]);
       if (checked[i].checked == true) {
           checked[i].checked = false;
-          mfoc.remove(data.features[0]);
+          mfoc.remove(data);
       } else {
-        mfoc.remove(data.features[0]);
+        mfoc.remove(data);
       }
   }
 
-  /*
-  if(printedLayerList.contains(layerID)){
-    printedLayerList.splice(printedLayerList.indexOf(layerID),1);
-  }
-  var layerlist = document.getElementById('list');
-  layerlist.innerHTML = "";
-  layerlist.appendChild(printPrintedLayersList());
-  */
   drawFeature();
 }
 function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
@@ -607,8 +563,8 @@ function printFeature(featureID, data, id) {
     if (!features.contains(data)) {
         features.push(data);
       }
-        var name = data.features[0].properties.name;
-        var temporalProperties = data.features[0].temporalProperties;
+        var name = data.properties.name;
+        var temporalProperties = data.temporalProperties;
         var li = document.createElement("li");
         var a = document.createElement("a");
         var ul = document.createElement("ul");
@@ -665,17 +621,15 @@ function getCheckedFeatures() {
             if(!printedLayerList.contains(feature_layer)){
               printedLayerList.push(feature_layer);
             }
-            mfoc.add(data.features[0]);
+            mfoc.add(data);
         } else {
-            mfoc.remove(data.features[0]);
+            mfoc.remove(data);
         }
     }
 
 
 
-    var layer_list = document.getElementById('list');
-    layer_list.innerHTML = "";
-    layer_list.appendChild(printPrintedLayersList());
+    
 }
 
 function drawFeature() { //아이디로 찾을까
