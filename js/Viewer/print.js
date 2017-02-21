@@ -12,15 +12,21 @@ var his_temporalproperty;
 var printMenuState = "layer";
 
 var printedLayerList = [];
+var check_button;
 
 function backButton(){
   var printArea = document.getElementById('featureLayer');
   var printProperty = document.getElementById('property');
   var printGraph = document.getElementById('graph');
   var printState = document.getElementById('printMenuState');
+  var printedLayer = document.getElementById('layer_list');
+  var property_panel = document.getElementById("property_panel");
+  var menu = document.getElementById('menu_list');
+
   if(printMenuState == "layer"){}
   else if(printMenuState == "features"){
-
+    var chk_btn = document.getElementById('check_all_buttons');
+    chk_btn.parentNode.removeChild(chk_btn);
     printMenuState = 'layer';
     printState.innerText = printMenuState;
     printArea.innerHTML = "";
@@ -28,19 +34,18 @@ function backButton(){
 
   }
   else if(printMenuState == "feature"){
-
    printMenuState = 'features';
+   menu.insertBefore(check_button,document.getElementById('featureLayer'));
    printState.innerText = printMenuState;
-   drawFeature();
-   var printedLayer = document.getElementById('layer_list');
    printedLayer.style.visibility = "visible";
-   var property_panel = document.getElementById("property_panel");
    property_panel.style.visibility = "hidden";
    printArea.innerHTML = "";
    printProperty.innerHTML = "";
    printGraph.innerHTML = "";
    printGraph.style.height = "0%";
    printArea.appendChild(his_features);
+
+   drawFeature();
  }
   else{
     console.log("nothing to do");
@@ -63,7 +68,6 @@ function changeMode() {
 
 function putProperties(id, name) {
     var obj = searchPropertyInfo(id, name);
-    //console.log(obj);
     if (obj !== null) {
         var isExistPro = false;
         if (properties.length != 0) {
@@ -78,7 +82,6 @@ function putProperties(id, name) {
                 properties.push(obj);
             }
         } else {
-            //console.log(obj);
             properties.push(obj);
         }
     }
@@ -92,27 +95,21 @@ function delProperties(id, name) {
     }
 }
 function printProperty(data){
-
   var feature_property = [];
   var feature_list = data.features;
+  var upper_ul = document.createElement("ul");
   console.log(feature_list);
   for(var i = 0 ; i < feature_list.length ; i++){
-    //var type = feature_list[i].type;
     var temp_feature_property = [];
     for (var key in feature_list[i].properties){
         temp_feature_property.push([key,feature_list[i].properties[key]]);
-        // use val
-
     }
     feature_property.push(temp_feature_property);
   }
 
   console.log(feature_property);
 
-  //console.log(feature_list);
-  //console.log(feature_property);
-  //var property_panel = document.getElementById('property');
-  var upper_ul = document.createElement("ul");
+
   upper_ul.className = "list-group";
   for(var i = 0 ; i < feature_property.length ; i++){
   var feature_li = document.createElement("li");
@@ -133,6 +130,8 @@ function printProperty(data){
 function updateProperties(id, name) {
 
     var chk = document.getElementById(id + "_" + name);
+    var graph = document.getElementById('graph').style;
+    var cesiumContainer = document.getElementById("cesiumContainer");
     console.log(id, name, chk);
     if (chk.checked == true) {
         if (property_name !== name) {
@@ -152,9 +151,9 @@ function updateProperties(id, name) {
                 this.checked = true;
             }
         });
-        var graph = document.getElementById('graph').style;
+
         graph.height = "20%";
-        var cesiumContainer = document.getElementById("cesiumContainer");
+
         //graph.opacity = "0.5";
         mfoc.showProperty(name, "graph");
         console.log("finish");
@@ -165,9 +164,7 @@ function updateProperties(id, name) {
             }
         });
         property_name = "";
-        var graph = document.getElementById('graph').style;
         graph.height = "0%";
-        var cesiumContainer = document.getElementById("cesiumContainer");
         cesiumContainer.style.height = "100%";
     }
 
@@ -271,8 +268,6 @@ function printFeatureLayerList_local(arr,url,id){
 
 function printPrintedLayersList(){
   var list = document.createElement('ul');
-
-
   list.innerHTML = '';
   for(var i = 0 ; i < printedLayerList.length ; i++){
     var input_group = document.createElement('div');
@@ -293,8 +288,9 @@ function printPrintedLayersList(){
       }
     })(printedLayerList[i]);
     a.innerText = parse_layer_name(printedLayerList[i]);
-    input_group.appendChild(a);
     input_group.appendChild(chk);
+    input_group.appendChild(a);
+
     temp_list.appendChild(input_group);
     list.appendChild(temp_list);
   }
@@ -429,6 +425,7 @@ function layer_uncheckAll(featureLayerID, name){
           }
       }
     }
+      /*
       if(printedLayerList.contains(featureLayerID)){
         printedLayerList.splice(printedLayerList.indexOf(featureLayerID),1);
         console.log('splice!!');
@@ -436,17 +433,22 @@ function layer_uncheckAll(featureLayerID, name){
       var layerlist = document.getElementById('list');
       layerlist.innerHTML = "";
       layerlist.appendChild(printPrintedLayersList());
+      */
+
       drawFeature();
 
 
   }
   else{
+    /*
     if(printedLayerList.contains(featureLayerID)){
       printedLayerList.splice(printedLayerList.indexOf(featureLayerID),1);
     }
     var layerlist = document.getElementById('list');
     layerlist.innerHTML = "";
     layerlist.appendChild(printPrintedLayersList());
+    */
+
     drawFeature();
   }
 
@@ -478,48 +480,59 @@ function uncheckAll(name){
       }
   }
 
+  /*
   if(printedLayerList.contains(layerID)){
     printedLayerList.splice(printedLayerList.indexOf(layerID),1);
   }
   var layerlist = document.getElementById('list');
   layerlist.innerHTML = "";
   layerlist.appendChild(printPrintedLayersList());
+  */
   drawFeature();
 }
 function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
     var printedLayer = document.getElementById('layer_list');
-    printedLayer.style.visibility = "visible";
     var property_panel = document.getElementById("property_panel");
-    property_panel.style.visibility = "hidden";
     var target = document.createElement('ul');
     var check_all = document.createElement('li');
-    //check_all.innerText = "check all";
     var chk_all = document.createElement('input');
+    var unchk_all = document.createElement('input');
+    var printState = document.getElementById('printMenuState');
+    var menu = document.getElementById('menu_list');
+
+    printedLayer.style.visibility = "visible";
+    property_panel.style.visibility = "hidden";
+    check_all.style.display = "flex";
+    check_all.className = "list-group-item";
+
     chk_all.type = 'button';
+    chk_all.style="min-height : 100%";
+
     chk_all.className = "btn btn-default";
     chk_all.value = 'check all';
+    //chk_all.style.display = "flex";
+    chk_all.style.flex = '1';
     chk_all.onclick = (function(name){
       return function(){checkAll(name);};
     })("chkf[]");
     check_all.appendChild(chk_all);
-    target.appendChild(check_all);
+    check_all.id = "check_all_buttons";
 
-    var uncheck_all = document.createElement('li');
-    //uncheck_all.innerText = "uncheck all";
-    var unchk_all = document.createElement('input');
+    //unchk_all.style.display = "flex";
     unchk_all.type = 'button';
     unchk_all.className = "btn btn-default";
+    unchk_all.style="min-height : 100%";
     unchk_all.value = 'uncheck all';
+    unchk_all.style.flex = '1';
     unchk_all.onclick = (function(name){
       return function(){uncheckAll(name);};
     })("chkf[]");
-    uncheck_all.appendChild(unchk_all);
-    target.appendChild(uncheck_all);
-
-
+    check_all.appendChild(unchk_all);
+    menu.insertBefore(check_all,document.getElementById('featureLayer'));
+    check_button = check_all;
     target.className = "list-group-item";
     printMenuState = "features";
-    var printState = document.getElementById('printMenuState');
+
     printState.innerText = printMenuState + " :" + parse_layer_name(layerID);
 
     for (var i = 0; i < features_list.length; i++) {
@@ -558,9 +571,9 @@ function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
             }
         })();
 
-
-        div.appendChild(a);
         div.appendChild(chk);
+        div.appendChild(a);
+
         //li.appendChild(a);
         //li.appendChild(span);
         li.appendChild(div);
@@ -573,20 +586,24 @@ function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
     return target;
     //drawFeature();
 
-
 }
 
 function printFeature(featureID, data, id) {
-    printMenuState = 'feature';
+    var chk_btn = document.getElementById('check_all_buttons');
     var printState = document.getElementById('printMenuState');
     var property_panel = document.getElementById('property_panel');
-    printState.innerText = printMenuState +" : "+featureID;
     var printedLayers = document.getElementById('layer_list');
+    var target = document.createElement('ul');
+
+    printMenuState = 'feature';
+    chk_btn.parentNode.removeChild(chk_btn);
+    printState.innerText = printMenuState +" : "+featureID;
+
     printedLayers.style.visibility = "hidden";
     property_panel.style.visibility = "visible";
 
     //var target = document.getElementById(featureID);
-    var target = document.createElement('ul');
+
     if (!features.contains(data)) {
         features.push(data);
       }

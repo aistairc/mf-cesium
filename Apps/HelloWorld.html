@@ -49,7 +49,7 @@
         #left_toolbar {
             color: white;
             background-color: rgba(0, 0, 0, 0.5);
-            text-align: center;
+
         }
 
 
@@ -110,7 +110,7 @@
             cursor: pointer;
         }
         .input-group{
-          text-align:center;
+
           margin-left: auto; margin-right: auto; display: inline-block;
 
         }
@@ -120,13 +120,13 @@
         }
 
         .panel {
-            text-align: center;
+
         }
 
         .list-group-item {
             padding: 5px;
             color: #FFFFFF;
-            text-align: center;
+
             white-space: pre-wrap;
             color: white;
             text-decoration: none;
@@ -156,7 +156,7 @@
         .list-group {
             padding: 0px;
             white-space: pre-wrap;
-            text-align: center;
+
             background-color: rgba(1, 1, 1, 1);
             color: white;
             border-width: 0px;
@@ -178,6 +178,7 @@
             background-color: #787878;
             border-color: black;
             border: 1px;
+            text-align: center;
         }
 
         .axis text {
@@ -266,8 +267,8 @@
 <body style="margin-bottom:20%">
     <div id="left_toolbar" style="z-index:3 ; width:15% ;position:absolute;  height : 100% ;min-height:100%; ">
         <div class="panel panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
-            <ul class="list-group" style=" height: 100%;display : -webkit-flex; display : flex; flex-direction:column;">
-                <li class="list-group-item" onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black">Back</li>
+            <ul id = "menu_list" class="list-group" style=" height: 100%;display : -webkit-flex; display : flex; flex-direction:column;">
+                <li class="list-group-item" onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center;">Back</li>
                 <li id = "printMenuState" role="presentation" class="list-group-item active list-title" style="flex-grow : 0;"></li>
 
 
