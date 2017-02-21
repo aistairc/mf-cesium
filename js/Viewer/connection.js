@@ -1,5 +1,6 @@
 var buffer = {};
-
+var get_features_progress = 0;
+var get_total_progress = 0;
 function readTextFile(file, callback) {
     var rawFile = new XMLHttpRequest();
     rawFile.overrideMimeType("application/json");
@@ -27,9 +28,7 @@ function getLayer_local() {
         var list = printFeatureLayerList_local(printFeatureLayer_list, baseURL, 'featureLayer');
         console.log(list);
         var print = document.getElementById('featureLayer');
-
         print.innerHTML = "";
-
         printMenuState = 'layer';
         print.appendChild(list);
         console.log(buffer);
@@ -76,11 +75,15 @@ function getFeatures_local(url, layerID) {
             printMenuState = "features";
             drawFeature();
         } else {
+            get_features_progress = 0;
+            get_total_progress = promise_list.length;
+            console.log(get_features_progress,get_total_progress);
             Promise.all(promise_list).then(function(values) {
+              get_features_progress = 0;
+              get_total_progress = 0;
                 getdata = values;
                 for (var i = 0; i < getdata.length; i++) {
                     updateBuffer([layerID, printFeatures_list[i]], getdata[i], true);
-
                 }
                 var list = printFeatures(layerID, features['features'], "features");
                 var printArea = document.getElementById('featureLayer');
@@ -223,11 +226,23 @@ function getFeatures(url, layerID) {
     var promise_list = [];
     var get_data;
     var title = document.getElementById("title");
-    title.innerHTML = "loading";
+    var serverState = document.getElementById('serverState');
+    serverState.style.visibility = "visible";
+    serverState.innerText = "loading";
+    var parse_name = layerID;
+    parse_name = parse_name.replace('FeatureLayers',"");
+    parse_name = parse_name.replace('(','');
+    parse_name = parse_name.replace(")","");
+    parse_name = parse_name.replaceAll("\'","");
+    if(!printedLayerList.contains(layerID)){
+
+      printedLayerList.push(layerID);
+    }
     promise.then(function(arr) {
             features = arr;
             for (var i = 0; i < features.length; i++) {
                 if (getBuffer([layerID, features[i]]) == null) {
+
                     printFeatures_list.push(features[i]);
                     var new_url = url.replace("$ref", "");
                     new_url += features[i] + "?token=" + readCookie('token');
@@ -236,7 +251,12 @@ function getFeatures(url, layerID) {
 
             }
             if (promise_list.length == 0) { //이미 불러온 적이 있다
-                title.innerHTML = "finish";
+              var layerlist = document.getElementById('list');
+              layerlist.innerHTML = "";
+              layerlist.appendChild(printPrintedLayersList());
+              var serverState = document.getElementById('serverState');
+              serverState.style.visibility = "hidden";
+              serverState.innerText = "finish";
                 var new_url = url.replace("$ref", "");
                 var list = printFeatures(layerID, features, "features");
                 var printArea = document.getElementById('featureLayer');
@@ -247,7 +267,10 @@ function getFeatures(url, layerID) {
                 drawFeature();
             } else {
                 Promise.all(promise_list).then(function(values) {
-                    title.innerHTML = "finish";
+
+                  var serverState = document.getElementById('serverState');
+                  serverState.style.visibility = "visible";
+                  serverState.innerText = "finish";
                     get_data = values;
                     for (var i = 0; i < get_data.length; i++) {
                         updateBuffer([layerID, printFeatures_list[i]], get_data[i], true);
@@ -260,8 +283,13 @@ function getFeatures(url, layerID) {
                     his_features = list;
                     printArea.innerHTML = "";
                     printArea.appendChild(list);
+                    var layerlist = document.getElementById('list');
+                    layerlist.innerHTML = "";
+                    layerlist.appendChild(printPrintedLayersList());
                     printMenuState = "features";
                     drawFeature();
+                    setTimeout(function(){serverState.style.visibility = "hidden";},2000);
+
                 });
             }
 
@@ -285,6 +313,8 @@ function getFeature(layerID, featureID) {
     printArea.innerHTML = "";
     printArea.appendChild(list);
     printMenuState = "feature";
+
+
 }
 
 var request1 = function(url) {
@@ -354,6 +384,10 @@ var request3 = function(url) {
             return;
         }
         xhr.onload = function() {
+            //get_features_progress = get_features_progress + 1;
+            var serverState = document.getElementById('serverState');
+            serverState.style.visibility = "visible";
+            serverState.innerText = "loading";
             var text = xhr.responseText;
             resolved(text);
         };
