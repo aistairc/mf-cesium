@@ -84,7 +84,7 @@ MFOC.prototype.drawMovingPoint = function(geometry, name){
       pointCollection.add(MFOC.drawOnePoint(data[i], 0, r_color));
     }
   }
-
+  pointCollection.name = name;
   return pointCollection;
 }
 
@@ -93,6 +93,7 @@ MFOC.drawOnePoint = function(onePoint,height,r_color){ //it gets one point
   var position = Cesium.Cartesian3.fromDegrees(onePoint[0],onePoint[1],height);;
   pointInstance.position = position;
   pointInstance.color = r_color;
+  pointInstance.pixelSize = 6.0;
   return pointInstance;
 }
 
@@ -204,39 +205,48 @@ MFOC.prototype.drawPathMovingPoint = function(options){
     pro_min_max = MFOC.findMinMaxProperties(property);
   }
 
-  if (property == undefined){
-    var positions = MFOC.makeDegreesArray(data.coordinates, heights);
+  if (data.interpolations == 'Discrete'){
+    return this.drawMovingPoint(options.temporalGeometry, options.name);
+  }
 
-    instances.push(MFOC.drawInstanceOneLine(positions, color));
+  if (data.coordinates.length == 1){
+    console.log("one");
   }
   else{
-    for (var index = 0 ; index < data.coordinates.length - 1; index++){
-      var middle_value = (property.values[index] + property.values[index+1]) / 2;
-      var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
-      if (blue_rate < 0.2){
-        blue_rate = 0.2;
-      }
-      if (blue_rate > 0.9){
-        blue_rate = 0.9;
-      }
-      color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
-
-      var positions;
-      if (this.mode == '2D'){
-        positions =
-        (data.coordinates[index].concat([0]))
-        .concat(data.coordinates[index+1].concat([0]));
-      }
-      else {
-        positions =
-        (data.coordinates[index].concat(heights[index]))
-        .concat(data.coordinates[index+1].concat(heights[index+1]));
-      }
-
+    if (property == undefined){
+      var positions = MFOC.makeDegreesArray(data.coordinates, heights);
       instances.push(MFOC.drawInstanceOneLine(positions, color));
     }
+    else{
+      for (var index = 0 ; index < data.coordinates.length - 1; index++){
+        var middle_value = (property.values[index] + property.values[index+1]) / 2;
+        var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+        if (blue_rate < 0.2){
+          blue_rate = 0.2;
+        }
+        if (blue_rate > 0.9){
+          blue_rate = 0.9;
+        }
+        color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
 
+        var positions;
+        if (this.mode == '2D'){
+          positions =
+          (data.coordinates[index].concat([0]))
+          .concat(data.coordinates[index+1].concat([0]));
+        }
+        else {
+          positions =
+          (data.coordinates[index].concat(heights[index]))
+          .concat(data.coordinates[index+1].concat(heights[index+1]));
+        }
+
+        instances.push(MFOC.drawInstanceOneLine(positions, color));
+      }
+
+    }
   }
+
 
   var prim = new Cesium.Primitive({
     geometryInstances: instances,
@@ -268,6 +278,10 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
 
 
   var color = this.getColor(options.name).withAlpha(0.6);
+
+  if (geometry.interpolations == 'Discrete'){
+    return this.drawMovingPolygon(geometry, options.name);
+  }
 
   if (this.mode == '2D'){
     color = this.getColor(options.name).withAlpha(0.2);
@@ -648,18 +662,23 @@ MFOC.prototype.showHeightBar = function(name){
   pole = [179,89,heights[0],179,89,heights[geometry.datetimes.length-1]];
   instances.push(MFOC.drawInstanceOneLine(pole, Cesium.Color.RED.withAlpha(1.0), 10));
 
-  //show label
-  for (var i = 0 ; i < 2 ; i++){
-    time_label.push({
-      position : Cesium.Cartesian3.fromDegrees(178, 75, heights[i * (geometry.datetimes.length-1)]),
+ time_label.push({
+      position : Cesium.Cartesian3.fromDegrees(174, 78, heights[0]),
       label : {
-        text : geometry.datetimes[i *  (geometry.datetimes.length-1)],
+        text : geometry.datetimes[0],
+        font : '15pt monospace',
+        verticalOrigin : Cesium.VerticalOrigin.TOP
+      }
+    });
+ time_label.push({
+      position : Cesium.Cartesian3.fromDegrees(178, 75, heights[geometry.datetimes.length-1]),
+      label : {
+        text : geometry.datetimes[geometry.datetimes.length-1],
         font : '15pt monospace',
         verticalOrigin : Cesium.VerticalOrigin.TOP
       }
     });
 
-  }
 
   // show projection and red dot line
   // for (var index = 0 ; index < geometry.coordinates.length ; index++){

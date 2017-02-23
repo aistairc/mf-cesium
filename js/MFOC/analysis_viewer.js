@@ -134,8 +134,9 @@ MFOC.selectProperty = function(mfoc, graph_id){
     document.getElementById('pro_menu').remove();
   }
   document.getElementById(graph_id).innerHTML = '';
-  document.getElementById(graph_id).style.cursor = 'pointer';
   document.getElementById(graph_id).style.height = '0%';
+  document.getElementById(graph_id).style.cursor = 'pointer';
+
 //  document.getElementById(graph_id).style.width = '85%';
 //  document.getElementById(graph_id).style.left = '15%';
 

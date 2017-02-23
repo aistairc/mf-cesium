@@ -143,7 +143,7 @@ MFOC.getCenter = function(coordinates, type){
 
 
 
-MFOC.prototype.showPropertyArray = function(array, div_id){
+MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
 
   document.getElementById(div_id).innerHTML = '';
 
@@ -155,6 +155,7 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
 
   var name_arr = [];
   var object_arr = [];
+  var mfoc = this;
 
   for (var i = 0 ; i < array.length ; i++){
     object_arr.push(array[i][0]);
@@ -243,7 +244,8 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
         .append("circle")
         .attr("cx", function(d,i) { return x(d.date); } )
         .attr("cy", function(d,i) { return y(d.value); } )
-        .attr("r", 5);
+        .attr("r", 1)
+        .style("fill", r_color);
       }
     }
     else{
@@ -258,6 +260,37 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
     }
 
   }
+
+  var drag = d3.drag()
+    .on("start", dragstarted)
+  //  .on("drag", dragged)
+    .on("end", dragended);
+  svg.call(drag);
+
+  var start_coord;
+
+  function dragstarted(d){
+    d3.event.sourceEvent.stopPropagation();
+    start_coord = d3.mouse(this);
+    console.log(start_coord);
+    //d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+    d3.select(this).classed("dragging", true);
+  }
+
+  function dragended(d){
+    d3.select(this).classed("dragging", false);
+    var end_coord = d3.mouse(this);
+    var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
+    console.log(end_coord);
+
+    var start_date = formatDate(x.invert(start_coord[0]-51.09)),
+    end_date =  formatDate(x.invert(end_coord[0]-51.09));
+
+    mfoc.spliceByTime(new Date(start_date), new Date(end_date));
+    mfoc.update();
+    mfoc.showProperty(propertyName, div_id);
+  }
+
   svg.on("click", function () {
 
     var coords = d3.mouse(this);
