@@ -110,17 +110,14 @@ function getBuffer(id) {
             return buffer[id[0]];
         }
     } else if (id.length == 2) {
-      if(buffer[id[0]][id[1]] !== undefined){
-        return buffer[id[0]][id[1]];
-      }
-      /*
+
       if (buffer.hasOwnProperty(id[0])) {
           var temp = buffer[id[0]];
           if (temp.hasOwnProperty(id[1])) {
               return temp[id[1]];
           }
       }
-      */
+
 
     }
     return null;
@@ -143,7 +140,7 @@ function updateBuffer(id, feature, bool) {
                 if (!buffer[id[0]].hasOwnProperty(id[1])) {
                     buffer[id[0]][id[1]] = {};
                     buffer[id[0]][id[1]] = JSON.parse(feature);
-                    console.log(buffer[id[0]][id[1]]);
+                    
                 }
             }
         }
@@ -237,16 +234,14 @@ function getFeatures(url, layerID) {
     var serverState = document.getElementById('serverState');
     serverState.style.visibility = "visible";
     serverState.innerText = "loading";
-    var parse_name = layerID;
-    parse_name = parse_name.replace('FeatureLayers',"");
-    parse_name = parse_name.replace('(','');
-    parse_name = parse_name.replace(")","");
-    parse_name = parse_name.replaceAll("\'","");
+    var parse_name = parse_layer_name(layerID);
+
     if(!printedLayerList.contains(layerID)){
 
       printedLayerList.push(layerID);
     }
     promise.then(function(arr) {
+
             features = arr;
             for (var i = 0; i < features.length; i++) {
                 if (getBuffer([layerID, features[i]]) == null) {
@@ -258,6 +253,7 @@ function getFeatures(url, layerID) {
                 }
 
             }
+
             if (promise_list.length == 0) { //이미 불러온 적이 있다
               var layerlist = document.getElementById('list');
               layerlist.innerHTML = "";
@@ -296,6 +292,7 @@ function getFeatures(url, layerID) {
                     var layerlist = document.getElementById('list');
                     layerlist.innerHTML = "";
                     layerlist.appendChild(printPrintedLayersList());
+
                     printMenuState = "features";
                     drawFeature();
                     setTimeout(function(){serverState.style.visibility = "hidden";},2000);
