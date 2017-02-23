@@ -2,7 +2,7 @@
 MFOC.drawBackRadar = function(div_id){
   var radar_canvas = document.getElementById('radar');
 
-  radar_canvas.style.top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight + 10 + 'px';
+//  radar_canvas.style.top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight + 10 + 'px';
   radar_canvas.style.position = 'absolute';
   radar_canvas.style.zIndex = '21';
   radar_canvas.style.right = '5px';
@@ -62,7 +62,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
   var table = document.createElement('table');
   table.style.paddingTop = '10px';
 
-  var degree_string = ['longitude(°) : ','latitude(°) : ','time(days) : '];
+  var degree_string = ['long(°) : ','lat(°) : ','time(days) : '];
   for (var i = 0 ; i < 3 ; i++){
     var row = table.insertRow(table.rows.length);
     row.id = 'degree_row_'+i;
@@ -74,7 +74,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
     input.id = 'degree_' + i;
     input.value = 5;
     input.style.color = 'black';
-    input.style.width = '50px';
+    input.style.width = '30px';
     cell2.appendChild(input);
 
   }
@@ -1006,8 +1006,12 @@ MFOC.prototype.add = function(mf){
         console.log("it is not MovingFeature!!@!@!");
         return 0;
       }
-      if (this.contains(mf_temp)){
+      if (this.features.indexOf(mf_temp) != -1){
         return this.features.length;
+      }
+      var index = this.zoomoutfeatures.indexOf(mf_temp);
+      if (index != -1){
+        this.zoomoutfeatures.splice(index, 1);
       }
       this.features.push(mf_temp);
     }
@@ -1017,8 +1021,12 @@ MFOC.prototype.add = function(mf){
       console.log("it is not MovingFeature!!@!@!");
       return 0;
     }
-    if (this.contains(mf)){
+    if (this.features.indexOf(mf) != -1){
       return this.features.length;
+    }
+    var index = this.zoomoutfeatures.indexOf(mf_temp);
+    if (index != -1){
+      this.zoomoutfeatures.splice(index, 1);
     }
     this.features.push(mf);
   }
@@ -1682,17 +1690,17 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
   div.style.top = '120px'
   //div.style.paddingTop = 0;
   div.style.color = 'white';
-  div.style.backgroundColor = 'rgba(0,0,0,0)';
+  div.style.backgroundColor = 'rgba(0,0,0,0.4)';
   div.style.right = '5px';
   div.style.border = '1px solid black';
-  div.style.width = '200px'
+//  div.style.width = '200px'
   div.style.padding = '0px';
   div.className = "list-group-item active";
 
   var title = document.createElement("div");
   title.appendChild(document.createTextNode("  ANALYSIS"));
   title.style.paddingTop = '4px';
-  title.style.height = '9%';
+  title.style.height = '10%';
   title.style.width = '100%';
   title.style.textAlign = 'center';
   title.style.verticalAlign = 'middle';
@@ -1714,7 +1722,7 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
     div_arr[i].style.borderBottom = '1px solid white';
     div_arr[i].style.display = 'flex';
     div_arr[i].style.alignItems = 'center';
-    div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
+    //div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
     div_arr[i].style.border = '1px solid white';
     //div_arr[i].style.borderRadius = '15px';
   }
@@ -1823,20 +1831,30 @@ MFOC.prototype.update = function(){
 
 MFOC.prototype.spliceByTime = function(start, end){//Date, Date
   var mf_arr = this.features;
-
   var new_mf_arr = [];
+  var del_mf_arr = [];
   for (var i = 0 ; i < mf_arr.length ; i++){
     var min_max_date = MFOC.findMinMaxTime(mf_arr[i].temporalGeometry.datetimes);
     if (min_max_date[1] < start || min_max_date[0] > end){
-
+      del_mf_arr.push(mf_arr[i]);
     }
     else{
       new_mf_arr.push(mf_arr[i]);
     }
   }
-  this.features = new_mf_arr;
 
-  return new_mf_arr;
+  for (var i = 0 ; i < this.zoomoutfeatures.length ; i++){
+    var min_max_date = MFOC.findMinMaxTime(this.zoomoutfeatures[i].temporalGeometry.datetimes);
+    if (min_max_date[1] < start || min_max_date[0] > end){
+      del_mf_arr.push(this.zoomoutfeatures[i]);
+    }
+    else{
+      new_mf_arr.push(this.zoomoutfeatures[i]);
+    }
+  }
+
+  this.features = new_mf_arr;
+  this.zoomoutfeatures = del_mf_arr;
 }
 function MFOC(viewer){
   this.viewer = viewer;
@@ -1850,7 +1868,7 @@ function MFOC(viewer){
   this.bounding_sphere = null;
   this.color_arr = {};
   this.radar_on = false;
-
+  this.zoomoutfeatures = [];
   this.graph_id =null;
   this.analysis_id = null;
   this.radar_id = null;
@@ -2399,7 +2417,7 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
       cumulative.north.total_life += life;
       cumulative.north.total_length += length;
       r_color = Cesium.Color.fromRandom({
-        maximumRed : 0.3,
+        maximumRed : 0.2,
         minimumBlue : 0.7,
         minimumGreen : 0.6,
         alpha : 1.0
@@ -2410,8 +2428,8 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
       cumulative.south.total_length += length;
       r_color = Cesium.Color.fromRandom({
         minimumRed : 0.7,
-        maximumBlue : 0.3,
-        maximumGreen : 0.3,
+        maximumBlue : 0.2,
+        maximumGreen : 0.2,
         alpha : 1.0
       });
     }
@@ -2426,8 +2444,8 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         cumulative.east.total_life += life;
         cumulative.east.total_length += length;
         r_color = Cesium.Color.fromRandom({
-          maximumRed : 0.3,
-          maximumBlue : 0.3,
+          maximumRed : 0.2,
+          maximumBlue : 0.2,
           minimumGreen : 0.7,
           alpha : 1.0
         });
@@ -2437,7 +2455,7 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         cumulative.west.total_length += length;
         r_color = Cesium.Color.fromRandom({
           minimumRed : 0.7,
-          maximumBlue : 0.3,
+          maximumBlue : 0.2,
           minimumGreen : 0.7,
           alpha : 1.0
         });
@@ -2448,7 +2466,7 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         cumulative.north.total_life += life;
         cumulative.north.total_length += length;
         r_color = Cesium.Color.fromRandom({
-          maximumRed : 0.3,
+          maximumRed : 0.2,
           minimumBlue : 0.7,
           minimumGreen : 0.6,
           alpha : 1.0
@@ -2459,8 +2477,8 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         cumulative.south.total_length += length;
         r_color = Cesium.Color.fromRandom({
           minimumRed : 0.7,
-          maximumBlue : 0.3,
-          maximumGreen : 0.3,
+          maximumBlue : 0.2,
+          maximumGreen : 0.2,
           alpha : 1.0
         });
       }
@@ -2522,6 +2540,7 @@ MFOC.getCenter = function(coordinates, type){
 
 
 MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
+
 
   document.getElementById(div_id).innerHTML = '';
 
@@ -2641,28 +2660,65 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
 
   var drag = d3.drag()
     .on("start", dragstarted)
-  //  .on("drag", dragged)
+    .on("drag", dragged)
     .on("end", dragended);
   svg.call(drag);
 
   var start_coord;
+  var rect ;
 
   function dragstarted(d){
     d3.event.sourceEvent.stopPropagation();
     start_coord = d3.mouse(this);
+    rect = svg.append("rect")
+      .attr("fill", d3.rgb(0,0,0,0.5));
+
+    if (start_coord[0]-margin.right <= 0){
+      return;
+    }
+    var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
     console.log(start_coord);
+    viewer.clock.currentTime=Cesium.JulianDate.fromDate(new Date(formatDate(x.invert(start_coord[0]-51.09))));
+    viewer.clock.shouldAnimate = false;
+    //    console.log(rect);
+    //  console.log(start_coord);
     //d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
     d3.select(this).classed("dragging", true);
+  }
+
+  function dragged(d){
+    var coord = d3.mouse(this);
+
+    rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
+    rect.attr("height", height + margin.bottom);
+    rect.attr("x", start_coord[0]);
+
   }
 
   function dragended(d){
     d3.select(this).classed("dragging", false);
     var end_coord = d3.mouse(this);
     var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-    console.log(end_coord);
+  //  console.log(end_coord);
+    var start_date, end_date;
 
-    var start_date = formatDate(x.invert(start_coord[0]-51.09)),
-    end_date =  formatDate(x.invert(end_coord[0]-51.09));
+    if (end_coord[0] > start_coord[0]){
+      start_date = formatDate(x.invert(start_coord[0]-51.09));
+      end_date =  formatDate(x.invert(end_coord[0]-51.09));
+      if (end_coord[0] - start_coord[0] < 100){
+        rect.remove();
+        return;
+      }
+    }
+    else{
+      if (start_coord[0] - end_coord[0] < 100){
+        rect.remove();
+        return;
+      }
+
+      start_date = formatDate(x.invert(end_coord[0]-51.09));
+      end_date =  formatDate(x.invert(start_coord[0]-51.09));
+    }
 
     mfoc.spliceByTime(new Date(start_date), new Date(end_date));
     mfoc.update();
@@ -2671,15 +2727,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
 
   svg.on("click", function () {
 
-    var coords = d3.mouse(this);
-    var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
 
-    if (coords[0]-margin.right <= 0){
-      return;
-    }
-    var isodate = formatDate(x.invert(coords[0]-51.09));
-    viewer.clock.currentTime=Cesium.JulianDate.fromDate(new Date(isodate));
-    viewer.clock.shouldAnimate = false;
   });
 
 }

@@ -2,7 +2,7 @@
 MFOC.drawBackRadar = function(div_id){
   var radar_canvas = document.getElementById('radar');
 
-  radar_canvas.style.top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight + 10 + 'px';
+//  radar_canvas.style.top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight + 10 + 'px';
   radar_canvas.style.position = 'absolute';
   radar_canvas.style.zIndex = '21';
   radar_canvas.style.right = '5px';
@@ -62,7 +62,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
   var table = document.createElement('table');
   table.style.paddingTop = '10px';
 
-  var degree_string = ['longitude(°) : ','latitude(°) : ','time(days) : '];
+  var degree_string = ['long(°) : ','lat(°) : ','time(days) : '];
   for (var i = 0 ; i < 3 ; i++){
     var row = table.insertRow(table.rows.length);
     row.id = 'degree_row_'+i;
@@ -74,7 +74,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
     input.id = 'degree_' + i;
     input.value = 5;
     input.style.color = 'black';
-    input.style.width = '50px';
+    input.style.width = '30px';
     cell2.appendChild(input);
 
   }

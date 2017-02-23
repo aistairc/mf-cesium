@@ -10,7 +10,7 @@ function MFOC(viewer){
   this.bounding_sphere = null;
   this.color_arr = {};
   this.radar_on = false;
-
+  this.zoomoutfeatures = [];
   this.graph_id =null;
   this.analysis_id = null;
   this.radar_id = null;
