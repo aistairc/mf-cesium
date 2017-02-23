@@ -84,7 +84,7 @@ MFOC.prototype.drawMovingPoint = function(geometry, name){
       pointCollection.add(MFOC.drawOnePoint(data[i], 0, r_color));
     }
   }
-
+  pointCollection.name = name;
   return pointCollection;
 }
 
@@ -93,6 +93,7 @@ MFOC.drawOnePoint = function(onePoint,height,r_color){ //it gets one point
   var position = Cesium.Cartesian3.fromDegrees(onePoint[0],onePoint[1],height);;
   pointInstance.position = position;
   pointInstance.color = r_color;
+  pointInstance.pixelSize = 6.0;
   return pointInstance;
 }
 
@@ -204,39 +205,48 @@ MFOC.prototype.drawPathMovingPoint = function(options){
     pro_min_max = MFOC.findMinMaxProperties(property);
   }
 
-  if (property == undefined){
-    var positions = MFOC.makeDegreesArray(data.coordinates, heights);
+  if (data.interpolations == 'Discrete'){
+    return this.drawMovingPoint(options.temporalGeometry, options.name);
+  }
 
-    instances.push(MFOC.drawInstanceOneLine(positions, color));
+  if (data.coordinates.length == 1){
+    console.log("one");
   }
   else{
-    for (var index = 0 ; index < data.coordinates.length - 1; index++){
-      var middle_value = (property.values[index] + property.values[index+1]) / 2;
-      var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
-      if (blue_rate < 0.2){
-        blue_rate = 0.2;
-      }
-      if (blue_rate > 0.9){
-        blue_rate = 0.9;
-      }
-      color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
-
-      var positions;
-      if (this.mode == '2D'){
-        positions =
-        (data.coordinates[index].concat([0]))
-        .concat(data.coordinates[index+1].concat([0]));
-      }
-      else {
-        positions =
-        (data.coordinates[index].concat(heights[index]))
-        .concat(data.coordinates[index+1].concat(heights[index+1]));
-      }
-
+    if (property == undefined){
+      var positions = MFOC.makeDegreesArray(data.coordinates, heights);
       instances.push(MFOC.drawInstanceOneLine(positions, color));
     }
+    else{
+      for (var index = 0 ; index < data.coordinates.length - 1; index++){
+        var middle_value = (property.values[index] + property.values[index+1]) / 2;
+        var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+        if (blue_rate < 0.2){
+          blue_rate = 0.2;
+        }
+        if (blue_rate > 0.9){
+          blue_rate = 0.9;
+        }
+        color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
 
+        var positions;
+        if (this.mode == '2D'){
+          positions =
+          (data.coordinates[index].concat([0]))
+          .concat(data.coordinates[index+1].concat([0]));
+        }
+        else {
+          positions =
+          (data.coordinates[index].concat(heights[index]))
+          .concat(data.coordinates[index+1].concat(heights[index+1]));
+        }
+
+        instances.push(MFOC.drawInstanceOneLine(positions, color));
+      }
+
+    }
   }
+
 
   var prim = new Cesium.Primitive({
     geometryInstances: instances,
@@ -268,6 +278,10 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
 
 
   var color = this.getColor(options.name).withAlpha(0.6);
+
+  if (geometry.interpolations == 'Discrete'){
+    return this.drawMovingPolygon(geometry, options.name);
+  }
 
   if (this.mode == '2D'){
     color = this.getColor(options.name).withAlpha(0.2);
@@ -487,7 +501,7 @@ MFOC.drawOneCube = function(positions, rating = 1.0){
   if (green_rate > 1.0){
     green_rate = 1.0;
   }
-  var alpha = rating + 0.4;
+  var alpha = rating + 0.1;
   if (alpha > 1.0) alpha = 1.0;
   var rating_color = new Cesium.Color(
     red_rate,
@@ -575,12 +589,6 @@ MFOC.prototype.drawZaxisLabel = function(){
 
 
 MFOC.prototype.showProjection = function(name){
-  if (this.projection != null){
-    if (!this.projection.isDestroyed()){
-      this.primitives.remove(this.projection);
-    }
-    this.projection = null;
-  }
 
   var mf = this.getFeatureByName(name);
   var color = this.getColor(name);
@@ -635,4 +643,83 @@ MFOC.prototype.showProjection = function(name){
     allowPicking : false
   });
   return prim;
+}
+
+MFOC.prototype.showHeightBar = function(name){
+
+  var mf = this.getFeatureByName(name);
+  var color = this.getColor(name);
+
+  var geometry = mf.temporalGeometry;
+  var instances = [];
+  var time_label = [];
+  //upper
+  var pole = [];
+  var upper_pos = [];
+  var right_pos = [];
+
+  var heights = this.getListOfHeight(geometry.datetimes);
+  pole = [179,89,heights[0],179,89,heights[geometry.datetimes.length-1]];
+  instances.push(MFOC.drawInstanceOneLine(pole, Cesium.Color.RED.withAlpha(1.0), 10));
+
+ time_label.push({
+      position : Cesium.Cartesian3.fromDegrees(174, 78, heights[0]),
+      label : {
+        text : geometry.datetimes[0],
+        font : '15pt monospace',
+        verticalOrigin : Cesium.VerticalOrigin.TOP
+      }
+    });
+ time_label.push({
+      position : Cesium.Cartesian3.fromDegrees(178, 75, heights[geometry.datetimes.length-1]),
+      label : {
+        text : geometry.datetimes[geometry.datetimes.length-1],
+        font : '15pt monospace',
+        verticalOrigin : Cesium.VerticalOrigin.TOP
+      }
+    });
+
+
+  // show projection and red dot line
+  // for (var index = 0 ; index < geometry.coordinates.length ; index++){
+  //   var xy;
+  //   if (geometry.type != 'MovingPoint'){
+  //     xy = MFOC.getCenter(geometry.coordinates[index], geometry.type);
+  //   }
+  //   else{
+  //     xy = geometry.coordinates[index];
+  //   }
+  //   upper_pos = upper_pos.concat([xy[0], 89, heights[index]]);
+  //   right_pos = right_pos.concat([179, xy[1], heights[index]]);
+  // }
+  //
+  // instances.push(MFOC.drawInstanceOneLine(upper_pos, color.withAlpha(1.0)));
+  // instances.push(MFOC.drawInstanceOneLine(right_pos, color.withAlpha(1.0)));
+  //
+  // for (var index = 0 ; index < 2 ; index++){
+  //   var i = index * (geometry.coordinates.length-1);
+  //   var xy;
+  //   if (geometry.type != 'MovingPoint'){
+  //     xy = MFOC.getCenter(geometry.coordinates[i], geometry.type);
+  //   }
+  //   else{
+  //     xy = geometry.coordinates[i];
+  //   }
+  //   var h = heights[i];
+  //   for (var j = xy[1] ; j < 87.4 ; j += 2.5){
+  //     instances.push(MFOC.drawInstanceOneLine([179, j, h, 179, j+1.25, h], Cesium.Color.RED.withAlpha(0.5)));
+  //   }
+  //   for (var j = xy[0] ; j < 177.4 ; j += 2.5){
+  //     instances.push(MFOC.drawInstanceOneLine([j, 89, h, j+1.25, 89, h], Cesium.Color.RED.withAlpha(0.5)));
+  //   }
+  //
+  // }
+
+  var prim = new Cesium.Primitive({
+    geometryInstances: instances,
+    appearance: new Cesium.PolylineColorAppearance(),
+    allowPicking : false
+  });
+
+  return [prim,time_label];
 }

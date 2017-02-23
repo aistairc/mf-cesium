@@ -1,4 +1,4 @@
-//User Method Definition
+﻿//User Method Definition
 
 MFOC.prototype.add = null;
 MFOC.prototype.drawPaths = null;
@@ -22,8 +22,12 @@ MFOC.prototype.add = function(mf){
         console.log("it is not MovingFeature!!@!@!");
         return 0;
       }
-      if (this.contains(mf_temp)){
+      if (this.features.indexOf(mf_temp) != -1){
         return this.features.length;
+      }
+      var index = this.zoomoutfeatures.indexOf(mf_temp);
+      if (index != -1){
+        this.zoomoutfeatures.splice(index, 1);
       }
       this.features.push(mf_temp);
     }
@@ -33,8 +37,12 @@ MFOC.prototype.add = function(mf){
       console.log("it is not MovingFeature!!@!@!");
       return 0;
     }
-    if (this.contains(mf)){
+    if (this.features.indexOf(mf) != -1){
       return this.features.length;
+    }
+    var index = this.zoomoutfeatures.indexOf(mf_temp);
+    if (index != -1){
+      this.zoomoutfeatures.splice(index, 1);
     }
     this.features.push(mf);
   }
@@ -165,10 +173,11 @@ MFOC.prototype.drawPaths = function(options){
     var path_prim;
 
     if (feature.temporalGeometry.type == "MovingPoint"){
-      path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPoint({
+      var prim = this.drawPathMovingPoint({
         temporalGeometry : feature.temporalGeometry,
         name : feature.properties.name
-      }));
+      });
+      path_prim = this.viewer.scene.primitives.add(prim);
     }
     else if(feature.temporalGeometry.type == "MovingPolygon"){
       path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
@@ -188,7 +197,7 @@ MFOC.prototype.drawPaths = function(options){
     this.path_prim_memory[feature.properties.name] = path_prim;
   }
   //this.adjustCameraView();
-  return this.bounding_sphere;
+  return this.min_max;
   //this.viewer.camera.flyTo({    destination : this.viewer.camera.position  });
 }
 
@@ -291,7 +300,7 @@ MFOC.prototype.showProperty = function(propertyName, divID){
   if (pro_arr.length == 0){
     return;
   }
-  this.showPropertyArray(pro_arr, divID);
+  this.showPropertyArray(propertyName, pro_arr, divID);
 }
 
 MFOC.prototype.highlight = function(movingfeatureName,propertyName){
@@ -320,18 +329,18 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
 
   this.min_max = this.findMinMaxGeometry([mf]);
   var type = mf.temporalGeometry.type;
+  this.clearViewer();
 
-  var bounding_sphere;
   if (this.mode == '3D'){
-    bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0, this.max_height]  );
+    this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0, this.max_height]  );
     this.viewer.scene.primitives.add(this.drawZaxis());
     this.viewer.entities.add(this.drawZaxisLabel());
   }
   else{
-    bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,0] );
+    this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,0] );
   }
 
-  this.clearViewer();
+
   var highlight_prim;
   if (type == 'MovingPolygon'){
     highlight_prim = this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
@@ -359,7 +368,8 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   this.animate({
     name : movingfeatureName
   });
-  return bounding_sphere;
+
+  return this.min_max;
 }
 
 MFOC.prototype.removeHeatMap = function(){
@@ -496,7 +506,6 @@ MFOC.prototype.animate = function(options){
     mf_arr = this.features;
   }
 
-  console.log(mf_arr);
 
   if (mf_arr.length == 0){
     return -1;
@@ -542,6 +551,8 @@ MFOC.prototype.animate = function(options){
 
   var load_czml = Cesium.CzmlDataSource.load(czml);
   viewer.dataSources.add(load_czml);
+
+  return this.min_max;
 }
 
 MFOC.prototype.changeMode = function(mode){
@@ -652,7 +663,9 @@ MFOC.prototype.showDirectionalRadar = function(canvasID){
   }
 }
 
-MFOC.adjustCameraView = function(viewer, bounding){
+MFOC.prototype.adjustCameraView = function(){
+  var bounding = this.bounding_sphere;
+  var viewer = this.viewer;
 
   if (bounding == undefined || bounding == -1){
     return;
@@ -678,7 +691,7 @@ MFOC.adjustCameraView = function(viewer, bounding){
 }
 
 
-MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
+MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
   if (div_id == undefined){
     div_id = this.analysis_id;
     graph_id = this.graph_id;
@@ -693,17 +706,17 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
   div.style.top = '120px'
   //div.style.paddingTop = 0;
   div.style.color = 'white';
-  div.style.backgroundColor = 'rgba(0,0,0,0)';
+  div.style.backgroundColor = 'rgba(0,0,0,0.4)';
   div.style.right = '5px';
   div.style.border = '1px solid black';
-  div.style.width = '200px'
+//  div.style.width = '200px'
   div.style.padding = '0px';
   div.className = "list-group-item active";
 
   var title = document.createElement("div");
   title.appendChild(document.createTextNode("  ANALYSIS"));
   title.style.paddingTop = '4px';
-  title.style.height = '9%';
+  title.style.height = '10%';
   title.style.width = '100%';
   title.style.textAlign = 'center';
   title.style.verticalAlign = 'middle';
@@ -725,7 +738,7 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
     div_arr[i].style.borderBottom = '1px solid white';
     div_arr[i].style.display = 'flex';
     div_arr[i].style.alignItems = 'center';
-    div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
+    //div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
     div_arr[i].style.border = '1px solid white';
     //div_arr[i].style.borderRadius = '15px';
   }
@@ -770,4 +783,92 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id){
   div.appendChild(show_direction_radar);
 
   MFOC.drawBackRadar(div_id);
+}
+
+
+
+MFOC.prototype.clickMovingFeature = function(name){
+
+  if (this.projection != null){
+    if (!this.projection.isDestroyed()){
+      this.primitives.remove(this.projection);
+    }
+    this.projection = null;
+  }
+  if (this.time_label.length != 0){
+    for (var i = 0 ; i < this.time_label.length ; i++){
+      if (this.time_label[i] != null && this.time_label[i] != undefined)
+        this.viewer.entities.remove(this.time_label[i]);
+    }
+  }
+
+  this.time_label = [];
+
+  if (this.mode == '3D'){
+    var ret = this.showHeightBar(name);
+    this.projection = this.primitives.add(ret[0]);
+
+    var time_label = ret[1];
+    for (var i  = 0 ; i < time_label.length ; i++){
+      this.time_label.push(this.viewer.entities.add(time_label[i]));
+    }
+
+  }
+
+  var mfoc = this;
+  setTimeout(function(){
+    if (mfoc.projection != null){
+      if (!mfoc.projection.isDestroyed()){
+        mfoc.primitives.remove(mfoc.projection);
+      }
+      mfoc.projection = null;
+    }
+    if (mfoc.time_label.length != 0){
+      for (var i = 0 ; i < mfoc.time_label.length ; i++){
+        if (mfoc.time_label[i] != null && mfoc.time_label[i] != undefined)
+        mfoc.viewer.entities.remove(mfoc.time_label[i]);
+      }
+    }
+
+  },5000);
+
+
+  return 1;
+
+}
+
+
+MFOC.prototype.update = function(){
+  this.clearViewer();
+  this.drawPaths();
+  this.animate();
+  return this.min_max;
+}
+
+MFOC.prototype.spliceByTime = function(start, end){//Date, Date
+  var mf_arr = this.features;
+  var new_mf_arr = [];
+  var del_mf_arr = [];
+  for (var i = 0 ; i < mf_arr.length ; i++){
+    var min_max_date = MFOC.findMinMaxTime(mf_arr[i].temporalGeometry.datetimes);
+    if (min_max_date[1] < start || min_max_date[0] > end){
+      del_mf_arr.push(mf_arr[i]);
+    }
+    else{
+      new_mf_arr.push(mf_arr[i]);
+    }
+  }
+
+  for (var i = 0 ; i < this.zoomoutfeatures.length ; i++){
+    var min_max_date = MFOC.findMinMaxTime(this.zoomoutfeatures[i].temporalGeometry.datetimes);
+    if (min_max_date[1] < start || min_max_date[0] > end){
+      del_mf_arr.push(this.zoomoutfeatures[i]);
+    }
+    else{
+      new_mf_arr.push(this.zoomoutfeatures[i]);
+    }
+  }
+
+  this.features = new_mf_arr;
+  this.zoomoutfeatures = del_mf_arr;
 }

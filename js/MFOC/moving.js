@@ -3,7 +3,7 @@ MFOC.prototype.moveMovingPoint = function(options){
 
   var geometry = options.temporalGeometry;
   var number = options.number;
-
+  var multiplier = 10000;
   var length = geometry.datetimes.length;
   var start, stop;
   start = new Date(geometry.datetimes[0]).toISOString();
@@ -88,8 +88,8 @@ MFOC.prototype.moveMovingPoint = function(options){
         obj.interval = start_interval+"/"+finish_interval;
       }
       obj.cartographicDegrees = [];
-      obj.cartographicDegrees.push(point[i][1]);
       obj.cartographicDegrees.push(point[i][0]);
+      obj.cartographicDegrees.push(point[i][1]);
 
       var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date);
       if (this.mode == '3D'){
@@ -260,7 +260,7 @@ MFOC.prototype.moveMovingLineString = function(options){
   var number = options.number
   var datetime = geometry.datetimes;
   var length = datetime.length;
-
+  var multiplier = 10000;
   var next_mapping_point_arr = MFOC.calculatePathForEachPoint(geometry);
 
   if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")

@@ -21,9 +21,9 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
       cumulative.north.total_life += life;
       cumulative.north.total_length += length;
       r_color = Cesium.Color.fromRandom({
-        maximumRed : 0.3,
+        maximumRed : 0.2,
         minimumBlue : 0.7,
-        maximumGreen : 0.3,
+        minimumGreen : 0.6,
         alpha : 1.0
       });
     }
@@ -32,8 +32,8 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
       cumulative.south.total_length += length;
       r_color = Cesium.Color.fromRandom({
         minimumRed : 0.7,
-        maximumBlue : 0.3,
-        maximumGreen : 0.3,
+        maximumBlue : 0.2,
+        maximumGreen : 0.2,
         alpha : 1.0
       });
     }
@@ -48,8 +48,8 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         cumulative.east.total_life += life;
         cumulative.east.total_length += length;
         r_color = Cesium.Color.fromRandom({
-          maximumRed : 0.3,
-          maximumBlue : 0.3,
+          maximumRed : 0.2,
+          maximumBlue : 0.2,
           minimumGreen : 0.7,
           alpha : 1.0
         });
@@ -59,7 +59,7 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         cumulative.west.total_length += length;
         r_color = Cesium.Color.fromRandom({
           minimumRed : 0.7,
-          maximumBlue : 0.3,
+          maximumBlue : 0.2,
           minimumGreen : 0.7,
           alpha : 1.0
         });
@@ -70,9 +70,9 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         cumulative.north.total_life += life;
         cumulative.north.total_length += length;
         r_color = Cesium.Color.fromRandom({
-          maximumRed : 0.3,
+          maximumRed : 0.2,
           minimumBlue : 0.7,
-          maximumGreen : 0.3,
+          minimumGreen : 0.6,
           alpha : 1.0
         });
       }
@@ -81,8 +81,8 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
         cumulative.south.total_length += length;
         r_color = Cesium.Color.fromRandom({
           minimumRed : 0.7,
-          maximumBlue : 0.3,
-          maximumGreen : 0.3,
+          maximumBlue : 0.2,
+          maximumGreen : 0.2,
           alpha : 1.0
         });
       }
@@ -143,7 +143,8 @@ MFOC.getCenter = function(coordinates, type){
 
 
 
-MFOC.prototype.showPropertyArray = function(array, div_id){
+MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
+
 
   document.getElementById(div_id).innerHTML = '';
 
@@ -155,6 +156,7 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
 
   var name_arr = [];
   var object_arr = [];
+  var mfoc = this;
 
   for (var i = 0 ; i < array.length ; i++){
     object_arr.push(array[i][0]);
@@ -243,7 +245,8 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
         .append("circle")
         .attr("cx", function(d,i) { return x(d.date); } )
         .attr("cy", function(d,i) { return y(d.value); } )
-        .attr("r", 5);
+        .attr("r", 1)
+        .style("fill", r_color);
       }
     }
     else{
@@ -258,17 +261,77 @@ MFOC.prototype.showPropertyArray = function(array, div_id){
     }
 
   }
-  svg.on("click", function () {
 
-    var coords = d3.mouse(this);
-    var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
+  var drag = d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended);
+  svg.call(drag);
 
-    if (coords[0]-margin.right <= 0){
+  var start_coord;
+  var rect ;
+
+  function dragstarted(d){
+    d3.event.sourceEvent.stopPropagation();
+    start_coord = d3.mouse(this);
+    rect = svg.append("rect")
+      .attr("fill", d3.rgb(0,0,0,0.5));
+
+    if (start_coord[0]-margin.right <= 0){
       return;
     }
-    var isodate = formatDate(x.invert(coords[0]-51.09));
-    viewer.clock.currentTime=Cesium.JulianDate.fromDate(new Date(isodate));
+    var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
+    console.log(start_coord);
+    viewer.clock.currentTime=Cesium.JulianDate.fromDate(new Date(formatDate(x.invert(start_coord[0]-51.09))));
     viewer.clock.shouldAnimate = false;
+    //    console.log(rect);
+    //  console.log(start_coord);
+    //d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+    d3.select(this).classed("dragging", true);
+  }
+
+  function dragged(d){
+    var coord = d3.mouse(this);
+
+    rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
+    rect.attr("height", height + margin.bottom);
+    rect.attr("x", start_coord[0]);
+
+  }
+
+  function dragended(d){
+    d3.select(this).classed("dragging", false);
+    var end_coord = d3.mouse(this);
+    var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
+  //  console.log(end_coord);
+    var start_date, end_date;
+
+    if (end_coord[0] > start_coord[0]){
+      start_date = formatDate(x.invert(start_coord[0]-51.09));
+      end_date =  formatDate(x.invert(end_coord[0]-51.09));
+      if (end_coord[0] - start_coord[0] < 100){
+        rect.remove();
+        return;
+      }
+    }
+    else{
+      if (start_coord[0] - end_coord[0] < 100){
+        rect.remove();
+        return;
+      }
+
+      start_date = formatDate(x.invert(end_coord[0]-51.09));
+      end_date =  formatDate(x.invert(start_coord[0]-51.09));
+    }
+
+    mfoc.spliceByTime(new Date(start_date), new Date(end_date));
+    mfoc.update();
+    mfoc.showProperty(propertyName, div_id);
+  }
+
+  svg.on("click", function () {
+
+
   });
 
 }
