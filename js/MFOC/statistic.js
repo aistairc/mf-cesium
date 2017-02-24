@@ -293,9 +293,17 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
   function dragged(d){
     var coord = d3.mouse(this);
 
-    rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
-    rect.attr("height", height + margin.bottom);
-    rect.attr("x", start_coord[0]);
+    if (coord[0] > start_coord[0]){
+      rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
+      rect.attr("height", height + margin.bottom);
+      rect.attr("x", coord[0]);
+    }
+    else{
+      rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
+      rect.attr("height", height + margin.bottom);
+      rect.attr("x", start_coord[0]);
+    }
+
 
   }
 

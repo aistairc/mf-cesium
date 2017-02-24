@@ -851,22 +851,23 @@ MFOC.prototype.spliceByTime = function(start, end){//Date, Date
   var del_mf_arr = [];
   for (var i = 0 ; i < mf_arr.length ; i++){
     var min_max_date = MFOC.findMinMaxTime(mf_arr[i].temporalGeometry.datetimes);
-    if (min_max_date[1] < start || min_max_date[0] > end){
-      del_mf_arr.push(mf_arr[i]);
+    if (min_max_date[0] >= start && min_max_date[1] <= end){
+      new_mf_arr.push(mf_arr[i]);
     }
     else{
-      new_mf_arr.push(mf_arr[i]);
+      del_mf_arr.push(mf_arr[i]);
     }
   }
 
   for (var i = 0 ; i < this.zoomoutfeatures.length ; i++){
     var min_max_date = MFOC.findMinMaxTime(this.zoomoutfeatures[i].temporalGeometry.datetimes);
-    if (min_max_date[1] < start || min_max_date[0] > end){
-      del_mf_arr.push(this.zoomoutfeatures[i]);
-    }
-    else{
+    if (min_max_date[0] >= start && min_max_date[1] <= end){
       new_mf_arr.push(this.zoomoutfeatures[i]);
     }
+    else{
+      del_mf_arr.push(this.zoomoutfeatures[i]);
+    }
+
   }
 
   this.features = new_mf_arr;
