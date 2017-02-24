@@ -140,7 +140,7 @@ function updateBuffer(id, feature, bool) {
                 if (!buffer[id[0]].hasOwnProperty(id[1])) {
                     buffer[id[0]][id[1]] = {};
                     buffer[id[0]][id[1]] = JSON.parse(feature);
-                    
+
                 }
             }
         }
@@ -239,6 +239,8 @@ function getFeatures(url, layerID) {
     if(!printedLayerList.contains(layerID)){
 
       printedLayerList.push(layerID);
+      var index = printedLayerList.indexOf(layerID);
+      bool_printedLayerList[index] = 1;
     }
     promise.then(function(arr) {
 
