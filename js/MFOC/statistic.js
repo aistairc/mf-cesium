@@ -195,6 +195,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
   g.append("g")
   .attr("transform" , "translate(0,"+height+")")
   .attr("class","axis")
+  .style("font-size","x-large")
   .call(d3.axisBottom(x))
   .select(".domain")
   .remove();
@@ -206,6 +207,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
   .append("text")
   .attr("fill", '#000')
   .attr("transform", "rotate(-90)")
+  .style("font-size","large")
   .attr("y", 6)
   .attr("dy", "0.71em")
   .attr("text-anchor", "end")
@@ -256,7 +258,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
       .attr("stroke", r_color)
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
-      .attr("stroke-width", 1.5)
+      .attr("stroke-width", 3)
       .attr("d", line);
     }
 
@@ -296,12 +298,12 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
     if (coord[0] > start_coord[0]){
       rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
       rect.attr("height", height + margin.bottom);
-      rect.attr("x", coord[0]);
+      rect.attr("x", start_coord[0]);
     }
     else{
       rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
       rect.attr("height", height + margin.bottom);
-      rect.attr("x", start_coord[0]);
+      rect.attr("x", coord[0]);
     }
 
 
