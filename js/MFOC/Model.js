@@ -17,7 +17,9 @@ function MFOC(viewer){
 
   this.projection = null;
   this.time_label = [];
+  this.label_timeout;
 
+  this.is_animating = false;
   if (isNaN( new Date("2015-07-30 09:00:00").getTime() )){
     alert("this browser maybe something error to draw MovingFeatures.. i recommend chrome.");
   };

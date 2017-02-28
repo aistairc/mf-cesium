@@ -183,7 +183,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
         carto.push(seconds / 1000);
         carto.push(polygon[i][0]);
         carto.push(polygon[i][1]);
-        if (this.mode == '2D')
+        if (this.mode == '2D' || this.mode == 'GLOBE')
         {
           carto.push(10000);
         }
