@@ -339,10 +339,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
     mfoc.showProperty(propertyName, div_id);
   }
 
-  svg.on("click", function () {
 
-
-  });
 
 }
 

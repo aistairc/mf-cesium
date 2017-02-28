@@ -171,30 +171,57 @@ MFOC.prototype.drawPaths = function(options){
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
     var path_prim;
-
-    if (feature.temporalGeometry.type == "MovingPoint"){
-      var prim = this.drawPathMovingPoint({
-        temporalGeometry : feature.temporalGeometry,
-        name : feature.properties.name
-      });
-      path_prim = this.viewer.scene.primitives.add(prim);
-    }
-    else if(feature.temporalGeometry.type == "MovingPolygon"){
-      path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
-        temporalGeometry : feature.temporalGeometry,
-        name : feature.properties.name
-      }));
-    }
-    else if(feature.temporalGeometry.type == "MovingLineString"){
-      path_prim = this.viewer.scene.primitives.add(this.drawPathMovingLineString({
-        temporalGeometry : feature.temporalGeometry,
-        name : feature.properties.name
-      }));
+    if (this.mode == 'GLOBE'){
+        if (feature.temporalGeometry.type == "MovingPoint"){
+          var prim = this.drawMovingPoint({
+            temporalGeometry : feature.temporalGeometry,
+            name : feature.properties.name
+          });
+          path_prim = this.viewer.scene.primitives.add(prim);
+        }
+        else if(feature.temporalGeometry.type == "MovingPolygon"){
+          path_prim = this.viewer.scene.primitives.add(this.drawMovingPolygon({
+            temporalGeometry : feature.temporalGeometry,
+            name : feature.properties.name
+          }));
+        }
+        else if(feature.temporalGeometry.type == "MovingLineString"){
+          path_prim = this.viewer.scene.primitives.add(this.drawMovingLineString({
+            temporalGeometry : feature.temporalGeometry,
+            name : feature.properties.name
+          }));
+        }
+        else{
+          console.log("this type cannot be drawn", feature);
+        }
+        this.path_prim_memory[feature.properties.name] = path_prim;
     }
     else{
-      console.log("this type cannot be drawn", feature);
+        if (feature.temporalGeometry.type == "MovingPoint"){
+          var prim = this.drawPathMovingPoint({
+            temporalGeometry : feature.temporalGeometry,
+            name : feature.properties.name
+          });
+          path_prim = this.viewer.scene.primitives.add(prim);
+        }
+        else if(feature.temporalGeometry.type == "MovingPolygon"){
+          path_prim = this.viewer.scene.primitives.add(this.drawPathMovingPolygon({
+            temporalGeometry : feature.temporalGeometry,
+            name : feature.properties.name
+          }));
+        }
+        else if(feature.temporalGeometry.type == "MovingLineString"){
+          path_prim = this.viewer.scene.primitives.add(this.drawPathMovingLineString({
+            temporalGeometry : feature.temporalGeometry,
+            name : feature.properties.name
+          }));
+        }
+        else{
+          console.log("this type cannot be drawn", feature);
+        }
+        this.path_prim_memory[feature.properties.name] = path_prim;
     }
-    this.path_prim_memory[feature.properties.name] = path_prim;
+
   }
   //this.adjustCameraView();
   return this.min_max;
