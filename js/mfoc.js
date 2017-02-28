@@ -326,6 +326,7 @@ MFOC.prototype.drawMovingPolygon = function(options){
     }
 
     for (var i = 0; i < coordinates.length; i++) {
+
         var height;
         if (!with_height){
             height = 0;
@@ -333,6 +334,7 @@ MFOC.prototype.drawMovingPolygon = function(options){
         else{
             height = heights[i];
         }
+
         poly_list.push(MFOC.drawOnePolygon(coordinates[i], height, with_height , r_color));
     }
 
@@ -521,6 +523,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
                 color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
             }
 
+
             if (this.mode == '3D'){
                 temp_poly.push([first[0], first[1], heights[i]], [sec[0], sec[1], heights[i+1]],
                     [third[0], third[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
@@ -549,6 +552,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
 
             var data = options.temporalGeometry;
             var property = options.temporalProperty;
+
 
             var pro_min_max = null;
             if (property != undefined){
@@ -2734,12 +2738,16 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
     if (coord[0] > start_coord[0]){
       rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
       rect.attr("height", height + margin.bottom);
+
       rect.attr("x", start_coord[0]);
+
     }
     else{
       rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
       rect.attr("height", height + margin.bottom);
+
       rect.attr("x", coord[0]);
+
     }
 
 
