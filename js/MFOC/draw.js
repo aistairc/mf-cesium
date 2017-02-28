@@ -125,12 +125,17 @@ MFOC.prototype.drawMovingPolygon = function(options){
     }
 
     for (var i = 0; i < coordinates.length; i++) {
-        var height = heights[i];
+
+        var height;
         if (!with_height){
             height = 0;
         }
+        else{
+            height = heights[i];
+        }
         poly_list.push(MFOC.drawOnePolygon(coordinates[i], height, with_height , r_color));
     }
+
 
 
     prim = new Cesium.Primitive({
@@ -161,6 +166,7 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
                 points.push(coordinates[i][1]);
                 points.push(coordinates[i][2]);
             }
+
         }
         else{
             for (var i = 0; i < coordinates.length; i++) {
@@ -169,6 +175,7 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
                 points.push(height);
             }
         }
+
     }
 
 

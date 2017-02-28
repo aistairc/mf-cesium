@@ -326,10 +326,15 @@ MFOC.prototype.drawMovingPolygon = function(options){
     }
 
     for (var i = 0; i < coordinates.length; i++) {
-        var height = heights[i];
+
+        var height;
         if (!with_height){
             height = 0;
         }
+        else{
+            height = heights[i];
+        }
+
         poly_list.push(MFOC.drawOnePolygon(coordinates[i], height, with_height , r_color));
     }
 
@@ -518,6 +523,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
                 color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
             }
 
+
             if (this.mode == '3D'){
                 temp_poly.push([first[0], first[1], heights[i]], [sec[0], sec[1], heights[i+1]],
                     [third[0], third[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
@@ -546,6 +552,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
 
             var data = options.temporalGeometry;
             var property = options.temporalProperty;
+
 
             var pro_min_max = null;
             if (property != undefined){
@@ -2628,6 +2635,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
   g.append("g")
   .attr("transform" , "translate(0,"+height+")")
   .attr("class","axis")
+  .style("font-size","x-large")
   .call(d3.axisBottom(x))
   .select(".domain")
   .remove();
@@ -2639,6 +2647,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
   .append("text")
   .attr("fill", '#000')
   .attr("transform", "rotate(-90)")
+  .style("font-size","large")
   .attr("y", 6)
   .attr("dy", "0.71em")
   .attr("text-anchor", "end")
@@ -2689,7 +2698,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
       .attr("stroke", r_color)
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
-      .attr("stroke-width", 1.5)
+      .attr("stroke-width", 3)
       .attr("d", line);
     }
 
@@ -2729,12 +2738,16 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
     if (coord[0] > start_coord[0]){
       rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
       rect.attr("height", height + margin.bottom);
-      rect.attr("x", coord[0]);
+
+      rect.attr("x", start_coord[0]);
+
     }
     else{
       rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
       rect.attr("height", height + margin.bottom);
-      rect.attr("x", start_coord[0]);
+
+      rect.attr("x", coord[0]);
+
     }
 
 
@@ -2770,10 +2783,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
     mfoc.showProperty(propertyName, div_id);
   }
 
-  svg.on("click", function () {
 
-
-  });
 
 }
 
