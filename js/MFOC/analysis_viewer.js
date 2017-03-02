@@ -1,6 +1,6 @@
 
-MFOC.drawBackRadar = function(div_id){
-  var radar_canvas = document.getElementById('radar');
+MFOC.drawBackRadar = function(radar_id){
+  var radar_canvas = document.getElementById(radar_id);
 
 //  radar_canvas.style.top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight + 10 + 'px';
   radar_canvas.style.position = 'absolute';
@@ -120,7 +120,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
 
   div.appendChild(btn_div);
 
-  if (mfoc.mode == '2D'){
+  if (mfoc.mode != '3D'){
     document.getElementById('degree_row_2').style.visibility = 'hidden';
   }
 }

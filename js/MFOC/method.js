@@ -848,17 +848,17 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
       glo_mfoc.drawPaths();
       glo_mfoc.animate();
       if (document.getElementById('pro_menu'))
-      document.getElementById('pro_menu').remove();
+        document.getElementById('pro_menu').remove();
       document.getElementById(glo_mfoc.graph_id).style.height="0%";
     }
-  })(mfoc, 'radar');
+  })(mfoc, radar_id);
 
   div.appendChild(title);
   div.appendChild(properties_graph);
   div.appendChild(show_space_cube);
   div.appendChild(show_direction_radar);
 
-  MFOC.drawBackRadar(div_id);
+  MFOC.drawBackRadar(radar_id);
 }
 
 

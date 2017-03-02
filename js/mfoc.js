@@ -1,6 +1,6 @@
 
-MFOC.drawBackRadar = function(div_id){
-  var radar_canvas = document.getElementById('radar');
+MFOC.drawBackRadar = function(radar_id){
+  var radar_canvas = document.getElementById(radar_id);
 
 //  radar_canvas.style.top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight + 10 + 'px';
   radar_canvas.style.position = 'absolute';
@@ -120,7 +120,7 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id){
 
   div.appendChild(btn_div);
 
-  if (mfoc.mode == '2D'){
+  if (mfoc.mode != '3D'){
     document.getElementById('degree_row_2').style.visibility = 'hidden';
   }
 }
@@ -1865,17 +1865,17 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
       glo_mfoc.drawPaths();
       glo_mfoc.animate();
       if (document.getElementById('pro_menu'))
-      document.getElementById('pro_menu').remove();
+        document.getElementById('pro_menu').remove();
       document.getElementById(glo_mfoc.graph_id).style.height="0%";
     }
-  })(mfoc, 'radar');
+  })(mfoc, radar_id);
 
   div.appendChild(title);
   div.appendChild(properties_graph);
   div.appendChild(show_space_cube);
   div.appendChild(show_direction_radar);
 
-  MFOC.drawBackRadar(div_id);
+  MFOC.drawBackRadar(radar_id);
 }
 
 
