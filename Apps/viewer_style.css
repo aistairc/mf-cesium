@@ -1,0 +1,273 @@
+@import url(../Build/Cesium/Widgets/widgets.css);
+@import url(Sandcastle/templates/bucket.css);
+html,
+body,
+{
+    height: 100%;
+    margin-bottom: 0%;
+    padding: 0;
+    overflow: auto;
+    position: absolute;
+}
+
+#cesiumContainer {
+    width: 85%;
+    position: relative;
+    height: 100%;
+    margin-bottom: 0%;
+    padding: 0;
+    overflow: auto;
+    float: right;
+    top: 0px;
+    z-index: 1;
+}
+
+#left_toolbar {
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#property_panel {
+    position: absolute;
+    min-height: 30%;
+    height: 30%;
+    bottom: 0px;
+    z-index: 3;
+    float: left;
+    overflow: auto;
+    margin-bottom: 0px;
+    width: 100%;
+    text-decoration: none;
+    color: white;
+    visibility: hidden;
+}
+
+#layer_list {
+    position: absolute;
+    min-height: 20%;
+    height: 30%;
+    bottom: 0;
+    z-index: 3;
+    float: left;
+    overflow: auto;
+    margin-bottom: 0px;
+    width: 100%;
+    text-decoration: none;
+    color: white;
+}
+
+#toolbar input {
+    vertical-align: middle;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+#checked_info {
+    background: rgba(42, 42, 42, 0.8);
+    padding: 2px;
+    border-radius: 4px;
+}
+
+@import url(Sandcastle/templates/bucket.css);
+
+#zoom {
+    position: relative;
+    left: 88%;
+    border : 0;
+    z-index: 20;
+    width: 4.5%;
+    top: 120px;
+    background-color: rgba(0, 0, 0, 0.5);
+    margin: 0;
+    height: 50%;
+    text-align: center;
+    box-shadow : 0 ;
+}
+
+.slider-handle{
+  background-color: black;
+}
+.slider.slider-vertical{
+  height : 70%
+}
+.input-group {
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+}
+
+.list-group-item.active:hover {
+    background-color: #787878;
+}
+
+.panel {}
+
+.list-group-item {
+    padding: 5px;
+    color: #FFFFFF;
+    white-space: pre-wrap;
+    color: white;
+    text-decoration: none;
+    background-color: rgba(1, 1, 1, 1);
+    border-width: 0px;
+}
+
+.list-group-item:hover {
+    color: white;
+    text-decoration: none;
+    background-color: rgba(1, 1, 1, 1);
+}
+
+a {
+    color: white;
+    text-decoration: none;
+
+}
+
+a:hover {
+    color: white;
+    text-decoration: none;
+}
+
+.list-group {
+    padding: 0px;
+    white-space: pre-wrap;
+    background-color: rgba(1, 1, 1, 1);
+    color: white;
+    border-width: 0px;
+}
+
+.cesium-viewer-toolbar {
+    z-index: 30;
+}
+
+.cesium-svgPath-svg.cesium-sceneModePicker-slide-svg {
+    z-index: 30;
+}
+
+.cesium-svgPath-svg {
+    z-index: 30;
+}
+
+.list-group-item.active {
+    background-color: #787878;
+    border-color: black;
+    border: 1px;
+    text-align: center;
+}
+
+.axis text {
+    fill: white;
+}
+
+.axis line {
+    stroke: white;
+}
+
+.axis path {
+    stroke: white;
+}
+
+.graph {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: 0%;
+    z-index: 4;
+    color: white;
+    background: white;
+}
+
+.wrapper {
+    margin: 0 auto;
+}
+
+.column {
+    float: left;
+    width: 30%;
+}
+
+.panel {
+    background-color: rgba(1, 1, 1, 1);
+}
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    font: 16px/1 sans-serif;
+}
+/*VERTICAL MENU*/
+
+#analysis {
+    width: 7%;
+    height: 50%;
+    position: absolute;
+    right: 0px;
+    z-index: 20;
+}
+
+.panel>.list-group .list-group-item {
+    border-width: 0px;
+}
+
+#serverState {
+    position: relative;
+    left: 57%;
+    top: 50%;
+    background: rgba(0, 0, 0, 0);
+    visibility: hidden;
+    z-index: 10;
+    color: black;
+    font-size: xx-large;
+}
+
+.graph {
+    position: absolute;
+    bottom: 0px;
+    height: 0%;
+    z-index: 20;
+    right: 0;
+    width: 85%;
+}
+
+.list-group-item.active.list-title {
+    font-size: 20px;
+    padding: 10px;
+}
+
+#featureName {
+
+    z-index: 30;
+    visibility: hidden;
+    color: black;
+    font-size: xx-large;
+    position: relative;
+    top: 5%;
+    left: 57%;
+    text-shadow: -1px 0 #F2F1F6, 0 1px #F2F1F6, 1px 0 #F2F1F6, 0 -1px #F2F1F6;
+
+}
+
+#radar {
+ top : 65%;
+ position : absolute;
+ right : 5px;
+ background-color:rgba(0,0,0,0);
+}
+
+#drop_zone {
+  position : absolute;
+  top:5%;
+  left:5%;
+  line-height: 90%;
+  height : 90%;
+  width : 90%;
+  z-index : 50;
+  background-color:rgba(0,0,0,0.3);
+  font-size : xx-large;
+  border: 2px dashed #f69c55;
+  text-align : center;
+}

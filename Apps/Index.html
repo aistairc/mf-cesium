@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8">
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title id="title">Hello World!</title>
+
+    <script src="../js/jquery-3.1.1.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <link type="text/css" href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <script type="text/javascript" src="Sandcastle/Sandcastle-header.js"></script>
+    <script src="../Build/Cesium/Cesium.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.css" />
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="../js/MFOC.js"></script>
+    <script src="../js/connection.js"></script>
+    <script src="../js/print.js"></script>
+    <script src="../js/local.js"></script>
+    <link rel="stylesheet" type="text/css" href="viewer_style.css">
+    <style>
+
+    </style>
+</head>
+
+<body style="margin-bottom:20%">
+    <div id="left_toolbar" style="z-index:3 ; width:15% ;position:absolute;  height : 100% ;min-height:100%; ">
+        <div class="panel panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
+            <ul id="menu_list" class="list-group" style=" height: 100%;display : -webkit-flex; display : flex; flex-direction:column;">
+                <li class="list-group-item" onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center;">Back</li>
+                <li id="printMenuState" role="presentation" class="list-group-item active list-title" style="flex-grow : 0;"></li>
+
+
+
+                <li id="featureLayer" role="presentation" class="list-group-item" style="flex-grow : 1 ; overflow : auto">
+
+                </li>
+            </ul>
+
+        </div>
+
+        <div id="layer_list" class="panel panel-default" style="overflow : auto">
+            <ul>
+                <li role="presentation" class="list-group-item active list-title">printed Layers List</li>
+                <li id="list">
+
+                </li>
+
+            </ul>
+        </div>
+        <div id="property_panel" class="panel panel-default" style="overflow : auto">
+
+            <ul>
+                <li role="presentation" class="list-group-item active list-title">Properties</li>
+                <li role="presentation" class="list-group-item list-title">
+                    <ul id="property" role="presentation" class="list-group-item">
+
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
+
+
+
+
+    </div>
+
+    <div id="drop_zone">Drop files here</div>
+
+    <div id="analysis">
+    </div>
+    <div id="graph" class="graph">
+    </div>
+
+    <canvas id="radar" width="200" height="200"></canvas>
+
+    <div id="cesiumContainer">
+
+    </div>
+    <div id="zoom" class="panel panel-default">
+        </br>
+        <a id="min-date" style="white-space: nowrap; align:right; float : center; font-size:small"></a>
+        </br>
+        </br>
+        <input id="slider" type="text" class="span3" value="" data-slider-orientation="vertical" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="[0,100]" />
+        </br>
+        </br>
+        <a id="max-date" style="white-space: nowrap; align:right;  float : center; font-size:small"></a>
+        </br>
+        <input id "slider-button-submit" style = "min-width : inherit; font-size : small ;padding : 2px;" class="btn btn-default" type="button" value="Filtering" onclick="zoom()"></input>
+
+    </div>
+    <div id="featureName">
+
+    </div>
+    <div id="serverState">
+    </div>
+
+
+    <script>
+        var properties = new Array();
+        var checked_property = new Array();
+        var features = new Array();
+        var feature = new Array();
+        var viewer;
+        var mfoc;
+        var labelEntity;
+        var handler;
+        var labelEntity;
+        var slider;
+        var label_timeout;
+
+        (function() {
+            viewer = new Cesium.Viewer('cesiumContainer', {
+                orderIndependentTranslucency: false,
+                imageryProvider: new Cesium.createOpenStreetMapImageryProvider({
+                    url: 'https://a.tile.openstreetmap.org/'
+                }),
+                baseLayerPicker: false
+            });
+            viewer.scene.fxaa = false;
+
+            mfoc = new MFOC(viewer);
+            viewer.scene.fxaa = false;
+            viewer.scene.morphComplete.addEventListener(function() {
+               if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
+                   mfoc.changeMode('3D');
+               } else if (viewer.scene.mode == Cesium.SceneMode.SCENE2D){
+                   mfoc.changeMode('2D');
+               } else if (viewer.scene.mode == Cesium.SceneMode.SCENE3D){
+                   mfoc.changeMode('GLOBE');
+               } else {
+                   alert('error');
+               }
+              // changeMode();
+
+           });
+            slider = new Slider("#slider", {
+                reversed: true
+
+            });
+
+            slider.on("slide", function(sliderValue) {
+                zoom_time = sliderValue;
+            });
+            viewer.scene.mode = Cesium.SceneMode.SCENE2D;
+
+            scene = viewer.scene;
+            viewer.clock.shouldAnimate = false;
+
+            handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+            this.handler.setInputAction(function(movement) {
+              var featureName = document.getElementById('featureName');
+                if(label_timeout !== undefined){
+                  window.clearTimeout(label_timeout);
+                }
+                var pick = mfoc.viewer.scene.pick(movement.position);
+                if (Cesium.defined(pick)) {
+                    featureName.innerText = "";
+                    if(pick.primitive.name !== undefined){
+                      mfoc.clickMovingFeature(pick.primitive.name);
+
+                      var cesiumContainer = document.getElementById('cesiumContainer');
+                      featureName.innerText = pick.primitive.name;
+                      featureName.style.visibility = 'visible';
+                      label_timeout = window.setTimeout(function() {
+                          featureName.style.visibility = "hidden";
+                          featureName.style.height = "0%";
+                          cesiumContainer.style = "min-height:100%"
+                      }, 1500);
+                    }
+
+                }
+            }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+
+
+
+            mfoc.setAnalysisDIV('analysis', 'graph');
+            //getLayer_local();
+            getLayers();
+        })()
+        String.prototype.replaceAll = function(org, dest) {
+            return this.split(org).join(dest);
+        }
+    </script>
+</body>
+
+</html>

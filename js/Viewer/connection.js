@@ -12,97 +12,6 @@ function readTextFile(file, callback) {
     }
     rawFile.send(null);
 }
-var featurelayer_local = [];
-
-function getLayer_local() {
-
-    var baseURL = "../miniserver";
-    readTextFile("../miniserver/featureLayer.json", function(text) {
-        var data = JSON.parse(text);
-        var printFeatureLayer_list = [];
-        console.log(data['url']);
-        for (var i = 0; i < data['url'].length; i++) {
-            printFeatureLayer_list.push(data['url'][i]);
-            updateBuffer([data['url'][i]], null, true);
-        }
-        var list = printFeatureLayerList_local(printFeatureLayer_list, baseURL, 'featureLayer');
-        console.log(list);
-        var print = document.getElementById('featureLayer');
-        print.innerHTML = "";
-        printMenuState = 'layer';
-        print.appendChild(list);
-        console.log(buffer);
-    });
-}
-
-var read_local = function(url) {
-    return new Promise(function(resolve, reject) {
-        var rawFile = new XMLHttpRequest();
-        rawFile.overrideMimeType("application/json");
-        rawFile.open("GET", url, true);
-        rawFile.onload  = function(){
-            resolve(rawFile.responseText);
-        };
-        rawFile.send(null);
-    });
-}
-
-function getFeatures_local(url, layerID) {
-    var features;
-    var promise_list = [];
-    var printFeatures_list = [];
-    var promise = read_local(url);
-    var getdata;
-    console.log(url);
-    promise.then(function(arr) {
-        features = JSON.parse(arr);
-        for (var i = 0; i < features['features'].length; i++) {
-            if (getBuffer([layerID, features['features'][i]]) == null) {
-                printFeatures_list.push(features['features'][i]);
-                var new_url = url.replace(".json", "");
-                new_url += "/" + features['features'][i] + ".json";
-                console.log(new_url);
-                promise_list.push(read_local(new_url));
-            }
-
-        }
-        if (promise_list.length == 0) { //이미 불러온 적이 있다
-            var list = printFeatures(layerID, features['features'], "features");
-            var printArea = document.getElementById('featureLayer');
-            his_features = list;
-            printArea.innerHTML = "";
-            printArea.appendChild(list);
-            printMenuState = "features";
-            drawFeature();
-        } else {
-            get_features_progress = 0;
-            get_total_progress = promise_list.length;
-            console.log(get_features_progress,get_total_progress);
-            Promise.all(promise_list).then(function(values) {
-              get_features_progress = 0;
-              get_total_progress = 0;
-                getdata = values;
-                for (var i = 0; i < getdata.length; i++) {
-                    updateBuffer([layerID, printFeatures_list[i]], getdata[i], true);
-                }
-                var list = printFeatures(layerID, features['features'], "features");
-                var printArea = document.getElementById('featureLayer');
-                his_features = list;
-                printArea.innerHTML = "";
-                printArea.appendChild(list);
-                printMenuState = "features";
-                drawFeature();
-            }).catch(function(err) {
-                console.log(err);
-            });
-        }
-
-    });
-}
-
-function getfeature_local() {
-
-}
 
 function getBuffer(id) {
     if (id.length == 1) {
@@ -140,7 +49,7 @@ function updateBuffer(id, feature, bool) {
                 if (!buffer[id[0]].hasOwnProperty(id[1])) {
                     buffer[id[0]][id[1]] = {};
                     buffer[id[0]][id[1]] = JSON.parse(feature);
-                    
+
                 }
             }
         }
@@ -182,6 +91,10 @@ function getLayers() {
     //var token = url_arr[1];
     console.log(url);
     console.log(token);
+    if (url == '' || url == undefined){
+      getLocalFile();
+      return;
+    }
     writeCookie('token', token);
     url += "/$ref";
     var featureLayers;
@@ -239,6 +152,8 @@ function getFeatures(url, layerID) {
     if(!printedLayerList.contains(layerID)){
 
       printedLayerList.push(layerID);
+      var index = printedLayerList.indexOf(layerID);
+      bool_printedLayerList[index] = 1;
     }
     promise.then(function(arr) {
 
