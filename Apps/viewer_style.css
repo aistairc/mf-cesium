@@ -56,6 +56,15 @@ body,
     color: white;
 }
 
+#geoInfo {
+    height: auto;
+    position: absolute;
+    float: right;
+    right: 0px;
+    top: 100px;
+    z-index: 3;
+}
+
 #toolbar input {
     vertical-align: middle;
     padding-top: 2px;
@@ -69,6 +78,9 @@ body,
 }
 
 @import url(Sandcastle/templates/bucket.css);
+#name_list {
+    cursor: pointer;
+}
 
 #zoom {
     position: relative;
