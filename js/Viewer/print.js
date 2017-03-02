@@ -701,8 +701,8 @@ function zoom() {
     var diff = (latest.getTime() - fastest.getTime()) / 100;
     //console.log(diff);
 
-    latest.setTime(fastest.getTime() + diff * (100 - zoom_time[0]));
-    fastest.setTime(fastest.getTime() + diff * (100 - zoom_time[1]));
+    latest.setTime(fastest.getTime() + diff * zoom_time[1]);
+   fastest.setTime(fastest.getTime() + diff * zoom_time[0]);
 
     //console.log(min,max);
     mfoc.spliceByTime(fastest, latest);
