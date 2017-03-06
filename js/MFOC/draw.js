@@ -104,6 +104,7 @@ MFOC.drawOnePoint = function(onePoint,height,r_color){ //it gets one point
 }
 
 MFOC.prototype.drawMovingPolygon = function(options){
+
   var geometry = options.temporalGeometry;
   var name = options.name;
 
@@ -218,7 +219,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
   }
 
   if (data.interpolations == 'Discrete'){
-    return this.drawMovingPoint(options.temporalGeometry, options.name);
+    return this.drawMovingPoint(options);
   }
 
   if (data.coordinates.length == 1){
@@ -292,7 +293,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
   var color = this.getColor(options.name).withAlpha(0.6);
 
   if (geometry.interpolations == 'Discrete'){
-    return this.drawMovingPolygon(geometry, options.name);
+    return this.drawMovingPolygon(options);
   }
 
   if (this.mode == '2D' || this.mode == 'GLOBE'){
