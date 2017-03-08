@@ -29,7 +29,16 @@ function backButton() {
     var property_panel = document.getElementById("property_panel");
     var menu = document.getElementById('menu_list');
     var slinder = document.getElementById('zoom');
-    if (printMenuState == "layer") {} else if (printMenuState == "features") {
+    var uploadButton = document.getElementById("uploadButton");
+    if (printMenuState == "layer") {}
+    else if (printMenuState == "features") {
+
+        if(isServer == false){
+            uploadButton.style.visibility = "visible";
+            uploadButton.style.height = "7%";
+            uploadButton.style.padding = "10px";
+        }
+
         var chk_btn = document.getElementById('check_all_buttons');
         chk_btn.parentNode.removeChild(chk_btn);
         printMenuState = 'layer';
@@ -97,6 +106,28 @@ function delProperties(id, name) {
         properties.splice(index, 1);
     }
 }
+function printFileUploadButton(){
+
+  var button = document.getElementById("uploadButton");
+  button.style.padding = "10px";
+  button.style.height = "7%";
+  button.style.visibility = "visible";
+
+  var input = document.createElement('input');
+
+
+  input.type = "file";
+  input.id = "files";
+  input.multiple = "multiple";
+  input.name = "files[]";
+
+
+  button.appendChild(input);
+
+
+  document.getElementById('files').addEventListener('change', handleFileSelect_upload, false);
+}
+
 
 function printProperty(data) {
     var feature_property = [];
@@ -211,17 +242,22 @@ function printFeatureLayerList(arr, url, id) { //출력할피쳐리스트, 베�
         var a = document.createElement('a');
         var ul = document.createElement('ul');
 
-        var new_url = url + "/" + arr[i] + "/$ref";
+
 
 
         //ul.style = "overflow-y : scroll;";
 
         a.innerText = parse_layer_name(arr[i]);
-        a.onclick = (function(url, id) {
-            return function() {
-                getFeatures(url, id);
-            };
-        })(new_url, arr[i]);
+
+
+          var new_url = url + "/" + arr[i] + "/$ref";
+
+          a.onclick = (function(url, id) {
+              return function() {
+                  getFeatures(url, id);
+              };
+          })(new_url, arr[i]);
+
         li.style = "width:inherit";
         a.style = "width:inherit";
         li.className = "list-group-item";
@@ -265,7 +301,12 @@ function printPrintedLayersList() {
                 printWhole(layerID);
             }
         })(printedLayerList[i]);
-        a.innerText = parse_layer_name(printedLayerList[i]);
+        if(!printedLayerList[i].includes("\'")){
+          a.innerText = printedLayerList[i];
+        }
+        else {
+            a.innerText = parse_layer_name(printedLayerList[i]);
+        }
         input_group.appendChild(chk);
         input_group.appendChild(a);
 
@@ -506,8 +547,15 @@ function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
     check_button = check_all;
     target.className = "list-group-item";
     printMenuState = "features";
+console.log(layerID);
+    if(!layerID.includes("\'")){
 
-    printState.innerText = printMenuState + " :" + parse_layer_name(layerID);
+        printState.innerText = printMenuState + " :" + layerID;
+    }
+    else{
+      printState.innerText = printMenuState + " :" + parse_layer_name(layerID);
+    }
+
 
     for (var i = 0; i < features_list.length; i++) {
         var li = document.createElement("li");
@@ -637,7 +685,6 @@ function getCheckedFeatures() {
 
         var data = getBuffer([feature_layer, feature_name]);
         if (checked[i].checked == true) {
-            //console.log(data);
             if (!printedLayerList.contains(feature_layer)) {
                 printedLayerList.push(feature_layer);
             }
@@ -708,6 +755,5 @@ function drawFeature() { //아이디로 찾을까
     } else {
         slinder.style.visibility = "hidden";
     }
-    console.log(time_min_max);
     mfoc.adjustCameraView();
 }

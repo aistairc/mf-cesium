@@ -25,6 +25,7 @@ function getBuffer(id) {
           if (temp.hasOwnProperty(id[1])) {
               return temp[id[1]];
           }
+
       }
 
 
@@ -42,13 +43,27 @@ function updateBuffer(id, feature, bool) {
             if (!buffer.hasOwnProperty(id[0])) {
                 buffer[id[0]] = {};
                 buffer[id[0]][id[1]] = {};
-                buffer[id[0]][id[1]] = JSON.parse(feature);
-                console.log(buffer[id[0]][id[1]]);
+                try{
+                  JSON.parse(feature);
+                  buffer[id[0]][id[1]] = JSON.parse(feature);
+                  console.log(buffer[id[0]][id[1]]);
+                }
+                catch(e) {
+                  buffer[id[0]][id[1]] =feature;
+               }
+
+
                 //buffer[id[0]][id[1]] = feature;
             } else {
                 if (!buffer[id[0]].hasOwnProperty(id[1])) {
                     buffer[id[0]][id[1]] = {};
-                    buffer[id[0]][id[1]] = JSON.parse(feature);
+                    try{
+                      buffer[id[0]][id[1]] = JSON.parse(feature);
+                    }
+                    catch(e){
+                      buffer[id[0]][id[1]] = feature;
+                    }
+
 
                 }
             }
@@ -80,18 +95,24 @@ var urlParam = function(name, w) {
 
     return !val ? '' : val[1];
 }
-
+var isServer =true;
 function getLayers() {
     //var url = window.location.href;
     //var url_arr = url.split('?token=');
 
     //url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+
+    var dropzone = document.getElementById("drop_zone");
+    dropzone.style.visibility = "hidden";
     var url = urlParam('url');
     var token = urlParam('token');
     //var token = url_arr[1];
     console.log(url);
     console.log(token);
     if (url == '' || url == undefined){
+      isServer = false;
+      dropzone.style.visibility = "visible";
+      printFileUploadButton();
       getLocalFile();
       return;
     }
@@ -139,7 +160,7 @@ function getFeatures(url, layerID) {
     var features;
 
     console.log(url);
-    var printFeatures_list = [];
+    var _list = [];
     var promise = request2(url);
     var promise_list = [];
     var get_data;
@@ -161,7 +182,7 @@ function getFeatures(url, layerID) {
             for (var i = 0; i < features.length; i++) {
                 if (getBuffer([layerID, features[i]]) == null) {
 
-                    printFeatures_list.push(features[i]);
+                    _list.push(features[i]);
                     var new_url = url.replace("$ref", "");
                     new_url += features[i] + "?token=" + readCookie('token');
                     promise_list.push(request3(new_url));
@@ -193,12 +214,12 @@ function getFeatures(url, layerID) {
                     get_data = values;
                     for (var i = 0; i < get_data.length; i++) {
 
-                        updateBuffer([layerID, printFeatures_list[i]], get_data[i], true);
+                        updateBuffer([layerID, features[i]], get_data[i], true);
 
                     }
 
                     var new_url = url.replace("$ref", "");
-                    var list = printFeatures(layerID, printFeatures_list, "features");
+                    var list = printFeatures(layerID, features, "features");
 
                     var printArea = document.getElementById('featureLayer');
                     his_features = list;
