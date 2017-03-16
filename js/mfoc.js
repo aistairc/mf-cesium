@@ -160,7 +160,7 @@ MFOC.selectProperty = function(mfoc, graph_id) {
         div.style.textAlign = 'center';
         div.style.fontSize = 'x-large';
         div.style.verticalAlign = 'middle';
-        div.style.width = 100 / (pro_type_arr.length + 1) - 3 + '%';
+        div.style.width = 100 / (pro_type_arr.length + 1) + '%';
         div.innerHTML = pro_type_arr[i];
         div.id = 'btn' + pro_type_arr[i];
         div.onclick = (function(mfoc, name_arr, index, graph) {
@@ -184,7 +184,7 @@ MFOC.selectProperty = function(mfoc, graph_id) {
     close_div.style.textAlign = 'center';
     close_div.style.fontSize = 'x-large';
     close_div.style.verticalAlign = 'middle';
-    close_div.style.width = 100 / (pro_type_arr.length + 1) - 3 + '%';
+    close_div.style.width = 100 / (pro_type_arr.length + 1) + '%';
     close_div.innerHTML = 'CLOSE';
     pro_menu.appendChild(close_div);
 
@@ -404,8 +404,6 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
 
 MFOC.prototype.drawPathMovingPoint = function(options){
   var instances = [];
-  console.log(options);
-
   var color = this.getColor(options.name);
 
   var data = options.temporalGeometry;
@@ -423,13 +421,16 @@ MFOC.prototype.drawPathMovingPoint = function(options){
     return this.drawMovingPoint(options);
   }
 
+  if (data.interpolations[0] == 'Stepwise' && this.mode == '2D'){
+    return this.drawMovingPoint(options);
+  }
+
   if (data.coordinates.length == 1){
     console.log("one");
   }
   else{
     if (property == undefined){
       var positions = MFOC.makeDegreesArray(data.coordinates, heights);
-      console.log(positions);
       instances.push(MFOC.drawInstanceOneLine(positions, color));
     }
     else{
@@ -451,9 +452,16 @@ MFOC.prototype.drawPathMovingPoint = function(options){
           .concat(data.coordinates[index+1].concat([0]));
         }
         else {
-          positions =
-          (data.coordinates[index].concat(heights[index]))
-          .concat(data.coordinates[index+1].concat(heights[index+1]));
+          if (geometry.interpolations[0] == 'Stepwise'){
+            positions = (data.coordinates[index].concat(heights[index]))
+            .concat(data.coordinates[index].concat(heights[index+1]));
+          }
+          else{
+            positions =
+            (data.coordinates[index].concat(heights[index]))
+            .concat(data.coordinates[index+1].concat(heights[index+1]));
+          }
+
         }
 
         instances.push(MFOC.drawInstanceOneLine(positions, color));
@@ -498,9 +506,15 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
     return this.drawMovingPolygon(options);
   }
 
+  if (geometry.interpolations[0] == 'Stepwise' && this.mode == '2D'){
+    return this.drawMovingPoint(options);
+  }
+
   if (this.mode == '2D' || this.mode == 'GLOBE'){
     color = this.getColor(options.name).withAlpha(0.2);
   }
+
+
   for (var i = 0; i < coordinates.length - 1; i++) {
     for (var j = 0; j < coordinates[i].length - 1 ; j++) {
       var temp_poly = new Array();
@@ -524,9 +538,15 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
       }
 
       if (this.mode == '3D'){
-        temp_poly.push([first[0], first[1], heights[i]], [sec[0], sec[1], heights[i+1]],[third[0], third[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
+        if (geometry.interpolations[0] == 'Stepwise'){
+          temp_poly.push([first[0], first[1], heights[i]], [first[0], first[1], heights[i+1]],[forth[0], forth[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
+        }
+        else{
+          temp_poly.push([first[0], first[1], heights[i]], [sec[0], sec[1], heights[i+1]],[third[0], third[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
+        }
+
       }else{
-        temp_poly.push([first[0], first[1], 0], [sec[0], sec[1], 0],       [third[0], third[1], 0], [forth[0], forth[1], 0]);
+        temp_poly.push([first[0], first[1], 0], [sec[0], sec[1], 0], [third[0], third[1], 0], [forth[0], forth[1], 0]);
       }
 
       geoInstance = MFOC.drawOnePolygon(temp_poly, null, this.mode == '3D', color);
@@ -1062,6 +1082,10 @@ MFOC.prototype.add = function(mf){
     var index = this.zoomoutfeatures.indexOf(mf_temp);
     if (index != -1){
       this.zoomoutfeatures.splice(index, 1);
+    }
+    if (mf.properties.name == undefined){
+      //TODO
+      alert("feature has no name!");
     }
     this.features.push(mf);
   }
@@ -3769,7 +3793,12 @@ MFOC.prototype.getAllTypeFromProperties = function(){
   for (var i = 0 ; i < this.features.length ; i++){
     if (this.features[i].temporalProperties == undefined) continue;
     for (var j = 0 ; j < this.features[i].temporalProperties.length ; j++){
-      array = array.concat(Object.keys(this.features[i].temporalProperties[j]));
+      var keys = Object.keys(this.features[i].temporalProperties[j]);
+      for (var k = 0 ; k < keys.length ; k++){
+        if (keys[k] == 'datetimes') continue;
+        array.push(keys[k]);
+      }
+      
 
     }
 
