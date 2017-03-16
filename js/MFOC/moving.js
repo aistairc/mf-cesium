@@ -11,9 +11,9 @@ MFOC.prototype.moveMovingPoint = function(options){
 
   var availability = start + "/" + stop;
 
-  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+  if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear"){
     var interpolations;
-    if (geometry.interpolations == "Spline"){
+    if (geometry.interpolations[0] == "Spline"){
       interpolations = "HERMITE";
     }
     else{
@@ -75,7 +75,7 @@ MFOC.prototype.moveMovingPoint = function(options){
     var point = geometry.coordinates;
     for (var i = 0 ; i < geometry.coordinates.length - 1 ; i++){
       var obj ={};
-      if (geometry.interpolations == "Stepwise"){
+      if (geometry.interpolations[0] == "Stepwise"){
         var start_interval = new Date(geometry.datetimes[i]).toISOString();
         var finish_interval = new Date(geometry.datetimes[i+1]).toISOString();
         obj.interval = start_interval+"/"+finish_interval;
@@ -150,11 +150,11 @@ MFOC.prototype.moveMovingPolygon =function(options){
   var availability = start + "/" + stop;
   ref_obj.availability = availability;
 
-  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
+  if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear")
   {
     czml.push(ref_obj);
     var interpolations;
-    if (geometry.interpolations == "Spline"){
+    if (geometry.interpolations[0] == "Spline"){
       interpolations = "HERMITE";
     }
     else{
@@ -207,7 +207,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
       var start_iso = start_date.toISOString();
 
       var finish_iso;
-      if (geometry.interpolations == "Stepwise"){
+      if (geometry.interpolations[0] == "Stepwise"){
         finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
       }
       else{
@@ -263,11 +263,11 @@ MFOC.prototype.moveMovingLineString = function(options){
   var multiplier = 10000;
   var next_mapping_point_arr = MFOC.calculatePathForEachPoint(geometry);
 
-  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
+  if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear")
   {
     var next_point_each_line = next_mapping_point_arr;
     var interpolations;
-    if (geometry.interpolations == "Spline"){
+    if (geometry.interpolations[0] == "Spline"){
       interpolations = "HERMITE";
     }
     else{
@@ -346,7 +346,7 @@ MFOC.prototype.moveMovingLineString = function(options){
       var start_iso = start_date.toISOString();
 
       var finish_iso;
-      if (geometry.interpolations == "Stepwise"){
+      if (geometry.interpolations[0] == "Stepwise"){
         finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
       }
       else{

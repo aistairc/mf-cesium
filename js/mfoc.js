@@ -270,6 +270,7 @@ MFOC.drawOneLine = function(positions, r_color, width = 5){
 }
 
 MFOC.prototype.drawMovingPoint = function(options){
+
   var geometry = options.temporalGeometry;
   var name = options.name;
 
@@ -403,6 +404,7 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
 
 MFOC.prototype.drawPathMovingPoint = function(options){
   var instances = [];
+  console.log(options);
 
   var color = this.getColor(options.name);
 
@@ -417,7 +419,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
     pro_min_max = MFOC.findMinMaxProperties(property);
   }
 
-  if (data.interpolations == 'Discrete'){
+  if (data.interpolations[0] == 'Discrete'){
     return this.drawMovingPoint(options);
   }
 
@@ -427,6 +429,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
   else{
     if (property == undefined){
       var positions = MFOC.makeDegreesArray(data.coordinates, heights);
+      console.log(positions);
       instances.push(MFOC.drawInstanceOneLine(positions, color));
     }
     else{
@@ -491,7 +494,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
 
   var color = this.getColor(options.name).withAlpha(0.6);
 
-  if (geometry.interpolations == 'Discrete'){
+  if (geometry.interpolations[0] == 'Discrete'){
     return this.drawMovingPolygon(options);
   }
 
@@ -1177,6 +1180,8 @@ MFOC.prototype.drawPaths = function(options){
     console.log("mf_arr is 0. something wrong");
     return -1;
   }
+
+  console.log(mf_arr);
   this.min_max = this.findMinMaxGeometry(mf_arr);
 
   if (this.mode == '3D'){
@@ -1184,8 +1189,6 @@ MFOC.prototype.drawPaths = function(options){
     this.viewer.scene.primitives.add(this.drawZaxis());
     var entities = this.drawZaxisLabel();
     this.viewer.entities.add(entities.values[0]);
-
-
   }
   else{
     this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,0] );
@@ -2061,9 +2064,9 @@ MFOC.prototype.moveMovingPoint = function(options){
 
   var availability = start + "/" + stop;
 
-  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+  if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear"){
     var interpolations;
-    if (geometry.interpolations == "Spline"){
+    if (geometry.interpolations[0] == "Spline"){
       interpolations = "HERMITE";
     }
     else{
@@ -2125,7 +2128,7 @@ MFOC.prototype.moveMovingPoint = function(options){
     var point = geometry.coordinates;
     for (var i = 0 ; i < geometry.coordinates.length - 1 ; i++){
       var obj ={};
-      if (geometry.interpolations == "Stepwise"){
+      if (geometry.interpolations[0] == "Stepwise"){
         var start_interval = new Date(geometry.datetimes[i]).toISOString();
         var finish_interval = new Date(geometry.datetimes[i+1]).toISOString();
         obj.interval = start_interval+"/"+finish_interval;
@@ -2200,11 +2203,11 @@ MFOC.prototype.moveMovingPolygon =function(options){
   var availability = start + "/" + stop;
   ref_obj.availability = availability;
 
-  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
+  if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear")
   {
     czml.push(ref_obj);
     var interpolations;
-    if (geometry.interpolations == "Spline"){
+    if (geometry.interpolations[0] == "Spline"){
       interpolations = "HERMITE";
     }
     else{
@@ -2257,7 +2260,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
       var start_iso = start_date.toISOString();
 
       var finish_iso;
-      if (geometry.interpolations == "Stepwise"){
+      if (geometry.interpolations[0] == "Stepwise"){
         finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
       }
       else{
@@ -2313,11 +2316,11 @@ MFOC.prototype.moveMovingLineString = function(options){
   var multiplier = 10000;
   var next_mapping_point_arr = MFOC.calculatePathForEachPoint(geometry);
 
-  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear")
+  if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear")
   {
     var next_point_each_line = next_mapping_point_arr;
     var interpolations;
-    if (geometry.interpolations == "Spline"){
+    if (geometry.interpolations[0] == "Spline"){
       interpolations = "HERMITE";
     }
     else{
@@ -2396,7 +2399,7 @@ MFOC.prototype.moveMovingLineString = function(options){
       var start_iso = start_date.toISOString();
 
       var finish_iso;
-      if (geometry.interpolations == "Stepwise"){
+      if (geometry.interpolations[0] == "Stepwise"){
         finish_iso = new Date(geometry.datetimes[i+1]).toISOString();
       }
       else{
@@ -3678,8 +3681,11 @@ MFOC.getPropertyByName = function(mf, name){
   if (mf.temporalProperties == undefined) return -1;
 
   for (var i = 0 ; i < mf.temporalProperties.length ; i++){
-    if (mf.temporalProperties[i].name == name){
-      return [mf.temporalProperties[i], mf.properties.name];
+    var property = mf.temporalProperties[i][name];
+
+    if (property != undefined){
+      property.datetimes = mf.temporalProperties[i].datetimes;
+      return [property, name];
     }
   }
   return -1;
@@ -3761,19 +3767,10 @@ MFOC.findMaxCoordinatesLine = function(geometry){
 MFOC.prototype.getAllTypeFromProperties = function(){
   var array = [];
   for (var i = 0 ; i < this.features.length ; i++){
-
     if (this.features[i].temporalProperties == undefined) continue;
     for (var j = 0 ; j < this.features[i].temporalProperties.length ; j++){
-      var name = this.features[i].temporalProperties[j].name;
-      var push = true;
-      for (var k = 0 ; k < array.length ; k++){
-        if (array[k] == name){
-          push = false;
-        }
-      }
-      if (push){
-        array.push(name);
-      }
+      array = array.concat(Object.keys(this.features[i].temporalProperties[j]));
+
     }
 
   }

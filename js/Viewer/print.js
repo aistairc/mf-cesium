@@ -212,14 +212,15 @@ function searchPropertyInfo(id, name) { //
         if (features[i].properties.name == id) {
             var temporalProperties = features[i].temporalProperties;
             for (var j = 0; j < temporalProperties.length; j++) {
-                if (temporalProperties[j].name == name) {
-                    return temporalProperties[j];
+                if (temporalProperties[j][name] == name) {
+                    return temporalProperties[j][name];
                 }
             }
         }
     }
     return NULL;
 }
+
 Array.prototype.contains = function(obj) {
     var i = this.length;
     while (i--) {
@@ -638,27 +639,28 @@ function printFeature(featureID, data, id) {
     //ul.className = "list-group";
     ul.id = name;
     a.innerText = name;
+    var temporalProperties_name = Object.keys(temporalProperties[0]);
+    for (var i = 0; i < temporalProperties_name.length; i++) {
+      if (temporalProperties_name[i] == 'datetimes') continue;
+      var li_temp = document.createElement("li");
+      var a_temp = document.createElement("a");
+      var ul_temp = document.createElement("ul");
+      var div_temp = document.createElement("div");
+      var chk_temp = document.createElement("input");
 
-    for (var i = 0; i < temporalProperties.length; i++) {
-        var li_temp = document.createElement("li");
-        var a_temp = document.createElement("a");
-        var ul_temp = document.createElement("ul");
-        var div_temp = document.createElement("div");
-        var chk_temp = document.createElement("input");
+      li_temp.className = "list-group-item";
+      li_temp.role = "presentation";
+      ul_temp.className = "list-group";
 
-        li_temp.className = "list-group-item";
-        li_temp.role = "presentation";
-        ul_temp.className = "list-group";
-
-        a_temp.innerText = temporalProperties[i].name;
-        a_temp.onclick = (function(feature, temporalProperty) {
-            return function() {
-                getHighlight(feature, temporalProperty);
-            }
-        })(name, temporalProperties[i].name);
-        div_temp.appendChild(a_temp);
-        li_temp.appendChild(div_temp);
-        ul.appendChild(li_temp);
+      a_temp.innerText = temporalProperties_name[i];
+      a_temp.onclick = (function(feature, temporalProperty) {
+        return function() {
+          getHighlight(feature, temporalProperty);
+        }
+      })(name, temporalProperties_name[i]);
+      div_temp.appendChild(a_temp);
+      li_temp.appendChild(div_temp);
+      ul.appendChild(li_temp);
     }
     li.appendChild(a);
     li.appendChild(ul);
