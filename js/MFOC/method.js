@@ -44,6 +44,10 @@ MFOC.prototype.add = function(mf){
     if (index != -1){
       this.zoomoutfeatures.splice(index, 1);
     }
+    if (mf.properties.name == undefined){
+      //TODO
+      alert("feature has no name!");
+    }
     this.features.push(mf);
   }
 
@@ -161,6 +165,8 @@ MFOC.prototype.drawPaths = function(options){
     console.log("mf_arr is 0. something wrong");
     return -1;
   }
+
+  console.log(mf_arr);
   this.min_max = this.findMinMaxGeometry(mf_arr);
 
   if (this.mode == '3D'){
@@ -168,8 +174,6 @@ MFOC.prototype.drawPaths = function(options){
     this.viewer.scene.primitives.add(this.drawZaxis());
     var entities = this.drawZaxisLabel();
     this.viewer.entities.add(entities.values[0]);
-
-
   }
   else{
     this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,0] );

@@ -71,6 +71,7 @@ MFOC.drawOneLine = function(positions, r_color, width = 5){
 }
 
 MFOC.prototype.drawMovingPoint = function(options){
+
   var geometry = options.temporalGeometry;
   var name = options.name;
 
@@ -204,6 +205,7 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
 
 MFOC.prototype.drawPathMovingPoint = function(options){
   var instances = [];
+  console.log(options);
 
   var color = this.getColor(options.name);
 
@@ -218,7 +220,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
     pro_min_max = MFOC.findMinMaxProperties(property);
   }
 
-  if (data.interpolations == 'Discrete'){
+  if (data.interpolations[0] == 'Discrete'){
     return this.drawMovingPoint(options);
   }
 
@@ -228,6 +230,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
   else{
     if (property == undefined){
       var positions = MFOC.makeDegreesArray(data.coordinates, heights);
+      console.log(positions);
       instances.push(MFOC.drawInstanceOneLine(positions, color));
     }
     else{
@@ -292,7 +295,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
 
   var color = this.getColor(options.name).withAlpha(0.6);
 
-  if (geometry.interpolations == 'Discrete'){
+  if (geometry.interpolations[0] == 'Discrete'){
     return this.drawMovingPolygon(options);
   }
 

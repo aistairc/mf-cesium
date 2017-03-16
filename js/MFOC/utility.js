@@ -221,8 +221,11 @@ MFOC.getPropertyByName = function(mf, name){
   if (mf.temporalProperties == undefined) return -1;
 
   for (var i = 0 ; i < mf.temporalProperties.length ; i++){
-    if (mf.temporalProperties[i].name == name){
-      return [mf.temporalProperties[i], mf.properties.name];
+    var property = mf.temporalProperties[i][name];
+
+    if (property != undefined){
+      property.datetimes = mf.temporalProperties[i].datetimes;
+      return [property, name];
     }
   }
   return -1;
@@ -304,19 +307,10 @@ MFOC.findMaxCoordinatesLine = function(geometry){
 MFOC.prototype.getAllTypeFromProperties = function(){
   var array = [];
   for (var i = 0 ; i < this.features.length ; i++){
-
     if (this.features[i].temporalProperties == undefined) continue;
     for (var j = 0 ; j < this.features[i].temporalProperties.length ; j++){
-      var name = this.features[i].temporalProperties[j].name;
-      var push = true;
-      for (var k = 0 ; k < array.length ; k++){
-        if (array[k] == name){
-          push = false;
-        }
-      }
-      if (push){
-        array.push(name);
-      }
+      array = array.concat(Object.keys(this.features[i].temporalProperties[j]));
+
     }
 
   }
