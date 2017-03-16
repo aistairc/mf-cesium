@@ -640,6 +640,7 @@ function printFeature(featureID, data, id) {
     ul.id = name;
     a.innerText = name;
     var temporalProperties_name = Object.keys(temporalProperties[0]);
+    console.log(temporalProperties_name);
     for (var i = 0; i < temporalProperties_name.length; i++) {
       if (temporalProperties_name[i] == 'datetimes') continue;
       var li_temp = document.createElement("li");

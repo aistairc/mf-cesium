@@ -205,8 +205,6 @@ MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it
 
 MFOC.prototype.drawPathMovingPoint = function(options){
   var instances = [];
-  console.log(options);
-
   var color = this.getColor(options.name);
 
   var data = options.temporalGeometry;
@@ -224,13 +222,16 @@ MFOC.prototype.drawPathMovingPoint = function(options){
     return this.drawMovingPoint(options);
   }
 
+  if (data.interpolations[0] == 'Stepwise' && this.mode == '2D'){
+    return this.drawMovingPoint(options);
+  }
+
   if (data.coordinates.length == 1){
     console.log("one");
   }
   else{
     if (property == undefined){
       var positions = MFOC.makeDegreesArray(data.coordinates, heights);
-      console.log(positions);
       instances.push(MFOC.drawInstanceOneLine(positions, color));
     }
     else{
@@ -252,9 +253,16 @@ MFOC.prototype.drawPathMovingPoint = function(options){
           .concat(data.coordinates[index+1].concat([0]));
         }
         else {
-          positions =
-          (data.coordinates[index].concat(heights[index]))
-          .concat(data.coordinates[index+1].concat(heights[index+1]));
+          if (geometry.interpolations[0] == 'Stepwise'){
+            positions = (data.coordinates[index].concat(heights[index]))
+            .concat(data.coordinates[index].concat(heights[index+1]));
+          }
+          else{
+            positions =
+            (data.coordinates[index].concat(heights[index]))
+            .concat(data.coordinates[index+1].concat(heights[index+1]));
+          }
+
         }
 
         instances.push(MFOC.drawInstanceOneLine(positions, color));
@@ -299,9 +307,15 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
     return this.drawMovingPolygon(options);
   }
 
+  if (geometry.interpolations[0] == 'Stepwise' && this.mode == '2D'){
+    return this.drawMovingPoint(options);
+  }
+
   if (this.mode == '2D' || this.mode == 'GLOBE'){
     color = this.getColor(options.name).withAlpha(0.2);
   }
+
+
   for (var i = 0; i < coordinates.length - 1; i++) {
     for (var j = 0; j < coordinates[i].length - 1 ; j++) {
       var temp_poly = new Array();
@@ -325,9 +339,15 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
       }
 
       if (this.mode == '3D'){
-        temp_poly.push([first[0], first[1], heights[i]], [sec[0], sec[1], heights[i+1]],[third[0], third[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
+        if (geometry.interpolations[0] == 'Stepwise'){
+          temp_poly.push([first[0], first[1], heights[i]], [first[0], first[1], heights[i+1]],[forth[0], forth[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
+        }
+        else{
+          temp_poly.push([first[0], first[1], heights[i]], [sec[0], sec[1], heights[i+1]],[third[0], third[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
+        }
+
       }else{
-        temp_poly.push([first[0], first[1], 0], [sec[0], sec[1], 0],       [third[0], third[1], 0], [forth[0], forth[1], 0]);
+        temp_poly.push([first[0], first[1], 0], [sec[0], sec[1], 0], [third[0], third[1], 0], [forth[0], forth[1], 0]);
       }
 
       geoInstance = MFOC.drawOnePolygon(temp_poly, null, this.mode == '3D', color);

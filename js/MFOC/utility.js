@@ -309,7 +309,12 @@ MFOC.prototype.getAllTypeFromProperties = function(){
   for (var i = 0 ; i < this.features.length ; i++){
     if (this.features[i].temporalProperties == undefined) continue;
     for (var j = 0 ; j < this.features[i].temporalProperties.length ; j++){
-      array = array.concat(Object.keys(this.features[i].temporalProperties[j]));
+      var keys = Object.keys(this.features[i].temporalProperties[j]);
+      for (var k = 0 ; k < keys.length ; k++){
+        if (keys[k] == 'datetimes') continue;
+        array.push(keys[k]);
+      }
+      
 
     }
 

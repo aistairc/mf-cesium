@@ -160,7 +160,7 @@ MFOC.selectProperty = function(mfoc, graph_id) {
         div.style.textAlign = 'center';
         div.style.fontSize = 'x-large';
         div.style.verticalAlign = 'middle';
-        div.style.width = 100 / (pro_type_arr.length + 1) - 3 + '%';
+        div.style.width = 100 / (pro_type_arr.length + 1) + '%';
         div.innerHTML = pro_type_arr[i];
         div.id = 'btn' + pro_type_arr[i];
         div.onclick = (function(mfoc, name_arr, index, graph) {
@@ -184,7 +184,7 @@ MFOC.selectProperty = function(mfoc, graph_id) {
     close_div.style.textAlign = 'center';
     close_div.style.fontSize = 'x-large';
     close_div.style.verticalAlign = 'middle';
-    close_div.style.width = 100 / (pro_type_arr.length + 1) - 3 + '%';
+    close_div.style.width = 100 / (pro_type_arr.length + 1) + '%';
     close_div.innerHTML = 'CLOSE';
     pro_menu.appendChild(close_div);
 
