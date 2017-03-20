@@ -19,7 +19,7 @@
 
 
 
-# Cesium Examples
+# Stinuum
 
 - - -
 
@@ -51,7 +51,7 @@
 
 ## License
 
-Cesium Examples licensed under the [MIT](https://opensource.org/licenses/MIT)
+STinuum licensed under the [MIT](https://opensource.org/licenses/MIT)
 
 ## API
 
