@@ -1,4 +1,53 @@
+
+<!-- toc orderedList:0 depthFrom:1 depthTo:6 -->
+
+  * [License](#license)
+  * [API](#api)
+    * [List of API be used in this project.](#list-of-api-be-used-in-this-project)
+    * [Cesium](#cesium)
+    * [Moving Feature On Cesium (MFOC)](#moving-feature-on-cesium-mfoc)
+      * [How to Use API](#how-to-use-api)
+      * [Create new MFOC Object](#create-new-mfoc-object)
+      * [Add Moving Features](#add-moving-features)
+      * [Moving Feature Visualization](#moving-feature-visualization)
+      * [Control Feature Data](#control-feature-data)
+      * [Moving Feature Statistic](#moving-feature-statistic)
+  * [Building](#building)
+  * [Getting Started](#getting-started)
+
+<!-- tocstop -->
+
+
+
 # Cesium Examples
+
+- - -
+
+## Getting Started
+
+1. Download Cesium. (http://cesiumjs.org/downloads.html)
+
+2. Clone this Project and paste project to Cesium Folder.
+
+3. Install Node.js
+
+4. Run the following command to install the dependencies:
+
+  ```
+  $ npm install
+
+  ```
+5. Start Cesium server
+
+  ```
+  $ node server.js
+  ```
+6. Enter http://localhost:8080/Apps/Index.html by browser(Chrome).
+
+  if you have url and token, please append "url=data_server_url?token=your_token"
+
+  
+- - -
 
 ## License
 
@@ -31,17 +80,6 @@ We are developing API for this project.
 
   </br>
 
-  TOC
-<!-- toc orderedList:0 depthFrom:1 depthTo:6 -->
-
-* [How to Use API](#how-to-use-api)
-* [Create new MFOC Object](#create-new-mfoc-object)
-* [Add Moving Features](#add-moving-features)
-* [Moving Feature Visualization](#moving-feature-visualization)
-* [Control Feature Data](#control-feature-data)
-* [Moving Feature Statistic](#moving-feature-statistic)
-
-<!-- tocstop -->
 
 
 #### How to Use API
@@ -312,7 +350,7 @@ MFOC 객체를 초기화 합니다.
  </br>  </br> </br>  </br>
 > #### Moving Feature Statistic
 
-* showSpaceTimeCube(degree)
+* showHeatMap(degree)
 
 가지고 있는 movingFeature들의 temporalGeometry를 분석하여 HotSpot을 출력합니다.
 
@@ -331,7 +369,7 @@ degree = {
 
 Example
 ```js
-mfoc.showSpaceTimeCube({
+mfoc.showHeatMap({
   x : 10,
   y : 10,
   time : 1500000
@@ -340,13 +378,13 @@ mfoc.showSpaceTimeCube({
 
   </br>
 
-* removeSpaceTimeCube()
+* removeHeatMap()
 
 핫스팟 큐브들을 지웁니다.
 
 Example
 ```js
-mfoc.removeSpaceTimeCube()
+mfoc.removeHeatMap()
 ```
 
   </br>
@@ -411,13 +449,3 @@ mfoc.showDirectionalRadar('canvas');
 
 
 - - -
-
-## Getting Started
-
-> 1. Download Cesium.
-
-> 2. Clone this Project and paste Cesium Folder.
-
-> 3. Start Cesium Server - type "node server.js" in Cesium foler with console
-
-> 4. localhost:8080/Apps/mfoc_test.html
