@@ -2,8 +2,8 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
   var life = MFOC.calculateLife(geometry) / 1000000;
   var length = MFOC.calculateLength(geometry);
 
-  var start_point = geometry.coordinates[0];
-  var end_point = geometry.coordinates[geometry.coordinates.length-1];
+  var start_point = geometry.coordinates[0][0];
+  var end_point = geometry.coordinates[geometry.coordinates.length-1][0];
 
   if (geometry.type != "MovingPoint" ){ // Polygon, LineString
     start_point = MFOC.getCenter(start_point, geometry.type);
@@ -109,8 +109,8 @@ MFOC.calculateLength = function(geometry){
       point2 = geometry.coordinates[i+1];
     }
     else{
-      point1 = MFOC.getCenter(geometry.coordinates[i], geometry.type);
-      point2 = MFOC.getCenter(geometry.coordinates[i+1], geometry.type);
+      point1 = MFOC.getCenter(geometry.coordinates[i][0], geometry.type);
+      point2 = MFOC.getCenter(geometry.coordinates[i+1][0], geometry.type);
     }
     //total += MFOC.calculateDist(point1, point2);
     total += MFOC.calculateCarteDist(point1, point2);
@@ -283,7 +283,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
       return;
     }
     var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-    console.log(start_coord);
+
     viewer.clock.currentTime=Cesium.JulianDate.fromDate(new Date(formatDate(x.invert(start_coord[0]-51.09))));
     viewer.clock.shouldAnimate = false;
     //    console.log(rect);
@@ -383,7 +383,7 @@ MFOC.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data)
 
   var value_property = [];
 
-  for (var point = 0 ; point < geometry.coordinates[0].length - 1; point++){
+  for (var point = 0 ; point < geometry.coordinates[0][0].length - 1; point++){
     var temp = new SampledProperty(Number);
     value_property[point] = temp;
   }
@@ -399,8 +399,8 @@ MFOC.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data)
   for (var index = 0 ; index < geometry.coordinates.length ; index++){
     var coord = geometry.coordinates[index];
 
-    for (var point = 0 ; point < coord.length - 1; point++){
-      value_property[point].addSample(coord[point][0], coord[point][1]);
+    for (var point = 0 ; point < coord[0].length - 1; point++){
+      value_property[point].addSample(coord[0][point][0], coord[0][point][1]);
     }
   }
 
@@ -677,7 +677,7 @@ MFOC.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data
     var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
     var normalize = MFOC.normalizeTime(new Date(datetimes[time]), this.min_max.date, this.max_height);
 
-    var coordinates = geometry.coordinates[time];
+    var coordinates = geometry.coordinates[time][0];
     var mbr = MFOC.getMBRFromPolygon(coordinates);
 
     lower_x_property.addSample(jul_time, mbr.x[0]);
@@ -898,7 +898,6 @@ MFOC.prototype.makeCube = function(degree, cube_data){
   var min_max = this.min_max;
 
   var max_count = this.hotspot_maxnum;
-  console.log(max_count);
   var x_deg = degree.x,
   y_deg = degree.y;
 

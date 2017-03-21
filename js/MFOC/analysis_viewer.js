@@ -1,15 +1,9 @@
 MFOC.drawBackRadar = function(radar_id) {
     var radar_canvas = document.getElementById(radar_id);
 
-    //  radar_canvas.style.top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight + 10 + 'px';
     radar_canvas.style.position = 'absolute';
     radar_canvas.style.zIndex = '21';
     radar_canvas.style.right = '5px';
-
-
-    //  radar_canvas.width = $('#'+div_id).width() + 'px';
-    //  radar_canvas.height = $('#'+div_id).width()  + 'px';
-
 
     if (radar_canvas.getContext) {
 
@@ -17,8 +11,6 @@ MFOC.drawBackRadar = function(radar_id) {
         var h_height = radar_canvas.height / 2;
         var ctx = radar_canvas.getContext('2d');
 
-        //var h_width = ctx.canvas.clientWidth / 2;
-        //var h_height = ctx.canvas.clientHeight / 2;
         var color = 'rgb(0,255,0)';
 
         for (var id = 0; id < 2; id++) {
@@ -151,6 +143,7 @@ MFOC.selectProperty = function(mfoc, graph_id) {
     pro_menu.className = 'graph';
 
     var pro_type_arr = mfoc.getAllTypeFromProperties();
+    console.log(pro_type_arr);
 
     for (var i = 0; i < pro_type_arr.length; i++) {
         var div = document.createElement('div');

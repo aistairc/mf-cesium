@@ -164,7 +164,6 @@ function getFeatures(url, layerID) {
     var promise = request2(url);
     var promise_list = [];
     var get_data;
-    var title = document.getElementById("title");
     var serverState = document.getElementById('serverState');
     serverState.style.visibility = "visible";
     serverState.innerText = "loading";
@@ -269,7 +268,6 @@ var request1 = function(url) {
         }
         xhr.onload = function() {
             var text = xhr.responseText;
-            //var title = getTitle(text);
 
             var arr = JSON.parse("[" + text + "]");
             arr = $.map(arr[0], function(el) {
@@ -343,7 +341,6 @@ var request3 = function(url) {
 };
 
 function createCORSRequest(method, url) {
-    console.log(url);
     var xhr = new XMLHttpRequest();
     if ("withCredentials" in xhr) {
         // XHR for Chrome/Firefox/Opera/Safari.

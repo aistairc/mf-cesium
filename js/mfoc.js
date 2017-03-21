@@ -1,15 +1,9 @@
 MFOC.drawBackRadar = function(radar_id) {
     var radar_canvas = document.getElementById(radar_id);
 
-    //  radar_canvas.style.top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight + 10 + 'px';
     radar_canvas.style.position = 'absolute';
     radar_canvas.style.zIndex = '21';
     radar_canvas.style.right = '5px';
-
-
-    //  radar_canvas.width = $('#'+div_id).width() + 'px';
-    //  radar_canvas.height = $('#'+div_id).width()  + 'px';
-
 
     if (radar_canvas.getContext) {
 
@@ -17,8 +11,6 @@ MFOC.drawBackRadar = function(radar_id) {
         var h_height = radar_canvas.height / 2;
         var ctx = radar_canvas.getContext('2d');
 
-        //var h_width = ctx.canvas.clientWidth / 2;
-        //var h_height = ctx.canvas.clientHeight / 2;
         var color = 'rgb(0,255,0)';
 
         for (var id = 0; id < 2; id++) {
@@ -151,6 +143,7 @@ MFOC.selectProperty = function(mfoc, graph_id) {
     pro_menu.className = 'graph';
 
     var pro_type_arr = mfoc.getAllTypeFromProperties();
+    console.log(pro_type_arr);
 
     for (var i = 0; i < pro_type_arr.length; i++) {
         var div = document.createElement('div');
@@ -199,76 +192,6 @@ MFOC.selectProperty = function(mfoc, graph_id) {
 }
 var LOG = console.log;
 
-
-
-MFOC.prototype.drawMovingLineString = function(options){
-  var geometry = options.temporalGeometry;
-  var name = options.name;
-
-  var polylineCollection = new Cesium.PolylineCollection();
-
-  var r_color = this.getColor(name);
-
-
-  var data = geometry;
-  var heights = this.getListOfHeight(data.datetimes);
-
-
-  for (var j = 0 ; j < data.coordinates.length ; j++){
-    if (this.mode == '2D' || this.mode == 'GLOBE'){
-      heights[j] = 0;
-    }
-    var positions = MFOC.makeDegreesArray(data.coordinates[j], heights[j]);
-    polylineCollection.add(MFOC.drawOneLine(positions, r_color));
-  }
-
-  return polylineCollection;
-}
-
-MFOC.makeDegreesArray = function(pos_2d, height){
-  var points = [];
-  for (var i = 0; i < pos_2d.length; i++) {
-    if (Array.isArray(height)){
-      points.push(pos_2d[i][0], pos_2d[i][1], height[i]);
-    }
-    else{
-      points.push(pos_2d[i][0], pos_2d[i][1], height);
-    }
-  }
-  return points;
-}
-
-MFOC.drawInstanceOneLine = function(positions, r_color, width = 5){
-  var carte = Cesium.Cartesian3.fromDegreesArrayHeights(positions);
-  //console.log(positions,carte);
-  var polyline =  new Cesium.PolylineGeometry({
-    positions : carte,
-    width : width
-  });
-
-  var geoInstance = new Cesium.GeometryInstance({
-    geometry : Cesium.PolylineGeometry.createGeometry(polyline),
-    attributes : {
-      color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
-    }
-  });
-
-  return geoInstance;
-}
-
-MFOC.drawOneLine = function(positions, r_color, width = 5){
-  var material = new Cesium.Material.fromType('Color');
-  material.uniforms.color = r_color;
-
-  var line = {
-    positions :  Cesium.Cartesian3.fromDegreesArrayHeights(positions) ,
-    width : width,
-    material : material
-  };
-
-  return line;
-}
-
 MFOC.prototype.drawMovingPoint = function(options){
 
   var geometry = options.temporalGeometry;
@@ -294,13 +217,28 @@ MFOC.prototype.drawMovingPoint = function(options){
   return pointCollection;
 }
 
-MFOC.drawOnePoint = function(onePoint,height,r_color){ //it gets one point
-  var pointInstance = new Cesium.PointPrimitive();
-  var position = Cesium.Cartesian3.fromDegrees(onePoint[0],onePoint[1],height);;
-  pointInstance.position = position;
-  pointInstance.color = r_color;
-  pointInstance.pixelSize = 6.0;
-  return pointInstance;
+MFOC.prototype.drawMovingLineString = function(options){
+  var geometry = options.temporalGeometry;
+  var name = options.name;
+
+  var polylineCollection = new Cesium.PolylineCollection();
+
+  var r_color = this.getColor(name);
+
+
+  var data = geometry;
+  var heights = this.getListOfHeight(data.datetimes);
+
+
+  for (var j = 0 ; j < data.coordinates.length ; j++){
+    if (this.mode == '2D' || this.mode == 'GLOBE'){
+      heights[j] = 0;
+    }
+    var positions = MFOC.makeDegreesArray(data.coordinates[j], heights[j]);
+    polylineCollection.add(MFOC.drawOneLine(positions, r_color));
+  }
+
+  return polylineCollection;
 }
 
 MFOC.prototype.drawMovingPolygon = function(options){
@@ -345,62 +283,7 @@ MFOC.prototype.drawMovingPolygon = function(options){
   return prim;
 }
 
-MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it gets one polygon
-  var coordinates = onePolygon;
-  var points = [];
 
-  var position;
-  if (!with_height){
-    height = 0;
-    for (var i = 0; i < coordinates.length; i++) {
-      points.push(coordinates[i][0]);
-      points.push(coordinates[i][1]);
-      points.push(height);
-    }
-  }
-  else{
-    if (height == null){
-      for (var i = 0; i < coordinates.length; i++) {
-        points.push(coordinates[i][0]);
-        points.push(coordinates[i][1]);
-        points.push(coordinates[i][2]);
-      }
-    }
-    else{
-      for (var i = 0; i < coordinates.length; i++) {
-        points.push(coordinates[i][0]);
-        points.push(coordinates[i][1]);
-        points.push(height);
-      }
-    }
-  }
-
-
-  position = Cesium.Cartesian3.fromDegreesArrayHeights(points);
-
-  var polygonHierarchy = new Cesium.PolygonHierarchy(position);
-
-  var vertexF = new Cesium.VertexFormat({
-    position : true,
-    st : false,
-    normal : true,
-    color : true
-  });
-
-  var geometry = new Cesium.PolygonGeometry({
-    polygonHierarchy : polygonHierarchy,
-    vertexFormat : vertexF,
-    perPositionHeight : true
-  });
-
-  var geoInstance = new Cesium.GeometryInstance({
-    geometry : geometry,
-    attributes : {
-      color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
-    }
-  });
-  return geoInstance;
-}
 
 MFOC.prototype.drawPathMovingPoint = function(options){
   var instances = [];
@@ -499,7 +382,6 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
 
   var heights = this.getListOfHeight(datetimes);
 
-
   var color = this.getColor(options.name).withAlpha(0.6);
 
   if (geometry.interpolations[0] == 'Discrete'){
@@ -514,15 +396,15 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
     color = this.getColor(options.name).withAlpha(0.2);
   }
 
-
   for (var i = 0; i < coordinates.length - 1; i++) {
-    for (var j = 0; j < coordinates[i].length - 1 ; j++) {
+    var io = 0;
+    for (var j = 0; j < coordinates[i][io].length - 1 ; j++) {
       var temp_poly = new Array();
       var temp_point = new Array();
-      var first = coordinates[i][j];
-      var sec = coordinates[i + 1][j];
-      var third = coordinates[i + 1][j + 1];
-      var forth = coordinates[i][j + 1];
+      var first = coordinates[i][io][j];
+      var sec = coordinates[i + 1][io][j];
+      var third = coordinates[i + 1][io][j + 1];
+      var forth = coordinates[i][io][j + 1];
 
       if (property != undefined){
         var middle_value = (property.values[i] + property.values[i+1]) / 2;
@@ -550,9 +432,12 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
       }
 
       geoInstance = MFOC.drawOnePolygon(temp_poly, null, this.mode == '3D', color);
+
       surface.push(geoInstance);
     }
+
   }
+
   var typhoon = new Cesium.Primitive({
     geometryInstances: surface,
     appearance: new Cesium.PerInstanceColorAppearance()
@@ -609,6 +494,115 @@ MFOC.prototype.drawPathMovingLineString = function(options){
   return trianlgeCollection;
 }
 
+
+MFOC.makeDegreesArray = function(pos_2d, height){
+  var points = [];
+  for (var i = 0; i < pos_2d.length; i++) {
+    if (Array.isArray(height)){
+      points.push(pos_2d[i][0], pos_2d[i][1], height[i]);
+    }
+    else{
+      points.push(pos_2d[i][0], pos_2d[i][1], height);
+    }
+  }
+  return points;
+}
+
+MFOC.drawInstanceOneLine = function(positions, r_color, width = 5){
+  var carte = Cesium.Cartesian3.fromDegreesArrayHeights(positions);
+  //console.log(positions,carte);
+  var polyline =  new Cesium.PolylineGeometry({
+    positions : carte,
+    width : width
+  });
+
+  var geoInstance = new Cesium.GeometryInstance({
+    geometry : Cesium.PolylineGeometry.createGeometry(polyline),
+    attributes : {
+      color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
+    }
+  });
+
+  return geoInstance;
+}
+
+MFOC.drawOneLine = function(positions, r_color, width = 5){
+  var material = new Cesium.Material.fromType('Color');
+  material.uniforms.color = r_color;
+
+  var line = {
+    positions :  Cesium.Cartesian3.fromDegreesArrayHeights(positions) ,
+    width : width,
+    material : material
+  };
+
+  return line;
+}
+
+MFOC.drawOnePoint = function(onePoint,height,r_color){ //it gets one point
+  var pointInstance = new Cesium.PointPrimitive();
+  var position = Cesium.Cartesian3.fromDegrees(onePoint[0],onePoint[1],height);;
+  pointInstance.position = position;
+  pointInstance.color = r_color;
+  pointInstance.pixelSize = 6.0;
+  return pointInstance;
+}
+
+MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it gets one polygon
+  var coordinates = onePolygon;
+  var points = [];
+
+  var position;
+  if (!with_height){
+    height = 0;
+    for (var i = 0; i < coordinates.length; i++) {
+      points.push(coordinates[i][0]);
+      points.push(coordinates[i][1]);
+      points.push(height);
+    }
+  }
+  else{
+    if (height == null){
+      for (var i = 0; i < coordinates.length; i++) {
+        points.push(coordinates[i][0]);
+        points.push(coordinates[i][1]);
+        points.push(coordinates[i][2]);
+      }
+    }
+    else{
+      for (var i = 0; i < coordinates.length; i++) {
+        points.push(coordinates[i][0]);
+        points.push(coordinates[i][1]);
+        points.push(height);
+      }
+    }
+  }
+
+  position = Cesium.Cartesian3.fromDegreesArrayHeights(points);
+
+  var polygonHierarchy = new Cesium.PolygonHierarchy(position);
+
+  var vertexF = new Cesium.VertexFormat({
+    position : true,
+    st : false,
+    normal : true,
+    color : true
+  });
+
+  var geometry = new Cesium.PolygonGeometry({
+    polygonHierarchy : polygonHierarchy,
+    vertexFormat : vertexF,
+    perPositionHeight : true
+  });
+
+  var geoInstance = new Cesium.GeometryInstance({
+    geometry : geometry,
+    attributes : {
+      color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
+    }
+  });
+  return geoInstance;
+}
 
 MFOC.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, height2, color){
   var instances = [];
@@ -1205,7 +1199,6 @@ MFOC.prototype.drawPaths = function(options){
     return -1;
   }
 
-  console.log(mf_arr);
   this.min_max = this.findMinMaxGeometry(mf_arr);
 
   if (this.mode == '3D'){
@@ -1359,6 +1352,7 @@ MFOC.prototype.showProperty = function(propertyName, divID){
   if (pro_arr.length == 0){
     return;
   }
+  console.log(pro_arr);
   this.showPropertyArray(propertyName, pro_arr, divID);
 }
 
@@ -1685,8 +1679,7 @@ MFOC.prototype.showDirectionalRadar = function(canvasID){
   radar_canvas.getContext('2d').clearRect(0, 0, radar_canvas.width, radar_canvas.height);
 
   if (this.radar_on){
-    console.log('off radar');
-    MFOC.drawBackRadar('analysis');
+    MFOC.drawBackRadar(canvasID);
     this.color_arr ={};
     this.radar_on = false;
     return;
@@ -1699,6 +1692,8 @@ MFOC.prototype.showDirectionalRadar = function(canvasID){
     var feature = this.features[index];
     this.setColor(feature.properties.name, MFOC.addDirectionInfo(cumulative, feature.temporalGeometry));
   }
+
+  console.log(cumulative);
 
   var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
   var total_length = cumulative.west.total_length + cumulative.east.total_length + cumulative.north.total_length + cumulative.south.total_length;
@@ -1823,12 +1818,10 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
   var div = document.getElementById(div_id);
   div.innerHTML ='';
   div.style.top = '120px'
-  //div.style.paddingTop = 0;
   div.style.color = 'white';
   div.style.backgroundColor = 'rgba(0,0,0,0.4)';
   div.style.right = '5px';
   div.style.border = '1px solid black';
-//  div.style.width = '200px'
   div.style.padding = '0px';
   div.className = "list-group-item active";
 
@@ -1841,7 +1834,6 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
   title.style.verticalAlign = 'middle';
   title.style.display = 'flex';
   title.style.alignItems = 'center';
-  //title.style.marginLeft = '5px';
   title.style.backgroundColor = '#787878';
   title.style.borderBottom = '3px double white';
 
@@ -1857,7 +1849,6 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
     div_arr[i].style.borderBottom = '1px solid white';
     div_arr[i].style.display = 'flex';
     div_arr[i].style.alignItems = 'center';
-    //div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
     div_arr[i].style.border = '1px solid white';
     //div_arr[i].style.borderRadius = '15px';
   }
@@ -1966,7 +1957,7 @@ MFOC.prototype.clickMovingFeature = function(name){
 MFOC.prototype.update = function(){
   this.clearViewer();
   this.drawPaths();
-  this.animate();
+  //this.animate();
   return this.min_max;
 }
 
@@ -2238,7 +2229,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
       interpolations = "LINEAR";
     }
 
-    for (var i = 0 ; i < geometry.coordinates[0].length-1 ; i++){
+    for (var i = 0 ; i < geometry.coordinates[0][0].length-1 ; i++){
       var v = {};
       v.id = 'v_'+number+"_"+(i+1);
       v.position = {
@@ -2255,7 +2246,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
       for (var j = 0 ; j < geometry.datetimes.length ; j ++){
         var seconds = new Date(geometry.datetimes[j]).getTime() - start_second;
         var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[j]), this.min_max.date, this.max_height);
-        var polygon = geometry.coordinates[j];
+        var polygon = geometry.coordinates[j][0];
 
         carto.push(seconds / 1000);
         carto.push(polygon[i][0]);
@@ -2298,7 +2289,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
       v.availability = start_iso+"/"+finish_iso;
       var carto = [];
       var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);
-      var polygon = geometry.coordinates[i];
+      var polygon = geometry.coordinates[i][0];
       for (var j = 0 ; j < polygon.length-1 ; j++){
         carto.push(polygon[j][0]);
         carto.push(polygon[j][1]);
@@ -2542,8 +2533,8 @@ MFOC.addDirectionInfo = function(cumulative, geometry){
   var life = MFOC.calculateLife(geometry) / 1000000;
   var length = MFOC.calculateLength(geometry);
 
-  var start_point = geometry.coordinates[0];
-  var end_point = geometry.coordinates[geometry.coordinates.length-1];
+  var start_point = geometry.coordinates[0][0];
+  var end_point = geometry.coordinates[geometry.coordinates.length-1][0];
 
   if (geometry.type != "MovingPoint" ){ // Polygon, LineString
     start_point = MFOC.getCenter(start_point, geometry.type);
@@ -2649,8 +2640,8 @@ MFOC.calculateLength = function(geometry){
       point2 = geometry.coordinates[i+1];
     }
     else{
-      point1 = MFOC.getCenter(geometry.coordinates[i], geometry.type);
-      point2 = MFOC.getCenter(geometry.coordinates[i+1], geometry.type);
+      point1 = MFOC.getCenter(geometry.coordinates[i][0], geometry.type);
+      point2 = MFOC.getCenter(geometry.coordinates[i+1][0], geometry.type);
     }
     //total += MFOC.calculateDist(point1, point2);
     total += MFOC.calculateCarteDist(point1, point2);
@@ -2697,6 +2688,8 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
   var name_arr = [];
   var object_arr = [];
   var mfoc = this;
+  
+  console.log(array);
 
   for (var i = 0 ; i < array.length ; i++){
     object_arr.push(array[i][0]);
@@ -2776,6 +2769,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
     }
 
     var color = this.getColor(name_arr[id]);
+    console.log(name_arr[id], color);
     var r_color = d3.rgb(color.red * 255, color.green * 255, color.blue * 255);
 
     graph_data.push(data);
@@ -2823,7 +2817,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
       return;
     }
     var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-    console.log(start_coord);
+
     viewer.clock.currentTime=Cesium.JulianDate.fromDate(new Date(formatDate(x.invert(start_coord[0]-51.09))));
     viewer.clock.shouldAnimate = false;
     //    console.log(rect);
@@ -2923,7 +2917,7 @@ MFOC.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data)
 
   var value_property = [];
 
-  for (var point = 0 ; point < geometry.coordinates[0].length - 1; point++){
+  for (var point = 0 ; point < geometry.coordinates[0][0].length - 1; point++){
     var temp = new SampledProperty(Number);
     value_property[point] = temp;
   }
@@ -2939,8 +2933,8 @@ MFOC.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data)
   for (var index = 0 ; index < geometry.coordinates.length ; index++){
     var coord = geometry.coordinates[index];
 
-    for (var point = 0 ; point < coord.length - 1; point++){
-      value_property[point].addSample(coord[point][0], coord[point][1]);
+    for (var point = 0 ; point < coord[0].length - 1; point++){
+      value_property[point].addSample(coord[0][point][0], coord[0][point][1]);
     }
   }
 
@@ -3217,7 +3211,7 @@ MFOC.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data
     var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
     var normalize = MFOC.normalizeTime(new Date(datetimes[time]), this.min_max.date, this.max_height);
 
-    var coordinates = geometry.coordinates[time];
+    var coordinates = geometry.coordinates[time][0];
     var mbr = MFOC.getMBRFromPolygon(coordinates);
 
     lower_x_property.addSample(jul_time, mbr.x[0]);
@@ -3438,7 +3432,6 @@ MFOC.prototype.makeCube = function(degree, cube_data){
   var min_max = this.min_max;
 
   var max_count = this.hotspot_maxnum;
-  console.log(max_count);
   var x_deg = degree.x,
   y_deg = degree.y;
 
@@ -3504,9 +3497,9 @@ MFOC.prototype.findMinMaxGeometry = function(mf_arr){
     }
     else{
       var coord_arr = mf_arr[i].temporalGeometry.coordinates;
-      mf_min_max_coord = MFOC.findMinMaxCoord(coord_arr[0]);
+      mf_min_max_coord = MFOC.findMinMaxCoord(coord_arr[0][0]);
       for (var j = 1 ; j < coord_arr.length ; j++){
-        mf_min_max_coord = MFOC.findBiggerCoord(mf_min_max_coord, MFOC.findMinMaxCoord(coord_arr[j]) );
+        mf_min_max_coord = MFOC.findBiggerCoord(mf_min_max_coord, MFOC.findMinMaxCoord(coord_arr[j][0]) );
       }
     }
 
@@ -3583,15 +3576,18 @@ MFOC.findMinMaxCoord = function(coordinates){
   min_max.x = [];
   min_max.y = [];
   min_max.z = [];
-  min_max.x[0] = coordinates[0][0];
-  min_max.x[1] = coordinates[0][0];
-  min_max.y[0] = coordinates[0][1];
-  min_max.y[1] = coordinates[0][1];
+
+  var start = coordinates[0];
+  min_max.x[0] = start[0];
+  min_max.x[1] = start[0];
+  min_max.y[0] = start[1];
+  min_max.y[1] = start[1];
   min_max.z = [];
   if (coordinates[0][2] != undefined){
-    min_max.z[0] = coordinates[0][2];
-    min_max.z[1] = coordinates[0][2];
+    min_max.z[0] = start[2];
+    min_max.z[1] = start[2];
   }
+
   for (var i = 0 ; i < coordinates.length ; i++){
     var coord = coordinates[i];
     if (min_max.x[0] > coord[0]){
@@ -3709,7 +3705,7 @@ MFOC.getPropertyByName = function(mf, name){
 
     if (property != undefined){
       property.datetimes = mf.temporalProperties[i].datetimes;
-      return [property, name];
+      return [property, mf.properties.name];
     }
   }
   return -1;
@@ -3798,7 +3794,8 @@ MFOC.prototype.getAllTypeFromProperties = function(){
         if (keys[k] == 'datetimes') continue;
         array.push(keys[k]);
       }
-      
+      return array;
+
 
     }
 
