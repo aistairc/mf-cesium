@@ -912,7 +912,7 @@ MFOC.prototype.clickMovingFeature = function(name){
       }
     }
 
-},1500);
+},5000);
 
 
   return 1;
@@ -923,7 +923,7 @@ MFOC.prototype.clickMovingFeature = function(name){
 MFOC.prototype.update = function(){
   this.clearViewer();
   this.drawPaths();
-  //this.animate();
+  this.animate();
   return this.min_max;
 }
 

@@ -82,7 +82,7 @@ var mfoc = new MFOC(viewer);
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
-|   movingFeature  |  JSON Object or JSON ObjectArray   |        |     movingFeature.type 은 'MovingFeature' 이어야한다.  |
+|   movingFeature  |  moving feature JSON Object or moving feature JSON ObjectArray   |        |     movingFeature.type 은 'MovingFeature' 이어야한다.  |
 
 Returns:
 현재 가지고 있는 feature 개수
@@ -91,7 +91,6 @@ Example
 ```js
 $.getJSON('json_data/polygon2015.json').then(
       function(data){
-
         for (var i = 0 ; i < data.features.length ; i++){
           mfoc.add(data.features[i]);
         }

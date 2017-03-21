@@ -527,7 +527,6 @@ MFOC.euclidianDistance3D = function(a, b) {
   return Math.sqrt(pow1 + pow2 + pow3);
 }
 
-
 MFOC.drawOneCube = function(positions, rating = 1.0){
   var red_rate = 1.0, green_rate = 1.9 - rating * 1.9;
   var blue_rate = 0.0;
@@ -584,7 +583,6 @@ MFOC.calcSidesBoxCoord = function(box_coord){
 
   return [x_dist, y_dist, z_dist];
 }
-
 
 MFOC.prototype.drawZaxis = function(){
   var polylineCollection = new Cesium.PolylineCollection();
@@ -644,7 +642,6 @@ MFOC.prototype.drawZaxisLabel = function(){
   return entities;
 
 }
-
 
 MFOC.prototype.showProjection = function(name){
 

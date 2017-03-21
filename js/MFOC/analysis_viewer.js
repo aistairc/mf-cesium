@@ -127,13 +127,7 @@ MFOC.selectProperty = function(mfoc, graph_id) {
     document.getElementById(graph_id).style.height = '0%';
     document.getElementById(graph_id).style.cursor = 'pointer';
 
-    //  document.getElementById(graph_id).style.width = '85%';
-    //  document.getElementById(graph_id).style.left = '15%';
-
     var pro_menu = document.createElement('div');
-    //  pro_menu.style.width='85%';
-    //  pro_menu.style.position ='absolute';
-    //  pro_menu.style.right='0';
     pro_menu.style.bottom = '0';
     pro_menu.style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
     pro_menu.style.height = "5%";
