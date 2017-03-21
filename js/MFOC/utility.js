@@ -20,9 +20,9 @@ MFOC.prototype.findMinMaxGeometry = function(mf_arr){
     }
     else{
       var coord_arr = mf_arr[i].temporalGeometry.coordinates;
-      mf_min_max_coord = MFOC.findMinMaxCoord(coord_arr[0]);
+      mf_min_max_coord = MFOC.findMinMaxCoord(coord_arr[0][0]);
       for (var j = 1 ; j < coord_arr.length ; j++){
-        mf_min_max_coord = MFOC.findBiggerCoord(mf_min_max_coord, MFOC.findMinMaxCoord(coord_arr[j]) );
+        mf_min_max_coord = MFOC.findBiggerCoord(mf_min_max_coord, MFOC.findMinMaxCoord(coord_arr[j][0]) );
       }
     }
 
@@ -99,15 +99,18 @@ MFOC.findMinMaxCoord = function(coordinates){
   min_max.x = [];
   min_max.y = [];
   min_max.z = [];
-  min_max.x[0] = coordinates[0][0];
-  min_max.x[1] = coordinates[0][0];
-  min_max.y[0] = coordinates[0][1];
-  min_max.y[1] = coordinates[0][1];
+
+  var start = coordinates[0];
+  min_max.x[0] = start[0];
+  min_max.x[1] = start[0];
+  min_max.y[0] = start[1];
+  min_max.y[1] = start[1];
   min_max.z = [];
   if (coordinates[0][2] != undefined){
-    min_max.z[0] = coordinates[0][2];
-    min_max.z[1] = coordinates[0][2];
+    min_max.z[0] = start[2];
+    min_max.z[1] = start[2];
   }
+
   for (var i = 0 ; i < coordinates.length ; i++){
     var coord = coordinates[i];
     if (min_max.x[0] > coord[0]){
@@ -314,7 +317,8 @@ MFOC.prototype.getAllTypeFromProperties = function(){
         if (keys[k] == 'datetimes') continue;
         array.push(keys[k]);
       }
-      
+      return array;
+
 
     }
 

@@ -166,7 +166,6 @@ MFOC.prototype.drawPaths = function(options){
     return -1;
   }
 
-  console.log(mf_arr);
   this.min_max = this.findMinMaxGeometry(mf_arr);
 
   if (this.mode == '3D'){
@@ -320,6 +319,7 @@ MFOC.prototype.showProperty = function(propertyName, divID){
   if (pro_arr.length == 0){
     return;
   }
+  console.log(pro_arr);
   this.showPropertyArray(propertyName, pro_arr, divID);
 }
 
@@ -646,8 +646,7 @@ MFOC.prototype.showDirectionalRadar = function(canvasID){
   radar_canvas.getContext('2d').clearRect(0, 0, radar_canvas.width, radar_canvas.height);
 
   if (this.radar_on){
-    console.log('off radar');
-    MFOC.drawBackRadar('analysis');
+    MFOC.drawBackRadar(canvasID);
     this.color_arr ={};
     this.radar_on = false;
     return;
@@ -660,6 +659,8 @@ MFOC.prototype.showDirectionalRadar = function(canvasID){
     var feature = this.features[index];
     this.setColor(feature.properties.name, MFOC.addDirectionInfo(cumulative, feature.temporalGeometry));
   }
+
+  console.log(cumulative);
 
   var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
   var total_length = cumulative.west.total_length + cumulative.east.total_length + cumulative.north.total_length + cumulative.south.total_length;
@@ -784,12 +785,10 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
   var div = document.getElementById(div_id);
   div.innerHTML ='';
   div.style.top = '120px'
-  //div.style.paddingTop = 0;
   div.style.color = 'white';
   div.style.backgroundColor = 'rgba(0,0,0,0.4)';
   div.style.right = '5px';
   div.style.border = '1px solid black';
-//  div.style.width = '200px'
   div.style.padding = '0px';
   div.className = "list-group-item active";
 
@@ -802,7 +801,6 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
   title.style.verticalAlign = 'middle';
   title.style.display = 'flex';
   title.style.alignItems = 'center';
-  //title.style.marginLeft = '5px';
   title.style.backgroundColor = '#787878';
   title.style.borderBottom = '3px double white';
 
@@ -818,7 +816,6 @@ MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
     div_arr[i].style.borderBottom = '1px solid white';
     div_arr[i].style.display = 'flex';
     div_arr[i].style.alignItems = 'center';
-    //div_arr[i].style.backgroundColor = 'rgba(5,5,5,0.5)';
     div_arr[i].style.border = '1px solid white';
     //div_arr[i].style.borderRadius = '15px';
   }
@@ -927,7 +924,7 @@ MFOC.prototype.clickMovingFeature = function(name){
 MFOC.prototype.update = function(){
   this.clearViewer();
   this.drawPaths();
-  this.animate();
+  //this.animate();
   return this.min_max;
 }
 
