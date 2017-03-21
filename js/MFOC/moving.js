@@ -161,7 +161,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
       interpolations = "LINEAR";
     }
 
-    for (var i = 0 ; i < geometry.coordinates[0].length-1 ; i++){
+    for (var i = 0 ; i < geometry.coordinates[0][0].length-1 ; i++){
       var v = {};
       v.id = 'v_'+number+"_"+(i+1);
       v.position = {
@@ -178,7 +178,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
       for (var j = 0 ; j < geometry.datetimes.length ; j ++){
         var seconds = new Date(geometry.datetimes[j]).getTime() - start_second;
         var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[j]), this.min_max.date, this.max_height);
-        var polygon = geometry.coordinates[j];
+        var polygon = geometry.coordinates[j][0];
 
         carto.push(seconds / 1000);
         carto.push(polygon[i][0]);
@@ -221,7 +221,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
       v.availability = start_iso+"/"+finish_iso;
       var carto = [];
       var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);
-      var polygon = geometry.coordinates[i];
+      var polygon = geometry.coordinates[i][0];
       for (var j = 0 ; j < polygon.length-1 ; j++){
         carto.push(polygon[j][0]);
         carto.push(polygon[j][1]);

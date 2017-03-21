@@ -1,75 +1,5 @@
 var LOG = console.log;
 
-
-
-MFOC.prototype.drawMovingLineString = function(options){
-  var geometry = options.temporalGeometry;
-  var name = options.name;
-
-  var polylineCollection = new Cesium.PolylineCollection();
-
-  var r_color = this.getColor(name);
-
-
-  var data = geometry;
-  var heights = this.getListOfHeight(data.datetimes);
-
-
-  for (var j = 0 ; j < data.coordinates.length ; j++){
-    if (this.mode == '2D' || this.mode == 'GLOBE'){
-      heights[j] = 0;
-    }
-    var positions = MFOC.makeDegreesArray(data.coordinates[j], heights[j]);
-    polylineCollection.add(MFOC.drawOneLine(positions, r_color));
-  }
-
-  return polylineCollection;
-}
-
-MFOC.makeDegreesArray = function(pos_2d, height){
-  var points = [];
-  for (var i = 0; i < pos_2d.length; i++) {
-    if (Array.isArray(height)){
-      points.push(pos_2d[i][0], pos_2d[i][1], height[i]);
-    }
-    else{
-      points.push(pos_2d[i][0], pos_2d[i][1], height);
-    }
-  }
-  return points;
-}
-
-MFOC.drawInstanceOneLine = function(positions, r_color, width = 5){
-  var carte = Cesium.Cartesian3.fromDegreesArrayHeights(positions);
-  //console.log(positions,carte);
-  var polyline =  new Cesium.PolylineGeometry({
-    positions : carte,
-    width : width
-  });
-
-  var geoInstance = new Cesium.GeometryInstance({
-    geometry : Cesium.PolylineGeometry.createGeometry(polyline),
-    attributes : {
-      color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
-    }
-  });
-
-  return geoInstance;
-}
-
-MFOC.drawOneLine = function(positions, r_color, width = 5){
-  var material = new Cesium.Material.fromType('Color');
-  material.uniforms.color = r_color;
-
-  var line = {
-    positions :  Cesium.Cartesian3.fromDegreesArrayHeights(positions) ,
-    width : width,
-    material : material
-  };
-
-  return line;
-}
-
 MFOC.prototype.drawMovingPoint = function(options){
 
   var geometry = options.temporalGeometry;
@@ -95,13 +25,28 @@ MFOC.prototype.drawMovingPoint = function(options){
   return pointCollection;
 }
 
-MFOC.drawOnePoint = function(onePoint,height,r_color){ //it gets one point
-  var pointInstance = new Cesium.PointPrimitive();
-  var position = Cesium.Cartesian3.fromDegrees(onePoint[0],onePoint[1],height);;
-  pointInstance.position = position;
-  pointInstance.color = r_color;
-  pointInstance.pixelSize = 6.0;
-  return pointInstance;
+MFOC.prototype.drawMovingLineString = function(options){
+  var geometry = options.temporalGeometry;
+  var name = options.name;
+
+  var polylineCollection = new Cesium.PolylineCollection();
+
+  var r_color = this.getColor(name);
+
+
+  var data = geometry;
+  var heights = this.getListOfHeight(data.datetimes);
+
+
+  for (var j = 0 ; j < data.coordinates.length ; j++){
+    if (this.mode == '2D' || this.mode == 'GLOBE'){
+      heights[j] = 0;
+    }
+    var positions = MFOC.makeDegreesArray(data.coordinates[j], heights[j]);
+    polylineCollection.add(MFOC.drawOneLine(positions, r_color));
+  }
+
+  return polylineCollection;
 }
 
 MFOC.prototype.drawMovingPolygon = function(options){
@@ -146,62 +91,7 @@ MFOC.prototype.drawMovingPolygon = function(options){
   return prim;
 }
 
-MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it gets one polygon
-  var coordinates = onePolygon;
-  var points = [];
 
-  var position;
-  if (!with_height){
-    height = 0;
-    for (var i = 0; i < coordinates.length; i++) {
-      points.push(coordinates[i][0]);
-      points.push(coordinates[i][1]);
-      points.push(height);
-    }
-  }
-  else{
-    if (height == null){
-      for (var i = 0; i < coordinates.length; i++) {
-        points.push(coordinates[i][0]);
-        points.push(coordinates[i][1]);
-        points.push(coordinates[i][2]);
-      }
-    }
-    else{
-      for (var i = 0; i < coordinates.length; i++) {
-        points.push(coordinates[i][0]);
-        points.push(coordinates[i][1]);
-        points.push(height);
-      }
-    }
-  }
-
-
-  position = Cesium.Cartesian3.fromDegreesArrayHeights(points);
-
-  var polygonHierarchy = new Cesium.PolygonHierarchy(position);
-
-  var vertexF = new Cesium.VertexFormat({
-    position : true,
-    st : false,
-    normal : true,
-    color : true
-  });
-
-  var geometry = new Cesium.PolygonGeometry({
-    polygonHierarchy : polygonHierarchy,
-    vertexFormat : vertexF,
-    perPositionHeight : true
-  });
-
-  var geoInstance = new Cesium.GeometryInstance({
-    geometry : geometry,
-    attributes : {
-      color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
-    }
-  });
-  return geoInstance;
-}
 
 MFOC.prototype.drawPathMovingPoint = function(options){
   var instances = [];
@@ -300,7 +190,6 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
 
   var heights = this.getListOfHeight(datetimes);
 
-
   var color = this.getColor(options.name).withAlpha(0.6);
 
   if (geometry.interpolations[0] == 'Discrete'){
@@ -315,15 +204,15 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
     color = this.getColor(options.name).withAlpha(0.2);
   }
 
-
   for (var i = 0; i < coordinates.length - 1; i++) {
-    for (var j = 0; j < coordinates[i].length - 1 ; j++) {
+    var io = 0;
+    for (var j = 0; j < coordinates[i][io].length - 1 ; j++) {
       var temp_poly = new Array();
       var temp_point = new Array();
-      var first = coordinates[i][j];
-      var sec = coordinates[i + 1][j];
-      var third = coordinates[i + 1][j + 1];
-      var forth = coordinates[i][j + 1];
+      var first = coordinates[i][io][j];
+      var sec = coordinates[i + 1][io][j];
+      var third = coordinates[i + 1][io][j + 1];
+      var forth = coordinates[i][io][j + 1];
 
       if (property != undefined){
         var middle_value = (property.values[i] + property.values[i+1]) / 2;
@@ -351,9 +240,12 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
       }
 
       geoInstance = MFOC.drawOnePolygon(temp_poly, null, this.mode == '3D', color);
+
       surface.push(geoInstance);
     }
+
   }
+
   var typhoon = new Cesium.Primitive({
     geometryInstances: surface,
     appearance: new Cesium.PerInstanceColorAppearance()
@@ -410,6 +302,115 @@ MFOC.prototype.drawPathMovingLineString = function(options){
   return trianlgeCollection;
 }
 
+
+MFOC.makeDegreesArray = function(pos_2d, height){
+  var points = [];
+  for (var i = 0; i < pos_2d.length; i++) {
+    if (Array.isArray(height)){
+      points.push(pos_2d[i][0], pos_2d[i][1], height[i]);
+    }
+    else{
+      points.push(pos_2d[i][0], pos_2d[i][1], height);
+    }
+  }
+  return points;
+}
+
+MFOC.drawInstanceOneLine = function(positions, r_color, width = 5){
+  var carte = Cesium.Cartesian3.fromDegreesArrayHeights(positions);
+  //console.log(positions,carte);
+  var polyline =  new Cesium.PolylineGeometry({
+    positions : carte,
+    width : width
+  });
+
+  var geoInstance = new Cesium.GeometryInstance({
+    geometry : Cesium.PolylineGeometry.createGeometry(polyline),
+    attributes : {
+      color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
+    }
+  });
+
+  return geoInstance;
+}
+
+MFOC.drawOneLine = function(positions, r_color, width = 5){
+  var material = new Cesium.Material.fromType('Color');
+  material.uniforms.color = r_color;
+
+  var line = {
+    positions :  Cesium.Cartesian3.fromDegreesArrayHeights(positions) ,
+    width : width,
+    material : material
+  };
+
+  return line;
+}
+
+MFOC.drawOnePoint = function(onePoint,height,r_color){ //it gets one point
+  var pointInstance = new Cesium.PointPrimitive();
+  var position = Cesium.Cartesian3.fromDegrees(onePoint[0],onePoint[1],height);;
+  pointInstance.position = position;
+  pointInstance.color = r_color;
+  pointInstance.pixelSize = 6.0;
+  return pointInstance;
+}
+
+MFOC.drawOnePolygon = function(onePolygon, height, with_height, r_color ) { //it gets one polygon
+  var coordinates = onePolygon;
+  var points = [];
+
+  var position;
+  if (!with_height){
+    height = 0;
+    for (var i = 0; i < coordinates.length; i++) {
+      points.push(coordinates[i][0]);
+      points.push(coordinates[i][1]);
+      points.push(height);
+    }
+  }
+  else{
+    if (height == null){
+      for (var i = 0; i < coordinates.length; i++) {
+        points.push(coordinates[i][0]);
+        points.push(coordinates[i][1]);
+        points.push(coordinates[i][2]);
+      }
+    }
+    else{
+      for (var i = 0; i < coordinates.length; i++) {
+        points.push(coordinates[i][0]);
+        points.push(coordinates[i][1]);
+        points.push(height);
+      }
+    }
+  }
+
+  position = Cesium.Cartesian3.fromDegreesArrayHeights(points);
+
+  var polygonHierarchy = new Cesium.PolygonHierarchy(position);
+
+  var vertexF = new Cesium.VertexFormat({
+    position : true,
+    st : false,
+    normal : true,
+    color : true
+  });
+
+  var geometry = new Cesium.PolygonGeometry({
+    polygonHierarchy : polygonHierarchy,
+    vertexFormat : vertexF,
+    perPositionHeight : true
+  });
+
+  var geoInstance = new Cesium.GeometryInstance({
+    geometry : geometry,
+    attributes : {
+      color : Cesium.ColorGeometryInstanceAttribute.fromColor(r_color)
+    }
+  });
+  return geoInstance;
+}
 
 MFOC.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, height2, color){
   var instances = [];

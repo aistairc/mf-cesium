@@ -151,7 +151,8 @@ MFOC.selectProperty = function(mfoc, graph_id) {
     pro_menu.className = 'graph';
 
     var pro_type_arr = mfoc.getAllTypeFromProperties();
-
+    console.log(pro_type_arr);
+    
     for (var i = 0; i < pro_type_arr.length; i++) {
         var div = document.createElement('div');
         div.style.padding = "10px";
