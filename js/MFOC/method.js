@@ -319,7 +319,6 @@ MFOC.prototype.showProperty = function(propertyName, divID){
   if (pro_arr.length == 0){
     return;
   }
-  console.log(pro_arr);
   this.showPropertyArray(propertyName, pro_arr, divID);
 }
 

@@ -1,15 +1,9 @@
 MFOC.drawBackRadar = function(radar_id) {
     var radar_canvas = document.getElementById(radar_id);
 
-    //  radar_canvas.style.top = document.getElementById(div_id).offsetTop + document.getElementById(div_id).offsetHeight + 10 + 'px';
     radar_canvas.style.position = 'absolute';
     radar_canvas.style.zIndex = '21';
     radar_canvas.style.right = '5px';
-
-
-    //  radar_canvas.width = $('#'+div_id).width() + 'px';
-    //  radar_canvas.height = $('#'+div_id).width()  + 'px';
-
 
     if (radar_canvas.getContext) {
 
@@ -17,8 +11,6 @@ MFOC.drawBackRadar = function(radar_id) {
         var h_height = radar_canvas.height / 2;
         var ctx = radar_canvas.getContext('2d');
 
-        //var h_width = ctx.canvas.clientWidth / 2;
-        //var h_height = ctx.canvas.clientHeight / 2;
         var color = 'rgb(0,255,0)';
 
         for (var id = 0; id < 2; id++) {
@@ -152,7 +144,7 @@ MFOC.selectProperty = function(mfoc, graph_id) {
 
     var pro_type_arr = mfoc.getAllTypeFromProperties();
     console.log(pro_type_arr);
-    
+
     for (var i = 0; i < pro_type_arr.length; i++) {
         var div = document.createElement('div');
         div.style.padding = "10px";
@@ -2696,6 +2688,8 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
   var name_arr = [];
   var object_arr = [];
   var mfoc = this;
+  
+  console.log(array);
 
   for (var i = 0 ; i < array.length ; i++){
     object_arr.push(array[i][0]);
@@ -2767,7 +2761,6 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
       data.push(comp);
     }
 
-    console.log(data);
     if (object.interpolations == 'Spline'){
       line.curve(d3.curveCardinal);
     }
@@ -2776,7 +2769,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
     }
 
     var color = this.getColor(name_arr[id]);
-
+    console.log(name_arr[id], color);
     var r_color = d3.rgb(color.red * 255, color.green * 255, color.blue * 255);
 
     graph_data.push(data);
@@ -2824,7 +2817,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
       return;
     }
     var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-    console.log(start_coord);
+
     viewer.clock.currentTime=Cesium.JulianDate.fromDate(new Date(formatDate(x.invert(start_coord[0]-51.09))));
     viewer.clock.shouldAnimate = false;
     //    console.log(rect);
@@ -3712,7 +3705,7 @@ MFOC.getPropertyByName = function(mf, name){
 
     if (property != undefined){
       property.datetimes = mf.temporalProperties[i].datetimes;
-      return [property, name];
+      return [property, mf.properties.name];
     }
   }
   return -1;

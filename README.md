@@ -1,6 +1,9 @@
 
+
+
 <!-- toc orderedList:0 depthFrom:1 depthTo:6 -->
 
+* [Stinuum](#stinuum)
   * [Getting Started](#getting-started)
   * [License](#license)
   * [API](#api)
@@ -8,16 +11,9 @@
     * [Cesium](#cesium)
     * [Moving Feature On Cesium (MFOC)](#moving-feature-on-cesium-mfoc)
       * [How to Use API](#how-to-use-api)
-      * [Create new MFOC Object](#create-new-mfoc-object)
-      * [Add Moving Features](#add-moving-features)
-      * [Moving Feature Visualization](#moving-feature-visualization)
-      * [Control Feature Data](#control-feature-data)
-      * [Moving Feature Statistic](#moving-feature-statistic)
   * [Building](#building)
 
 <!-- tocstop -->
-
-
 
 # Stinuum
 
@@ -46,7 +42,7 @@
 
   if you have url and token, please append "url=data_server_url?token=your_token"
 
-  
+
 - - -
 
 ## License

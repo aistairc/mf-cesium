@@ -228,7 +228,6 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
       data.push(comp);
     }
 
-    console.log(data);
     if (object.interpolations == 'Spline'){
       line.curve(d3.curveCardinal);
     }
@@ -237,7 +236,6 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
     }
 
     var color = this.getColor(name_arr[id]);
-
     var r_color = d3.rgb(color.red * 255, color.green * 255, color.blue * 255);
 
     graph_data.push(data);
@@ -285,7 +283,7 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
       return;
     }
     var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-    console.log(start_coord);
+
     viewer.clock.currentTime=Cesium.JulianDate.fromDate(new Date(formatDate(x.invert(start_coord[0]-51.09))));
     viewer.clock.shouldAnimate = false;
     //    console.log(rect);
