@@ -228,7 +228,7 @@ MFOC.getPropertyByName = function(mf, name){
 
     if (property != undefined){
       property.datetimes = mf.temporalProperties[i].datetimes;
-      return [property, name];
+      return [property, mf.properties.name];
     }
   }
   return -1;
