@@ -22,6 +22,7 @@
     <script src="../js/connection.js"></script>
     <script src="../js/print.js"></script>
     <script src="../js/local.js"></script>
+    <script src="../js/example_analysis.js"></script>
     <link rel="stylesheet" type="text/css" href="viewer_style.css">
     <style>
 
@@ -133,16 +134,16 @@
             viewer.scene.fxaa = false;
             viewer.scene.morphComplete.addEventListener(function() {
                if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
-                   mfoc.changeMode('3D');
+                   mfoc.changeMode('SPACETIME');
                } else if (viewer.scene.mode == Cesium.SceneMode.SCENE2D){
-                   mfoc.changeMode('2D');
+                   mfoc.changeMode('STATICMAP');
                } else if (viewer.scene.mode == Cesium.SceneMode.SCENE3D){
-                   mfoc.changeMode('GLOBE');
+                   mfoc.changeMode('ANIMATEDMAP');
                } else {
                    alert('error');
                }
-              // changeMode();
 
+              setAnalysisDIV('analysis','graph', 'radar');
            });
             slider = new Slider("#slider", {
                 reversed: true
@@ -185,7 +186,7 @@
 
 
 
-            mfoc.setAnalysisDIV('analysis', 'graph');
+            setAnalysisDIV('analysis', 'graph');
             //getLayer_local();
             getLayers();
         })()

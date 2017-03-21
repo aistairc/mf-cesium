@@ -1,54 +1,109 @@
-MFOC.drawBackRadar = function(radar_id) {
-    var radar_canvas = document.getElementById(radar_id);
+var setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
 
-    radar_canvas.style.position = 'absolute';
-    radar_canvas.style.zIndex = '21';
-    radar_canvas.style.right = '5px';
+  var div = document.getElementById(div_id);
+  div.innerHTML ='';
+  div.style.top = '120px'
+  div.style.color = 'white';
+  div.style.backgroundColor = 'rgba(0,0,0,0.4)';
+  div.style.right = '5px';
+  div.style.border = '1px solid black';
+  div.style.padding = '0px';
+  div.className = "list-group-item active";
 
-    if (radar_canvas.getContext) {
+  var title = document.createElement("div");
+  title.appendChild(document.createTextNode("  ANALYSIS"));
+  title.style.paddingTop = '4px';
+  title.style.height = '10%';
+  title.style.width = '100%';
+  title.style.textAlign = 'center';
+  title.style.verticalAlign = 'middle';
+  title.style.display = 'flex';
+  title.style.alignItems = 'center';
+  title.style.backgroundColor = '#787878';
+  title.style.borderBottom = '3px double white';
 
-        var h_width = radar_canvas.width / 2;
-        var h_height = radar_canvas.height / 2;
-        var ctx = radar_canvas.getContext('2d');
+  var div_arr = [];
+  for (var i= 0 ; i < 3 ; i++){
+    div_arr[i] = document.createElement("div");
+    div_arr[i].style.height = '30%';
+    div_arr[i].style.width = '100%';
+    div_arr[i].style.cursor = "pointer";
+    div_arr[i].style.verticalAlign = 'middle';
+    div_arr[i].style.padding = '2%';
+    div_arr[i].style.textAlign = 'center';
+    div_arr[i].style.borderBottom = '1px solid white';
+    div_arr[i].style.display = 'flex';
+    div_arr[i].style.alignItems = 'center';
+    div_arr[i].style.border = '1px solid white';
+    //div_arr[i].style.borderRadius = '15px';
+  }
 
-        var color = 'rgb(0,255,0)';
+  var properties_graph = div_arr[0],
+  show_space_cube = div_arr[1],
+  show_direction_radar = div_arr[2];
 
-        for (var id = 0; id < 2; id++) {
+  properties_graph.appendChild(document.createTextNode("PROPERTY GRAPH"));
+  show_space_cube.appendChild(document.createTextNode("TOGGLE HEATCUBE"));
+  show_direction_radar.appendChild(document.createTextNode("DIRECTION RADAR"));
 
-            for (var j = 0; j < 2; j += 0.05) {
-                ctx.beginPath();
-                ctx.arc(h_width, h_height, h_width * (id + 1) / 2, j * Math.PI, (j + 0.025) * Math.PI);
-                ctx.strokeStyle = color;
-                ctx.stroke();
-            }
-        }
+  properties_graph.onclick = (function(glo_mfoc, graph){
+    return function(){
+      selectProperty(graph);
+    };
+  })(mfoc, graph_id);
 
-    } else {
-        alert('canvas를 지원하지 않는 브라우저');
+  show_space_cube.onclick = (function(glo_mfoc, div, graph){
+    return function(){
+      this.style.cursor = 'auto';
+      selectDegree(this, div, graph);
     }
+  })(mfoc, div_id, graph_id);
+
+
+  show_direction_radar.onclick = (function(glo_mfoc, canvas){
+    return function(){
+      glo_mfoc.showDirectionalRadar(canvas);
+      glo_mfoc.update();
+      if (document.getElementById('pro_menu'))
+        document.getElementById('pro_menu').remove();
+      document.getElementById(glo_mfoc.graph_id).style.height="0%";
+    }
+  })(mfoc, radar_id);
+
+  div.appendChild(title);
+  div.appendChild(properties_graph);
+  div.appendChild(show_space_cube);
+  div.appendChild(show_direction_radar);
+
+
+  var radar_canvas = document.getElementById('radar');
+  radar_canvas.style.position = 'absolute';
+  radar_canvas.style.zIndex = '21';
+  radar_canvas.style.right = '5px';
+
+  MFOC.drawBackRadar('radar');
 }
 
-MFOC.selectDegree = function(mfoc, div, parent, graph_id) {
+var selectDegree = function(div, parent, graph_id) {
 
     if (mfoc.features.length == 0) {
         console.log("no features");
-        mfoc.setAnalysisDIV(parent, graph_id);
+        setAnalysisDIV(parent, graph_id, 'radar');
         return;
     }
     if (mfoc.cube_primitives != null) {
         mfoc.removeHeatMap();
-        mfoc.setAnalysisDIV(parent, graph_id);
+        setAnalysisDIV(parent, graph_id, 'radar');
         return;
     }
 
     div.innerHTML = 'Set Degree' + '<br><br>';
-
     div.style.verticalAlign = 'initial';
     div.style.display = 'block';
     div.style.alignItems = 'initial';
     div.style.height = div.offsetHeight * 1 + 'px';
-
     div.onclick = null;
+
     var table = document.createElement('table');
     table.style.paddingTop = '10px';
 
@@ -95,13 +150,13 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id) {
                 time: time
             });
 
-            mfoc.setAnalysisDIV(parent, graph_id);
+            setAnalysisDIV(parent, graph_id);
         };
     })(mfoc, parent, graph_id);
 
     back_btn.onclick = (function(mfoc, parent, graph_id) {
         return function() {
-            mfoc.setAnalysisDIV(parent, graph_id);
+            setAnalysisDIV(parent, graph_id);
         };
     })(mfoc, parent, graph_id);
 
@@ -110,12 +165,13 @@ MFOC.selectDegree = function(mfoc, div, parent, graph_id) {
 
     div.appendChild(btn_div);
 
-    if (mfoc.mode != '3D') {
+    if (mfoc.mode != 'SPACETIME') {
         document.getElementById('degree_row_2').style.visibility = 'hidden';
     }
 }
 
-MFOC.selectProperty = function(mfoc, graph_id) {
+var selectProperty = function(graph_id) {
+
     if (mfoc.features.length == 0) {
         alert("no features");
         return;
@@ -137,7 +193,6 @@ MFOC.selectProperty = function(mfoc, graph_id) {
     pro_menu.className = 'graph';
 
     var pro_type_arr = mfoc.getAllTypeFromProperties();
-    console.log(pro_type_arr);
 
     for (var i = 0; i < pro_type_arr.length; i++) {
         var div = document.createElement('div');
@@ -154,6 +209,9 @@ MFOC.selectProperty = function(mfoc, graph_id) {
             return function() {
                 document.getElementById('pro_menu').style.bottom = '20%';
                 document.getElementById('btn' + name_arr[index]).style.backgroundColor = 'rgba(100,100,100,0.8)';
+                document.getElementById("graph").style.height = '20%';
+                document.getElementById("graph").style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
+
                 for (var i = 0; i < name_arr.length; i++) {
                     if (i == index) continue;
                     document.getElementById('btn' + name_arr[i]).style.backgroundColor = 'transparent';

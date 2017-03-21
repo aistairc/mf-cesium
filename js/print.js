@@ -68,16 +68,6 @@ function backButton() {
 }
 
 
-function changeMode() {
-    if (default_set == false) {
-        default_set = true;
-    } else {
-        mfoc.update();
-        mfoc.adjustCameraView();
-    }
-}
-
-
 function putProperties(id, name) {
     var obj = searchPropertyInfo(id, name);
     if (obj !== null) {
@@ -191,6 +181,9 @@ function updateProperties(id, name) {
         graph.height = "20%";
 
         //graph.opacity = "0.5";
+        document.getElementById("graph").style.height = '20%';
+        document.getElementById("graph").style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
+
         mfoc.showProperty(name, "graph");
         console.log("finish");
     } else {
@@ -721,7 +714,7 @@ function zoom() {
     //console.log(min,max);
     mfoc.spliceByTime(fastest, latest);
     mfoc.update();
-    mfoc.setAnalysisDIV('analysis', 'graph');
+    setAnalysisDIV('analysis', 'graph', 'radar');
     mfoc.adjustCameraView();
 }
 
