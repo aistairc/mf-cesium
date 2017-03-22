@@ -39,7 +39,7 @@ MFOC.prototype.moveMovingPoint = function(options){
       carto.push(point[i][0]);
       carto.push(point[i][1]);
       var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);
-      if (this.mode == '3D'){
+      if (this.mode == 'SPACETIME'){
         carto.push(normalize);
       }
       else{
@@ -92,7 +92,7 @@ MFOC.prototype.moveMovingPoint = function(options){
       obj.cartographicDegrees.push(point[i][1]);
 
       var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date);
-      if (this.mode == '3D'){
+      if (this.mode == 'SPACETIME'){
         obj.cartographicDegrees.push(normalize);
       }
       else{
@@ -183,7 +183,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
         carto.push(seconds / 1000);
         carto.push(polygon[i][0]);
         carto.push(polygon[i][1]);
-        if (this.mode == '2D' || this.mode == 'GLOBE')
+        if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP')
         {
           carto.push(10000);
         }
@@ -225,7 +225,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
       for (var j = 0 ; j < polygon.length-1 ; j++){
         carto.push(polygon[j][0]);
         carto.push(polygon[j][1]);
-        if (this.mode == '2D')
+        if (this.mode == 'STATICMAP')
         carto.push(normalize);
         else {
           carto.push(0);
@@ -309,7 +309,7 @@ MFOC.prototype.moveMovingLineString = function(options){
 
       var height_1 = MFOC.normalizeTime(new Date(datetime[i]),this.min_max.date,this.max_height);
       var height_2 = MFOC.normalizeTime(new Date(datetime[i+1]),this.min_max.date,this.max_height);;
-      if (this.mode == '2D'){
+      if (this.mode == 'STATICMAP'){
         height_1 = 0;
         height_2 = 0;
       }
@@ -362,7 +362,7 @@ MFOC.prototype.moveMovingLineString = function(options){
       var carto = [];
       var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);//this.height_collection[id][i];
 
-      if (this.mode == '2D'){
+      if (this.mode == 'STATICMAP'){
         normalize = 0;
       }
 

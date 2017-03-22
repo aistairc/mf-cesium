@@ -82,7 +82,7 @@ var mfoc = new MFOC(viewer);
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
-|   movingFeature  |  JSON Object or JSON ObjectArray   |        |     movingFeature.type 은 'MovingFeature' 이어야한다.  |
+|   movingFeature  |  moving feature JSON Object or moving feature JSON ObjectArray   |        |     movingFeature.type 은 'MovingFeature' 이어야한다.  |
 
 Returns:
 현재 가지고 있는 feature 개수
@@ -91,7 +91,6 @@ Example
 ```js
 $.getJSON('json_data/polygon2015.json').then(
       function(data){
-
         for (var i = 0 ; i < data.features.length ; i++){
           mfoc.add(data.features[i]);
         }
@@ -244,16 +243,16 @@ primitive는 제거되지 않습니다.
 
 * changeMode(mode)
 
-그리는 mode('2D','3D') 를 변경합니다. 인자가 없다면 현재 모드와 다른 모드로 변경됩니다.
+그리는 mode('STATICMAP','SPACETIME') 를 변경합니다. 인자가 없다면 현재 모드와 다른 모드로 변경됩니다.
 
 mode 변경후에 primitives를 지우고 다시 그려주어야 모드가 적용된 그림을 볼 수 있습니다.
 
-    '2D' : movingfeature visualization doesn't have height.
-    '3D' : movingfeature visualization has height.
+    'STATICMAP' : movingfeature visualization doesn't have height.
+    'SPACETIME' : movingfeature visualization has height.
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
-|   mode  |  String   |        |  [_optional_] '2D' or '3D'     |
+|   mode  |  String   |        |  [_optional_] 'STATICMAP' or 'SPACETIME'     |
 
 Example
 ```js
@@ -264,7 +263,7 @@ mfoc.drawPaths();
 or
 
 ```js
-mfoc.changeMode('2D');
+mfoc.changeMode('STATICMAP');
 mfoc.clearViewer();
 mfoc.drawPaths();
 ```

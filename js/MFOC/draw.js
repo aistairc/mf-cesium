@@ -10,7 +10,7 @@ MFOC.prototype.drawMovingPoint = function(options){
   var r_color = this.getColor(name);
 
   var data = geometry.coordinates;
-  if(this.mode == '3D'){
+  if(this.mode == 'SPACETIME'){
     var heights = this.getListOfHeight(geometry.datetimes);
     for(var i = 0 ; i < data.length ; i++ ){
       pointCollection.add(MFOC.drawOnePoint(data[i], heights[i], r_color));
@@ -39,7 +39,7 @@ MFOC.prototype.drawMovingLineString = function(options){
 
 
   for (var j = 0 ; j < data.coordinates.length ; j++){
-    if (this.mode == '2D' || this.mode == 'GLOBE'){
+    if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP'){
       heights[j] = 0;
     }
     var positions = MFOC.makeDegreesArray(data.coordinates[j], heights[j]);
@@ -66,7 +66,7 @@ MFOC.prototype.drawMovingPolygon = function(options){
   var heights = null;
 
   var with_height = false;
-  if (this.mode == '3D'){
+  if (this.mode == 'SPACETIME'){
     with_height = true;
     heights = this.getListOfHeight(datetimes);
   }
@@ -100,7 +100,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
   var data = options.temporalGeometry;
   var property = options.temporalProperty;
   var heights = 0;
-  if (this.mode == '3D'){
+  if (this.mode == 'SPACETIME'){
     heights = this.getListOfHeight(data.datetimes, this.min_max.date);
   }
   var pro_min_max = null;
@@ -112,7 +112,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
     return this.drawMovingPoint(options);
   }
 
-  if (data.interpolations[0] == 'Stepwise' && this.mode == '2D'){
+  if (data.interpolations[0] == 'Stepwise' && this.mode == 'STATICMAP'){
     return this.drawMovingPoint(options);
   }
 
@@ -137,7 +137,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
         color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
 
         var positions;
-        if (this.mode == '2D' || this.mode == 'GLOBE'){
+        if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP'){
           positions =
           (data.coordinates[index].concat([0]))
           .concat(data.coordinates[index+1].concat([0]));
@@ -196,11 +196,11 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
     return this.drawMovingPolygon(options);
   }
 
-  if (geometry.interpolations[0] == 'Stepwise' && this.mode == '2D'){
+  if (geometry.interpolations[0] == 'Stepwise' && this.mode == 'STATICMAP'){
     return this.drawMovingPoint(options);
   }
 
-  if (this.mode == '2D' || this.mode == 'GLOBE'){
+  if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP'){
     color = this.getColor(options.name).withAlpha(0.2);
   }
 
@@ -227,7 +227,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
         color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
       }
 
-      if (this.mode == '3D'){
+      if (this.mode == 'SPACETIME'){
         if (geometry.interpolations[0] == 'Stepwise'){
           temp_poly.push([first[0], first[1], heights[i]], [first[0], first[1], heights[i+1]],[forth[0], forth[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
         }
@@ -239,7 +239,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
         temp_poly.push([first[0], first[1], 0], [sec[0], sec[1], 0], [third[0], third[1], 0], [forth[0], forth[1], 0]);
       }
 
-      geoInstance = MFOC.drawOnePolygon(temp_poly, null, this.mode == '3D', color);
+      geoInstance = MFOC.drawOnePolygon(temp_poly, null, this.mode == 'SPACETIME', color);
 
       surface.push(geoInstance);
     }
@@ -417,7 +417,7 @@ MFOC.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, heig
   var i=0,
   j=0;
 
-  var with_height = (this.mode == '3D');
+  var with_height = (this.mode == 'SPACETIME');
 
   while ( i < line_1.length - 1 && j < line_2.length - 1){
     var new_color;
@@ -527,7 +527,6 @@ MFOC.euclidianDistance3D = function(a, b) {
   return Math.sqrt(pow1 + pow2 + pow3);
 }
 
-
 MFOC.drawOneCube = function(positions, rating = 1.0){
   var red_rate = 1.0, green_rate = 1.9 - rating * 1.9;
   var blue_rate = 0.0;
@@ -584,7 +583,6 @@ MFOC.calcSidesBoxCoord = function(box_coord){
 
   return [x_dist, y_dist, z_dist];
 }
-
 
 MFOC.prototype.drawZaxis = function(){
   var polylineCollection = new Cesium.PolylineCollection();
@@ -644,7 +642,6 @@ MFOC.prototype.drawZaxisLabel = function(){
   return entities;
 
 }
-
 
 MFOC.prototype.showProjection = function(name){
 

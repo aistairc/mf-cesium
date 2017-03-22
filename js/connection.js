@@ -122,7 +122,7 @@ function getLayers() {
     var printFeatureLayer_list = [];
     var promise = request1(url);
 
-    mfoc.setAnalysisDIV('analysis', 'graph');
+    setAnalysisDIV('analysis', 'graph', 'radar');
     promise.then(function(arr) {
             featureLayers = arr;
             for (var i = 0; i < featureLayers.length; i++) {
@@ -159,7 +159,6 @@ function getParameterByName(name, url) {
 function getFeatures(url, layerID) {
     var features;
 
-    console.log(url);
     var _list = [];
     var promise = request2(url);
     var promise_list = [];
@@ -375,11 +374,9 @@ function sendRequest() { //later we need to put url as parameter
         })
         .then(function(arr) {
             feature = arr[1].splice(0, 1);
-            console.log(feature);
             var new_url = arr[0].replace("$ref", "") + feature[0];
             var token = prompt("token", "");
             new_url += "?token=" + token;
-            console.log(new_url);
             return (request3(new_url));
         })
         .catch(function() {

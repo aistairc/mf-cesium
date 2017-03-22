@@ -1,195 +1,3 @@
-MFOC.drawBackRadar = function(radar_id) {
-    var radar_canvas = document.getElementById(radar_id);
-
-    radar_canvas.style.position = 'absolute';
-    radar_canvas.style.zIndex = '21';
-    radar_canvas.style.right = '5px';
-
-    if (radar_canvas.getContext) {
-
-        var h_width = radar_canvas.width / 2;
-        var h_height = radar_canvas.height / 2;
-        var ctx = radar_canvas.getContext('2d');
-
-        var color = 'rgb(0,255,0)';
-
-        for (var id = 0; id < 2; id++) {
-
-            for (var j = 0; j < 2; j += 0.05) {
-                ctx.beginPath();
-                ctx.arc(h_width, h_height, h_width * (id + 1) / 2, j * Math.PI, (j + 0.025) * Math.PI);
-                ctx.strokeStyle = color;
-                ctx.stroke();
-            }
-        }
-
-    } else {
-        alert('canvas를 지원하지 않는 브라우저');
-    }
-}
-
-MFOC.selectDegree = function(mfoc, div, parent, graph_id) {
-
-    if (mfoc.features.length == 0) {
-        console.log("no features");
-        mfoc.setAnalysisDIV(parent, graph_id);
-        return;
-    }
-    if (mfoc.cube_primitives != null) {
-        mfoc.removeHeatMap();
-        mfoc.setAnalysisDIV(parent, graph_id);
-        return;
-    }
-
-    div.innerHTML = 'Set Degree' + '<br><br>';
-
-    div.style.verticalAlign = 'initial';
-    div.style.display = 'block';
-    div.style.alignItems = 'initial';
-    div.style.height = div.offsetHeight * 1 + 'px';
-
-    div.onclick = null;
-    var table = document.createElement('table');
-    table.style.paddingTop = '10px';
-
-    var degree_string = ['long(°) : ', 'lat(°) : ', 'time(days) : '];
-    for (var i = 0; i < 3; i++) {
-        var row = table.insertRow(table.rows.length);
-        row.id = 'degree_row_' + i;
-        var celll = row.insertCell(0);
-        celll.innerHTML = degree_string[i];
-
-        var cell2 = row.insertCell(1);
-        var input = document.createElement('input');
-        input.id = 'degree_' + i;
-        input.value = 5;
-        input.style.color = 'black';
-        input.style.width = '30px';
-        cell2.appendChild(input);
-
-    }
-    div.appendChild(table);
-
-    var btn_div = document.createElement('div');
-    var back_btn = document.createElement('input'),
-        submit_btn = document.createElement('input');
-
-    back_btn.type = 'button';
-    submit_btn.type = 'button'
-    back_btn.style.float = 'right';
-    submit_btn.style.float = 'left';
-    back_btn.style.color = 'black';
-    submit_btn.style.color = 'black';
-    back_btn.value = 'back';
-    submit_btn.value = 'submit'
-
-    submit_btn.onclick = (function(mfoc, parent, graph_id) {
-        return function() {
-            var x = document.getElementById('degree_0').value,
-                y = document.getElementById('degree_1').value,
-                time = document.getElementById('degree_2').value;
-            document.getElementById(parent).innerHTML = 'Analysing...';
-            mfoc.showHeatMap({
-                x: x,
-                y: y,
-                time: time
-            });
-
-            mfoc.setAnalysisDIV(parent, graph_id);
-        };
-    })(mfoc, parent, graph_id);
-
-    back_btn.onclick = (function(mfoc, parent, graph_id) {
-        return function() {
-            mfoc.setAnalysisDIV(parent, graph_id);
-        };
-    })(mfoc, parent, graph_id);
-
-    btn_div.appendChild(back_btn);
-    btn_div.appendChild(submit_btn);
-
-    div.appendChild(btn_div);
-
-    if (mfoc.mode != '3D') {
-        document.getElementById('degree_row_2').style.visibility = 'hidden';
-    }
-}
-
-MFOC.selectProperty = function(mfoc, graph_id) {
-    if (mfoc.features.length == 0) {
-        alert("no features");
-        return;
-    }
-    if (document.getElementById('pro_menu')) {
-        document.getElementById('pro_menu').remove();
-    }
-    document.getElementById(graph_id).innerHTML = '';
-    document.getElementById(graph_id).style.height = '0%';
-    document.getElementById(graph_id).style.cursor = 'pointer';
-
-    //  document.getElementById(graph_id).style.width = '85%';
-    //  document.getElementById(graph_id).style.left = '15%';
-
-    var pro_menu = document.createElement('div');
-    //  pro_menu.style.width='85%';
-    //  pro_menu.style.position ='absolute';
-    //  pro_menu.style.right='0';
-    pro_menu.style.bottom = '0';
-    pro_menu.style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
-    pro_menu.style.height = "5%";
-    pro_menu.style.zIndex = "25";
-    pro_menu.id = 'pro_menu';
-    pro_menu.style.cursor = 'pointer';
-    pro_menu.className = 'graph';
-
-    var pro_type_arr = mfoc.getAllTypeFromProperties();
-    console.log(pro_type_arr);
-
-    for (var i = 0; i < pro_type_arr.length; i++) {
-        var div = document.createElement('div');
-        div.style.padding = "10px";
-        div.style.color = 'white';
-        div.style.float = 'left';
-        div.style.textAlign = 'center';
-        div.style.fontSize = 'x-large';
-        div.style.verticalAlign = 'middle';
-        div.style.width = 100 / (pro_type_arr.length + 1) + '%';
-        div.innerHTML = pro_type_arr[i];
-        div.id = 'btn' + pro_type_arr[i];
-        div.onclick = (function(mfoc, name_arr, index, graph) {
-            return function() {
-                document.getElementById('pro_menu').style.bottom = '20%';
-                document.getElementById('btn' + name_arr[index]).style.backgroundColor = 'rgba(100,100,100,0.8)';
-                for (var i = 0; i < name_arr.length; i++) {
-                    if (i == index) continue;
-                    document.getElementById('btn' + name_arr[i]).style.backgroundColor = 'transparent';
-                }
-                mfoc.showProperty(name_arr[index], graph);
-            };
-        })(mfoc, pro_type_arr, i, graph_id);
-        pro_menu.appendChild(div);
-    }
-
-    var close_div = document.createElement('div');
-    close_div.style.padding = "10px";
-    close_div.style.color = 'white';
-    close_div.style.float = 'right';
-    close_div.style.textAlign = 'center';
-    close_div.style.fontSize = 'x-large';
-    close_div.style.verticalAlign = 'middle';
-    close_div.style.width = 100 / (pro_type_arr.length + 1) + '%';
-    close_div.innerHTML = 'CLOSE';
-    pro_menu.appendChild(close_div);
-
-    close_div.onclick = (function(graph_id) {
-        return function() {
-            document.getElementById('pro_menu').remove();
-            document.getElementById(graph_id).style.height = "0%";
-        }
-    })(graph_id);
-
-    document.body.appendChild(pro_menu);
-}
 var LOG = console.log;
 
 MFOC.prototype.drawMovingPoint = function(options){
@@ -202,7 +10,7 @@ MFOC.prototype.drawMovingPoint = function(options){
   var r_color = this.getColor(name);
 
   var data = geometry.coordinates;
-  if(this.mode == '3D'){
+  if(this.mode == 'SPACETIME'){
     var heights = this.getListOfHeight(geometry.datetimes);
     for(var i = 0 ; i < data.length ; i++ ){
       pointCollection.add(MFOC.drawOnePoint(data[i], heights[i], r_color));
@@ -231,7 +39,7 @@ MFOC.prototype.drawMovingLineString = function(options){
 
 
   for (var j = 0 ; j < data.coordinates.length ; j++){
-    if (this.mode == '2D' || this.mode == 'GLOBE'){
+    if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP'){
       heights[j] = 0;
     }
     var positions = MFOC.makeDegreesArray(data.coordinates[j], heights[j]);
@@ -258,7 +66,7 @@ MFOC.prototype.drawMovingPolygon = function(options){
   var heights = null;
 
   var with_height = false;
-  if (this.mode == '3D'){
+  if (this.mode == 'SPACETIME'){
     with_height = true;
     heights = this.getListOfHeight(datetimes);
   }
@@ -292,7 +100,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
   var data = options.temporalGeometry;
   var property = options.temporalProperty;
   var heights = 0;
-  if (this.mode == '3D'){
+  if (this.mode == 'SPACETIME'){
     heights = this.getListOfHeight(data.datetimes, this.min_max.date);
   }
   var pro_min_max = null;
@@ -304,7 +112,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
     return this.drawMovingPoint(options);
   }
 
-  if (data.interpolations[0] == 'Stepwise' && this.mode == '2D'){
+  if (data.interpolations[0] == 'Stepwise' && this.mode == 'STATICMAP'){
     return this.drawMovingPoint(options);
   }
 
@@ -329,7 +137,7 @@ MFOC.prototype.drawPathMovingPoint = function(options){
         color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
 
         var positions;
-        if (this.mode == '2D' || this.mode == 'GLOBE'){
+        if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP'){
           positions =
           (data.coordinates[index].concat([0]))
           .concat(data.coordinates[index+1].concat([0]));
@@ -388,11 +196,11 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
     return this.drawMovingPolygon(options);
   }
 
-  if (geometry.interpolations[0] == 'Stepwise' && this.mode == '2D'){
+  if (geometry.interpolations[0] == 'Stepwise' && this.mode == 'STATICMAP'){
     return this.drawMovingPoint(options);
   }
 
-  if (this.mode == '2D' || this.mode == 'GLOBE'){
+  if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP'){
     color = this.getColor(options.name).withAlpha(0.2);
   }
 
@@ -419,7 +227,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
         color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
       }
 
-      if (this.mode == '3D'){
+      if (this.mode == 'SPACETIME'){
         if (geometry.interpolations[0] == 'Stepwise'){
           temp_poly.push([first[0], first[1], heights[i]], [first[0], first[1], heights[i+1]],[forth[0], forth[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
         }
@@ -431,7 +239,7 @@ MFOC.prototype.drawPathMovingPolygon = function(options){
         temp_poly.push([first[0], first[1], 0], [sec[0], sec[1], 0], [third[0], third[1], 0], [forth[0], forth[1], 0]);
       }
 
-      geoInstance = MFOC.drawOnePolygon(temp_poly, null, this.mode == '3D', color);
+      geoInstance = MFOC.drawOnePolygon(temp_poly, null, this.mode == 'SPACETIME', color);
 
       surface.push(geoInstance);
     }
@@ -609,7 +417,7 @@ MFOC.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, heig
   var i=0,
   j=0;
 
-  var with_height = (this.mode == '3D');
+  var with_height = (this.mode == 'SPACETIME');
 
   while ( i < line_1.length - 1 && j < line_2.length - 1){
     var new_color;
@@ -719,7 +527,6 @@ MFOC.euclidianDistance3D = function(a, b) {
   return Math.sqrt(pow1 + pow2 + pow3);
 }
 
-
 MFOC.drawOneCube = function(positions, rating = 1.0){
   var red_rate = 1.0, green_rate = 1.9 - rating * 1.9;
   var blue_rate = 0.0;
@@ -776,7 +583,6 @@ MFOC.calcSidesBoxCoord = function(box_coord){
 
   return [x_dist, y_dist, z_dist];
 }
-
 
 MFOC.prototype.drawZaxis = function(){
   var polylineCollection = new Cesium.PolylineCollection();
@@ -836,7 +642,6 @@ MFOC.prototype.drawZaxisLabel = function(){
   return entities;
 
 }
-
 
 MFOC.prototype.showProjection = function(name){
 
@@ -973,64 +778,6 @@ MFOC.prototype.showHeightBar = function(name){
 
   return [prim,time_label];
 }
-//draw movingfeature with z-value.
-/*
-var drawPolygonsWithZvalue = function(mf_arr, with_height){
-
-}
-
-
-var drawPointsWithZvalue = function(mf_arr, with_height, max_height = 1000){
-  var pointCollection = new Cesium.PointPrimitiveCollection();
-  var min_max = findAllMinMaxTimeAndZ(mf_arr, true);
-
-  for (var id = 0 ; id < mf_arr.length ; id++){
-    var r_color = Cesium.Color.fromRandom({
-      red : 0.0,
-      blue : 0.0,
-      minimumGreen : 0.2,
-      alpha : 1.0
-    });
-
-    var buffer = mf_arr[id];
-    var heights = getListOfHeight(buffer.temporalGeometry.datetimes, min_max.date, max_height);
-    var data = buffer.temporalGeometry.coordinates;
-    for(var i = 0 ; i < data.length ; i++ ){
-      var p_color = r_color.clone();
-      p_color.red = data[i][2] / min_max.value[1];
-      p_color.blue = data[i][2] / min_max.value[1];
-
-      if (!with_height){
-        heights[i] = 0;
-      }
-      pointCollection.add(drawOnePoint(data[i], heights[i], p_color));
-    }
-  }
-  return pointCollection;
-}
-
-
-var drawLinesWithZvalue = function(mf_arr, with_height){
-
-}
-
-var drawTyphoonsWithZvalue = function(mf_arr, with_height){
-
-}
-
-var drawLinesPathWithZvalue = function(mf_arr, with_height){
-
-}
-
-var drawPointsPathWithZvalue = function(mf_arr, with_height){
-  if ( !Array.isArray(mf_arr) ){
-    mf_arr = [mf_arr];
-  }
-
-
-
-}
-*/
 ﻿//User Method Definition
 
 MFOC.prototype.add = null;
@@ -1122,7 +869,7 @@ MFOC.prototype.drawFeatures = function(options){
   }
 
   this.min_max = this.findMinMaxGeometry(mf_arr);
-  if (this.mode == '3D'){
+  if (this.mode == 'SPACETIME'){
     this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
     this.viewer.scene.primitives.add(this.drawZaxis());
     var entities = this.drawZaxisLabel();
@@ -1201,7 +948,7 @@ MFOC.prototype.drawPaths = function(options){
 
   this.min_max = this.findMinMaxGeometry(mf_arr);
 
-  if (this.mode == '3D'){
+  if (this.mode == 'SPACETIME'){
     this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,this.max_height] );
     this.viewer.scene.primitives.add(this.drawZaxis());
     var entities = this.drawZaxisLabel();
@@ -1211,14 +958,14 @@ MFOC.prototype.drawPaths = function(options){
     this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0,0] );
   }
 
-  if (this.mode == 'GLOBE'){
+  if (this.mode == 'ANIMATEDMAP'){
     return this.min_max;
   }
 
   for (var index = 0 ; index < mf_arr.length ; index++){
     var feature = mf_arr[index];
     var path_prim;
-    if (this.mode == 'GLOBE'){
+    if (this.mode == 'ANIMATEDMAP'){
 
     }
     else{
@@ -1340,8 +1087,6 @@ MFOC.prototype.removeByName = function(name){
 }
 
 MFOC.prototype.showProperty = function(propertyName, divID){
-  document.getElementById(divID).style.height = '20%';
-  document.getElementById(divID).style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
   var pro_arr = [];
   for (var i = 0 ; i < this.features.length ; i ++){
     var property = MFOC.getPropertyByName(this.features[i], propertyName);
@@ -1352,7 +1097,6 @@ MFOC.prototype.showProperty = function(propertyName, divID){
   if (pro_arr.length == 0){
     return;
   }
-  console.log(pro_arr);
   this.showPropertyArray(propertyName, pro_arr, divID);
 }
 
@@ -1384,7 +1128,7 @@ MFOC.prototype.highlight = function(movingfeatureName,propertyName){
   var type = mf.temporalGeometry.type;
   this.clearViewer();
 
-  if (this.mode == '3D'){
+  if (this.mode == 'SPACETIME'){
     this.bounding_sphere = MFOC.getBoundingSphere(this.min_max, [0, this.max_height]  );
     this.viewer.scene.primitives.add(this.drawZaxis());
     var entities = this.drawZaxisLabel();
@@ -1444,7 +1188,7 @@ MFOC.prototype.showHeatMap = function(degree){
     degree.time = 5;
   }
 
-  if (this.mode == '3D'){
+  if (this.mode == 'SPACETIME'){
     var x_deg = degree.x,
     y_deg = degree.y,
     z_deg = degree.time;
@@ -1650,25 +1394,18 @@ MFOC.prototype.animate = function(options){
 
 MFOC.prototype.changeMode = function(mode){
   if (mode == undefined){
-    if (this.mode == '2D' || this.mode == 'GLOBE'){
-      this.mode = '3D';
+    if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP'){
+      this.mode = 'SPACETIME';
     }
     else{
-      this.mode = '2D';
-    }``
+      this.mode = 'STATICMAP';
+    }
   }
   else{
     this.mode = mode;
   }
 
-
-  this.clearViewer();
-  this.drawPaths();
-
-  this.animate({
-    change: true
-  });
-  this.setAnalysisDIV('analysis','graph');
+  this.update({change:true});
   this.adjustCameraView();
 }
 
@@ -1676,7 +1413,7 @@ MFOC.prototype.showDirectionalRadar = function(canvasID){
   var radar_canvas = document.getElementById(canvasID);
 
   radar_canvas.innerHTML = '';
-  radar_canvas.getContext('2d').clearRect(0, 0, radar_canvas.width, radar_canvas.height);
+  radar_canvas.getContext('STATICMAP').clearRect(0, 0, radar_canvas.width, radar_canvas.height);
 
   if (this.radar_on){
     MFOC.drawBackRadar(canvasID);
@@ -1692,8 +1429,6 @@ MFOC.prototype.showDirectionalRadar = function(canvasID){
     var feature = this.features[index];
     this.setColor(feature.properties.name, MFOC.addDirectionInfo(cumulative, feature.temporalGeometry));
   }
-
-  console.log(cumulative);
 
   var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
   var total_length = cumulative.west.total_length + cumulative.east.total_length + cumulative.north.total_length + cumulative.south.total_length;
@@ -1766,6 +1501,29 @@ MFOC.prototype.showDirectionalRadar = function(canvasID){
   }
 }
 
+MFOC.drawBackRadar = function(radar_id) {
+    var radar_canvas = document.getElementById(radar_id);
+
+    if (radar_canvas.getContext) {
+        var h_width = radar_canvas.width / 2;
+        var h_height = radar_canvas.height / 2;
+        var ctx = radar_canvas.getContext('2d');
+
+        var color = 'rgb(0,255,0)';
+        for (var id = 0; id < 2; id++) {
+            for (var j = 0; j < 2; j += 0.05) {
+                ctx.beginPath();
+                ctx.arc(h_width, h_height, h_width * (id + 1) / 2, j * Math.PI, (j + 0.025) * Math.PI);
+                ctx.strokeStyle = color;
+                ctx.stroke();
+            }
+        }
+
+    } else {
+        alert('canvas를 지원하지 않는 브라우저');
+    }
+}
+
 MFOC.prototype.adjustCameraView = function(){
   var bounding = this.bounding_sphere;
   var viewer = this.viewer;
@@ -1777,18 +1535,9 @@ MFOC.prototype.adjustCameraView = function(){
 
   setTimeout(function(){
     if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
-    //  return;
-      // viewer.camera.flyToBoundingSphere(bounding, {
-      //   duration : 1.0,
-      //   complete : function(){
-      //     var sin = Math.sin(Math.PI / 2) * bounding.radius;
-      //     viewer.camera.rotate(new Cesium.Cartesian3(1,0,0),-0.4);
-      //   }
-      // });
+
     viewer.camera.flyTo({
       duration : 0.5,
-    //  endTransform :
-
       destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
       orientation : {
         direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
@@ -1800,101 +1549,9 @@ MFOC.prototype.adjustCameraView = function(){
         duration : 0.5
       });
     }
-}, 300);
+  }, 300);
 
 }
-
-
-MFOC.prototype.setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
-  if (div_id == undefined){
-    div_id = this.analysis_id;
-    graph_id = this.graph_id;
-  }
-
-  var mfoc = this;
-  this.graph_id = graph_id;
-  this.analysis_id = div_id;
-
-  var div = document.getElementById(div_id);
-  div.innerHTML ='';
-  div.style.top = '120px'
-  div.style.color = 'white';
-  div.style.backgroundColor = 'rgba(0,0,0,0.4)';
-  div.style.right = '5px';
-  div.style.border = '1px solid black';
-  div.style.padding = '0px';
-  div.className = "list-group-item active";
-
-  var title = document.createElement("div");
-  title.appendChild(document.createTextNode("  ANALYSIS"));
-  title.style.paddingTop = '4px';
-  title.style.height = '10%';
-  title.style.width = '100%';
-  title.style.textAlign = 'center';
-  title.style.verticalAlign = 'middle';
-  title.style.display = 'flex';
-  title.style.alignItems = 'center';
-  title.style.backgroundColor = '#787878';
-  title.style.borderBottom = '3px double white';
-
-  var div_arr = [];
-  for (var i= 0 ; i < 3 ; i++){
-    div_arr[i] = document.createElement("div");
-    div_arr[i].style.height = '30%';
-    div_arr[i].style.width = '100%';
-    div_arr[i].style.cursor = "pointer";
-    div_arr[i].style.verticalAlign = 'middle';
-    div_arr[i].style.padding = '2%';
-    div_arr[i].style.textAlign = 'center';
-    div_arr[i].style.borderBottom = '1px solid white';
-    div_arr[i].style.display = 'flex';
-    div_arr[i].style.alignItems = 'center';
-    div_arr[i].style.border = '1px solid white';
-    //div_arr[i].style.borderRadius = '15px';
-  }
-
-  var properties_graph = div_arr[0],
-  show_space_cube = div_arr[1],
-  show_direction_radar = div_arr[2];
-
-  properties_graph.appendChild(document.createTextNode("PROPERTY GRAPH"));
-  show_space_cube.appendChild(document.createTextNode("TOGGLE HEATCUBE"));
-  show_direction_radar.appendChild(document.createTextNode("DIRECTION RADAR"));
-
-  properties_graph.onclick = (function(glo_mfoc, graph){
-    return function(){
-      MFOC.selectProperty(glo_mfoc, graph);
-    };
-  })(mfoc, graph_id);
-
-  show_space_cube.onclick = (function(glo_mfoc, div, graph){
-    return function(){
-      this.style.cursor = 'auto';
-      MFOC.selectDegree(mfoc, this, div, graph);
-    }
-  })(mfoc, div_id, graph_id);
-
-
-  show_direction_radar.onclick = (function(glo_mfoc, canvas){
-    return function(){
-      glo_mfoc.showDirectionalRadar(canvas);
-      glo_mfoc.clearViewer();
-      glo_mfoc.drawPaths();
-      glo_mfoc.animate();
-      if (document.getElementById('pro_menu'))
-        document.getElementById('pro_menu').remove();
-      document.getElementById(glo_mfoc.graph_id).style.height="0%";
-    }
-  })(mfoc, radar_id);
-
-  div.appendChild(title);
-  div.appendChild(properties_graph);
-  div.appendChild(show_space_cube);
-  div.appendChild(show_direction_radar);
-
-  MFOC.drawBackRadar(radar_id);
-}
-
 
 
 MFOC.prototype.clickMovingFeature = function(name){
@@ -1920,7 +1577,7 @@ MFOC.prototype.clickMovingFeature = function(name){
 
   this.time_label = [];
 
-  if (this.mode == '3D'){
+  if (this.mode == 'SPACETIME'){
     var ret = this.showHeightBar(name);
     this.projection = this.primitives.add(ret[0]);
 
@@ -1946,18 +1603,21 @@ MFOC.prototype.clickMovingFeature = function(name){
       }
     }
 
-},1500);
+},5000);
 
 
   return 1;
 
 }
 
+MFOC.prototype.getMinMax = function(){
+    return this.min_max;
+}
 
-MFOC.prototype.update = function(){
+MFOC.prototype.update = function(options){
   this.clearViewer();
   this.drawPaths();
-  //this.animate();
+  this.animate(options);
   return this.min_max;
 }
 
@@ -1993,7 +1653,7 @@ function MFOC(viewer){
   this.viewer = viewer;
   this.primitives = viewer.scene.primitives;
   this.features = [];
-  this.mode = '2D';
+  this.mode = 'STATICMAP';
   this.max_height = 30000000;
   this.path_prim_memory = {};
   this.feature_prim_memory = {};
@@ -2002,9 +1662,6 @@ function MFOC(viewer){
   this.color_arr = {};
   this.radar_on = false;
   this.zoomoutfeatures = [];
-  this.graph_id =null;
-  this.analysis_id = null;
-  this.radar_id = null;
 
   this.projection = null;
   this.time_label = [];
@@ -2107,7 +1764,7 @@ MFOC.prototype.moveMovingPoint = function(options){
       carto.push(point[i][0]);
       carto.push(point[i][1]);
       var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);
-      if (this.mode == '3D'){
+      if (this.mode == 'SPACETIME'){
         carto.push(normalize);
       }
       else{
@@ -2160,7 +1817,7 @@ MFOC.prototype.moveMovingPoint = function(options){
       obj.cartographicDegrees.push(point[i][1]);
 
       var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date);
-      if (this.mode == '3D'){
+      if (this.mode == 'SPACETIME'){
         obj.cartographicDegrees.push(normalize);
       }
       else{
@@ -2251,7 +1908,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
         carto.push(seconds / 1000);
         carto.push(polygon[i][0]);
         carto.push(polygon[i][1]);
-        if (this.mode == '2D' || this.mode == 'GLOBE')
+        if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP')
         {
           carto.push(10000);
         }
@@ -2293,7 +1950,7 @@ MFOC.prototype.moveMovingPolygon =function(options){
       for (var j = 0 ; j < polygon.length-1 ; j++){
         carto.push(polygon[j][0]);
         carto.push(polygon[j][1]);
-        if (this.mode == '2D')
+        if (this.mode == 'STATICMAP')
         carto.push(normalize);
         else {
           carto.push(0);
@@ -2377,7 +2034,7 @@ MFOC.prototype.moveMovingLineString = function(options){
 
       var height_1 = MFOC.normalizeTime(new Date(datetime[i]),this.min_max.date,this.max_height);
       var height_2 = MFOC.normalizeTime(new Date(datetime[i+1]),this.min_max.date,this.max_height);;
-      if (this.mode == '2D'){
+      if (this.mode == 'STATICMAP'){
         height_1 = 0;
         height_2 = 0;
       }
@@ -2430,7 +2087,7 @@ MFOC.prototype.moveMovingLineString = function(options){
       var carto = [];
       var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);//this.height_collection[id][i];
 
-      if (this.mode == '2D'){
+      if (this.mode == 'STATICMAP'){
         normalize = 0;
       }
 
@@ -2688,8 +2345,6 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
   var name_arr = [];
   var object_arr = [];
   var mfoc = this;
-  
-  console.log(array);
 
   for (var i = 0 ; i < array.length ; i++){
     object_arr.push(array[i][0]);
@@ -2769,7 +2424,6 @@ MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
     }
 
     var color = this.getColor(name_arr[id]);
-    console.log(name_arr[id], color);
     var r_color = d3.rgb(color.red * 255, color.green * 255, color.blue * 255);
 
     graph_data.push(data);

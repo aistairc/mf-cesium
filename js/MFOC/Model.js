@@ -2,7 +2,7 @@ function MFOC(viewer){
   this.viewer = viewer;
   this.primitives = viewer.scene.primitives;
   this.features = [];
-  this.mode = '2D';
+  this.mode = 'STATICMAP';
   this.max_height = 30000000;
   this.path_prim_memory = {};
   this.feature_prim_memory = {};
@@ -11,9 +11,6 @@ function MFOC(viewer){
   this.color_arr = {};
   this.radar_on = false;
   this.zoomoutfeatures = [];
-  this.graph_id =null;
-  this.analysis_id = null;
-  this.radar_id = null;
 
   this.projection = null;
   this.time_label = [];

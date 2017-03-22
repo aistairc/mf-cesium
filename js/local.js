@@ -22,7 +22,6 @@ function handleFileSelect(evt) {
     for(var i = 0 ; i < arr.length ; i++){
 
     var json_object = JSON.parse(arr[i]);
-    console.log(json_object);
 
     if(json_object.name != undefined){
       if(!layer_list_local.contains(json_object.name)){
@@ -177,7 +176,6 @@ function getFeatures_local(layerID, features_list) {
     var printFeatures_list = [];
 
     var getdata;
-    //console.log(features_list);
 
     if(!printedLayerList.contains(layerID)){
 
@@ -189,7 +187,6 @@ function getFeatures_local(layerID, features_list) {
     var layerlist = document.getElementById('list');
     layerlist.innerHTML = "";
     layerlist.appendChild(printPrintedLayersList());
-    console.log(layerlist);
     var list = printFeatures_local(layerID, features_list, "features");
     var printArea = document.getElementById('featureLayer');
     his_features = list;
@@ -212,8 +209,6 @@ function printFeatures_local(layerID, features_list, id) { //피쳐레이어아�
     var menu = document.getElementById('menu_list');
     var uploadButton = document.getElementById('uploadButton');
 
-
-    console.log(inputbutton_height);
     uploadButton.style.visibility = "hidden";
 
     uploadButton.style.padding = "0";
@@ -262,14 +257,13 @@ function printFeatures_local(layerID, features_list, id) { //피쳐레이어아�
     target.className = "list-group-item";
     printMenuState = "features";
 
-    console.log(layerID);
-        if(!layerID.includes("\'")){
-
-            printState.innerText = printMenuState + " :" + layerID;
-        }
-        else{
-          printState.innerText = printMenuState + " :" + parse_layer_name(layerID);
-        }
+    if(!layerID.includes("\'")){
+        
+        printState.innerText = printMenuState + " :" + layerID;
+    }
+    else{
+        printState.innerText = printMenuState + " :" + parse_layer_name(layerID);
+    }
 
     for (var i = 0; i < features_list.length; i++) {
       var data = getBuffer([layerID, features_list[i]]);
