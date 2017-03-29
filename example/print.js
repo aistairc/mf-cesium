@@ -15,7 +15,7 @@ var printedLayerList = [];
 var bool_printedLayerList = [];
 var check_button;
 var time_min_max;
-var zoom_time = [];
+var zoom_time = [0,100];
 
 
 
@@ -57,7 +57,10 @@ function backButton() {
         printGraph.innerHTML = "";
         printGraph.style.height = "0%";
         printArea.appendChild(his_features);
-
+        
+        if (document.getElementById('pro_menu'))
+          document.getElementById('pro_menu').remove();
+        stinuum.mfCollection.refresh(); //all hidden -> feature
         drawFeature();
 
 
@@ -184,7 +187,7 @@ function updateProperties(id, name) {
         document.getElementById("graph").style.height = '20%';
         document.getElementById("graph").style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
 
-        mfoc.showProperty(name, "graph");
+        stinuum.propertyGraph.show(name, "graph");
         console.log("finish");
     } else {
         $('input:checkbox[name="' + name + '"]').each(function() {
@@ -320,7 +323,7 @@ function printWhole(layerID) {
             console.log(layerID);
             for (var key in feature_list) {
                 var data = getBuffer([layerID, key]);
-                mfoc.add(data);
+                stinuum.mfCollection.add(data);
             }
             layer_checkAll(layerID, 'chkf[]');
         } else {
@@ -329,15 +332,15 @@ function printWhole(layerID) {
             for (var key in feature_list) {
                 var data = getBuffer([layerID, key]);
                 console.log(data);
-                mfoc.remove(data);
+                stinuum.mfCollection.remove(data);
             }
             layer_uncheckAll(layerID, 'chkf[]');
             if (document.getElementById('pro_menu'))
                 document.getElementById('pro_menu').remove();
             document.getElementById('graph').style.height = "0%";
         }
-        mfoc.update();
-        mfoc.adjustCameraView();
+        stinuum.geometryViewer.update();
+        stinuum.geometryViewer.adjustCameraView();
     }
 
 }
@@ -354,10 +357,10 @@ function checkAll(name) {
         console.log(feature_layer, feature_name);
         var data = getBuffer([feature_layer, feature_name]);
         if (checked[i].checked == true) {
-            mfoc.add(data);
+            stinuum.mfCollection.add(data);
         } else {
             checked[i].checked = true;
-            mfoc.add(data);
+            stinuum.mfCollection.add(data);
         }
     }
 
@@ -399,10 +402,10 @@ function layer_checkAll(featureLayerID, name) {
                 var feature_name = temp[0];
                 var data = getBuffer([feature_layer, feature_name]);
                 if (checked[i].checked == true) {
-                    mfoc.add(data);
+                    stinuum.mfCollection.add(data);
                 } else {
                     checked[i].checked = true;
-                    mfoc.add(data);
+                    stinuum.mfCollection.add(data);
                 }
             }
 
@@ -432,9 +435,9 @@ function layer_uncheckAll(featureLayerID, name) {
                 var data = getBuffer([feature_layer, feature_name]);
                 if (checked[i].checked == true) {
                     checked[i].checked = false;
-                    mfoc.remove(data);
+                    stinuum.mfCollection.remove(data);
                 } else {
-                    mfoc.remove(data);
+                    stinuum.mfCollection.remove(data);
                 }
             }
         }
@@ -471,9 +474,9 @@ function uncheckAll(name) {
         var data = getBuffer([feature_layer, feature_name]);
         if (checked[i].checked == true) {
             checked[i].checked = false;
-            mfoc.remove(data);
+            stinuum.mfCollection.remove(data);
         } else {
-            mfoc.remove(data);
+            stinuum.mfCollection.remove(data);
         }
     }
 
@@ -667,8 +670,9 @@ function printFeature(featureID, data, id) {
 }
 
 function getHighlight(feature, temporalProperty) {
-    mfoc.highlight(feature, temporalProperty);
-    mfoc.adjustCameraView();
+
+    stinuum.temporalMap.show(feature, temporalProperty);
+    //stinuum.geometryViewer.adjustCameraView();
 }
 
 function getCheckedFeatures() {
@@ -684,9 +688,9 @@ function getCheckedFeatures() {
             if (!printedLayerList.contains(feature_layer)) {
                 printedLayerList.push(feature_layer);
             }
-            mfoc.add(data);
+            stinuum.mfCollection.add(data);
         } else {
-            mfoc.remove(data);
+            stinuum.mfCollection.remove(data);
         }
     }
 
@@ -696,29 +700,31 @@ function getCheckedFeatures() {
 }
 
 function refresh() {
-    mfoc.spliceByTime(time_min_max[0], time_min_max[1]);
-    mfoc.update();
-    mfoc.adjustCameraView();
+    stinuum.mfCollection.spliceByTime(time_min_max[0], time_min_max[1]);
+    stinuum.geometryViewer.update();
+    stinuum.geometryViewer.adjustCameraView();
 }
 
 function zoom() {
     var fastest = new Date(time_min_max[0]);
     var latest = new Date(time_min_max[1]);
-    ///console.log(min,max);
-    var diff = (latest.getTime() - fastest.getTime()) / 100;
-    //console.log(diff);
+
     console.log(zoom_time);
+    var diff = (latest.getTime() - fastest.getTime()) / 100;
     latest.setTime(fastest.getTime() + diff * zoom_time[1]);
     fastest.setTime(fastest.getTime() + diff * zoom_time[0]);
 
-    //console.log(min,max);
-    mfoc.spliceByTime(fastest, latest);
-    mfoc.update();
+    stinuum.mfCollection.spliceByTime(fastest, latest);
+    stinuum.geometryViewer.update();
     setAnalysisDIV('analysis', 'graph', 'radar');
-    mfoc.adjustCameraView();
+    stinuum.geometryViewer.adjustCameraView();
 }
 
 function printSlinder() {
+    if (time_min_max == undefined){
+      //TODO
+      return 0;
+    }
     var fastest = time_min_max[1];
     var latest = time_min_max[0];
 
@@ -733,17 +739,20 @@ function printSlinder() {
 }
 
 function drawFeatureWithoutModi() {
-    time_min_max = mfoc.update();
+    stinuum.geometryViewer.update()
+    time_min_max = stinuum.mfCollection.getMinMax();
     time_min_max = time_min_max.date;
+    console.log('drawFeatureWithoutModi');
     printSlinder();
-    console.log(time_min_max);
-    mfoc.adjustCameraView();
+
+    stinuum.geometryViewer.adjustCameraView();
 }
 
 function drawFeature() { //아이디로 찾을까
     var slinder = document.getElementById('zoom');
     getCheckedFeatures();
-    time_min_max = mfoc.update();
+    stinuum.geometryViewer.update()
+    time_min_max = stinuum.mfCollection.getMinMax();
     time_min_max = time_min_max.date;
     if (printMenuState == "features" || printMenuState == "layer") {
         slinder.style.visibility = "visible";
@@ -751,5 +760,5 @@ function drawFeature() { //아이디로 찾을까
     } else {
         slinder.style.visibility = "hidden";
     }
-    mfoc.adjustCameraView();
+    stinuum.geometryViewer.adjustCameraView();
 }

@@ -1,4 +1,4 @@
-MFOC.prototype.moveMovingPoint = function(options){
+MovementDrawing.prototype.moveMovingPoint = function(options){
   var czml = [];
 
   var geometry = options.temporalGeometry;
@@ -38,8 +38,8 @@ MFOC.prototype.moveMovingPoint = function(options){
       carto.push(new Date(geometry.datetimes[i]).toISOString());
       carto.push(point[i][0]);
       carto.push(point[i][1]);
-      var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);
-      if (this.mode == 'SPACETIME'){
+      var normalize = Stinuum.normalizeTime(new Date(geometry.datetimes[i]), this.supersuper.mfCollection.min_max.date, this.supersuper.maxHeight);
+      if (this.supersuper.mode == 'SPACETIME'){
         carto.push(normalize);
       }
       else{
@@ -91,8 +91,8 @@ MFOC.prototype.moveMovingPoint = function(options){
       obj.cartographicDegrees.push(point[i][0]);
       obj.cartographicDegrees.push(point[i][1]);
 
-      var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date);
-      if (this.mode == 'SPACETIME'){
+      var normalize = Stinuum.normalizeTime(new Date(geometry.datetimes[i]), this.supersuper.mfCollection.min_max.date);
+      if (this.supersuper.mode == 'SPACETIME'){
         obj.cartographicDegrees.push(normalize);
       }
       else{
@@ -110,7 +110,7 @@ MFOC.prototype.moveMovingPoint = function(options){
   return czml;
 }
 
-MFOC.prototype.moveMovingPolygon =function(options){
+MovementDrawing.prototype.moveMovingPolygon =function(options){
   var geometry = options.temporalGeometry,
   number = options.number;
   var multiplier = 10000;
@@ -177,13 +177,13 @@ MFOC.prototype.moveMovingPolygon =function(options){
       var carto = [];
       for (var j = 0 ; j < geometry.datetimes.length ; j ++){
         var seconds = new Date(geometry.datetimes[j]).getTime() - start_second;
-        var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[j]), this.min_max.date, this.max_height);
+        var normalize = Stinuum.normalizeTime(new Date(geometry.datetimes[j]), this.supersuper.mfCollection.min_max.date, this.supersuper.maxHeight);
         var polygon = geometry.coordinates[j][0];
 
         carto.push(seconds / 1000);
         carto.push(polygon[i][0]);
         carto.push(polygon[i][1]);
-        if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP')
+        if (this.supersuper.mode == 'STATICMAP' || this.supersuper.mode == 'ANIMATEDMAP')
         {
           carto.push(10000);
         }
@@ -220,12 +220,12 @@ MFOC.prototype.moveMovingPolygon =function(options){
       v.id ="polygon_"+number+"_"+i;
       v.availability = start_iso+"/"+finish_iso;
       var carto = [];
-      var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);
+      var normalize = Stinuum.normalizeTime(new Date(geometry.datetimes[i]), this.supersuper.mfCollection.min_max.date, this.supersuper.maxHeight);
       var polygon = geometry.coordinates[i][0];
       for (var j = 0 ; j < polygon.length-1 ; j++){
         carto.push(polygon[j][0]);
         carto.push(polygon[j][1]);
-        if (this.mode == 'STATICMAP')
+        if (this.supersuper.mode == 'STATICMAP')
         carto.push(normalize);
         else {
           carto.push(0);
@@ -254,14 +254,14 @@ MFOC.prototype.moveMovingPolygon =function(options){
   return czml;
 }
 
-MFOC.prototype.moveMovingLineString = function(options){
+MovementDrawing.prototype.moveMovingLineString = function(options){
   var czml = [];
   var geometry = options.temporalGeometry;
   var number = options.number
   var datetime = geometry.datetimes;
   var length = datetime.length;
   var multiplier = 10000;
-  var next_mapping_point_arr = MFOC.calculatePathForEachPoint(geometry);
+  var next_mapping_point_arr = Stinuum.calculatePathForEachPoint(geometry);
 
   if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear")
   {
@@ -307,9 +307,9 @@ MFOC.prototype.moveMovingLineString = function(options){
       }
       czml.push(czml_ref_obj);
 
-      var height_1 = MFOC.normalizeTime(new Date(datetime[i]),this.min_max.date,this.max_height);
-      var height_2 = MFOC.normalizeTime(new Date(datetime[i+1]),this.min_max.date,this.max_height);;
-      if (this.mode == 'STATICMAP'){
+      var height_1 = Stinuum.normalizeTime(new Date(datetime[i]),this.supersuper.mfCollection.min_max.date,this.supersuper.maxHeight);
+      var height_2 = Stinuum.normalizeTime(new Date(datetime[i+1]),this.supersuper.mfCollection.min_max.date,this.supersuper.maxHeight);;
+      if (this.supersuper.mode == 'STATICMAP'){
         height_1 = 0;
         height_2 = 0;
       }
@@ -360,9 +360,9 @@ MFOC.prototype.moveMovingLineString = function(options){
       v.availability = start_iso+"/"+finish_iso;
 
       var carto = [];
-      var normalize = MFOC.normalizeTime(new Date(geometry.datetimes[i]), this.min_max.date, this.max_height);//this.height_collection[id][i];
+      var normalize = Stinuum.normalizeTime(new Date(geometry.datetimes[i]), this.supersuper.mfCollection.min_max.date, this.supersuper.maxHeight);//this.height_collection[id][i];
 
-      if (this.mode == 'STATICMAP'){
+      if (this.supersuper.mode == 'STATICMAP'){
         normalize = 0;
       }
 
@@ -396,7 +396,7 @@ MFOC.prototype.moveMovingLineString = function(options){
 
 
 
-MFOC.calculatePathForEachPoint = function(mls){
+Stinuum.calculatePathForEachPoint = function(mls){
 
   var pre_polyline;
   var coord_arr = mls.coordinates;
@@ -407,7 +407,7 @@ MFOC.calculatePathForEachPoint = function(mls){
       continue;
     }
 
-    next_mapping_point_arr[i-1] = MFOC.findMapping(pre_polyline, coord_arr[i]);
+    next_mapping_point_arr[i-1] = Stinuum.findMapping(pre_polyline, coord_arr[i]);
 
     pre_polyline = coord_arr[i];
   }
@@ -415,7 +415,7 @@ MFOC.calculatePathForEachPoint = function(mls){
   return next_mapping_point_arr;
 }
 
-MFOC.findMapping = function(line_1, line_2){
+Stinuum.findMapping = function(line_1, line_2){
   var i=0,
   j=0;
   var array = [];
@@ -427,8 +427,8 @@ MFOC.findMapping = function(line_1, line_2){
     var next_point_1 = line_1[i+1];
     var next_point_2 = line_2[j+1];
 
-    var dist1 = MFOC.calculateCarteDist(point_1, next_point_2);
-    var dist2 = MFOC.calculateCarteDist(point_2, next_point_1);
+    var dist1 = Stinuum.calculateCarteDist(point_1, next_point_2);
+    var dist2 = Stinuum.calculateCarteDist(point_2, next_point_1);
 
     var triangle = [];
     if (dist1 > dist2){
