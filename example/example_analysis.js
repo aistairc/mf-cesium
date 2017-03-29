@@ -1,3 +1,5 @@
+var radar_on = false;
+
 var setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
 
   var div = document.getElementById(div_id);
@@ -46,29 +48,38 @@ var setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
   show_space_cube.appendChild(document.createTextNode("TOGGLE HEATCUBE"));
   show_direction_radar.appendChild(document.createTextNode("DIRECTION RADAR"));
 
-  properties_graph.onclick = (function(glo_mfoc, graph){
+  properties_graph.onclick = (function(glo_stinuum, graph){
     return function(){
       selectProperty(graph);
     };
-  })(mfoc, graph_id);
+  })(stinuum, graph_id);
 
-  show_space_cube.onclick = (function(glo_mfoc, div, graph){
+  show_space_cube.onclick = (function(glo_stinuum, div, graph){
     return function(){
       this.style.cursor = 'auto';
       selectDegree(this, div, graph);
     }
-  })(mfoc, div_id, graph_id);
+  })(stinuum, div_id, graph_id);
 
 
-  show_direction_radar.onclick = (function(glo_mfoc, canvas){
+  show_direction_radar.onclick = (function(glo_stinuum, canvas){
     return function(){
-      glo_mfoc.showDirectionalRadar(canvas);
-      glo_mfoc.update();
+      if (!radar_on){
+        glo_stinuum.directionRadar.show(canvas);
+        radar_on = true;
+      }
+      else{
+        glo_stinuum.directionRadar.remove(canvas);
+        Stinuum.drawBackRadar(canvas);
+        radar_on = false;
+      }
+
+      glo_stinuum.geometryViewer.update();
       if (document.getElementById('pro_menu'))
         document.getElementById('pro_menu').remove();
-      document.getElementById(glo_mfoc.graph_id).style.height="0%";
+      document.getElementById(graph_id).style.height="0%";
     }
-  })(mfoc, radar_id);
+  })(stinuum, radar_id);
 
   div.appendChild(title);
   div.appendChild(properties_graph);
@@ -81,18 +92,24 @@ var setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
   radar_canvas.style.zIndex = '21';
   radar_canvas.style.right = '5px';
 
-  MFOC.drawBackRadar('radar');
+  Stinuum.drawBackRadar('radar');
+  document.getElementById(graph_id).style.height = '0%';
+  if (document.getElementById('pro_menu')) {
+      document.getElementById('pro_menu').remove();
+  }
+
 }
 
 var selectDegree = function(div, parent, graph_id) {
 
-    if (mfoc.features.length == 0) {
+    if (stinuum.mfCollection.getLength() == 0) {
         console.log("no features");
         setAnalysisDIV(parent, graph_id, 'radar');
         return;
     }
-    if (mfoc.cube_primitives != null) {
-        mfoc.removeHeatMap();
+
+    if (stinuum.occurrenceMap.primitive != null) {//TODO
+        stinuum.occurrenceMap.remove();
         setAnalysisDIV(parent, graph_id, 'radar');
         return;
     }
@@ -138,13 +155,13 @@ var selectDegree = function(div, parent, graph_id) {
     back_btn.value = 'back';
     submit_btn.value = 'submit'
 
-    submit_btn.onclick = (function(mfoc, parent, graph_id) {
+    submit_btn.onclick = (function(stinuum, parent, graph_id) {
         return function() {
             var x = document.getElementById('degree_0').value,
                 y = document.getElementById('degree_1').value,
                 time = document.getElementById('degree_2').value;
             document.getElementById(parent).innerHTML = 'Analysing...';
-            mfoc.showHeatMap({
+            stinuum.occurrenceMap.show({
                 x: x,
                 y: y,
                 time: time
@@ -152,33 +169,34 @@ var selectDegree = function(div, parent, graph_id) {
 
             setAnalysisDIV(parent, graph_id);
         };
-    })(mfoc, parent, graph_id);
+    })(stinuum, parent, graph_id);
 
-    back_btn.onclick = (function(mfoc, parent, graph_id) {
+    back_btn.onclick = (function(stinuum, parent, graph_id) {
         return function() {
             setAnalysisDIV(parent, graph_id);
         };
-    })(mfoc, parent, graph_id);
+    })(stinuum, parent, graph_id);
 
     btn_div.appendChild(back_btn);
     btn_div.appendChild(submit_btn);
 
     div.appendChild(btn_div);
 
-    if (mfoc.mode != 'SPACETIME') {
+    if (viewer.scene.mode != Cesium.SceneMode.COLUMBUS_VIEW) {
         document.getElementById('degree_row_2').style.visibility = 'hidden';
     }
 }
 
 var selectProperty = function(graph_id) {
 
-    if (mfoc.features.length == 0) {
+    if (stinuum.mfCollection.getLength() == 0) {
         alert("no features");
         return;
     }
     if (document.getElementById('pro_menu')) {
         document.getElementById('pro_menu').remove();
     }
+
     document.getElementById(graph_id).innerHTML = '';
     document.getElementById(graph_id).style.height = '0%';
     document.getElementById(graph_id).style.cursor = 'pointer';
@@ -192,7 +210,7 @@ var selectProperty = function(graph_id) {
     pro_menu.style.cursor = 'pointer';
     pro_menu.className = 'graph';
 
-    var pro_type_arr = mfoc.getAllTypeFromProperties();
+    var pro_type_arr = stinuum.mfCollection.getAllPropertyType();
 
     for (var i = 0; i < pro_type_arr.length; i++) {
         var div = document.createElement('div');
@@ -205,7 +223,7 @@ var selectProperty = function(graph_id) {
         div.style.width = 100 / (pro_type_arr.length + 1) + '%';
         div.innerHTML = pro_type_arr[i];
         div.id = 'btn' + pro_type_arr[i];
-        div.onclick = (function(mfoc, name_arr, index, graph) {
+        div.onclick = (function(stinuum, name_arr, index, graph) {
             return function() {
                 document.getElementById('pro_menu').style.bottom = '20%';
                 document.getElementById('btn' + name_arr[index]).style.backgroundColor = 'rgba(100,100,100,0.8)';
@@ -216,9 +234,9 @@ var selectProperty = function(graph_id) {
                     if (i == index) continue;
                     document.getElementById('btn' + name_arr[i]).style.backgroundColor = 'transparent';
                 }
-                mfoc.showProperty(name_arr[index], graph);
+                stinuum.propertyGraph.show(name_arr[index], graph);
             };
-        })(mfoc, pro_type_arr, i, graph_id);
+        })(stinuum, pro_type_arr, i, graph_id);
         pro_menu.appendChild(div);
     }
 

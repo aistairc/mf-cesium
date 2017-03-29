@@ -258,7 +258,7 @@ function printFeatures_local(layerID, features_list, id) { //피쳐레이어아�
     printMenuState = "features";
 
     if(!layerID.includes("\'")){
-        
+
         printState.innerText = printMenuState + " :" + layerID;
     }
     else{
@@ -331,3 +331,17 @@ function getLocalFile(){
   dropZone.addEventListener('drop', handleFileSelect, false);
 
 }
+
+/*
+function getParameterByName(name, url) {
+    if (!url) {
+      url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+*/

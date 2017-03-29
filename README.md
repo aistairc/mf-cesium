@@ -4,13 +4,10 @@
 <!-- toc orderedList:0 depthFrom:1 depthTo:6 -->
 
 * [Stinuum](#stinuum)
-  * [Getting Started](#getting-started)
+  * [Getting Started by Example](#getting-started-by-example)
+  * [Development Your Program](#development-your-program)
   * [License](#license)
-  * [API](#api)
-    * [List of API be used in this project.](#list-of-api-be-used-in-this-project)
-    * [Cesium](#cesium)
-    * [Moving Feature On Cesium (MFOC)](#moving-feature-on-cesium-mfoc)
-      * [How to Use API](#how-to-use-api)
+  * [Methods](#methods)
   * [Building](#building)
 
 <!-- tocstop -->
@@ -19,7 +16,7 @@
 
 - - -
 
-## Getting Started
+## Getting Started by Example
 
 1. Download Cesium. (http://cesiumjs.org/downloads.html)
 
@@ -38,47 +35,29 @@
   ```
   $ node server.js
   ```
-6. Enter http://localhost:8080/Apps/Index.html by browser(Chrome).
+6. Enter http://localhost:8080/Apps/stinuum_example.html by browser(Chrome).
 
-  if you have url and token, please append "url=data_server_url?token=your_token"
+7. If you have url and token, please append "url=data_server_url?token=your_token"
+Otherwise, drag and drop json file.
 
+
+- - -
+
+## Development Your Program
+
+Download stinuum.js and add ``` <script src="stinuum.js"></script>``` your html file.
 
 - - -
 
 ## License
 
-STinuum licensed under the [MIT](https://opensource.org/licenses/MIT)
+Stinuum licensed under the [MIT](https://opensource.org/licenses/MIT)
 
-## API
-
-### List of API be used in this project.
-
-1. Cesium
-
-2. MovingFeatureOnCesium
-
-3. d3
-
-and so on...
+## Methods
 
 
-### Cesium
+TODO
 
-[Ceisum](https://cesiumjs.org/) - An open-source JavaScript library for world-class 3D globes and maps
-
-
-### Moving Feature On Cesium (MFOC)
-
-We are developing API for this project.
-
-[OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/)
-
-
-  </br>
-
-#### How to Use API
-
-[MFOC](https://github.com/aistairc/mf-cesium/tree/master/js/MFOC)
 
 ## Building
 

@@ -1,356 +1,119 @@
-MFOC.addDirectionInfo = function(cumulative, geometry){
-  var life = MFOC.calculateLife(geometry) / 1000000;
-  var length = MFOC.calculateLength(geometry);
 
-  var start_point = geometry.coordinates[0][0];
-  var end_point = geometry.coordinates[geometry.coordinates.length-1][0];
-
-  if (geometry.type != "MovingPoint" ){ // Polygon, LineString
-    start_point = MFOC.getCenter(start_point, geometry.type);
-    end_point = MFOC.getCenter(end_point, geometry.type);
+OccurrenceMap.prototype.show = function(degree){
+  if (degree == undefined){
+    degree = {};
+    degree.x = 5;
+    degree.y = 5;
+    degree.time = 5;
   }
 
-  var dist_x, dist_y;
+  if (this.super.mode == 'SPACETIME'){
+    var x_deg = degree.x,
+    y_deg = degree.y,
+    z_deg = degree.time;
 
-  dist_x = end_point[0] - start_point[0];
-  dist_y = end_point[1] - start_point[1];
-
-  var r_color ;
-  if (dist_x == 0){
-    if (dist_y > 0){
-      cumulative.north.total_life += life;
-      cumulative.north.total_length += length;
-      r_color = Cesium.Color.fromRandom({
-        maximumRed : 0.2,
-        minimumBlue : 0.7,
-        minimumGreen : 0.6,
-        alpha : 1.0
-      });
-    }
-    else if (dist_y < 0){
-      cumulative.south.total_life += life;
-      cumulative.south.total_length += length;
-      r_color = Cesium.Color.fromRandom({
-        minimumRed : 0.7,
-        maximumBlue : 0.2,
-        maximumGreen : 0.2,
-        alpha : 1.0
-      });
-    }
-    else{
-
-    }
-  }
-  else{
-    var slope = dist_y / dist_x ;
-    if (slope < 1 && slope > -1){
-      if (dist_x > 0 ){
-        cumulative.east.total_life += life;
-        cumulative.east.total_length += length;
-        r_color = Cesium.Color.fromRandom({
-          maximumRed : 0.2,
-          maximumBlue : 0.2,
-          minimumGreen : 0.7,
-          alpha : 1.0
-        });
-      }
-      else{
-        cumulative.west.total_life += life;
-        cumulative.west.total_length += length;
-        r_color = Cesium.Color.fromRandom({
-          minimumRed : 0.7,
-          maximumBlue : 0.2,
-          minimumGreen : 0.7,
-          alpha : 1.0
-        });
-      }
-    }
-    else {
-      if (dist_y >0){
-        cumulative.north.total_life += life;
-        cumulative.north.total_length += length;
-        r_color = Cesium.Color.fromRandom({
-          maximumRed : 0.2,
-          minimumBlue : 0.7,
-          minimumGreen : 0.6,
-          alpha : 1.0
-        });
-      }
-      else{
-        cumulative.south.total_life += life;
-        cumulative.south.total_length += length;
-        r_color = Cesium.Color.fromRandom({
-          minimumRed : 0.7,
-          maximumBlue : 0.2,
-          maximumGreen : 0.2,
-          alpha : 1.0
-        });
-      }
-    }
-  }
-
-  return r_color;
-
-
-}
-
-
-MFOC.calculateLife = function(geometry){
-  return - new Date(geometry.datetimes[0]).getTime() + new Date(geometry.datetimes[geometry.datetimes.length-1]).getTime();
-};
-
-MFOC.calculateLength = function(geometry){
-  var total = 0;
-  for (var i = 0 ; i < geometry.coordinates.length - 1 ; i++){
-    var point1;
-    var point2;
-    if (geometry.type == "MovingPoint"){
-      point1 = geometry.coordinates[i];
-      point2 = geometry.coordinates[i+1];
-    }
-    else{
-      point1 = MFOC.getCenter(geometry.coordinates[i][0], geometry.type);
-      point2 = MFOC.getCenter(geometry.coordinates[i+1][0], geometry.type);
-    }
-    //total += MFOC.calculateDist(point1, point2);
-    total += MFOC.calculateCarteDist(point1, point2);
-
-  }
-
-  return total;
-};
-
-
-MFOC.getCenter = function(coordinates, type){
-  var x=0,y=0;
-  var length = coordinates.length;
-  if (type == 'MovingPolygon'){
-    length -= 1;
-  }
-  for (var i = 0 ; i < length ; i++){
-    x += coordinates[i][0];
-    y += coordinates[i][1];
-
-  }
-  x /= length;
-  y /= length;
-
-  return [x,y];
-}
-
-
-
-
-
-
-MFOC.prototype.showPropertyArray = function(propertyName, array, div_id){
-
-
-  document.getElementById(div_id).innerHTML = '';
-
-  //if put empty array.
-  if (array == undefined || array.length == 0){
-    return;
-  }
-
-
-  var name_arr = [];
-  var object_arr = [];
-  var mfoc = this;
-
-  for (var i = 0 ; i < array.length ; i++){
-    object_arr.push(array[i][0]);
-    name_arr.push(array[i][1]);
-  }
-
-  var min_max = MFOC.findMinMaxProperties(object_arr);
-
-  var svg = d3.select("#"+div_id).append("svg");
-  svg.attr("width",$("#"+div_id).width());
-  svg.attr("height",$("#"+div_id).height());
-
-  var margin = {top: 10, right: 20, bottom: 30, left: 50},
-  width = $("#"+div_id).width() - margin.left - margin.right,
-  height = $("#"+div_id).height() - margin.top - margin.bottom;
-
-
-  var g = svg.append("g")
-        .attr("transform", "translate("+ margin.left +"," + margin.top + " )")
-        .attr("width", width)
-        .attr("height", height);
-
-  var x = d3.scaleTime()
-  .rangeRound([0, width]);
-  var y = d3.scaleLinear()
-  .rangeRound([height, 0]);
-
-  var line = d3.line()
-  .x(function(d) { return x(d.date)})
-  .y(function(d) { return y(d.value)});
-
-
-  x.domain(min_max.date);
-  y.domain(min_max.value);
-
-  g.append("g")
-  .attr("transform" , "translate(0,"+height+")")
-  .attr("class","axis")
-  .style("font-size","x-large")
-  .call(d3.axisBottom(x))
-  .select(".domain")
-  .remove();
-
-  var y_axis = g.append("g");
-  y_axis
-  .attr("class","axis")
-  .call(d3.axisLeft(y))
-  .append("text")
-  .attr("fill", '#000')
-  .attr("transform", "rotate(-90)")
-  .style("font-size","large")
-  .attr("y", 6)
-  .attr("dy", "0.71em")
-  .attr("text-anchor", "end")
-  .text(object_arr[0].name+"("+object_arr[0].uom+")")  ;
-
-
-  var graph_data = [];
-  for (var id = 0 ; id < object_arr.length ; id++){
-    var data = [];
-    var object = object_arr[id];
-    for (var i = 0 ; i < object.datetimes.length ; i++){
-      var comp = {};
-      var da = new Date(object.datetimes[i]).toISOString();
-
-      comp.date = new Date(object.datetimes[i]);//dateparse(da);
-      comp.value = object.values[i];
-
-      data.push(comp);
-    }
-
-    if (object.interpolations == 'Spline'){
-      line.curve(d3.curveCardinal);
-    }
-    else if (object.interpolations == 'Stepwise'){
-      line.curve(d3.curveStepAfter)
-    }
-
-    var color = this.getColor(name_arr[id]);
-    var r_color = d3.rgb(color.red * 255, color.green * 255, color.blue * 255);
-
-    graph_data.push(data);
-    if(object.interpolations == 'Discrete'){
-      for (var i = 0 ; i < data.length ; i++){
-        g.selectAll("circle")
-        .data(data)
-        .enter()
-        .append("circle")
-        .attr("cx", function(d,i) { return x(d.date); } )
-        .attr("cy", function(d,i) { return y(d.value); } )
-        .attr("r", 1)
-        .style("fill", r_color);
-      }
-    }
-    else{
-      g.append("path")
-      .datum(data)
-      .attr("fill", "none")
-      .attr("stroke", r_color)
-      .attr("stroke-linejoin", "round")
-      .attr("stroke-linecap", "round")
-      .attr("stroke-width", 3)
-      .attr("d", line);
-    }
-
-  }
-
-  var drag = d3.drag()
-    .on("start", dragstarted)
-    .on("drag", dragged)
-    .on("end", dragended);
-  svg.call(drag);
-
-  var start_coord;
-  var rect ;
-
-  function dragstarted(d){
-    d3.event.sourceEvent.stopPropagation();
-    start_coord = d3.mouse(this);
-    rect = svg.append("rect")
-      .attr("fill", d3.rgb(0,0,0,0.5));
-
-    if (start_coord[0]-margin.right <= 0){
+    var mf_arr = this.super.mfCollection.features;
+    if (mf_arr.length == 0){
       return;
     }
-    var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-
-    viewer.clock.currentTime=Cesium.JulianDate.fromDate(new Date(formatDate(x.invert(start_coord[0]-51.09))));
-    viewer.clock.shouldAnimate = false;
-    //    console.log(rect);
-    //  console.log(start_coord);
-    //d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
-    d3.select(this).classed("dragging", true);
-  }
-
-  function dragged(d){
-    var coord = d3.mouse(this);
-
-    if (coord[0] > start_coord[0]){
-      rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
-      rect.attr("height", height + margin.bottom);
-      rect.attr("x", start_coord[0]);
+    if (this.primitive != null){
+      this.super.cesiumViewer.scene.primitives.remove(this.primitive);
+      this.primitive == null;
     }
-    else{
-      rect.attr("width", Math.abs(coord[0] - start_coord[0]) );
-      rect.attr("height", height + margin.bottom);
-      rect.attr("x", coord[0]);
+    degree.time = degree.time * 86400;
+    this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry(mf_arr);
+    this.max_num = 0;
+    var cube_data = this.makeBasicCube(degree);
+    if (cube_data == -1){
+      console.log("time degree 너무 큼");
+      return;
     }
 
+    for (var index = 0 ; index < mf_arr.length ; index++){
+      var feature = mf_arr[index].feature;
 
-  }
-
-  function dragended(d){
-    d3.select(this).classed("dragging", false);
-    var end_coord = d3.mouse(this);
-    var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-  //  console.log(end_coord);
-    var start_date, end_date;
-
-    if (end_coord[0] > start_coord[0]){
-      start_date = formatDate(x.invert(start_coord[0]-51.09));
-      end_date =  formatDate(x.invert(end_coord[0]-51.09));
-      if (end_coord[0] - start_coord[0] < 100){
-        rect.remove();
-        return;
+      if (feature.temporalGeometry.type == "MovingPoint"){
+        this.draw3DHeatMapMovingPoint(feature.temporalGeometry, degree, cube_data);
+      }
+      else if(feature.temporalGeometry.type == "MovingPolygon"){
+        this.draw3DHeatMapMovingPolygon(feature.temporalGeometry, degree, cube_data);
+      }
+      else if(feature.temporalGeometry.type == "MovingLineString"){
+        this.draw3DHeatMapMovingLineString(feature.temporalGeometry, degree, cube_data);
+      }
+      else{
+        console.log("nono", feature);
       }
     }
-    else{
-      if (start_coord[0] - end_coord[0] < 100){
-        rect.remove();
-        return;
-      }
+    if (this.max_num == 0){
+      console.log("datetimes of data have too long gap. There is no hotspot");
+      return;
+    }
+    var cube_prim = this.makeCube(degree, cube_data);
 
-      start_date = formatDate(x.invert(end_coord[0]-51.09));
-      end_date =  formatDate(x.invert(start_coord[0]-51.09));
+    this.primitive = this.super.cesiumViewer.scene.primitives.add(cube_prim);
+  }
+  else{
+    var x_deg = degree.x,
+    y_deg = degree.y;
+
+    var mf_arr = this.super.mfCollection.features;
+    if (mf_arr.length == 0){
+      return;
+    }
+    if (this.primitive != null){
+      this.super.cesiumViewer.scene.primitives.remove(this.primitive);
+      this.primitive == null;
     }
 
-    mfoc.spliceByTime(new Date(start_date), new Date(end_date));
-    mfoc.update();
-    mfoc.showProperty(propertyName, div_id);
+    this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry(mf_arr);
+    this.max_num = 0;
+    var map_data = this.makeBasicMap(degree);
+    if (cube_data == -1){
+      console.log("time degree 너무 큼");
+      return;
+    }
+
+    for (var index = 0 ; index < mf_arr.length ; index++){
+      var feature = mf_arr[index].feature;
+      if (feature.temporalGeometry.type == "MovingPoint"){
+        this.draw2DHeatMapMovingPoint(feature.temporalGeometry, degree, map_data);
+      }
+      else if(feature.temporalGeometry.type == "MovingPolygon"){
+        this.draw2DHeatMapMovingPolygon(feature.temporalGeometry, degree, map_data);
+      }
+      else if(feature.temporalGeometry.type == "MovingLineString"){
+        this.draw2DHeatMapMovingLineString(feature.temporalGeometry, degree, map_data);
+      }
+      else{
+        console.log("nono", feature);
+      }
+    }
+    if (this.max_num == 0){
+      console.log("datetimes of data have too long gap. There is no hotspot");
+      return;
+    }
+
+    var cube_prim = this.makeMap(degree, map_data);
+
+    this.primitive = this.super.cesiumViewer.scene.primitives.add(cube_prim);
   }
-
-
 
 }
 
+OccurrenceMap.prototype.remove = function(){
+  if (this.primitive !=  null){
+    this.super.cesiumViewer.scene.primitives.remove(this.primitive);
+    this.primitive = null;
+  }
+}
 
 
-MFOC.prototype.makeBasicMap = function(degree){
+OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data){
+  var min_max = this.super.mfCollection.min_max;
+
   var x_deg = degree.x,
   y_deg = degree.y;
-
-  var cube_data = [];
-  var min_max = this.min_max;
 
   var x_band = min_max.x[1] - min_max.x[0],
   y_band = min_max.y[1] - min_max.y[0];
@@ -358,28 +121,7 @@ MFOC.prototype.makeBasicMap = function(degree){
   var x_length = Math.ceil(x_band/x_deg);
   var y_length = Math.ceil(y_band/y_deg);
 
-  for (var x = 0 ; x < x_length ; x++){
-    cube_data[x] = [];
-    for (var y = 0 ; y < y_length ; y++){
-      cube_data[x][y] = 0;
-    }
-  }
-  return cube_data;
-}
-
-MFOC.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data){
-  var min_max = this.min_max;
-
-  var x_deg = degree.x,
-  y_deg = degree.y;
-
-  var x_band = min_max.x[1] - min_max.x[0],
-  y_band = min_max.y[1] - min_max.y[0];
-
-  var x_length = Math.ceil(x_band/x_deg);
-  var y_length = Math.ceil(y_band/y_deg);
-
-  var max_num = this.hotspot_maxnum;
+  var max_num = this.max_num;
 
   var value_property = [];
 
@@ -409,7 +151,7 @@ MFOC.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data)
       var x_value = min_max.x[0] + x_deg * x_index;
       var y_value = value_property[point].getValue(x_value);
       if (y_value != undefined){
-        var y_index = MFOC.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
+        var y_index = Stinuum.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
         if (temp_map[x_index][y_index] == 0){
           temp_map[x_index][y_index] = 1;
         }
@@ -426,12 +168,12 @@ MFOC.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data)
     }
   }
 
-  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
+  this.max_num = Math.max(max_num,this.max_num);
 
 }
 
-MFOC.prototype.draw2DHeatMapMovingLineString = function(geometry, degree, map_data){
-  var min_max = this.min_max;
+OccurrenceMap.prototype.draw2DHeatMapMovingLineString = function(geometry, degree, map_data){
+  var min_max = this.super.mfCollection.min_max;
 
   var x_deg = degree.x,
   y_deg = degree.y;
@@ -442,9 +184,9 @@ MFOC.prototype.draw2DHeatMapMovingLineString = function(geometry, degree, map_da
   var x_length = Math.ceil(x_band/x_deg);
   var y_length = Math.ceil(y_band/y_deg);
 
-  var max_num = this.hotspot_maxnum;
+  var max_num = this.max_num;
 
-  var max_coordinates_length = MFOC.findMaxCoordinatesLine(geometry);
+  var max_coordinates_length = Stinuum.findMaxCoordinatesLine(geometry);
 
   var value_property = [];
 
@@ -474,7 +216,7 @@ MFOC.prototype.draw2DHeatMapMovingLineString = function(geometry, degree, map_da
       var x_value = min_max.x[0] + x_deg * x_index;
       var y_value = value_property[point].getValue(x_value);
       if (y_value != undefined){
-        var y_index = MFOC.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
+        var y_index = Stinuum.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
         if (temp_map[x_index][y_index] == 0){
           temp_map[x_index][y_index] = 1;
         }
@@ -492,12 +234,12 @@ MFOC.prototype.draw2DHeatMapMovingLineString = function(geometry, degree, map_da
     }
   }
 
-  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
+  this.max_num = Math.max(max_num,this.max_num);
 
 }
 
-MFOC.prototype.draw2DHeatMapMovingPoint = function(geometry, degree, map_data){
-  var min_max = this.min_max;
+OccurrenceMap.prototype.draw2DHeatMapMovingPoint = function(geometry, degree, map_data){
+  var min_max = this.super.mfCollection.min_max;
 
   var x_deg = degree.x,
   y_deg = degree.y;
@@ -508,7 +250,7 @@ MFOC.prototype.draw2DHeatMapMovingPoint = function(geometry, degree, map_data){
   var x_length = Math.ceil(x_band/x_deg);
   var y_length = Math.ceil(y_band/y_deg);
 
-  var max_num = this.hotspot_maxnum;
+  var max_num = this.max_num;
 
   var value_property = new SampledProperty(Number);
 
@@ -534,24 +276,24 @@ MFOC.prototype.draw2DHeatMapMovingPoint = function(geometry, degree, map_data){
 
       if (y_value != undefined){
 
-        var y_index = MFOC.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
+        var y_index = Stinuum.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
         map_data[x_index][y_index] += 1;
         max_num = Math.max(map_data[x_index][y_index],max_num);
       }
 
   }
 
-  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
+  this.max_num = Math.max(max_num,this.max_num);
 
 }
 
-MFOC.prototype.makeMap = function(degree, map_data){
+OccurrenceMap.prototype.makeMap = function(degree, map_data){
   //var boxCollection = new Cesium.PrimitiveCollection();
   var num = 0;
   var data = map_data;
-  var min_max = this.min_max;
+  var min_max = this.super.mfCollection.min_max;
 
-  var max_count = this.hotspot_maxnum;
+  var max_count = this.max_num;
   var x_deg = degree.x,
   y_deg = degree.y;
 
@@ -589,8 +331,30 @@ MFOC.prototype.makeMap = function(degree, map_data){
 }
 
 
-MFOC.prototype.makeBasicCube = function(degree){
-  var min_max = this.min_max;
+OccurrenceMap.prototype.makeBasicMap = function(degree){
+  var x_deg = degree.x,
+  y_deg = degree.y;
+
+  var cube_data = [];
+  var min_max = this.super.mfCollection.min_max;
+
+  var x_band = min_max.x[1] - min_max.x[0],
+  y_band = min_max.y[1] - min_max.y[0];
+
+  var x_length = Math.ceil(x_band/x_deg);
+  var y_length = Math.ceil(y_band/y_deg);
+
+  for (var x = 0 ; x < x_length ; x++){
+    cube_data[x] = [];
+    for (var y = 0 ; y < y_length ; y++){
+      cube_data[x][y] = 0;
+    }
+  }
+  return cube_data;
+}
+
+OccurrenceMap.prototype.makeBasicCube = function(degree){
+  var min_max = this.super.mfCollection.min_max;
   var cube_data = [];
 
   var x_deg = degree.x,
@@ -627,8 +391,8 @@ MFOC.prototype.makeBasicCube = function(degree){
   return cube_data;
 }
 
-MFOC.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data){
-  var min_max = this.min_max;
+OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data){
+  var min_max = this.super.mfCollection.min_max;
 
   var x_deg = degree.x,
   y_deg = degree.y,
@@ -643,7 +407,7 @@ MFOC.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data
   var x_length = Math.ceil(x_band/x_deg);
   var y_length = Math.ceil(y_band/y_deg);
 
-  var max_num = this.hotspot_maxnum;
+  var max_num = this.max_num;
   var datetimes = geometry.datetimes;
 
   var lower_x_property = new Cesium.SampledProperty(Number);
@@ -675,10 +439,10 @@ MFOC.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data
 
   for (var time = 0 ; time < datetimes.length ; time++){
     var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
-    var normalize = MFOC.normalizeTime(new Date(datetimes[time]), this.min_max.date, this.max_height);
+    var normalize = Stinuum.normalizeTime(new Date(datetimes[time]), this.super.mfCollection.min_max.date, this.super.maxHeight);
 
     var coordinates = geometry.coordinates[time][0];
-    var mbr = MFOC.getMBRFromPolygon(coordinates);
+    var mbr = Stinuum.getMBRFromPolygon(coordinates);
 
     lower_x_property.addSample(jul_time, mbr.x[0]);
     upper_x_property.addSample(jul_time, mbr.x[1]);
@@ -703,10 +467,10 @@ MFOC.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data
 
 
       if (mbr.y[1] != undefined){
-        var x_min = MFOC.getCubeIndexFromSample(mbr.x[0], x_deg, min_max.x[0]);
-        var y_min = MFOC.getCubeIndexFromSample(mbr.y[0], y_deg, min_max.y[0]);
-        var x_max = MFOC.getCubeIndexFromSample(mbr.x[1], x_deg, min_max.x[0]);
-        var y_max = MFOC.getCubeIndexFromSample(mbr.y[1], y_deg, min_max.y[0]);
+        var x_min = Stinuum.getCubeIndexFromSample(mbr.x[0], x_deg, min_max.x[0]);
+        var y_min = Stinuum.getCubeIndexFromSample(mbr.y[0], y_deg, min_max.y[0]);
+        var x_max = Stinuum.getCubeIndexFromSample(mbr.x[1], x_deg, min_max.x[0]);
+        var y_max = Stinuum.getCubeIndexFromSample(mbr.y[1], y_deg, min_max.y[0]);
 
         var x_equal = (x_min == x_max);
         var y_equal = (y_min == y_max);
@@ -737,12 +501,12 @@ MFOC.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data
     }
 
   }
-  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
+  this.max_num = Math.max(max_num,this.max_num);
 
 }
 
-MFOC.prototype.draw3DHeatMapMovingPoint = function(geometry, degree, cube_data){
-  var min_max = this.min_max;
+OccurrenceMap.prototype.draw3DHeatMapMovingPoint = function(geometry, degree, cube_data){
+  var min_max = this.super.mfCollection.min_max;
 
   var x_deg = degree.x,
   y_deg = degree.y,
@@ -758,7 +522,7 @@ MFOC.prototype.draw3DHeatMapMovingPoint = function(geometry, degree, cube_data){
   var x_length = Math.ceil(x_band/x_deg);
   var y_length = Math.ceil(y_band/y_deg);
 
-  var max_num = this.hotspot_maxnum;
+  var max_num = this.max_num;
   //  console.log(cube_data);
   var datetimes = geometry.datetimes;
   var x_property = new Cesium.SampledProperty(Number);
@@ -792,8 +556,8 @@ MFOC.prototype.draw3DHeatMapMovingPoint = function(geometry, degree, cube_data){
       var y_position = y_property.getValue(time[ti]);
 
       if (x_position != undefined && y_position != undefined){
-        var x = MFOC.getCubeIndexFromSample(x_position, x_deg, min_max.x[0]);
-        var y = MFOC.getCubeIndexFromSample(y_position, y_deg, min_max.y[0]);
+        var x = Stinuum.getCubeIndexFromSample(x_position, x_deg, min_max.x[0]);
+        var y = Stinuum.getCubeIndexFromSample(y_position, y_deg, min_max.y[0]);
         cube_data[i].count[x][y] += 1;
         max_num = Math.max(cube_data[i].count[x][y],max_num);
       }
@@ -802,11 +566,11 @@ MFOC.prototype.draw3DHeatMapMovingPoint = function(geometry, degree, cube_data){
 
   }
 
-  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
+  this.max_num = Math.max(max_num,this.max_num);
 }
 
-MFOC.prototype.draw3DHeatMapMovingLineString = function(geometry, degree, cube_data){
-  var min_max = this.min_max;
+OccurrenceMap.prototype.draw3DHeatMapMovingLineString = function(geometry, degree, cube_data){
+  var min_max = this.super.mfCollection.min_max;
 
   var x_deg = degree.x,
   y_deg = degree.y,
@@ -821,13 +585,13 @@ MFOC.prototype.draw3DHeatMapMovingLineString = function(geometry, degree, cube_d
   var x_length = Math.ceil(x_band/x_deg);
   var y_length = Math.ceil(y_band/y_deg);
 
-  var max_num = this.hotspot_maxnum;
+  var max_num = this.max_num;
   var datetimes = geometry.datetimes;
 
   var x_property = [];
   var y_property = [];
 
-  var max_coordinates_length = MFOC.findMaxCoordinatesLine(geometry);
+  var max_coordinates_length = Stinuum.findMaxCoordinatesLine(geometry);
 
   for (var i = 0 ; i <  max_coordinates_length; i++){
     x_property[i] = new Cesium.SampledProperty(Number);
@@ -849,7 +613,7 @@ MFOC.prototype.draw3DHeatMapMovingLineString = function(geometry, degree, cube_d
 
   for (var time = 0 ; time < datetimes.length ; time++){
     var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
-    var normalize = MFOC.normalizeTime(new Date(datetimes[time]), this.min_max.date, this.max_height);
+    var normalize = Stinuum.normalizeTime(new Date(datetimes[time]), this.super.mfCollection.min_max.date, this.super.maxHeight);
 
     var coordinates = geometry.coordinates[time];
 
@@ -875,8 +639,8 @@ MFOC.prototype.draw3DHeatMapMovingLineString = function(geometry, degree, cube_d
         x_value[j] = x_property[j].getValue(middle_time);
         y_value[j] = y_property[j].getValue(middle_time);
         if (x_value[j] != undefined && y_value[j] != undefined){
-          var x_index = MFOC.getCubeIndexFromSample(x_value[j], x_deg, min_max.x[0]);
-          var y_index = MFOC.getCubeIndexFromSample(y_value[j], y_deg, min_max.y[0]);
+          var x_index = Stinuum.getCubeIndexFromSample(x_value[j], x_deg, min_max.x[0]);
+          var y_index = Stinuum.getCubeIndexFromSample(y_value[j], y_deg, min_max.y[0]);
 
           cube_data[i].count[x_index][y_index] += 1;
 
@@ -888,23 +652,23 @@ MFOC.prototype.draw3DHeatMapMovingLineString = function(geometry, degree, cube_d
 
 
   }
-  this.hotspot_maxnum = Math.max(max_num,this.hotspot_maxnum);
+  this.max_num = Math.max(max_num,this.max_num);
 }
 
-MFOC.prototype.makeCube = function(degree, cube_data){
+OccurrenceMap.prototype.makeCube = function(degree, cube_data){
   var boxCollection = new Cesium.PrimitiveCollection();
   var num = 0;
   var data = cube_data;
-  var min_max = this.min_max;
+  var min_max = this.super.mfCollection.min_max;
 
-  var max_count = this.hotspot_maxnum;
+  var max_count = this.max_num;
   var x_deg = degree.x,
   y_deg = degree.y;
 
   for (var z = 0 ; z < data.length - 1 ; z++){
 
-    var lower_time = MFOC.normalizeTime(new Date(data[z].time.toString()),this.min_max.date,this.max_height);
-    var upper_time = MFOC.normalizeTime(new Date(data[z+1].time.toString()),this.min_max.date,this.max_height);
+    var lower_time = Stinuum.normalizeTime(new Date(data[z].time.toString()),this.super.mfCollection.min_max.date,this.super.maxHeight);
+    var upper_time = Stinuum.normalizeTime(new Date(data[z+1].time.toString()),this.super.mfCollection.min_max.date,this.super.maxHeight);
 
     for (var x = 0 ; x < data[z].count.length ; x++){
       for (var y = 0 ; y < data[z].count[x].length ; y++){
@@ -925,7 +689,7 @@ MFOC.prototype.makeCube = function(degree, cube_data){
           //rating = 0.1;
         }
 
-        var prim = MFOC.drawOneCube(positions, rating) ;
+        var prim = Stinuum.drawOneCube(positions, rating) ;
         boxCollection.add(prim);
         num += count;
 
@@ -938,6 +702,6 @@ MFOC.prototype.makeCube = function(degree, cube_data){
   return boxCollection;
 }
 
-MFOC.getCubeIndexFromSample = function(value, deg, min){
+Stinuum.getCubeIndexFromSample = function(value, deg, min){
   return Math.floor((value - min) / deg);
 }
