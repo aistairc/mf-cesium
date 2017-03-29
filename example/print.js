@@ -57,7 +57,7 @@ function backButton() {
         printGraph.innerHTML = "";
         printGraph.style.height = "0%";
         printArea.appendChild(his_features);
-        
+
         if (document.getElementById('pro_menu'))
           document.getElementById('pro_menu').remove();
         stinuum.mfCollection.refresh(); //all hidden -> feature
@@ -740,7 +740,7 @@ function printSlinder() {
 
 function drawFeatureWithoutModi() {
     stinuum.geometryViewer.update()
-    time_min_max = stinuum.mfCollection.getMinMax();
+    time_min_max = stinuum.mfCollection.getWholeMinMax();
     time_min_max = time_min_max.date;
     console.log('drawFeatureWithoutModi');
     printSlinder();
@@ -752,7 +752,7 @@ function drawFeature() { //아이디로 찾을까
     var slinder = document.getElementById('zoom');
     getCheckedFeatures();
     stinuum.geometryViewer.update()
-    time_min_max = stinuum.mfCollection.getMinMax();
+    time_min_max = stinuum.mfCollection.getWholeMinMax();
     time_min_max = time_min_max.date;
     if (printMenuState == "features" || printMenuState == "layer") {
         slinder.style.visibility = "visible";
