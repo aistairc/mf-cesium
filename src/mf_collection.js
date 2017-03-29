@@ -205,7 +205,7 @@ MFCollection.prototype.findMinMaxGeometry = function(p_mf_arr){
   return min_max;
 }
 
-MFCollection.prototype.getMinMax = function() {
+MFCollection.prototype.getWholeMinMax = function() {
   var whole_features_pair;
   whole_features_pair = this.features.concat(this.hiddenFeatures);
   this.whole_min_max = this.findMinMaxGeometry(whole_features_pair);
@@ -321,7 +321,7 @@ MFCollection.prototype.reset = function(){
   this.features = [];
   this.hiddenFeatures = [];
   this.colorCollection = [];
-  
+
 }
 
 MFCollection.prototype.hide = function(mf_id){

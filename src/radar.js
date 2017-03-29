@@ -89,7 +89,7 @@ DirectionRadar.prototype.show = function(canvasID){
   }
 }
 
-Stinuum.drawBackRadar = function(radar_id) {
+DirectionRadar.drawBackRadar = function(radar_id) {
     var radar_canvas = document.getElementById(radar_id);
 
     if (radar_canvas.getContext) {

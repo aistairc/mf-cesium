@@ -7,7 +7,10 @@
   * [Getting Started by Example](#getting-started-by-example)
   * [Development Your Program](#development-your-program)
   * [License](#license)
-  * [Methods](#methods)
+  * [Reference](#reference)
+    * [Stinuum](#stinuum-1)
+      * [Members](#members)
+      * [Methods](#methods)
   * [Building](#building)
 
 <!-- tocstop -->
@@ -28,7 +31,6 @@
 
   ```
   $ npm install
-
   ```
 5. Start Cesium server
 
@@ -45,7 +47,7 @@ Otherwise, drag and drop json file.
 
 ## Development Your Program
 
-Download stinuum.js and add ``` <script src="stinuum.js"></script>``` your html file.
+Download stinuum.js and add ``` <script reference="stinuum.js"></script>``` your html file.
 
 - - -
 
@@ -53,10 +55,66 @@ Download stinuum.js and add ``` <script src="stinuum.js"></script>``` your html 
 
 Stinuum licensed under the [MIT](https://opensource.org/licenses/MIT)
 
-## Methods
+## Reference
+
+### Stinuum
+
+```js
+new Stinuum(viewer)
+```
+
+#### Members
+
+* mode : String
+
+&nbsp;&nbsp;&nbsp;&nbsp;Gets a present drawing and stinuum viewer mode. It will be 'STATICMAP' or 'SPACETIME' or 'ANIMATEDMAP'.
+&nbsp;&nbsp;&nbsp;&nbsp;Default Value : ```"STATICMAP"```
+
+* maxHeight : Number
+&nbsp;&nbsp;&nbsp;&nbsp;Set maximum height in 'SPACETIME' mode.
+&nbsp;&nbsp;&nbsp;&nbsp;Default Value : ```30000000```
+
+* viewer : [Cesium.Viewer](https://cesiumjs.org/Cesium/Build/Documentation/Viewer.html)
+
+&nbsp;&nbsp;&nbsp;&nbsp;Point to Cesium.Viewer in foreward program.
+
+* geometryViewer : [Stinuum.GeometryViewer](https://github.com/aistairc/mf-cesium/reference/blob/master/GeometryViewer.md)
 
 
-TODO
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+* mfCollection : [Stinuum.MFCollection](https://github.com/aistairc/mf-cesium/reference/blob/master/MFCollection.md)
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+* directionRadar : [Stinuum.DirectionRadar](https://github.com/aistairc/mf-cesium/reference/blob/master/DirectionRadar.md)
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+* temporalMap : [Stinuum.TemporalMap](https://github.com/aistairc/mf-cesium/reference/blob/master/TemporalMap.md)
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+* occurrenceMap : [Stinuum.OccurrenceMap](https://github.com/aistairc/mf-cesium/reference/blob/master/OccurrenceMap.md)
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+* propertyGraph : [Stinuum.PropertyGraph](https://github.com/aistairc/mf-cesium/reference/blob/master/PropertyGraph.md)
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+#### Methods
+
+* changeMode(mode)
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   mode  |  String   |        |  (optional) It should be 'STATICMAP' or 'SPACETIME' or 'ANIMATEDMAP'.     |
+
+
 
 
 ## Building
