@@ -78,31 +78,31 @@ new Stinuum(viewer)
 
 &nbsp;&nbsp;&nbsp;&nbsp;Point to Cesium.Viewer in foreward program.
 
-* geometryViewer : [Stinuum.GeometryViewer](https://github.com/aistairc/mf-cesium/reference/blob/master/GeometryViewer.md)
+* geometryViewer : [Stinuum.GeometryViewer](https://github.com/aistairc/mf-cesium/blob/master/reference/GeometryViewer.md)
 
 
 &nbsp;&nbsp;&nbsp;&nbsp;
 
-* mfCollection : [Stinuum.MFCollection](https://github.com/aistairc/mf-cesium/reference/blob/master/MFCollection.md)
+* mfCollection : [Stinuum.MFCollection](https://github.com/aistairc/mf-cesium/blob/master/reference/MFCollection.md)
 
 &nbsp;&nbsp;&nbsp;&nbsp;
 
-* directionRadar : [Stinuum.DirectionRadar](https://github.com/aistairc/mf-cesium/reference/blob/master/DirectionRadar.md)
+* directionRadar : [Stinuum.DirectionRadar](https://github.com/aistairc/mf-cesium/blob/master/reference/DirectionRadar.md)
 
 &nbsp;&nbsp;&nbsp;&nbsp;
 
-* temporalMap : [Stinuum.TemporalMap](https://github.com/aistairc/mf-cesium/reference/blob/master/TemporalMap.md)
-
-&nbsp;&nbsp;&nbsp;&nbsp;
-
-
-
-* occurrenceMap : [Stinuum.OccurrenceMap](https://github.com/aistairc/mf-cesium/reference/blob/master/OccurrenceMap.md)
+* temporalMap : [Stinuum.TemporalMap](https://github.com/aistairc/mf-cesium/blob/master/reference/TemporalMap.md)
 
 &nbsp;&nbsp;&nbsp;&nbsp;
 
 
-* propertyGraph : [Stinuum.PropertyGraph](https://github.com/aistairc/mf-cesium/reference/blob/master/PropertyGraph.md)
+
+* occurrenceMap : [Stinuum.OccurrenceMap](https://github.com/aistairc/mf-cesium/blob/master/reference/OccurrenceMap.md)
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+* propertyGraph : [Stinuum.PropertyGraph](https://github.com/aistairc/mf-cesium/blob/master/reference/PropertyGraph.md)
 
 &nbsp;&nbsp;&nbsp;&nbsp;
 
