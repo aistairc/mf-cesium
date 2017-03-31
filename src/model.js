@@ -5,6 +5,7 @@ function MFPair(id, feature){
   this.id = id;
   this.feature = feature;
 }
+
 function Stinuum(viewer){
     this.cesiumViewer = viewer;
     this.mode = 'STATICMAP';

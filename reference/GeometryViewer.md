@@ -11,12 +11,28 @@ There is no member that user can access.
 
 ## Methods
 
-* update()
+* __update()__
+If there is any feature in Stinuum.MFCollection.features, then visualize them.
 
-* clear()
+&nbsp;
 
-* draw()
+* __clear()__
+Clear Cesium.Viewer, but MfCollection is not changed.
 
-* animate()
+&nbsp;
 
-* clickMovingFeature(id)
+* __clickMovingFeature(id)__
+Make highlight of certain feature such as mouse click.
+&nbsp;
+Example :
+```js
+var handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+handler.setInputAction(function(movement) {
+  var pick = scene.pick(movement.position);
+  if (Cesium.defined(pick)) {
+    if(pick.primitive.id !== undefined){
+      stinuum.geometryViewer.clickMovingFeature(pick.primitive.id);
+    }
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+```

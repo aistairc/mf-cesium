@@ -14,8 +14,7 @@ GeometryViewer.prototype.clear = function(){
   this.super.cesiumViewer.scene.primitives.removeAll();
   this.super.cesiumViewer.scene.primitives.add(temp);
 
-  this.path_prim_memory = {};
-  this.feature_prim_memory = {};
+  this.primitives = {};
 }
 
 GeometryViewer.prototype.draw = function(){

@@ -7,33 +7,115 @@ console.log(stinuum.geometryViewer);
 
 ## Members
 
-TODO
+* `readonly` features
 
+Array of pairs who consist of Moving Feature object visualized present and id.
+
+* `readonly` hiddenFeatures
+
+Array of pairs who consist of Moving Feature object hidden present and id.
 
 ## Methods
 
-* add(mf, id)
+* __add(mf, id)__
+Push new [MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) into features.
 
-* remove(mf)
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   mf  |  MovingFeature JSON Object   |        |       |
+| id | String | | (optional) Identifier of features. If undefined, mf.properties.name will be id.  |
 
-* removeById(id)
+&nbsp;
 
-* refresh()
+* __remove(mf)__
+If mf is in features or hiddenFeatures, then remove its [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) from that array.
 
-* getWholeMinMax()
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   mf  |  MovingFeature JSON Object   |        |       |
 
-* setColor(id, color)
+&nbsp;
 
-* spliceByTime(start, end)
+* __removeById(id)__
+Remove  [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) that has passed id.
 
-* getAllPropertyType()
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   id  |  String   |        |   Identifier of feature    |
 
-* getFeatureById()
+&nbsp;
 
-* getLength()
+* __refresh()__
+Move all MFPair in hiddenFeatures to features.
 
-* reset()
+&nbsp;
 
-* hide(id)
+* __getWholeMinMax()__
+Gets Minimum and Maximum of features in features(Array) and hiddenFeatures(Array).
+&nbsp;
+Return : `Object`
+```js
+{
+      date : [Date, Date],
+      x : [Number, Number],
+      y : [Number, Number],
+      z : [Number, Number]
+}
+```
 
-* hideAll(id)
+&nbsp;
+
+* __setColor(id, color)__
+Set Cesium.Color corresponding to Moving Feature.
+
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   id  |  String   |        |   Identifier of feature    |
+| color | Cesium.Color | | color value|
+
+
+&nbsp;
+
+* __spliceByTime(start, end)__
+Move MFPair whose feature have datetimes from start to end to features. Otherwise, move to hiddenFeatures.
+
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   start  |  `Date`   |        |   start time   |
+|   end  |  `Date`   |        |   end time    |
+
+&nbsp;
+
+* __getAllPropertyType()__
+Gets all type of movingfeatures.
+&nbsp;
+Return : `Array` of property name
+
+&nbsp;
+
+* __reset()__
+Remove all pairs in features and hiddenFeatures.
+
+&nbsp;
+
+* __hide(id)__
+Move MFPair to hiddenFeatures
+
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   id  |  String   |        |   Identifier of feature    |
+
+&nbsp;
+
+* __hideAll(id)__
+Move All MFPair in features to hiddenFeatures except one pair.
+
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   id  |  String   |        |   Identifier of feature    |
+
+&nbsp;

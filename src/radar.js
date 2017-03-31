@@ -5,6 +5,7 @@ DirectionRadar.prototype.remove = function(canvasID){
 
   this.super.mfCollection.colorCollection = {};
 }
+
 DirectionRadar.prototype.show = function(canvasID){
   var radar_canvas = document.getElementById(canvasID);
 
@@ -112,7 +113,6 @@ DirectionRadar.drawBackRadar = function(radar_id) {
     }
 }
 
-
 Stinuum.addDirectionInfo = function(cumulative, geometry){
   var life = Stinuum.calculateLife(geometry) / 1000000;
   var length = Stinuum.calculateLength(geometry);
@@ -208,7 +208,6 @@ Stinuum.addDirectionInfo = function(cumulative, geometry){
 
 
 }
-
 
 Stinuum.calculateLife = function(geometry){
   return - new Date(geometry.datetimes[0]).getTime() + new Date(geometry.datetimes[geometry.datetimes.length-1]).getTime();

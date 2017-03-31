@@ -1,21 +1,10 @@
 
 
 
-<!-- toc orderedList:0 depthFrom:1 depthTo:6 -->
-
-* [Stinuum](#stinuum)
-  * [Getting Started by Example](#getting-started-by-example)
-  * [Development Your Program](#development-your-program)
-  * [License](#license)
-  * [Reference](#reference)
-    * [Stinuum](#stinuum-1)
-      * [Members](#members)
-      * [Methods](#methods)
-  * [Building](#building)
-
-<!-- tocstop -->
 
 # Stinuum
+
+Stinuum is open API for JavaScript. You can visualize and analyze Moving Features JSON Data . Stinuum Description...
 
 - - -
 
@@ -47,7 +36,10 @@ Otherwise, drag and drop json file.
 
 ## Development Your Program
 
-Download stinuum.js and add ``` <script reference="stinuum.js"></script>``` your html file.
+Download stinuum.js and add ``` <script src="stinuum.js"></script>``` your html file.
+
+## OGC Moving Features Encoding Extension - JSON
+https://ksookim.github.io/mf-json/
 
 - - -
 
@@ -62,49 +54,52 @@ Stinuum licensed under the [MIT](https://opensource.org/licenses/MIT)
 ```js
 new Stinuum(viewer)
 ```
-
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   viewer  |  Cesium.Viewer   |        |  Cesium.Viewer of Cesium Application.     |
 #### Members
 
-* mode : String
-
-&nbsp;&nbsp;&nbsp;&nbsp;Gets a present drawing and stinuum viewer mode. It will be 'STATICMAP' or 'SPACETIME' or 'ANIMATEDMAP'.
-&nbsp;&nbsp;&nbsp;&nbsp;Default Value : ```"STATICMAP"```
-
-* maxHeight : Number
-&nbsp;&nbsp;&nbsp;&nbsp;Set maximum height in 'SPACETIME' mode.
-&nbsp;&nbsp;&nbsp;&nbsp;Default Value : ```30000000```
-
-* viewer : [Cesium.Viewer](https://cesiumjs.org/Cesium/Build/Documentation/Viewer.html)
-
-&nbsp;&nbsp;&nbsp;&nbsp;Point to Cesium.Viewer in foreward program.
-
-* geometryViewer : [Stinuum.GeometryViewer](https://github.com/aistairc/mf-cesium/blob/master/reference/GeometryViewer.md)
+* __mode__ : String
+Gets a present drawing and stinuum viewer mode. It will be 'STATICMAP' or 'SPACETIME' or 'ANIMATEDMAP'.
+Default Value :`"STATICMAP"`
 
 
-&nbsp;&nbsp;&nbsp;&nbsp;
+* __maxHeight__ : Number
+Set maximum height in 'SPACETIME' mode.
+Default Value : `30000000`
 
-* mfCollection : [Stinuum.MFCollection](https://github.com/aistairc/mf-cesium/blob/master/reference/MFCollection.md)
 
-&nbsp;&nbsp;&nbsp;&nbsp;
+* __viewer__ : [Cesium.Viewer](https://cesiumjs.org/Cesium/Build/Documentation/Viewer.html)
+Point to Cesium.Viewer in foreward program.
 
-* directionRadar : [Stinuum.DirectionRadar](https://github.com/aistairc/mf-cesium/blob/master/reference/DirectionRadar.md)
 
-&nbsp;&nbsp;&nbsp;&nbsp;
+* __geometryViewer__ : [Stinuum.GeometryViewer](https://github.com/aistairc/mf-cesium/blob/master/reference/GeometryViewer.md)
+Gets the GeometryViewer. It used to visualize MovingFeatures.
 
-* temporalMap : [Stinuum.TemporalMap](https://github.com/aistairc/mf-cesium/blob/master/reference/TemporalMap.md)
 
-&nbsp;&nbsp;&nbsp;&nbsp;
+* __mfCollection__ : [Stinuum.MFCollection](https://github.com/aistairc/mf-cesium/blob/master/reference/MFCollection.md)
+Gets the mfCollection. It store MovingFeatures data and manage.
 
 
 
-* occurrenceMap : [Stinuum.OccurrenceMap](https://github.com/aistairc/mf-cesium/blob/master/reference/OccurrenceMap.md)
+* __directionRadar__ : [Stinuum.DirectionRadar](https://github.com/aistairc/mf-cesium/blob/master/reference/DirectionRadar.md)
+Gets the DirectionRadar. It used to determine Whether radar turns on or not.
 
-&nbsp;&nbsp;&nbsp;&nbsp;
+
+* __temporalMap__ : [Stinuum.TemporalMap](https://github.com/aistairc/mf-cesium/blob/master/reference/TemporalMap.md)
+Gets the TemporalMap.
 
 
-* propertyGraph : [Stinuum.PropertyGraph](https://github.com/aistairc/mf-cesium/blob/master/reference/PropertyGraph.md)
 
-&nbsp;&nbsp;&nbsp;&nbsp;
+
+* __occurrenceMap__ : [Stinuum.OccurrenceMap](https://github.com/aistairc/mf-cesium/blob/master/reference/OccurrenceMap.md)
+Gets the OccurrenceMap.
+
+
+
+* __propertyGraph__ : [Stinuum.PropertyGraph](https://github.com/aistairc/mf-cesium/blob/master/reference/PropertyGraph.md)
+Gets the PropertyGraph.
+
 
 #### Methods
 

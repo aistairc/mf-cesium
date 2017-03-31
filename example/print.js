@@ -126,16 +126,12 @@ function printProperty(data) {
     var feature_property = [];
     var feature_list = data;
     var upper_ul = document.createElement("ul");
-    console.log(feature_list);
 
     var temp_feature_property = [];
     for (var key in feature_list.properties) {
         temp_feature_property.push([key, feature_list.properties[key]]);
     }
     feature_property.push(temp_feature_property);
-
-
-    console.log(feature_property);
 
 
     upper_ul.className = "list-group";
