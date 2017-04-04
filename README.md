@@ -5,9 +5,9 @@
 # Stinuum
 
 Stinuum is a JavaScript library to visualize and analyze moving objects on [Cesium](https://cesiumjs.org).
-Stinuum imports OGC Moving Features JSON Data and supports animated maps as well as static maps and a space-time cube for navigating the trajectory of moving objects over space and time. The main characteristics of Stinuum are as follows:
-- Diverse movements
-- Multiscale data analysis
+Stinuum imports OGC Moving Features JSON data and supports animated maps as well as static maps and a space-time cube for navigating the trajectory of moving objects over space and time. The main characteristics of Stinuum are as follows:
+- Diverse geometry types to represent movements
+- Multiscale data analysis in space and time
 - Highly accessibility and lightweight deployment
 
 ## OGC Moving Features Encoding Extension - JSON
@@ -33,17 +33,17 @@ https://ksookim.github.io/mf-json/
   ```
   $ node server.js
   ```
-6. Enter http://localhost:8080/Apps/stinuum_example.html by browser(Chrome).
+6. Enter http://localhost:8080/Apps/stinuum_example.html on your browser (Chrome).
 
-7. If you have url and token, please append "url=data_server_url?token=your_token"
-Otherwise, drag and drop json file.
+7. If you have the information of url and token to access a data server that provides RESTful API as descrbied in [OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/), please append "?url=data_server_url&token=your_token"
+Otherwise, you can drag and drop json files to explore the data.
 
 
 - - -
 
 ## Development Your Program
 
-Download stinuum.js and add ``` <script src="stinuum.js"></script>``` your html file.
+Download stinuum.js and add ``` <script src="stinuum.js"></script>``` to your a html file.
 
 - - -
 
@@ -60,21 +60,21 @@ new Stinuum(viewer)
 ```
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
-|   viewer  |  Cesium.Viewer   |        |  Cesium.Viewer of Cesium Application.     |
+|   viewer  |  Cesium.Viewer   |        |  Cesium.Viewer of a Cesium Application.     |
 #### Members
 
+* __viewer__ : [Cesium.Viewer](https://cesiumjs.org/Cesium/Build/Documentation/Viewer.html)
+The reference of a base widget of Cesium.Viewer.
+
+
 * __mode__ : String
-Gets a present drawing and stinuum viewer mode. It will be 'STATICMAP' or 'SPACETIME' or 'ANIMATEDMAP'.
+To Get the stinuum mode of the current viewer. There are three modes: 'STATICMAP', 'SPACETIME', and 'ANIMATEDMAP'.
 Default Value :`"STATICMAP"`
 
 
 * __maxHeight__ : Number
-Set maximum height in 'SPACETIME' mode.
+To Set the maximum height in 'SPACETIME' mode.
 Default Value : `30000000`
-
-
-* __viewer__ : [Cesium.Viewer](https://cesiumjs.org/Cesium/Build/Documentation/Viewer.html)
-Point to Cesium.Viewer in foreward program.
 
 
 * __geometryViewer__ : [Stinuum.GeometryViewer](https://github.com/aistairc/mf-cesium/blob/master/reference/GeometryViewer.md)
@@ -111,7 +111,7 @@ Gets the PropertyGraph.
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
-|   mode  |  String   |        |  (optional) It should be 'STATICMAP' or 'SPACETIME' or 'ANIMATEDMAP'.     |
+|   mode  |  String   |        |  (optional) It SHOULD be one of 'STATICMAP', 'SPACETIME', and 'ANIMATEDMAP'.  |
 
 
 
