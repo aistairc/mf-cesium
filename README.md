@@ -81,41 +81,45 @@ Default Value :`"STATICMAP"`
 
 
 * __geometryViewer__ : [Stinuum.GeometryViewer](https://github.com/aistairc/mf-cesium/blob/master/reference/GeometryViewer.md)
-Gets the GeometryViewer. It used to visualize MovingFeatures.
+
+To Get the GeometryViewer. It used to visualize MovingFeatures.
 
 
 * __mfCollection__ : [Stinuum.MFCollection](https://github.com/aistairc/mf-cesium/blob/master/reference/MFCollection.md)
 
-Gets the mfCollection. It store MovingFeatures data and manage.
+To Get the mfCollection. It store MovingFeatures data and manage.
 
 
 
 * __directionRadar__ : [Stinuum.DirectionRadar](https://github.com/aistairc/mf-cesium/blob/master/reference/DirectionRadar.md)
 
-Gets the DirectionRadar. It used to determine Whether radar turns on or not.
+To Get the DirectionRadar. It used to determine Whether radar turns on or not.
 
+If you want to see direction radar, make `<div>` tag for radar visualization then access this memeber.
 
 * __temporalMap__ : [Stinuum.TemporalMap](https://github.com/aistairc/mf-cesium/blob/master/reference/TemporalMap.md)
 
-Gets the TemporalMap.
+To Get the TemporalMap. It can draw temporal thematic map.
 
 
 
 
 * __occurrenceMap__ : [Stinuum.OccurrenceMap](https://github.com/aistairc/mf-cesium/blob/master/reference/OccurrenceMap.md)
 
-Gets the OccurrenceMap.
+To Get the OccurrenceMap. It analyzes occurrence and visualize result.
 
 
 
 * __propertyGraph__ : [Stinuum.PropertyGraph](https://github.com/aistairc/mf-cesium/blob/master/reference/PropertyGraph.md)
 
-Gets the PropertyGraph.
+To Get the PropertyGraph.
+
+If you want to see graph about property, make `<div>` tag for graph visualization then access this memeber.
 
 
 #### Methods
 
-* changeMode(mode)
+* __changeMode(mode)__
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
