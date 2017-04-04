@@ -57,7 +57,8 @@ Stinuum licensed under the [MIT](https://opensource.org/licenses/MIT)
 ### Stinuum
 
 ```js
-new Stinuum(viewer)
+var viewer = new Cesium.Viewer;
+var stinuum = new Stinuum(viewer)
 ```
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
@@ -65,17 +66,18 @@ new Stinuum(viewer)
 #### Members
 
 * __viewer__ : [Cesium.Viewer](https://cesiumjs.org/Cesium/Build/Documentation/Viewer.html)
+
 The reference of a base widget of Cesium.Viewer.
 
 
 * __mode__ : String
-To Get the stinuum mode of the current viewer. There are three modes: 'STATICMAP', 'SPACETIME', and 'ANIMATEDMAP'.
+
+To Get the stinuum mode of the current viewer.
+
+There are three modes: '__STATICMAP__', '__SPACETIME__', and '__ANIMATEDMAP__'.
+
 Default Value :`"STATICMAP"`
 
-
-* __maxHeight__ : Number
-To Set the maximum height in 'SPACETIME' mode.
-Default Value : `30000000`
 
 
 * __geometryViewer__ : [Stinuum.GeometryViewer](https://github.com/aistairc/mf-cesium/blob/master/reference/GeometryViewer.md)
@@ -83,26 +85,31 @@ Gets the GeometryViewer. It used to visualize MovingFeatures.
 
 
 * __mfCollection__ : [Stinuum.MFCollection](https://github.com/aistairc/mf-cesium/blob/master/reference/MFCollection.md)
+
 Gets the mfCollection. It store MovingFeatures data and manage.
 
 
 
 * __directionRadar__ : [Stinuum.DirectionRadar](https://github.com/aistairc/mf-cesium/blob/master/reference/DirectionRadar.md)
+
 Gets the DirectionRadar. It used to determine Whether radar turns on or not.
 
 
 * __temporalMap__ : [Stinuum.TemporalMap](https://github.com/aistairc/mf-cesium/blob/master/reference/TemporalMap.md)
+
 Gets the TemporalMap.
 
 
 
 
 * __occurrenceMap__ : [Stinuum.OccurrenceMap](https://github.com/aistairc/mf-cesium/blob/master/reference/OccurrenceMap.md)
+
 Gets the OccurrenceMap.
 
 
 
 * __propertyGraph__ : [Stinuum.PropertyGraph](https://github.com/aistairc/mf-cesium/blob/master/reference/PropertyGraph.md)
+
 Gets the PropertyGraph.
 
 
