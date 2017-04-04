@@ -7,17 +7,18 @@ console.log(stinuum.geometryViewer);
 
 ## Members
 
-* `readonly` features
+* `readonly` ___features___
 
 Array of pairs who consist of Moving Feature object visualized present and id.
 
-* `readonly` hiddenFeatures
+* `readonly` ___hiddenFeatures___
 
 Array of pairs who consist of Moving Feature object hidden present and id.
 
 ## Methods
 
 * __add(mf, id)__
+
 Push new [MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) into features.
 
 | Name | Type | Default | Description |
@@ -28,6 +29,7 @@ Push new [MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/refe
 &nbsp;
 
 * __remove(mf)__
+
 If mf is in features or hiddenFeatures, then remove its [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) from that array.
 
 | Name | Type | Default | Description |
@@ -37,6 +39,7 @@ If mf is in features or hiddenFeatures, then remove its [MFPair](https://github.
 &nbsp;
 
 * __removeById(id)__
+
 Remove  [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) that has passed id.
 
 | Name | Type | Default | Description |
@@ -46,13 +49,17 @@ Remove  [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFP
 &nbsp;
 
 * __refresh()__
+
 Move all MFPair in hiddenFeatures to features.
 
 &nbsp;
 
 * __getWholeMinMax()__
+
 Gets Minimum and Maximum of features in features(Array) and hiddenFeatures(Array).
+
 &nbsp;
+
 Return : `Object`
 ```js
 {
@@ -66,6 +73,7 @@ Return : `Object`
 &nbsp;
 
 * __setColor(id, color)__
+
 Set Cesium.Color corresponding to Moving Feature.
 
 
@@ -78,6 +86,7 @@ Set Cesium.Color corresponding to Moving Feature.
 &nbsp;
 
 * __spliceByTime(start, end)__
+
 Move MFPair whose feature have datetimes from start to end to features. Otherwise, move to hiddenFeatures.
 
 
@@ -89,6 +98,7 @@ Move MFPair whose feature have datetimes from start to end to features. Otherwis
 &nbsp;
 
 * __getAllPropertyType()__
+
 Gets all type of movingfeatures.
 &nbsp;
 Return : `Array` of property name
@@ -96,11 +106,13 @@ Return : `Array` of property name
 &nbsp;
 
 * __reset()__
+
 Remove all pairs in features and hiddenFeatures.
 
 &nbsp;
 
 * __hide(id)__
+
 Move MFPair to hiddenFeatures
 
 
@@ -111,6 +123,7 @@ Move MFPair to hiddenFeatures
 &nbsp;
 
 * __hideAll(id)__
+
 Move All MFPair in features to hiddenFeatures except one pair.
 
 

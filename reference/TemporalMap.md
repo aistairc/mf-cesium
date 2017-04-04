@@ -10,9 +10,9 @@ console.log(stinuum.temporalMap);
 
 ## Methods
 
-* show(id, propertyName)
+* __show(id, propertyName)__
+
 If Moving Feature whose id is in the features, then show TemporalMap of Moving Feature.
-&nbsp;
 
 Example:
 ```js

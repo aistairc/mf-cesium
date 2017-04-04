@@ -11,9 +11,7 @@ There is no member that user can access.
 
 ## Methods
 
-* show(propertyName, divID)
-
-&nbsp;
+* __show(propertyName, divID)__
 
 Example :
 ```js

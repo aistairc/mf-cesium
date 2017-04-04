@@ -20,6 +20,7 @@ Analyze data in features and visualize.
 |   degree  |  Object   |  ```{ x : 5, y : 5, time : 5 }```      |  (optional) degree to show occurrence cube.      |
 
 degree :
+
 | Name | Type | Description |
 | ---------- | :---------- | :---------- |
 |   x  |  Number   |  degree of x(longitude) to show occurrence cube.      |
