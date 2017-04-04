@@ -4,7 +4,14 @@
 
 # Stinuum
 
-Stinuum is open API for JavaScript. You can visualize and analyze Moving Features JSON Data . Stinuum Description...
+Stinuum is open API for JavaScript. You can visualize and analyze moving objects on [Cesium](https://cesiumjs.org).  
+Stinuum imports OGC Moving Features JSON Data and supports animated maps as well as static maps and a space-time cube for navigating the trajectory of moving objects over space and time. The main characteristics of Stinuum are as follows:
+- Diverse movements
+- Multiscale data analysis
+- Highly accessibility and lightweight deployment
+
+## OGC Moving Features Encoding Extension - JSON
+https://ksookim.github.io/mf-json/
 
 - - -
 
@@ -37,9 +44,6 @@ Otherwise, drag and drop json file.
 ## Development Your Program
 
 Download stinuum.js and add ``` <script src="stinuum.js"></script>``` your html file.
-
-## OGC Moving Features Encoding Extension - JSON
-https://ksookim.github.io/mf-json/
 
 - - -
 
