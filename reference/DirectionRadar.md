@@ -10,10 +10,15 @@ console.log(stinuum.directionRadar);
 
 ## Methods
 
-* `static` drawBackRadar(canvasID)
+* `static` ___drawBackRadar(canvasID)___
+
 Before drawing radar calculated, method draws background radar made by green dashed line.
-&nbsp;
-  Example :
+
+| Name | Type | Default | Description |
+| ---------- | :--------- | :---------- | :---------- |
+|   canvasID  |  String   |        |  Id of `canvas` tag.     |
+
+Example :
 
 ```js
 <canvas id="radar"></canvas>
@@ -21,16 +26,18 @@ Before drawing radar calculated, method draws background radar made by green das
 Stinuum.DirectionRadar.drawBackRadar('radar');
 ```
 
+
+&nbsp;
+
+* __show(canvasID)__
+
+Calculate direction information of features in [Stinuum.mfCollection](https://github.com/aistairc/mf-cesium/blob/master/reference/MFCollection.md) and show radar to canvas. Browser should support canvas in order to draw DirectionRadar.
+
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
 |   canvasID  |  String   |        |  Id of `canvas` tag.     |
 
 
-&nbsp;
-
-* show(canvasID)
-Calculate direction information of features in [Stinuum.mfCollection](https://github.com/aistairc/mf-cesium/blob/master/reference/MFCollection.md) and show radar to canvas. Browser should support canvas in order to draw DirectionRadar.
-&nbsp;
 Example :
 
 ```js
@@ -39,14 +46,11 @@ Example :
 stinuum.directionRadar.show('radar');
 ```
 
-| Name | Type | Default | Description |
-| ---------- | :--------- | :---------- | :---------- |
-|   canvasID  |  String   |        |  Id of `canvas` tag.     |
-
 
 &nbsp;
 
-* remove(canvasID)
+* __remove(canvasID)__
+
 Hidden Radar.
 
 | Name | Type | Default | Description |
