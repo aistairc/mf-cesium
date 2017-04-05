@@ -1,5 +1,7 @@
 # Stinuum.MFCollection
 
+To Contain Moving Feature Data in Stinuum Object and determine which features will be visualized.
+
 ```js
 var stinuum = new Stinuum(viewer);
 console.log(stinuum.geometryViewer);
@@ -19,7 +21,7 @@ Array of pairs who consist of Moving Feature object hidden present and id.
 
 * __add(mf, id)__
 
-Push new [MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) into features.
+Push new [MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) into __features__.
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
@@ -30,7 +32,7 @@ Push new [MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/refe
 
 * __remove(mf)__
 
-If mf is in features or hiddenFeatures, then remove its [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) from that array.
+If mf is in __features__ or __hiddenFeatures__, then remove its [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) from that array.
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
@@ -40,7 +42,7 @@ If mf is in features or hiddenFeatures, then remove its [MFPair](https://github.
 
 * __removeById(id)__
 
-Remove  [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) that has passed id.
+Remove  [__MFPair__](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) that has passed id.
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
@@ -50,13 +52,13 @@ Remove  [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFP
 
 * __refresh()__
 
-Move all MFPair in hiddenFeatures to features.
+Move all __MFPair__ in hiddenFeatures to __features__.
 
 &nbsp;
 
 * __getWholeMinMax()__
 
-Gets Minimum and Maximum of features in features(Array) and hiddenFeatures(Array).
+Get Minimum and Maximum of feature of each __MFPair__ in __features__ and __hiddenFeatures__.
 
 &nbsp;
 
@@ -74,20 +76,20 @@ Return : `Object`
 
 * __setColor(id, color)__
 
-Set Cesium.Color corresponding to Moving Feature.
+Set __Cesium.Color__ corresponding to the Moving Feature if you want certain color. But, Stinuum automatically determine colors of features, so we recommend that you do not invoke this method except special cases.
 
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
 |   id  |  String   |        |   Identifier of feature    |
-| color | Cesium.Color | | color value|
+| color | Cesium.Color | | color value |
 
 
 &nbsp;
 
 * __spliceByTime(start, end)__
 
-Move MFPair whose feature have datetimes from start to end to features. Otherwise, move to hiddenFeatures.
+Move __MFPair__ whose feature have datetimes from start to end to __features__. Otherwise, move to __hiddenFeatures__.
 
 
 | Name | Type | Default | Description |
@@ -99,21 +101,28 @@ Move MFPair whose feature have datetimes from start to end to features. Otherwis
 
 * __getAllPropertyType()__
 
-Gets all type of movingfeatures.
-&nbsp;
-Return : `Array` of property name
+Gets all type of Moving Features.
+
+Return : `Array of String`
+
+Example :
+
+```js
+var arr = stinuum.mfCollection.getAllPropertyType();
+arr.toString(); //['speed','temperature',...]
+```
 
 &nbsp;
 
 * __reset()__
 
-Remove all pairs in features and hiddenFeatures.
+Remove all pairs in __features__ and __hiddenFeatures__.
 
 &nbsp;
 
 * __hide(id)__
 
-Move MFPair to hiddenFeatures
+Move __MFPair__ to __hiddenFeatures__. The feature of that pair will not be drawn and removed during next __Stinuum.geometryViewer.update()__.
 
 
 | Name | Type | Default | Description |
@@ -124,7 +133,7 @@ Move MFPair to hiddenFeatures
 
 * __hideAll(id)__
 
-Move All MFPair in features to hiddenFeatures except one pair.
+Move All __MFPair__ in __features__ to __hiddenFeatures__ except one pair corresponding to passed id.
 
 
 | Name | Type | Default | Description |
