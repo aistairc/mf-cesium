@@ -13,7 +13,7 @@ There is no member that user can access.
 
 * __show(degree)__
 
-Analyze data in features and visualize.
+Analyze data in __Stinuum.mfCollection.features__ and visualize results. 
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
@@ -31,4 +31,4 @@ degree :
 
 * __remove()__
 
-Remove OccurrenceMap.
+Remove OccurrenceMap if it is being visualized.
