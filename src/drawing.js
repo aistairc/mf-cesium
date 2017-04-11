@@ -1,5 +1,5 @@
 
-PathDrawing.prototype.drawMovingPoint = function(options){
+Stinuum.PathDrawing.prototype.drawMovingPoint = function(options){
 
   var geometry = options.temporalGeometry;
   var id = options.id;
@@ -24,7 +24,7 @@ PathDrawing.prototype.drawMovingPoint = function(options){
   return pointCollection;
 }
 
-PathDrawing.prototype.drawMovingLineString = function(options){
+Stinuum.PathDrawing.prototype.drawMovingLineString = function(options){
   var geometry = options.temporalGeometry;
   var id = options.id;
 
@@ -46,7 +46,7 @@ PathDrawing.prototype.drawMovingLineString = function(options){
   return polylineCollection;
 }
 
-PathDrawing.prototype.drawMovingPolygon = function(options){
+Stinuum.PathDrawing.prototype.drawMovingPolygon = function(options){
 
   var geometry = options.temporalGeometry;
   var id = options.id;
@@ -90,7 +90,7 @@ PathDrawing.prototype.drawMovingPolygon = function(options){
 
 
 
-PathDrawing.prototype.drawPathMovingPoint = function(options){
+Stinuum.PathDrawing.prototype.drawPathMovingPoint = function(options){
   var instances = [];
   var color = this.supersuper.mfCollection.getColor(options.id);
 
@@ -169,7 +169,7 @@ PathDrawing.prototype.drawPathMovingPoint = function(options){
 
 }
 
-PathDrawing.prototype.drawPathMovingPolygon = function(options){
+Stinuum.PathDrawing.prototype.drawPathMovingPolygon = function(options){
   var geometry = options.temporalGeometry;
   var property = options.temporalProperty;
 
@@ -253,7 +253,7 @@ PathDrawing.prototype.drawPathMovingPolygon = function(options){
 
 }
 
-PathDrawing.prototype.drawPathMovingLineString = function(options){
+Stinuum.PathDrawing.prototype.drawPathMovingLineString = function(options){
   return 0;
   //TODO
   // var trianlgeCollection = new Cesium.PrimitiveCollection();
@@ -299,7 +299,7 @@ PathDrawing.prototype.drawPathMovingLineString = function(options){
   // return trianlgeCollection;
 }
 
-PathDrawing.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, height2, color){
+Stinuum.PathDrawing.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, height2, color){
   var instances = [];
   var i=0,
   j=0;

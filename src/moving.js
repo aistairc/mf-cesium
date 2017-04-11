@@ -1,4 +1,4 @@
-MovementDrawing.prototype.moveMovingPoint = function(options){
+Stinuum.MovementDrawing.prototype.moveMovingPoint = function(options){
   var czml = [];
 
   var geometry = options.temporalGeometry;
@@ -110,7 +110,7 @@ MovementDrawing.prototype.moveMovingPoint = function(options){
   return czml;
 }
 
-MovementDrawing.prototype.moveMovingPolygon =function(options){
+Stinuum.MovementDrawing.prototype.moveMovingPolygon =function(options){
   var geometry = options.temporalGeometry,
   number = options.number;
   var multiplier = 10000;
@@ -254,7 +254,7 @@ MovementDrawing.prototype.moveMovingPolygon =function(options){
   return czml;
 }
 
-MovementDrawing.prototype.moveMovingLineString = function(options){
+Stinuum.MovementDrawing.prototype.moveMovingLineString = function(options){
   var czml = [];
   var geometry = options.temporalGeometry;
   var number = options.number

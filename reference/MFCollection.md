@@ -21,7 +21,8 @@ Array of pairs who consist of Moving Feature object hidden present and id.
 
 * __add(mf, id)__
 
-Push new [MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) into __features__.
+Push new [Stinuum.MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/reference/Stinuum.MFPair.md) into __features__.
+
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
@@ -32,7 +33,8 @@ Push new [MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/refe
 
 * __remove(mf)__
 
-If mf is in __features__ or __hiddenFeatures__, then remove its [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) from that array.
+If mf is in __features__ or __hiddenFeatures__, then remove its [Stinuum.MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/Stinuum.MFPair.md) from that array.
+
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
@@ -42,7 +44,8 @@ If mf is in __features__ or __hiddenFeatures__, then remove its [MFPair](https:/
 
 * __removeById(id)__
 
-Remove  [__MFPair__](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) that has passed id.
+Remove  [Stinuum.MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/Stinuum.MFPair.md) that has passed id.
+
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
@@ -52,7 +55,8 @@ Remove  [__MFPair__](https://github.com/aistairc/mf-cesium/blob/master/reference
 
 * __refresh()__
 
-Move all __MFPair__ in hiddenFeatures to __features__.
+Move all __Stinuum.MFPair__ in hiddenFeatures to __features__.
+
 
 &nbsp;
 
@@ -89,7 +93,8 @@ Set __Cesium.Color__ corresponding to the Moving Feature if you want certain col
 
 * __spliceByTime(start, end)__
 
-Move __MFPair__ whose feature have datetimes from start to end to __features__. Otherwise, move to __hiddenFeatures__.
+Move __Stinuum.MFPair__ whose feature have datetimes from start to end to __features__. Otherwise, move to __hiddenFeatures__.
+
 
 
 | Name | Type | Default | Description |
@@ -122,7 +127,8 @@ Remove all pairs in __features__ and __hiddenFeatures__.
 
 * __hide(id)__
 
-Move __MFPair__ to __hiddenFeatures__. The feature of that pair will not be drawn and removed during next __Stinuum.geometryViewer.update()__.
+Move __Stinuum.MFPair__ to __hiddenFeatures__. The feature of that pair will not be drawn and removed during next __Stinuum.geometryViewer.update()__.
+
 
 
 | Name | Type | Default | Description |
@@ -133,7 +139,7 @@ Move __MFPair__ to __hiddenFeatures__. The feature of that pair will not be draw
 
 * __hideAll(id)__
 
-Move All __MFPair__ in __features__ to __hiddenFeatures__ except one pair corresponding to passed id.
+Move All __Stinuum.MFPair__ in __features__ to __hiddenFeatures__ except one pair corresponding to passed id.
 
 
 | Name | Type | Default | Description |
