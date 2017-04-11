@@ -51,7 +51,7 @@ stinuum.directionRadar.show('radar');
 
 * __remove(canvasID)__
 
-Hidden Radar.
+hide Radar.
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
