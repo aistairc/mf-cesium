@@ -1,7 +1,7 @@
-# MFPair
+# Stinuum.MFPair
 
 ```js
-new MFPair(id, feature);
+new Stinuum.MFPair(id, feature);
 ```
 
 ## Members

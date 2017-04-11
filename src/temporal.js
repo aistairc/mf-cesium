@@ -1,4 +1,4 @@
-TemporalMap.prototype.show = function(mf_id,propertyName){
+Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
   var pro_name = propertyName;
 
   var mf = this.super.mfCollection.getFeatureById(mf_id);

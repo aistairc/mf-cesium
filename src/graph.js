@@ -1,5 +1,5 @@
 
-PropertyGraph.prototype.show = function(propertyName, divID){
+Stinuum.PropertyGraph.prototype.show = function(propertyName, divID){
   var pro_arr = [];
   for (var i = 0 ; i < this.super.mfCollection.features.length ; i ++){
     var pair = this.super.mfCollection.features[i];
@@ -15,7 +15,7 @@ PropertyGraph.prototype.show = function(propertyName, divID){
   this.showPropertyArray(propertyName, pro_arr, divID);
 }
 
-PropertyGraph.prototype.showPropertyArray = function(propertyName, array, div_id){
+Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array, div_id){
 
 
   document.getElementById(div_id).innerHTML = '';

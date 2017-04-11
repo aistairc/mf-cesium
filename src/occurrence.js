@@ -1,5 +1,5 @@
 
-OccurrenceMap.prototype.show = function(degree){
+Stinuum.OccurrenceMap.prototype.show = function(degree){
   if (degree == undefined){
     degree = {};
     degree.x = 5;
@@ -101,7 +101,7 @@ OccurrenceMap.prototype.show = function(degree){
 
 }
 
-OccurrenceMap.prototype.remove = function(){
+Stinuum.OccurrenceMap.prototype.remove = function(){
   if (this.primitive !=  null){
     this.super.cesiumViewer.scene.primitives.remove(this.primitive);
     this.primitive = null;
@@ -109,7 +109,7 @@ OccurrenceMap.prototype.remove = function(){
 }
 
 
-OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data){
+Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data){
   var min_max = this.super.mfCollection.min_max;
 
   var x_deg = degree.x,
@@ -172,7 +172,7 @@ OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, 
 
 }
 
-OccurrenceMap.prototype.draw2DHeatMapMovingLineString = function(geometry, degree, map_data){
+Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingLineString = function(geometry, degree, map_data){
   var min_max = this.super.mfCollection.min_max;
 
   var x_deg = degree.x,
@@ -238,7 +238,7 @@ OccurrenceMap.prototype.draw2DHeatMapMovingLineString = function(geometry, degre
 
 }
 
-OccurrenceMap.prototype.draw2DHeatMapMovingPoint = function(geometry, degree, map_data){
+Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPoint = function(geometry, degree, map_data){
   var min_max = this.super.mfCollection.min_max;
 
   var x_deg = degree.x,
@@ -287,7 +287,7 @@ OccurrenceMap.prototype.draw2DHeatMapMovingPoint = function(geometry, degree, ma
 
 }
 
-OccurrenceMap.prototype.makeMap = function(degree, map_data){
+Stinuum.OccurrenceMap.prototype.makeMap = function(degree, map_data){
   //var boxCollection = new Cesium.PrimitiveCollection();
   var num = 0;
   var data = map_data;
@@ -331,7 +331,7 @@ OccurrenceMap.prototype.makeMap = function(degree, map_data){
 }
 
 
-OccurrenceMap.prototype.makeBasicMap = function(degree){
+Stinuum.OccurrenceMap.prototype.makeBasicMap = function(degree){
   var x_deg = degree.x,
   y_deg = degree.y;
 
@@ -353,7 +353,7 @@ OccurrenceMap.prototype.makeBasicMap = function(degree){
   return cube_data;
 }
 
-OccurrenceMap.prototype.makeBasicCube = function(degree){
+Stinuum.OccurrenceMap.prototype.makeBasicCube = function(degree){
   var min_max = this.super.mfCollection.min_max;
   var cube_data = [];
 
@@ -391,7 +391,7 @@ OccurrenceMap.prototype.makeBasicCube = function(degree){
   return cube_data;
 }
 
-OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data){
+Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data){
   var min_max = this.super.mfCollection.min_max;
 
   var x_deg = degree.x,
@@ -505,7 +505,7 @@ OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, 
 
 }
 
-OccurrenceMap.prototype.draw3DHeatMapMovingPoint = function(geometry, degree, cube_data){
+Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPoint = function(geometry, degree, cube_data){
   var min_max = this.super.mfCollection.min_max;
 
   var x_deg = degree.x,
@@ -569,7 +569,7 @@ OccurrenceMap.prototype.draw3DHeatMapMovingPoint = function(geometry, degree, cu
   this.max_num = Math.max(max_num,this.max_num);
 }
 
-OccurrenceMap.prototype.draw3DHeatMapMovingLineString = function(geometry, degree, cube_data){
+Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingLineString = function(geometry, degree, cube_data){
   var min_max = this.super.mfCollection.min_max;
 
   var x_deg = degree.x,
@@ -655,7 +655,7 @@ OccurrenceMap.prototype.draw3DHeatMapMovingLineString = function(geometry, degre
   this.max_num = Math.max(max_num,this.max_num);
 }
 
-OccurrenceMap.prototype.makeCube = function(degree, cube_data){
+Stinuum.OccurrenceMap.prototype.makeCube = function(degree, cube_data){
   var boxCollection = new Cesium.PrimitiveCollection();
   var num = 0;
   var data = cube_data;
@@ -674,7 +674,7 @@ OccurrenceMap.prototype.makeCube = function(degree, cube_data){
       for (var y = 0 ; y < data[z].count[x].length ; y++){
         var count = data[z].count[x][y];
 
-        var positions = new BoxCoord();
+        var positions = new Stinuum.BoxCoord();
         positions.minimum.x = min_max.x[0] + x_deg * x;
         positions.maximum.x = min_max.x[0] + x_deg * (x + 1);
         positions.minimum.y = min_max.y[0] + y_deg * y;

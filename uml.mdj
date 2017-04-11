@@ -2564,7 +2564,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "+hiddenFeatures: MFPair[*]",
+											"text": "+hiddenFeatures: Stinuum.MFPair[*]",
 											"horizontalAlignment": 0,
 											"verticalAlignment": 5,
 											"wordWrap": false
@@ -2593,7 +2593,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "+features: MFPair[*]",
+											"text": "+features: Stinuum.MFPair[*]",
 											"horizontalAlignment": 0,
 											"verticalAlignment": 5,
 											"wordWrap": false
@@ -6136,7 +6136,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "MFPair",
+											"text": "Stinuum.MFPair",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5,
 											"wordWrap": false
@@ -6905,7 +6905,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "PathDrawing",
+											"text": "Stinuum.PathDrawing",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5,
 											"wordWrap": false
@@ -7193,7 +7193,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "MovementDrawing",
+											"text": "Stinuum.MovementDrawing",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5,
 											"wordWrap": false
@@ -9217,7 +9217,7 @@
 							"visibility": "public",
 							"isStatic": false,
 							"isLeaf": false,
-							"type": "MFPair",
+							"type": "Stinuum.MFPair",
 							"multiplicity": "*",
 							"isReadOnly": false,
 							"isOrdered": false,
@@ -9236,7 +9236,7 @@
 							"visibility": "public",
 							"isStatic": false,
 							"isLeaf": false,
-							"type": "MFPair",
+							"type": "Stinuum.MFPair",
 							"multiplicity": "*",
 							"isReadOnly": false,
 							"isOrdered": false,
@@ -9800,7 +9800,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "MFPair",
+					"name": "Stinuum.MFPair",
 					"ownedElements": [
 						{
 							"_type": "UMLAssociation",
@@ -9896,7 +9896,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "PathDrawing",
+					"name": "Stinuum.PathDrawing",
 					"ownedElements": [
 						{
 							"_type": "UMLAssociation",
@@ -9956,7 +9956,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "MovementDrawing",
+					"name": "Stinuum.MovementDrawing",
 					"ownedElements": [
 						{
 							"_type": "UMLAssociation",
