@@ -1,4 +1,4 @@
-MFCollection.prototype.add= function(mf, id){
+Stinuum.MFCollection.prototype.add= function(mf, id){
     if (Array.isArray(mf)){
       for (var i = 0 ; i < mf.length ; i++){
         this.add(mf[i]);
@@ -23,16 +23,16 @@ MFCollection.prototype.add= function(mf, id){
         return -1;
       }
       if (id != undefined){
-        this.features.push(new MFPair(id, mf));
+        this.features.push(new Stinuum.MFPair(id, mf));
       }
       else{
-        this.features.push(new MFPair(mf.properties.name, mf));
+        this.features.push(new Stinuum.MFPair(mf.properties.name, mf));
       }
     }
 }
 
 
-MFCollection.prototype.remove= function(mf){
+Stinuum.MFCollection.prototype.remove= function(mf){
   var index = this.inFeaturesIndexOf(mf);
   if(index === -1){
     index = this.inHiddenIndexOf(mf);
@@ -50,7 +50,7 @@ MFCollection.prototype.remove= function(mf){
   return 0;
 }
 
-MFCollection.prototype.removeById= function(id){
+Stinuum.MFCollection.prototype.removeById= function(id){
   var index = this.inFeaturesIndexOfById(id);
   if(index === -1){
     index = this.inHiddenIndexOfById(id);
@@ -67,7 +67,7 @@ MFCollection.prototype.removeById= function(id){
   return 0;
 }
 
-MFCollection.prototype.removeByIndexInFeatures= function(index){
+Stinuum.MFCollection.prototype.removeByIndexInFeatures= function(index){
   var remove_pair = this.features.splice(index, 1)[0];
 
   // var prim = this.super.geometryViewer.primitives[remove_pair[0].id];
@@ -79,7 +79,7 @@ MFCollection.prototype.removeByIndexInFeatures= function(index){
   return remove_pair;
 }
 
-MFCollection.prototype.removeByIndexInHidden= function(index){
+Stinuum.MFCollection.prototype.removeByIndexInHidden= function(index){
   var remove_pair = this.hiddenFeatures.splice(index, 1)[0];
 
 
@@ -93,7 +93,7 @@ MFCollection.prototype.removeByIndexInHidden= function(index){
 }
 
 
-MFCollection.prototype.inFeaturesIndexOfById= function(id){
+Stinuum.MFCollection.prototype.inFeaturesIndexOfById= function(id){
   for (var i = 0 ; i < this.features.length ; i++){
     if (this.features[i].id == id){
       return i;
@@ -102,7 +102,7 @@ MFCollection.prototype.inFeaturesIndexOfById= function(id){
   return -1;
 }
 
-MFCollection.prototype.inHiddenIndexOfById= function(id){
+Stinuum.MFCollection.prototype.inHiddenIndexOfById= function(id){
   for (var i = 0 ; i < this.features.length ; i++){
     if (this.hiddenFeatures[i].id == id){
       return i;
@@ -111,7 +111,7 @@ MFCollection.prototype.inHiddenIndexOfById= function(id){
   return -1;
 }
 
-MFCollection.prototype.inFeaturesIndexOf= function(mf){
+Stinuum.MFCollection.prototype.inFeaturesIndexOf= function(mf){
   for (var i = 0 ; i < this.features.length ; i++){
     if (this.features[i].feature == mf){
       return i;
@@ -120,7 +120,7 @@ MFCollection.prototype.inFeaturesIndexOf= function(mf){
   return -1;
 }
 
-MFCollection.prototype.inHiddenIndexOf= function(mf){
+Stinuum.MFCollection.prototype.inHiddenIndexOf= function(mf){
   for (var i = 0 ; i < this.hiddenFeatures.length ; i++){
     if (this.hiddenFeatures[i].feature == mf){
       return i;
@@ -130,7 +130,7 @@ MFCollection.prototype.inHiddenIndexOf= function(mf){
 }
 
 
-MFCollection.prototype.refresh = function(){
+Stinuum.MFCollection.prototype.refresh = function(){
 
   for (var i = 0 ; i < this.hiddenFeatures.length ; i++){
     this.features.push(this.hiddenFeatures[i]);
@@ -140,7 +140,7 @@ MFCollection.prototype.refresh = function(){
 
 }
 
-MFCollection.prototype.findMinMaxGeometry = function(p_mf_arr){
+Stinuum.MFCollection.prototype.findMinMaxGeometry = function(p_mf_arr){
   var mf_arr;
   if (p_mf_arr == undefined){
     mf_arr = this.features;
@@ -205,14 +205,14 @@ MFCollection.prototype.findMinMaxGeometry = function(p_mf_arr){
   return min_max;
 }
 
-MFCollection.prototype.getWholeMinMax = function() {
+Stinuum.MFCollection.prototype.getWholeMinMax = function() {
   var whole_features_pair;
   whole_features_pair = this.features.concat(this.hiddenFeatures);
   this.whole_min_max = this.findMinMaxGeometry(whole_features_pair);
   return this.whole_min_max;
 }
 
-MFCollection.prototype.getColor = function(id){
+Stinuum.MFCollection.prototype.getColor = function(id){
   if (this.colorCollection[id] != undefined){
     return this.colorCollection[id];
   }
@@ -226,11 +226,11 @@ MFCollection.prototype.getColor = function(id){
   return color;
 }
 
-MFCollection.prototype.setColor = function(id, color){
+Stinuum.MFCollection.prototype.setColor = function(id, color){
   this.colorCollection[id] = color;
 }
 
-MFCollection.prototype.getAllPropertyType = function(){
+Stinuum.MFCollection.prototype.getAllPropertyType = function(){
   var array = [];
   for (var i = 0 ; i < this.features.length ; i++){
     if (this.features[i].feature.temporalProperties == undefined) continue;
@@ -249,7 +249,7 @@ MFCollection.prototype.getAllPropertyType = function(){
   return array;
 }
 
-MFCollection.prototype.spliceByTime = function(start, end){//Date, Date
+Stinuum.MFCollection.prototype.spliceByTime = function(start, end){//Date, Date
 
   var mf_arr = this.features;
   var new_mf_arr = [];
@@ -279,7 +279,7 @@ MFCollection.prototype.spliceByTime = function(start, end){//Date, Date
   this.hiddenFeatures = del_mf_arr;
 }
 
-MFCollection.prototype.getFeatureById = function(id){
+Stinuum.MFCollection.prototype.getFeatureById = function(id){
   var inFeatures = this.getFeatureByIdInFeatures(id);
   if (inFeatures != -1){
     return inFeatures;
@@ -293,7 +293,7 @@ MFCollection.prototype.getFeatureById = function(id){
   return -1;
 }
 
-MFCollection.prototype.getFeatureByIdInFeatures = function(id){
+Stinuum.MFCollection.prototype.getFeatureByIdInFeatures = function(id){
   for (var i = 0 ; i < this.features.length ; i++){
     if (this.features[i].id == id){
       return this.features[i];
@@ -303,7 +303,7 @@ MFCollection.prototype.getFeatureByIdInFeatures = function(id){
   return -1;
 }
 
-MFCollection.prototype.getFeatureByIdinHidden = function(id){
+Stinuum.MFCollection.prototype.getFeatureByIdinHidden = function(id){
   for (var i = 0 ; i < this.hiddenFeatures.length ; i++){
     if (this.hiddenFeatures[i].id == id){
       return this.hiddenFeatures[i];
@@ -313,18 +313,18 @@ MFCollection.prototype.getFeatureByIdinHidden = function(id){
   return -1;
 }
 
-MFCollection.prototype.getLength = function(){
+Stinuum.MFCollection.prototype.getLength = function(){
   return this.features.length;
 }
 
-MFCollection.prototype.reset = function(){
+Stinuum.MFCollection.prototype.reset = function(){
   this.features = [];
   this.hiddenFeatures = [];
   this.colorCollection = [];
 
 }
 
-MFCollection.prototype.hide = function(mf_id){
+Stinuum.MFCollection.prototype.hide = function(mf_id){
   if (this.inFeaturesIndexOfById(mf_id) != -1){
     var index = this.inFeaturesIndexOfById(mf_id);
     var hidden_pair = this.features.splice(index, 1)[0];
@@ -333,7 +333,7 @@ MFCollection.prototype.hide = function(mf_id){
   }
 }
 
-MFCollection.prototype.hideAll = function(mf_id){ //hide All except one mf
+Stinuum.MFCollection.prototype.hideAll = function(mf_id){ //hide All except one mf
   var i = 0;
   while(1){
     if (i == this.features.length){

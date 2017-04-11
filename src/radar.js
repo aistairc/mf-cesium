@@ -1,4 +1,4 @@
-DirectionRadar.prototype.remove = function(canvasID){
+Stinuum.DirectionRadar.prototype.remove = function(canvasID){
   var radar_canvas = document.getElementById(canvasID);
   radar_canvas.innerHTML = '';
   radar_canvas.getContext('2d').clearRect(0, 0, radar_canvas.width, radar_canvas.height);
@@ -6,13 +6,13 @@ DirectionRadar.prototype.remove = function(canvasID){
   this.super.mfCollection.colorCollection = {};
 }
 
-DirectionRadar.prototype.show = function(canvasID){
+Stinuum.DirectionRadar.prototype.show = function(canvasID){
   var radar_canvas = document.getElementById(canvasID);
 
   radar_canvas.innerHTML = '';
   radar_canvas.getContext('2d').clearRect(0, 0, radar_canvas.width, radar_canvas.height);
 
-  var cumulative = new SpatialInfo();
+  var cumulative = new Stinuum.SpatialInfo();
 
   for (var index = 0 ; index < this.super.mfCollection.features.length ; index++){
     var mf = this.super.mfCollection.features[index];
@@ -90,7 +90,7 @@ DirectionRadar.prototype.show = function(canvasID){
   }
 }
 
-DirectionRadar.drawBackRadar = function(radar_id) {
+Stinuum.DirectionRadar.drawBackRadar = function(radar_id) {
     var radar_canvas = document.getElementById(radar_id);
 
     if (radar_canvas.getContext) {
