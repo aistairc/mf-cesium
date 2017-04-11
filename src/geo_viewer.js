@@ -1,4 +1,4 @@
-GeometryViewer.prototype.update = function(options){
+Stinuum.GeometryViewer.prototype.update = function(options){
   this.clear();
   this.super.mfCollection.findMinMaxGeometry();
   this.draw();
@@ -6,7 +6,7 @@ GeometryViewer.prototype.update = function(options){
   this.adjustCameraView();
 }
 
-GeometryViewer.prototype.clear = function(){
+Stinuum.GeometryViewer.prototype.clear = function(){
   this.super.cesiumViewer.clock.multiplier = 10;
   this.super.cesiumViewer.dataSources.removeAll();
   var temp = this.super.cesiumViewer.scene.primitives.get(0);
@@ -17,7 +17,7 @@ GeometryViewer.prototype.clear = function(){
   this.primitives = {};
 }
 
-GeometryViewer.prototype.draw = function(){
+Stinuum.GeometryViewer.prototype.draw = function(){
   var mf_arr = this.super.mfCollection.features;
 
   if (mf_arr.length == 0){
@@ -78,7 +78,7 @@ GeometryViewer.prototype.draw = function(){
   //this.super.cesiumViewer.camera.flyTo({    destination : this.super.cesiumViewer.camera.position  });
 }
 
-GeometryViewer.prototype.animate = function(options){
+Stinuum.GeometryViewer.prototype.animate = function(options){
   var mf_arr;
   var current_time;
 
@@ -170,7 +170,7 @@ GeometryViewer.prototype.animate = function(options){
   return min_max;
 }
 
-GeometryViewer.prototype.drawZaxis = function(){
+Stinuum.GeometryViewer.prototype.drawZaxis = function(){
   var polylineCollection = new Cesium.PolylineCollection();
   var positions = [179,89,0,179,89,this.super.maxHeight];
 
@@ -190,7 +190,7 @@ GeometryViewer.prototype.drawZaxis = function(){
   return polylineCollection;
 }
 
-GeometryViewer.prototype.drawZaxisLabel = function(){
+Stinuum.GeometryViewer.prototype.drawZaxisLabel = function(){
   var min_max = this.super.mfCollection.min_max;
   var entities = new Cesium.EntityCollection();
   var label = {
@@ -222,7 +222,7 @@ GeometryViewer.prototype.drawZaxisLabel = function(){
 
 }
 
-GeometryViewer.prototype.showProjection = function(id){
+Stinuum.GeometryViewer.prototype.showProjection = function(id){
 
   var mf = this.super.mfCollection.getFeatureById(id).feature;
   var color = this.super.mfCollection.getColor(id);
@@ -279,7 +279,7 @@ GeometryViewer.prototype.showProjection = function(id){
   return prim;
 }
 
-GeometryViewer.prototype.showHeightBar = function(id){
+Stinuum.GeometryViewer.prototype.showHeightBar = function(id){
   var mf = this.super.mfCollection.getFeatureById(id).feature;
   var color = this.super.mfCollection.getColor(id);
 
@@ -322,7 +322,7 @@ GeometryViewer.prototype.showHeightBar = function(id){
   return [prim,time_label];
 }
 
-GeometryViewer.prototype.adjustCameraView = function(){
+Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
   //TODO
   //
   // var bounding = this.bounding_sphere;
@@ -355,7 +355,7 @@ GeometryViewer.prototype.adjustCameraView = function(){
 
 
 
-GeometryViewer.prototype.clickMovingFeature = function(id){
+Stinuum.GeometryViewer.prototype.clickMovingFeature = function(id){
   var geo_viewer = this;
 
   if (id == undefined){

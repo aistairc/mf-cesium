@@ -19,7 +19,7 @@ Array of pairs who consist of Moving Feature object hidden present and id.
 
 * __add(mf, id)__
 
-Push new [MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) into features.
+Push new [Stinuum.MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/reference/Stinuum.MFPair.md) into features.
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
@@ -30,7 +30,7 @@ Push new [MFPair(id, mf)](https://github.com/aistairc/mf-cesium/blob/master/refe
 
 * __remove(mf)__
 
-If mf is in features or hiddenFeatures, then remove its [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) from that array.
+If mf is in features or hiddenFeatures, then remove its [Stinuum.MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/Stinuum.MFPair.md) from that array.
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
@@ -40,7 +40,7 @@ If mf is in features or hiddenFeatures, then remove its [MFPair](https://github.
 
 * __removeById(id)__
 
-Remove  [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFPair.md) that has passed id.
+Remove  [Stinuum.MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/Stinuum.MFPair.md) that has passed id.
 
 | Name | Type | Default | Description |
 | ---------- | :--------- | :---------- | :---------- |
@@ -50,7 +50,7 @@ Remove  [MFPair](https://github.com/aistairc/mf-cesium/blob/master/reference/MFP
 
 * __refresh()__
 
-Move all MFPair in hiddenFeatures to features.
+Move all Stinuum.MFPair in hiddenFeatures to features.
 
 &nbsp;
 
@@ -87,7 +87,7 @@ Set Cesium.Color corresponding to Moving Feature.
 
 * __spliceByTime(start, end)__
 
-Move MFPair whose feature have datetimes from start to end to features. Otherwise, move to hiddenFeatures.
+Move Stinuum.MFPair whose feature have datetimes from start to end to features. Otherwise, move to hiddenFeatures.
 
 
 | Name | Type | Default | Description |
@@ -113,7 +113,7 @@ Remove all pairs in features and hiddenFeatures.
 
 * __hide(id)__
 
-Move MFPair to hiddenFeatures
+Move Stinuum.MFPair to hiddenFeatures
 
 
 | Name | Type | Default | Description |
@@ -124,7 +124,7 @@ Move MFPair to hiddenFeatures
 
 * __hideAll(id)__
 
-Move All MFPair in features to hiddenFeatures except one pair.
+Move All Stinuum.MFPair in features to hiddenFeatures except one pair.
 
 
 | Name | Type | Default | Description |

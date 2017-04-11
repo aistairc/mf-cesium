@@ -70,7 +70,7 @@ var setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
       }
       else{
         glo_stinuum.directionRadar.remove(canvas);
-        DirectionRadar.drawBackRadar(canvas);
+        Stinuum.DirectionRadar.drawBackRadar(canvas);
         radar_on = false;
       }
 
@@ -92,7 +92,7 @@ var setAnalysisDIV = function(div_id, graph_id, radar_id = 'radar'){
   radar_canvas.style.zIndex = '21';
   radar_canvas.style.right = '5px';
 
-  DirectionRadar.drawBackRadar('radar');
+  Stinuum.DirectionRadar.drawBackRadar('radar');
   document.getElementById(graph_id).style.height = '0%';
   if (document.getElementById('pro_menu')) {
       document.getElementById('pro_menu').remove();
