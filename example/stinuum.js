@@ -284,10 +284,10 @@ Stinuum.PathDrawing.prototype.drawPathMovingPolygon = function(options){
   }
 
   if (geometry.interpolations[0] == 'Stepwise' && this.supersuper.mode == 'STATICMAP'){
-    return this.drawMovingPoint(options);
+    return this.drawMovingPolygon(options);
   }
 
-  if (this.supersuper.mode == 'STATICMAP' || this.supersuper.mode == 'ANIMATEDMAP'){
+  if (this.supersuper.mode == 'STATICMAP'){
     color = this.supersuper.mfCollection.getColor(options.id).withAlpha(0.2);
   }
 
@@ -344,153 +344,88 @@ Stinuum.PathDrawing.prototype.drawPathMovingPolygon = function(options){
 }
 
 Stinuum.PathDrawing.prototype.drawPathMovingLineString = function(options){
-  return 0;
-  //TODO
-  // var trianlgeCollection = new Cesium.PrimitiveCollection();
-  //
-  // var data = options.temporalGeometry;
-  // var property = options.temporalProperty;
-  //
-  // var pro_min_max = null;
-  // if (property != undefined){
-  //   pro_min_max = Stinuum.findMinMaxProperties(property);
-  // }
-  //
-  // var color = this.supersuper.mfCollection.getColor(options.id).withAlpha(0.7);
-  //
-  // var heights = this.supersuper.getListOfHeight(data.datetimes);
-  //
-  // var coord_arr = data.coordinates;
-  // for (var i = 0; i < coord_arr.length ; i++){
-  //
-  //   if (i == 0){
-  //     pre_polyline = coord_arr[0];
-  //     continue;
-  //   }
-  //
-  //   if (property != undefined){
-  //     var middle_value = (property.values[i] + property.values[i+1]) / 2;
-  //     var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
-  //     if (blue_rate < 0.2){
-  //       blue_rate = 0.2;
-  //     }
-  //     if (blue_rate > 0.9){
-  //       blue_rate = 0.9;
-  //     }
-  //
-  //     color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
-  //   }
-  //
-  //   trianlgeCollection.add(this.drawTrinaglesWithNextPos(pre_polyline, coord_arr[i], heights[i-1], heights[i], color));
-  //
-  //   pre_polyline = coord_arr[i];
-  // }
-  //
-  // return trianlgeCollection;
-}
+  var geometry = options.temporalGeometry;
+  var property = options.temporalProperty;
 
-Stinuum.PathDrawing.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, height2, color){
-  var instances = [];
-  var i=0,
-  j=0;
+  var coordinates = geometry.coordinates;
+  var datetimes = geometry.datetimes;
 
-  var with_height = (this.supersuper.mode == 'SPACETIME');
-
-  while ( i < line_1.length - 1 && j < line_2.length - 1){
-    var new_color;
-    if (color == undefined){
-      new_color = Cesium.Color.fromRandom({
-        minimumRed : 0.8,
-        minimumBlue : 0.8,
-        minimumGreen : 0.8,
-        alpha : 0.4
-      });
-    }
-    else{
-      new_color = color;
-    }
-
-    var positions = [];
-    var point_1 = line_1[i];
-    var point_2 = line_2[j];
-
-    var next_point_1 = line_1[i+1];
-    var next_point_2 = line_2[j+1];
-
-    point_1.push(height1);
-    positions.push(point_1);
-    point_2.push(height2);
-    positions.push(point_2);
-
-    var dist1 = Stinuum.euclidianDistance2D(point_1, next_point_2);
-    var dist2 = Stinuum.euclidianDistance2D(point_2, next_point_1);
-
-    if (dist1 > dist2){
-      next_point_1.push(height1);
-      positions.push(next_point_1);
-      i++;
-    }
-    else{
-      next_point_2.push(height2);
-      positions.push(next_point_2);
-      j++;
-    }
-    instances.push(Stinuum.drawOnePolygon(positions,null,with_height,new_color));
+  var pro_min_max = null;
+  if (property != undefined){
+    pro_min_max = Stinuum.findMinMaxProperties(property);
   }
 
-  while (i < line_1.length - 1 || j < line_2.length - 1){
-    var new_color;
-    if (color == undefined){
-      new_color = Cesium.Color.fromRandom({
-        minimumRed : 0.6,
-        minimumBlue : 0.0,
-        minimumGreen : 0.0,
-        alpha : 0.4
-      });
-    }
-    else{
-      new_color = color;
-    }
+  var geoInstance;
+  var surface = [];
+  var surface_primitive;
 
-    var positions = [];
-    var point_1 = line_1[i];
-    var point_2 = line_2[j];
+  var heights = this.supersuper.getListOfHeight(datetimes);
 
-    point_1.push(height1);
-    positions.push(point_1);
-    point_2.push(height2);
-    positions.push(point_2);
+  var color = this.supersuper.mfCollection.getColor(options.id).withAlpha(0.6);
 
-
-    if (i == line_1.length - 1){
-      var next_point = line_2[j+1];
-      next_point.push(height2);
-      positions.push(next_point);
-      j++;
-    }
-    else if (j == line_2.length - 1){
-      var next_point = line_1[i+1];
-      next_point.push(height1);
-      positions.push(next_point);
-      i++;
-    }
-    else {
-      alert("error");
-    }
-    instances.push(Stinuum.drawOnePolygon(positions,null,with_height,new_color));
+  if (geometry.interpolations[0] == 'Discrete'){
+    return this.drawMovingLineString(options);
   }
 
-  var temp = new Cesium.Primitive({
-    geometryInstances : instances,
-    appearance : new Cesium.PerInstanceColorAppearance({   }),
-    show : true
+  if (geometry.interpolations[0] == 'Stepwise' && this.supersuper.mode == 'STATICMAP'){
+    return this.drawMovingLineString(options);
+  }
+
+  if (this.supersuper.mode == 'STATICMAP'){
+    color = this.supersuper.mfCollection.getColor(options.id).withAlpha(0.2);
+  }
+
+  for (var i = 0; i < coordinates.length - 1; i++) {
+    var io = 0;
+    for (var j = 0; j < coordinates[i][io].length - 1 ; j++) {
+      var temp_poly = new Array();
+      var temp_point = new Array();
+      var first = coordinates[i][io][j];
+      var sec = coordinates[i + 1][io][j];
+      var third = coordinates[i + 1][io][j + 1];
+      var forth = coordinates[i][io][j + 1];
+
+      if (property != undefined){
+        var middle_value = (property.values[i] + property.values[i+1]) / 2;
+        var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+        if (blue_rate < 0.2){
+          blue_rate = 0.2;
+        }
+        if (blue_rate > 0.9){
+          blue_rate = 0.9;
+        }
+
+        color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
+      }
+
+      if (this.supersuper.mode == 'SPACETIME'){
+        if (geometry.interpolations[0] == 'Stepwise'){
+          temp_poly.push([first[0], first[1], heights[i]], [first[0], first[1], heights[i+1]],[forth[0], forth[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
+        }
+        else{
+          temp_poly.push([first[0], first[1], heights[i]], [sec[0], sec[1], heights[i+1]],[third[0], third[1], heights[i+1]], [forth[0], forth[1], heights[i]]);
+        }
+
+      }else{
+        temp_poly.push([first[0], first[1], 0], [sec[0], sec[1], 0], [third[0], third[1], 0], [forth[0], forth[1], 0]);
+      }
+
+      geoInstance = Stinuum.drawOnePolygon(temp_poly, null, this.supersuper.mode == 'SPACETIME', color);
+
+      surface.push(geoInstance);
+    }
+
+  }
+
+  var surface_primitive = new Cesium.Primitive({
+    geometryInstances: surface,
+    appearance: new Cesium.PerInstanceColorAppearance()
   });
 
-
-  return temp;
+  surface_primitive.id = options.id;
+  return surface_primitive;
 
 }
-
 
 Stinuum.makeDegreesArray = function(pos_2d, height){
   var points = [];
@@ -668,6 +603,157 @@ Stinuum.calcSidesBoxCoord = function(box_coord){
 
   return [x_dist, y_dist, z_dist];
 }
+
+/*
+
+// Stinuum.PathDrawing.prototype.drawPathMovingLineString = function(options){
+//
+//   var trianlgeCollection = new Cesium.PrimitiveCollection();
+//
+//   var data = options.temporalGeometry;
+//   var property = options.temporalProperty;
+//
+//   var pro_min_max = null;
+//   if (property != undefined){
+//     pro_min_max = Stinuum.findMinMaxProperties(property);
+//   }
+//
+//   var color = this.supersuper.mfCollection.getColor(options.id).withAlpha(0.7);
+//
+//   var heights = this.supersuper.getListOfHeight(data.datetimes);
+//
+//   var coord_arr = data.coordinates;
+//   for (var i = 0; i < coord_arr.length ; i++){
+//
+//     if (i == 0){
+//       pre_polyline = coord_arr[0];
+//       continue;
+//     }
+//
+//     if (property != undefined){
+//       var middle_value = (property.values[i] + property.values[i+1]) / 2;
+//       var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+//       if (blue_rate < 0.2){
+//         blue_rate = 0.2;
+//       }
+//       if (blue_rate > 0.9){
+//         blue_rate = 0.9;
+//       }
+//
+//       color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
+//     }
+//
+//     trianlgeCollection.add(this.drawTrinaglesWithNextPos(pre_polyline, coord_arr[i], heights[i-1], heights[i], color));
+//
+//     pre_polyline = coord_arr[i];
+//   }
+//
+//   return trianlgeCollection;
+// }
+
+// Stinuum.PathDrawing.prototype.drawTrinaglesWithNextPos = function(line_1, line_2, height1, height2, color){
+//   var instances = [];
+//   var i=0,
+//   j=0;
+//
+//   var with_height = (this.supersuper.mode == 'SPACETIME');
+//
+//   while ( i < line_1.length - 1 && j < line_2.length - 1){
+//     var new_color;
+//     if (color == undefined){
+//       new_color = Cesium.Color.fromRandom({
+//         minimumRed : 0.8,
+//         minimumBlue : 0.8,
+//         minimumGreen : 0.8,
+//         alpha : 0.4
+//       });
+//     }
+//     else{
+//       new_color = color;
+//     }
+//
+//     var positions = [];
+//     var point_1 = line_1[i];
+//     var point_2 = line_2[j];
+//
+//     var next_point_1 = line_1[i+1];
+//     var next_point_2 = line_2[j+1];
+//
+//     point_1.push(height1);
+//     positions.push(point_1);
+//     point_2.push(height2);
+//     positions.push(point_2);
+//
+//     var dist1 = Stinuum.euclidianDistance2D(point_1, next_point_2);
+//     var dist2 = Stinuum.euclidianDistance2D(point_2, next_point_1);
+//
+//     if (dist1 > dist2){
+//       next_point_1.push(height1);
+//       positions.push(next_point_1);
+//       i++;
+//     }
+//     else{
+//       next_point_2.push(height2);
+//       positions.push(next_point_2);
+//       j++;
+//     }
+//     instances.push(Stinuum.drawOnePolygon(positions,null,with_height,new_color));
+//   }
+//
+//   while (i < line_1.length - 1 || j < line_2.length - 1){
+//     var new_color;
+//     if (color == undefined){
+//       new_color = Cesium.Color.fromRandom({
+//         minimumRed : 0.6,
+//         minimumBlue : 0.0,
+//         minimumGreen : 0.0,
+//         alpha : 0.4
+//       });
+//     }
+//     else{
+//       new_color = color;
+//     }
+//
+//     var positions = [];
+//     var point_1 = line_1[i];
+//     var point_2 = line_2[j];
+//
+//     point_1.push(height1);
+//     positions.push(point_1);
+//     point_2.push(height2);
+//     positions.push(point_2);
+//
+//
+//     if (i == line_1.length - 1){
+//       var next_point = line_2[j+1];
+//       next_point.push(height2);
+//       positions.push(next_point);
+//       j++;
+//     }
+//     else if (j == line_2.length - 1){
+//       var next_point = line_1[i+1];
+//       next_point.push(height1);
+//       positions.push(next_point);
+//       i++;
+//     }
+//     else {
+//       alert("error");
+//     }
+//     instances.push(Stinuum.drawOnePolygon(positions,null,with_height,new_color));
+//   }
+//
+//   var temp = new Cesium.Primitive({
+//     geometryInstances : instances,
+//     appearance : new Cesium.PerInstanceColorAppearance({   }),
+//     show : true
+//   });
+//
+//
+//   return temp;
+//
+// }
+
+*/
 Stinuum.GeometryViewer.prototype.update = function(options){
   this.clear();
   this.super.mfCollection.findMinMaxGeometry();
