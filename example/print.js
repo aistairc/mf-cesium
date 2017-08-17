@@ -64,7 +64,7 @@ function backButton() {
           document.getElementById('pro_menu').remove();
         stinuum.mfCollection.refresh(); //all hidden -> feature
         drawFeature();
-
+        selectProperty('graph');
 
     } else {
         console.log("nothing to do");
