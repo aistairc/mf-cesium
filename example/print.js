@@ -33,22 +33,24 @@ function backButton() {
     if (printMenuState == "layer") {}
     else if (printMenuState == "features") {
 
-        if(isServer == false){
-            uploadButton.style.visibility = "visible";
-            uploadButton.style.height = "7%";
-            uploadButton.style.padding = "10px";
-        }
+      /*
+      if(isServer == false){
+          uploadButton.style.visibility = "visible";
+          uploadButton.style.height = "7%";
+          uploadButton.style.padding = "10px";
+      }
 
-        var chk_btn = document.getElementById('check_all_buttons');
-        chk_btn.parentNode.removeChild(chk_btn);
-        printMenuState = 'layer';
-        printState.innerText = printMenuState;
-        printArea.innerHTML = "";
-        printArea.appendChild(his_featurelayer);
+      var chk_btn = document.getElementById('check_all_buttons');
+      chk_btn.parentNode.removeChild(chk_btn);
+      printMenuState = 'layer';
+      printState.innerText = printMenuState;
+      printArea.innerHTML = "";
+      printArea.appendChild(his_featurelayer);
+      */
 
     } else if (printMenuState == "feature") {
         printMenuState = 'features';
-        menu.insertBefore(check_button, document.getElementById('featureLayer'));
+      //  menu.insertBefore(check_button, document.getElementById('featureLayer'));
         printState.innerText = printMenuState;
         printedLayer.style.visibility = "visible";
         property_panel.style.visibility = "hidden";
@@ -497,8 +499,13 @@ function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
     var printState = document.getElementById('printMenuState');
     var menu = document.getElementById('menu_list');
 
-    printedLayer.style.visibility = "visible";
+    //printedLayer.style.visibility = "visible";
+    printedLayer.style.visibility = "hidden";
+
     property_panel.style.visibility = "hidden";
+
+
+
     check_all.style.display = "flex";
     check_all.style.position = "absolute";
     check_all.className = "list-group-item";
@@ -536,11 +543,12 @@ function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
 
     check_all.appendChild(unchk_all);
 
-    menu.insertBefore(check_all, document.getElementById('featureLayer'));
-    check_button = check_all;
+    //menu.insertBefore(check_all, document.getElementById('featureLayer'));
+    //check_button = check_all;
     target.className = "list-group-item";
     printMenuState = "features";
-console.log(layerID);
+    console.log(layerID);
+    /*
     if(!layerID.includes("\'")){
 
         printState.innerText = printMenuState + " :" + layerID;
@@ -548,6 +556,7 @@ console.log(layerID);
     else{
       printState.innerText = printMenuState + " :" + parse_layer_name(layerID);
     }
+    */
 
 
     for (var i = 0; i < features_list.length; i++) {
@@ -602,14 +611,14 @@ console.log(layerID);
 }
 
 function printFeature(featureID, data, id) {
-    var chk_btn = document.getElementById('check_all_buttons');
+    //var chk_btn = document.getElementById('check_all_buttons');
     var printState = document.getElementById('printMenuState');
     var property_panel = document.getElementById('property_panel');
     var printedLayers = document.getElementById('layer_list');
     var target = document.createElement('ul');
 
     printMenuState = 'feature';
-    chk_btn.parentNode.removeChild(chk_btn);
+    //chk_btn.parentNode.removeChild(chk_btn);
     printState.innerText = printMenuState + " : " + featureID;
 
     printedLayers.style.visibility = "hidden";
@@ -750,11 +759,14 @@ function drawFeature() { //아이디로 찾을까
     stinuum.geometryViewer.update()
     time_min_max = stinuum.mfCollection.getWholeMinMax();
     time_min_max = time_min_max.date;
+    slinder.style.visibility = "hidden";
+    /*
     if (printMenuState == "features" || printMenuState == "layer") {
         slinder.style.visibility = "visible";
         printSlinder();
     } else {
         slinder.style.visibility = "hidden";
     }
+    */
     stinuum.geometryViewer.adjustCameraView();
 }

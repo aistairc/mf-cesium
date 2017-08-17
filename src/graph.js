@@ -50,6 +50,7 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array
         .attr("transform", "translate("+ margin.left +"," + margin.top + " )")
         .attr("width", width)
         .attr("height", height);
+//        .style("font-size","small");
 
   var x = d3.scaleTime()
   .rangeRound([0, width]);
@@ -67,23 +68,41 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array
   g.append("g")
   .attr("transform" , "translate(0,"+height+")")
   .attr("class","axis")
-  .style("font-size","x-large")
+//  .style("font-size","small")
   .call(d3.axisBottom(x))
   .select(".domain")
   .remove();
 
-  var y_axis = g.append("g");
-  y_axis
-  .attr("class","axis")
-  .call(d3.axisLeft(y))
-  .append("text")
-  .attr("fill", '#000')
-  .attr("transform", "rotate(-90)")
-  .style("font-size","large")
-  .attr("y", 6)
-  .attr("dy", "0.71em")
-  .attr("text-anchor", "end")
-  .text(object_arr[0].name+"("+object_arr[0].uom+")")  ;
+
+  if(object_arr[0].name == undefined){
+    var y_axis = g.append("g");
+    y_axis
+    .attr("class","axis")
+    .call(d3.axisLeft(y))
+    .append("text")
+    .attr("fill", '#000')
+    .attr("transform", "rotate(-90)")
+//    .style("font-size","small")
+    .attr("y", 6)
+    .attr("dy", "0.71em")
+    .attr("text-anchor", "end")
+    .text("("+object_arr[0].uom+")")  ;
+  }
+  else{
+    var y_axis = g.append("g");
+    y_axis
+    .attr("class","axis")
+    .call(d3.axisLeft(y))
+    .append("text")
+    .attr("fill", '#000')
+    .attr("transform", "rotate(-90)")
+//    .style("font-size","small")
+    .attr("y", 6)
+    .attr("dy", "0.71em")
+    .attr("text-anchor", "end")
+    .text(object_arr[0].name+"("+object_arr[0].uom+")")  ;
+  }
+
 
 
   var graph_data = [];

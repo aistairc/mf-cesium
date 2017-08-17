@@ -49,7 +49,7 @@
 
     <div id="layer_list" class="panel panel-default" style="overflow : auto">
       <ul>
-        <li role="presentation" class="list-group-item active list-title">printed Layers List</li>
+        <li id="printedLayerListMenu" role="presentation" class="list-group-item active list-title">printed Layers List</li>
         <li id="list">
 
         </li>
@@ -123,11 +123,12 @@ var label_timeout;
 (function() {
   viewer = new Cesium.Viewer('cesiumContainer', {
     orderIndependentTranslucency: false,
-    imageryProvider: new Cesium.createOpenStreetMapImageryProvider({
-      url: 'https://a.tile.openstreetmap.org/'
-    }),
-    baseLayerPicker: false
+
+    baseLayerPicker: true
   });
+
+
+
   viewer.scene.fxaa = false;
 
   stinuum = new Stinuum(viewer);
@@ -188,6 +189,25 @@ var label_timeout;
 
   setAnalysisDIV('analysis', 'graph');
   getLayers();
+
+  var rightBar = document.getElementById('analysis');
+  var radar = document.getElementById('radar');
+  var zoomSlider = document.getElementById('zoom');
+  var printedLayerListMenu = document.getElementById('printedLayerListMenu');
+  var layer_list = document.getElementById('layer_list');
+  var uploadButton = document.getElementById('uploadButton');
+
+  uploadButton.style.visibility = "hidden";
+  uploadButton.style.height = "0";
+  uploadButton.style.padding = "0";
+  layer_list.style.visibility = "hidden";
+  printedLayerListMenu.style.visibility = "hidden";
+  rightBar.style.visibility = 'hidden';
+  radar.style.visibility = 'hidden';
+  zoomSlider.style.visibility = 'hidden';
+
+  var graph = document.getElementById('graph');
+  graph.style.visibility = "visible";
 })()
 String.prototype.replaceAll = function(org, dest) {
   return this.split(org).join(dest);

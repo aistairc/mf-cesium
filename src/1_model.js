@@ -53,7 +53,6 @@ Stinuum.GeometryViewer = function(stinuum){
   this.projection = null;
   this.time_label = [];
   this.label_timeout = undefined;
-  this.bounding_sphere = undefined;
 }
 
 Stinuum.TemporalMap = function(stinuum){
