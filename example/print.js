@@ -33,20 +33,20 @@ function backButton() {
     if (printMenuState == "layer") {}
     else if (printMenuState == "features") {
 
-      /*
+
       if(isServer == false){
           uploadButton.style.visibility = "visible";
           uploadButton.style.height = "7%";
           uploadButton.style.padding = "10px";
       }
 
-      var chk_btn = document.getElementById('check_all_buttons');
-      chk_btn.parentNode.removeChild(chk_btn);
+      //var chk_btn = document.getElementById('check_all_buttons');
+      //chk_btn.parentNode.removeChild(chk_btn);
       printMenuState = 'layer';
       printState.innerText = printMenuState;
       printArea.innerHTML = "";
       printArea.appendChild(his_featurelayer);
-      */
+
 
     } else if (printMenuState == "feature") {
         printMenuState = 'features';
@@ -280,7 +280,7 @@ function printPrintedLayersList() {
         chk.type = "checkbox";
 
         temp_list.className = "list-group-item";
-        chk.id = printedLayerList[i];
+        chk.name = printedLayerList[i];
 
 
 
@@ -312,9 +312,11 @@ function printPrintedLayersList() {
 }
 
 function printWhole(layerID) {
+
     var feature_list = getBuffer([layerID]);
-    var chk = document.getElementById(layerID);
-    if (feature_list.length !== 0) {
+    var chk = document.getElementsByName(layerID)[0];
+    if (feature_list.length !== 0 || feature_list !== undefined) {
+
         console.log(chk.checked);
         if (chk.checked == true) {
             console.log('check');
@@ -340,6 +342,8 @@ function printWhole(layerID) {
         stinuum.geometryViewer.update();
         stinuum.geometryViewer.adjustCameraView();
     }
+    selectProperty("graph");
+    drawFeature();
 
 }
 
@@ -410,7 +414,7 @@ function layer_checkAll(featureLayerID, name) {
 
         }
     }
-    drawFeature();
+
     var index = printedLayerList.indexOf(featureLayerID);
     bool_printedLayerList[index] = 1;
 
@@ -445,7 +449,7 @@ function layer_uncheckAll(featureLayerID, name) {
 
     }
 
-        drawFeature();
+
         var index = printedLayerList.indexOf(featureLayerID);
         bool_printedLayerList[index] = 0;
 

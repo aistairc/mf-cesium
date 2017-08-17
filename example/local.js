@@ -12,40 +12,6 @@ function handleFileSelect(evt) {
   var output = [];
   var promises = [];
 
-  var promise = readFile(files[0]);
-  promise.then(function(data){
-    var dropZone = document.getElementById('drop_zone');
-    dropZone.style.visibility = 'hidden';
-    var json_object = JSON.parse(data);
-
-    if(json_object.name != undefined){
-      if(!layer_list_local.contains(json_object.name)){
-        layer_list_local.push(json_object.name);
-        updateBuffer_local(json_object.name, json_object,true);
-      }
-    }
-    else{
-      if(!layer_list_local.contains(files[0].name)){
-          layer_list_local.push(files[0].name);
-          updateBuffer_local(files[0].name, json_object,true);
-      }
-    }
-    var feature = getBuffer([files[0].name]);
-    var feature_list = [];
-    for(var j in feature){
-      feature_list.push(feature[j]);
-    }
-    drawFeature();
-    getFeatures_local(files[0].name,feature_list);
-    //var graph = document.getElementById);
-    selectProperty('graph');
-
-    printMenuState = "layer";
-  },function(err){
-    console.log("fail to get single feature");
-  });
-
-/*
 
   for (var i = 0, f; f = files[i]; i++) {
     var promise = readFile(f);
@@ -79,8 +45,43 @@ function handleFileSelect(evt) {
     printArea.innerHTML = "";
     printArea.appendChild(list);
     printMenuState = "layer";
-
+    var printState = document.getElementById('printMenuState');
+    printState.innerText = printMenuState;
+    selectProperty('graph');
   });
+/*
+var promise = readFile(files[0]);
+promise.then(function(data){
+  var dropZone = document.getElementById('drop_zone');
+  dropZone.style.visibility = 'hidden';
+  var json_object = JSON.parse(data);
+
+  if(json_object.name != undefined){
+    if(!layer_list_local.contains(json_object.name)){
+      layer_list_local.push(json_object.name);
+      updateBuffer_local(json_object.name, json_object,true);
+    }
+  }
+  else{
+    if(!layer_list_local.contains(files[0].name)){
+        layer_list_local.push(files[0].name);
+        updateBuffer_local(files[0].name, json_object,true);
+    }
+  }
+  var feature = getBuffer([files[0].name]);
+  var feature_list = [];
+  for(var j in feature){
+    feature_list.push(feature[j]);
+  }
+  drawFeature();
+  getFeatures_local(files[0].name,feature_list);
+  //var graph = document.getElementById);
+  selectProperty('graph');
+
+  printMenuState = "layer";
+},function(err){
+  console.log("fail to get single feature");
+});
 */
 
 
@@ -195,6 +196,7 @@ function printFeatureLayerList_local(arr) {
                 getFeatures_local(id,feature);
             };
         })(arr[i], feature_list);
+        getFeatures_local(arr[i],feature_list);
         li.style = "width:inherit";
         a.style = "width:inherit";
         li.className = "list-group-item";
@@ -223,7 +225,7 @@ function getFeatures_local(layerID, features_list) {
 
     var layerlist = document.getElementById('list');
     layerlist.innerHTML = "";
-    //layerlist.appendChild(printPrintedLayersList());
+    layerlist.appendChild(printPrintedLayersList());
     var list = printFeatures_local(layerID, features_list, "features");
     var printArea = document.getElementById('featureLayer');
     his_features = list;
@@ -296,12 +298,12 @@ function printFeatures_local(layerID, features_list, id) { //피쳐레이어아�
 
     if(!layerID.includes("\'")){
 
-        printState.innerText = printMenuState + " :" + layerID;
+        //printState.innerText = printMenuState + " :" + layerID;
     }
     else{
-        printState.innerText = printMenuState + " :" + parse_layer_name(layerID);
+        //printState.innerText = printMenuState + " :" + parse_layer_name(layerID);
     }
-
+    printState.innerText = printMenuState;
     for (var i = 0; i < features_list.length; i++) {
       var data = getBuffer([layerID, features_list[i]]);
         var li = document.createElement("li");
