@@ -784,19 +784,19 @@ Stinuum.GeometryViewer.prototype.draw = function(){
   var minmax = this.super.mfCollection.min_max;
 
   if (this.super.mode == 'SPACETIME'){
-    //this.bounding_sphere = Stinuum.getBoundingSphere(this.min_max, [0,this.super.maxHeight] );
+    this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0,this.super.maxHeight] );
     this.super.cesiumViewer.scene.primitives.add(this.drawZaxis());
     var entities = this.drawZaxisLabel();
     this.super.cesiumViewer.entities.add(entities.values[0]);
-
   }
   else if  (this.super.mode == 'ANIMATEDMAP'){
     return -1;
   }
   else{
-    //this.bounding_sphere = Stinuum.getBoundingSphere(this.min_max, [0,0] );
-  }
+    this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0,0] );
 
+  }
+    console.log(this.bounding_sphere);
   for (var index = 0 ; index < mf_arr.length ; index++){
     var mf = mf_arr[index];
     var path_prim, primitive;
@@ -829,9 +829,9 @@ Stinuum.GeometryViewer.prototype.draw = function(){
         this.primitives[mf.id] = path_prim;
     }
   }
-  //this.adjustCameraView();
-  return 0;
-  //this.super.cesiumViewer.camera.flyTo({    destination : this.super.cesiumViewer.camera.position  });
+  this.adjustCameraView();
+  //return 0;
+  this.super.cesiumViewer.camera.flyTo({    destination : this.super.cesiumViewer.camera.position  });
 }
 
 Stinuum.GeometryViewer.prototype.animate = function(options){
@@ -1081,31 +1081,30 @@ Stinuum.GeometryViewer.prototype.showHeightBar = function(id){
 Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
   //TODO
   //
-  // var bounding = this.bounding_sphere;
-  // var viewer = this.viewer;
-  //
-  // if (bounding == undefined || bounding == -1){
-  //   return;
-  // }
-  //
-  //
-  // setTimeout(function(){
-  //   if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW){
-  //
-  //   viewer.camera.flyTo({
-  //     duration : 0.5,
-  //     destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
-  //     orientation : {
-  //       direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
-  //       up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
-  //     }});
-  //   }
-  //   else{
-  //     viewer.camera.flyToBoundingSphere(bounding, {
-  //       duration : 0.5
-  //     });
-  //   }
-  // }, 300);
+  var bounding = this.bounding_sphere;
+  var viewer = this.viewer;
+  var geomview = this;
+  if (bounding == undefined || bounding == -1){
+    return;
+  }
+
+
+  setTimeout(function(){
+    if (geomview.super.mode == "SPACETIME"){
+    geomview.super.cesiumViewer.camera.flyTo({
+      duration : 0.5,
+      destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
+      orientation : {
+        direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
+        up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
+      }});
+    }
+    else{
+      geomview.super.cesiumViewer.camera.flyToBoundingSphere(bounding, {
+        duration : 0.5
+      });
+    }
+  }, 300);
 
 }
 
