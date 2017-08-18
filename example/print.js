@@ -64,7 +64,7 @@ function backButton() {
           document.getElementById('pro_menu').remove();
         stinuum.mfCollection.refresh(); //all hidden -> feature
         drawFeature();
-        selectProperty('graph');
+        //selectProperty('graph');
 
     } else {
         console.log("nothing to do");
@@ -100,27 +100,6 @@ function delProperties(id, name) {
         var index = properties.indexOf(obj);
         properties.splice(index, 1);
     }
-}
-function printFileUploadButton(){
-
-  var button = document.getElementById("uploadButton");
-  button.style.padding = "10px";
-  button.style.height = "7%";
-  button.style.visibility = "visible";
-
-  var input = document.createElement('input');
-
-
-  input.type = "file";
-  input.id = "files";
-  input.multiple = "multiple";
-  input.name = "files[]";
-
-
-  button.appendChild(input);
-
-
-  document.getElementById('files').addEventListener('change', handleFileSelect_upload, false);
 }
 
 
