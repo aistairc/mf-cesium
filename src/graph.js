@@ -74,7 +74,7 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array
   .remove();
 
 
-  if(object_arr[0].name == undefined){
+  if (object_arr[0].uom == "null"){
     var y_axis = g.append("g");
     y_axis
     .attr("class","axis")
@@ -82,12 +82,25 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array
     .append("text")
     .attr("fill", '#000')
     .attr("transform", "rotate(-90)")
-//    .style("font-size","small")
     .attr("y", 6)
     .attr("dy", "0.71em")
     .attr("text-anchor", "end")
-    .text("("+object_arr[0].uom+")")  ;
+    //.text(object_arr[0].uom)  ;
   }
+//   else if(object_arr[0].name == undefined){
+//     var y_axis = g.append("g");
+//     y_axis
+//     .attr("class","axis")
+//     .call(d3.axisLeft(y))
+//     .append("text")
+//     .attr("fill", '#000')
+//     .attr("transform", "rotate(-90)")
+// //    .style("font-size","small")
+//     .attr("y", 6)
+//     .attr("dy", "0.71em")
+//     .attr("text-anchor", "end")
+//     .text(object_arr[0].uom)  ;
+//   }
   else{
     var y_axis = g.append("g");
     y_axis
@@ -100,9 +113,9 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array
     .attr("y", 6)
     .attr("dy", "0.71em")
     .attr("text-anchor", "end")
-    .text(object_arr[0].name+"("+object_arr[0].uom+")")  ;
+    .text(propertyName+"("+object_arr[0].uom+")")  ;
   }
-
+  console.log(object_arr);
 
 
   var graph_data = [];
