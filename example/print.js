@@ -730,7 +730,7 @@ function drawFeature() { //아이디로 찾을까
     stinuum.geometryViewer.update()
     time_min_max = stinuum.mfCollection.getWholeMinMax();
     time_min_max = time_min_max.date;
-    slinder.style.visibility = "hidden";
+    //slinder.style.visibility = "hidden";
     /*
     if (printMenuState == "features" || printMenuState == "layer") {
         slinder.style.visibility = "visible";
