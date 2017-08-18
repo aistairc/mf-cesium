@@ -321,7 +321,7 @@ function printWhole(layerID) {
         stinuum.geometryViewer.update();
         stinuum.geometryViewer.adjustCameraView();
     }
-    selectProperty("graph");
+    //selectProperty("graph");
     drawFeature();
 
 }
@@ -354,18 +354,12 @@ function checkAll(name) {
 
     }
 
-    updatePropertyGraph();
+    cleanGraphDIV();
 
     drawFeature();
 }
 
-function updatePropertyGraph() {
-    if (document.getElementById('pro_menu')) {
-        document.getElementById('pro_menu').remove();
-    }
-    document.getElementById("graph").innerHTML = '';
-    document.getElementById("graph").style.height = '0%';
-}
+
 
 function layer_checkAll(featureLayerID, name) {
     var layerID;
@@ -468,7 +462,7 @@ function uncheckAll(name) {
         var index = printedLayerList.indexOf(layerID);
         bool_printedLayerList[index] = 0;
     }
-    updatePropertyGraph();
+    cleanGraphDIV();
     drawFeature();
 }
 
@@ -655,12 +649,6 @@ function printFeature(featureID, data, id) {
 
 
 
-}
-
-function getHighlight(feature, temporalProperty) {
-
-    stinuum.temporalMap.show(feature, temporalProperty);
-    //stinuum.geometryViewer.adjustCameraView();
 }
 
 function getCheckedFeatures() {

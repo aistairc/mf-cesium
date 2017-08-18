@@ -168,6 +168,7 @@ function updateBuffer_local(filename, data,bool){
 
   }
 }
+
 var inputbutton_height;
 function printFeatureLayerList_local(arr) {
 
@@ -209,6 +210,7 @@ function printFeatureLayerList_local(arr) {
   his_featurelayer = upper_ul;
   return upper_ul;
 }
+
 function getFeatures_local(layerID, features_list) {
   var features = [];
 
@@ -233,10 +235,8 @@ function getFeatures_local(layerID, features_list) {
   printArea.appendChild(list);
   printMenuState = "features";
   drawFeature();
-
-
-
 }
+
 function printFeatures_local(layerID, features_list, id) { //피쳐레이어아이디,
   var printedLayer = document.getElementById('layer_list');
   var property_panel = document.getElementById("property_panel");

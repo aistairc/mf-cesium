@@ -29,4 +29,6 @@ function getLocalFile(){
   dropZone.style.textAlign = 'center';
   dropZone.addEventListener('dragover', handleDragOver, false);
   dropZone.addEventListener('drop', handleFileSelect, false);
+
+  cleanGraphDIV();
 }

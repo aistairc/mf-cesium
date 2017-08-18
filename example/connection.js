@@ -96,6 +96,7 @@ var urlParam = function(name, w) {
     return !val ? '' : val[1];
 }
 var isServer =true;
+
 function getLayerOnlyForOneFeature(){
   var dropzone = document.getElementById("drop_zone");
   dropzone.style.visibility = "hidden";
@@ -297,8 +298,6 @@ function getFeature(layerID, featureID) {
     printArea.innerHTML = "";
     printArea.appendChild(list);
     printMenuState = "feature";
-
-
 }
 
 var request1 = function(url) {
