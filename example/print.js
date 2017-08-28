@@ -39,18 +39,17 @@ function backButton() {
           uploadButton.style.height = "7%";
           uploadButton.style.padding = "10px";
       }
-
-      //var chk_btn = document.getElementById('check_all_buttons');
-      //chk_btn.parentNode.removeChild(chk_btn);
+      removeCheckAllandUnCheck();
       printMenuState = 'layer';
       printState.innerText = printMenuState;
       printArea.innerHTML = "";
       printArea.appendChild(his_featurelayer);
 
 
+
     } else if (printMenuState == "feature") {
         printMenuState = 'features';
-      //  menu.insertBefore(check_button, document.getElementById('featureLayer'));
+        printCheckAllandUnCheck();
         printState.innerText = printMenuState;
         printedLayer.style.visibility = "visible";
         property_panel.style.visibility = "hidden";
@@ -64,8 +63,6 @@ function backButton() {
           document.getElementById('pro_menu').remove();
         stinuum.mfCollection.refresh(); //all hidden -> feature
         drawFeature();
-        //selectProperty('graph');
-
     } else {
         console.log("nothing to do");
     }
@@ -115,14 +112,16 @@ function printProperty(data) {
     feature_property.push(temp_feature_property);
 
 
-    upper_ul.className = "list-group";
+    //upper_ul.className = "list-group";
+    upper_ul.style.paddingTop = '10px';
+    upper_ul.style.paddingLeft = '5px';
     for (var i = 0; i < feature_property.length; i++) {
         var feature_li = document.createElement("li");
-        feature_li.className = "list-group-item";
+        //feature_li.className = "list-group-item";
         var feature_property_ul = document.createElement('ul');
         for (var j = 0; j < feature_property[i].length; j++) {
             var t_property = document.createElement('li');
-            t_property.className = "list-group-item";
+            t_property.className = "property-list";
             t_property.innerText = feature_property[i][j][0] + " : " + feature_property[i][j][1];
             feature_property_ul.appendChild(t_property);
         }
@@ -254,21 +253,17 @@ function printPrintedLayersList() {
         var chk = document.createElement("input");
         var a = document.createElement('a');
 
-
         input_group.className = "input-group";
         chk.type = "checkbox";
 
-        temp_list.className = "list-group-item";
+        temp_list.className = "layer-list-item";
         chk.name = printedLayerList[i];
-
-
 
         if(bool_printedLayerList[i] == 0){
             chk.checked = false;
         }
         else{
             chk.checked = true;
-
         }
         chk.onclick = (function(layerID) {
             return function() {
@@ -594,9 +589,9 @@ function printFeature(featureID, data, id) {
     var printedLayers = document.getElementById('layer_list');
     var target = document.createElement('ul');
 
-    printMenuState = 'feature';
+    //printMenuState = 'feature';
     //chk_btn.parentNode.removeChild(chk_btn);
-    printState.innerText = printMenuState + " : " + featureID;
+    //printState.innerText = printMenuState + " : " + featureID;
 
     printedLayers.style.visibility = "hidden";
     property_panel.style.visibility = "visible";
@@ -612,11 +607,13 @@ function printFeature(featureID, data, id) {
     var a = document.createElement("a");
     var ul = document.createElement("ul");
 
-    li.className = "list-group-item";
+    //li.className = "list-group-item";
     li.role = "presentation";
+    li.style.marginLeft = "5%";
+    li.style.display ="block";
     //ul.className = "list-group";
     ul.id = name;
-    a.innerText = name;
+    //a.innerText = name;
     var temporalProperties_name = Object.keys(temporalProperties[0]);
     console.log(temporalProperties_name);
     for (var i = 0; i < temporalProperties_name.length; i++) {
@@ -628,6 +625,7 @@ function printFeature(featureID, data, id) {
       var chk_temp = document.createElement("input");
 
       li_temp.className = "list-group-item";
+      li_temp.style.display = "inline-block";
       li_temp.role = "presentation";
       ul_temp.className = "list-group";
 

@@ -141,21 +141,13 @@ function getLayerOnlyForOneFeature(){
       });
 }
 function getLayers() {
-    //var url = window.location.href;
-    //var url_arr = url.split('?token=');
-
-    //url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
-
     var dropzone = document.getElementById("drop_zone");
     dropzone.style.visibility = "hidden";
     var url = urlParam('url');
     var token = urlParam('token');
-    //var token = url_arr[1];
-    console.log(url);
-    console.log(token);
+
     if (url == '' || url == undefined){
       isServer = false;
-      dropzone.style.visibility = "visible";
       printFileUploadButton();
       getLocalFile();
       return;
