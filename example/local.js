@@ -161,10 +161,7 @@ function removeCheckAllandUnCheck(){
   if (document.getElementById('check_all_buttons')) {
       document.getElementById('check_all_buttons').remove();
   }
-  if (document.getElementById('pro_menu')) {
-      document.getElementById('pro_menu').remove();
-  }
-  document.getElementById('graph').style.height = "0%";
+  cleanGraphDIV();
 }
 
 function printCheckAllandUnCheck(){
@@ -174,16 +171,17 @@ function printCheckAllandUnCheck(){
   var check_all = document.createElement('li');
   var chk_all = document.createElement('input');
   var unchk_all = document.createElement('input');
-  var graph_bt = document.createElement('input');
 
-  check_all.style.display = "flex";
-  check_all.style.position = "absolute";
-  check_all.id = "check_all_buttons";
   check_all.style = "flex-grow : 0;align-items: center;justify-content: center;";
+  //check_all.style.display = "flex";
+  check_all.id = "check_all_buttons";
+  check_all.style.display = "inline-block";
+  check_all.style.padding = "10px";
+
 
   chk_all.type = 'button';
   chk_all.style.height = '100%';
-  chk_all.style.width = "29%";
+  chk_all.style.width = "46%";
   chk_all.style.margin = "2%";
   chk_all.style.marginBottom = "0";
   chk_all.className = "btn btn-default";
@@ -200,9 +198,10 @@ function printCheckAllandUnCheck(){
   unchk_all.type = 'button';
   unchk_all.className = "btn btn-default";
   unchk_all.style.height = '100%';
-  unchk_all.style.width = "29%";
+  unchk_all.style.width = "46%";
   unchk_all.style.position = "relative";
   unchk_all.style.margin = "2%";
+  unchk_all.style.float = "right";
   unchk_all.style.marginBottom = "0";
   unchk_all.value = 'RESET';
   unchk_all.style.flex = '0';
@@ -214,26 +213,6 @@ function printCheckAllandUnCheck(){
   })("chkf[]");
 
   check_all.appendChild(unchk_all);
-
-    graph_bt.type = 'button';
-    graph_bt.className = "btn btn-default";
-    graph_bt.style.float = "right";
-    graph_bt.style.height = '100%';
-    graph_bt.style.width = "29%";
-    graph_bt.style.position = "relative";
-    graph_bt.style.margin = "2%";
-    graph_bt.style.marginBottom = "0";
-    graph_bt.value = 'GRAPH';
-    graph_bt.style.flex = '0';
-
-    graph_bt.onclick = (function() {
-      return function() {
-        selectProperty('graph');
-      };
-    })();
-
-    check_all.appendChild(graph_bt);
-
 
   menu.insertBefore(check_all, document.getElementById('featureLayer'));
 
@@ -276,7 +255,6 @@ function printFeatures_local(layerID, features_list, id) { //피쳐레이어아�
     a.innerText =features_list[i].properties.name;
     a.onclick = (function(layer, feature) {
       return function() {
-
         removeCheckAllandUnCheck();
         getFeature(layer, feature);
       }

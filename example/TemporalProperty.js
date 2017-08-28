@@ -13,6 +13,22 @@ function getHighlight(feature, temporalProperty) {
     //stinuum.geometryViewer.adjustCameraView();
 }
 
+
+function getHighlightInContext(feature, temporalProperty) {
+  var context = document.getElementById("context");
+  context.innerHTML = "";
+  var pro_arr = [];
+  var pair = stinuum.mfCollection.getFeatureByIdInFeatures(feature);
+  var property = Stinuum.getPropertyByName(pair.feature, temporalProperty, pair.id);
+  pro_arr.push(property);
+
+  cleanGraphDIV();
+  showGraphDIV("graph");
+
+  stinuum.propertyGraph.showPropertyArray(temporalProperty, pro_arr, "graph");
+}
+
+
 function cleanGraphDIV() {
     if (document.getElementById('pro_menu')) {
         document.getElementById('pro_menu').remove();
@@ -51,4 +67,33 @@ function showGraphDIV(graph_id){
   document.getElementById('pro_menu').style.bottom = '20%';
   document.getElementById(graph_id).style.height = '20%';
   document.getElementById(graph_id).style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
+}
+
+function showContextMenu(id, pos){
+  var context = document.getElementById("context");
+  context.innerHTML = "";
+  context.style = "z-index : 50;"
+  context.style.position = "absolute";
+  context.style.backgroundColor = "rgba(100,100,100, 0.7)"
+  context.style.width = "7%";
+  context.style.top = pos.y + "px";
+  context.style.left = pos.x + "px";
+
+  var feature = stinuum.mfCollection.getFeatureByIdInFeatures(id);
+  for (var i = 0 ; i < feature.feature.temporalProperties.length ; i++){
+      var keys = Object.keys(feature.feature.temporalProperties[i]);
+      for (var k = 0 ; k < keys.length ; k++){
+        if (keys[k] == 'datetimes') continue;
+        var div = document.createElement("div");
+        div.className = "context-menu";
+        div.innerHTML = keys[k];
+        div.id = 'context_' + keys[k];
+        div.onclick = (function(id, key) {
+            return function() {
+                getHighlightInContext(id, key)
+            };
+        })(id, keys[k]);
+        context.appendChild(div);
+      }
+  }
 }

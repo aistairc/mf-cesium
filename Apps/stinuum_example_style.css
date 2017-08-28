@@ -330,18 +330,27 @@ body {
     padding: 10px;
 }
 
+.context-menu {
+  border : 1px solid rgb(255,255,255);
+  color : white;
+  text-align: center;
+  font-size:100%;
+  width : 100%;
+  line-height: 100%;
+  padding : 5px;
+  cursor: pointer;
+}
+
 
 #featureName {
-
     z-index: 30;
     visibility: hidden;
     color: black;
     font-size: xx-large;
-    position: relative;
+    position: absolute;
     top: 5%;
-    left: 57%;
+    left: 50%;
     text-shadow: -1px 0 #F2F1F6, 0 1px #F2F1F6, 1px 0 #F2F1F6, 0 -1px #F2F1F6;
-
 }
 
 #radar {

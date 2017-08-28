@@ -32,11 +32,12 @@
 </head>
 
 <body style="margin-bottom:20%">
+  <div id="toolbar_btn"></div>
   <div id="left_toolbar">
     <div class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
       <ul id="menu_list" class="list-group" >
         <li class="list-group-item" onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;">Back</li>
-        <li id = "uploadButton" class = "list-group-item"></li>
+        <li id = "uploadButton" ></li>
 
         <li id="printMenuState" role="presentation" class="list-group-item active list-title" style="flex-grow : 0;"></li>
 
@@ -97,8 +98,8 @@
 <input id "slider-button-submit" style = "min-width : inherit; font-size : small ;padding : 2px;" class="btn btn-default" type="button" value="Filtering" onclick="zoom()"></input>
 
 </div>
-<div id="featureName">
-
+<div id="featureName"></div>
+<div id="context">
 </div>
 <div id="serverState">
 </div>
@@ -172,13 +173,20 @@ var label_timeout;
         var cesiumContainer = document.getElementById('cesiumContainer');
         featureName.innerText = pick.primitive.id;
         featureName.style.visibility = 'visible';
+
+        showContextMenu(pick.primitive.id, movement.position);
         label_timeout = window.setTimeout(function() {
           featureName.style.visibility = "hidden";
           featureName.style.height = "0%";
-          cesiumContainer.style = "min-height:100%"
+          context.innerHTML = "";
+          context.style.visibility = "hidden";
         }, 10000);
       }
 
+    }
+    else{
+      context.innerHTML = "";
+      context.style.visibility = "hidden";
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -193,7 +201,7 @@ var label_timeout;
 
   var graph = document.getElementById('graph');
   graph.style.visibility = "visible";
-  
+
 })()
 String.prototype.replaceAll = function(org, dest) {
   return this.split(org).join(dest);
