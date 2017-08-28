@@ -39,18 +39,17 @@ function backButton() {
           uploadButton.style.height = "7%";
           uploadButton.style.padding = "10px";
       }
-
-      //var chk_btn = document.getElementById('check_all_buttons');
-      //chk_btn.parentNode.removeChild(chk_btn);
+      removeCheckAllandUnCheck();
       printMenuState = 'layer';
       printState.innerText = printMenuState;
       printArea.innerHTML = "";
       printArea.appendChild(his_featurelayer);
 
 
+
     } else if (printMenuState == "feature") {
         printMenuState = 'features';
-      //  menu.insertBefore(check_button, document.getElementById('featureLayer'));
+        printCheckAllandUnCheck();
         printState.innerText = printMenuState;
         printedLayer.style.visibility = "visible";
         property_panel.style.visibility = "hidden";
@@ -64,8 +63,6 @@ function backButton() {
           document.getElementById('pro_menu').remove();
         stinuum.mfCollection.refresh(); //all hidden -> feature
         drawFeature();
-        //selectProperty('graph');
-
     } else {
         console.log("nothing to do");
     }
@@ -256,21 +253,17 @@ function printPrintedLayersList() {
         var chk = document.createElement("input");
         var a = document.createElement('a');
 
-
         input_group.className = "input-group";
         chk.type = "checkbox";
 
         temp_list.className = "layer-list-item";
         chk.name = printedLayerList[i];
 
-
-
         if(bool_printedLayerList[i] == 0){
             chk.checked = false;
         }
         else{
             chk.checked = true;
-
         }
         chk.onclick = (function(layerID) {
             return function() {

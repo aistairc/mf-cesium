@@ -143,7 +143,7 @@ var label_timeout;
       alert('error');
     }
 
-    setAnalysisDIV('analysis','graph', 'radar');
+    setAnalysisDIV('graph');
   });
   slider = new Slider("#slider", {
     reversed: true
@@ -182,30 +182,18 @@ var label_timeout;
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-
-
-
-  setAnalysisDIV('analysis', 'graph');
+  setAnalysisDIV('graph');
   getLayers();
 
-  var rightBar = document.getElementById('analysis');
-  var radar = document.getElementById('radar');
-  var zoomSlider = document.getElementById('zoom');
   var printedLayerListMenu = document.getElementById('printedLayerListMenu');
   var layer_list = document.getElementById('layer_list');
   var uploadButton = document.getElementById('uploadButton');
 
-  //uploadButton.style.visibility = "hidden";
-  //uploadButton.style.height = "0";
   uploadButton.style.padding = "10px";
-  //layer_list.style.visibility = "hidden";
-  //printedLayerListMenu.style.visibility = "hidden";
-  //rightBar.style.visibility = 'hidden';
-  //radar.style.visibility = 'hidden';
-  //zoomSlider.style.visibility = 'hidden';
 
   var graph = document.getElementById('graph');
   graph.style.visibility = "visible";
+  
 })()
 String.prototype.replaceAll = function(org, dest) {
   return this.split(org).join(dest);

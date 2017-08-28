@@ -19,7 +19,6 @@ function printFileUploadButton(){
   button.appendChild(input);
 
   document.getElementById('files').addEventListener('click', getLocalFile, false);
-  //document.getElementById('files').addEventListener('change', handleFileSelect_upload, false);
 }
 
 function getLocalFile(){
