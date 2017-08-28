@@ -3185,7 +3185,7 @@ Stinuum.prototype.changeMode = function(mode){
     else{
       this.mode = mode;
     }
-    
+
     this.occurrenceMap.remove();
     this.geometryViewer.update({
         change : true

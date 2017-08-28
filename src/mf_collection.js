@@ -241,10 +241,7 @@ Stinuum.MFCollection.prototype.getAllPropertyType = function(){
         array.push(keys[k]);
       }
       return array;
-
-
     }
-
   }
   return array;
 }

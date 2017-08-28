@@ -18,8 +18,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.css" />
   <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script src="../example/stinuum.js"></script>
+  <script src="../stinuum.js"></script>
   <script src="../example/connection.js"></script>
+  <script src="../example/fileio.js"></script>
+  <script src="../example/temporalProperty.js"></script>
   <script src="../example/print.js"></script>
   <script src="../example/local.js"></script>
   <script src="../example/example_analysis.js"></script>
@@ -30,38 +32,39 @@
 </head>
 
 <body style="margin-bottom:20%">
-  <div id="left_toolbar" style="z-index:3 ; width:15% ;position:absolute;  height : 100% ;min-height:100%; ">
-    <div class="panel panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
-      <ul id="menu_list" class="list-group" style=" height: 100%;display : -webkit-flex; display : flex; flex-direction:column;">
-        <li class="list-group-item" onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center;">Back</li>
-        <li id = "uploadButton" class = "list-group-item"></li>
+  <div id="toolbar_btn"></div>
+  <div id="left_toolbar">
+    <div class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
+      <ul id="menu_list" class="list-group" >
+        <li class="list-group-item" onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;">Back</li>
+        <li id = "uploadButton" ></li>
 
         <li id="printMenuState" role="presentation" class="list-group-item active list-title" style="flex-grow : 0;"></li>
 
 
 
-        <li id="featureLayer" role="presentation" class="list-group-item" style="flex-grow : 1 ; overflow : auto">
+        <li id="featureLayer" role="presentation" style="margin-top: 15px; flex-grow : 1 ; overflow : auto">
 
         </li>
       </ul>
 
     </div>
 
-    <div id="layer_list" class="panel panel-default" style="overflow : auto">
+    <div id="layer_list" class="left_toolbar_div panel-default" style="overflow : auto">
       <ul>
-        <li role="presentation" class="list-group-item active list-title">printed Layers List</li>
+        <li id="printedLayerListMenu" role="presentation" class="list-title">printed Layers List</li>
         <li id="list">
 
         </li>
 
       </ul>
     </div>
-    <div id="property_panel" class="panel panel-default" style="overflow : auto">
+    <div id="property_panel" class="left_toolbar_div panel-default" style="overflow : auto">
 
       <ul>
-        <li role="presentation" class="list-group-item active list-title">Properties</li>
-        <li role="presentation" class="list-group-item list-title">
-          <ul id="property" role="presentation" class="list-group-item">
+        <li role="presentation" class="list-title">Properties</li>
+        <li role="presentation">
+          <ul id="property" role="presentation">
 
           </ul>
         </li>
@@ -74,19 +77,15 @@
 
   </div>
 
-  <div id="drop_zone">Drop files here</div>
+  <div id="drop_zone">
+    <span style = "display: table-cell;  vertical-align: middle;">DROP FILES HERE</span></div>
 
-  <div id="analysis">
-  </div>
   <div id="graph" class="graph">
   </div>
-
-  <canvas id="radar" width="200" height="200"></canvas>
 
   <div id="cesiumContainer">
 
   </div>
-  <div id="zoom" class="panel panel-default">
   </br>
   <a id="min-date" style="white-space: nowrap; align:right; float : center; font-size:small"></a>
 </br>
@@ -99,8 +98,8 @@
 <input id "slider-button-submit" style = "min-width : inherit; font-size : small ;padding : 2px;" class="btn btn-default" type="button" value="Filtering" onclick="zoom()"></input>
 
 </div>
-<div id="featureName">
-
+<div id="featureName"></div>
+<div id="context">
 </div>
 <div id="serverState">
 </div>
@@ -123,11 +122,12 @@ var label_timeout;
 (function() {
   viewer = new Cesium.Viewer('cesiumContainer', {
     orderIndependentTranslucency: false,
-    imageryProvider: new Cesium.createOpenStreetMapImageryProvider({
-      url: 'https://a.tile.openstreetmap.org/'
-    }),
-    baseLayerPicker: false
+
+    baseLayerPicker: true
   });
+
+
+
   viewer.scene.fxaa = false;
 
   stinuum = new Stinuum(viewer);
@@ -144,7 +144,7 @@ var label_timeout;
       alert('error');
     }
 
-    setAnalysisDIV('analysis','graph', 'radar');
+    setAnalysisDIV('graph');
   });
   slider = new Slider("#slider", {
     reversed: true
@@ -173,21 +173,35 @@ var label_timeout;
         var cesiumContainer = document.getElementById('cesiumContainer');
         featureName.innerText = pick.primitive.id;
         featureName.style.visibility = 'visible';
+
+        showContextMenu(pick.primitive.id, movement.position);
         label_timeout = window.setTimeout(function() {
           featureName.style.visibility = "hidden";
           featureName.style.height = "0%";
-          cesiumContainer.style = "min-height:100%"
+          context.innerHTML = "";
+          context.style.visibility = "hidden";
         }, 10000);
       }
 
     }
+    else{
+      context.innerHTML = "";
+      context.style.visibility = "hidden";
+    }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-
-
-
-  setAnalysisDIV('analysis', 'graph');
+  setAnalysisDIV('graph');
   getLayers();
+
+  var printedLayerListMenu = document.getElementById('printedLayerListMenu');
+  var layer_list = document.getElementById('layer_list');
+  var uploadButton = document.getElementById('uploadButton');
+
+  uploadButton.style.padding = "10px";
+
+  var graph = document.getElementById('graph');
+  graph.style.visibility = "visible";
+
 })()
 String.prototype.replaceAll = function(org, dest) {
   return this.split(org).join(dest);
