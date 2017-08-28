@@ -36,7 +36,7 @@
   <div id="left_toolbar">
     <div class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
       <ul id="menu_list" class="list-group" >
-        <li class="list-group-item" onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;">Back</li>
+        <li onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;">Back</li>
         <li id = "uploadButton" ></li>
 
         <li id="printMenuState" role="presentation" class="list-group-item active list-title" style="flex-grow : 0;"></li>
@@ -189,6 +189,11 @@ var label_timeout;
       context.style.visibility = "hidden";
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+  this.handler.setInputAction(function(movement){
+    context.innerHTML = "";
+    context.style.visibility = "hidden";
+  }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
   setAnalysisDIV('graph');
   getLayers();

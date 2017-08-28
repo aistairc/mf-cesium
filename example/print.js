@@ -36,7 +36,6 @@ function backButton() {
 
       if(isServer == false){
           uploadButton.style.visibility = "visible";
-          uploadButton.style.height = "7%";
           uploadButton.style.padding = "10px";
       }
       removeCheckAllandUnCheck();
