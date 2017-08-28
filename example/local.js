@@ -177,7 +177,7 @@ function printFeatureLayerList_local(arr) {
   printState.innerText = printMenuState;
   var target = document.getElementsByClassName("vertical");
   var upper_ul = document.createElement('ul');
-  upper_ul.className = "list-group-item";
+  //upper_ul.className = "list-group-item";
 
   for (var i = 0; i < arr.length; i++) {
     var li = document.createElement('li');
@@ -315,7 +315,7 @@ function printFeatures_local(layerID, features_list, id) { //피쳐레이어아�
 
     //span.className = "input-group-addon";
     div.className = "input-group";
-    li.className = "list-group-item";
+    //li.className = "list-group-item";
     ul.className = "list-group";
     li.role = "presentation";
 

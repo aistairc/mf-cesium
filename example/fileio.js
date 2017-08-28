@@ -9,12 +9,11 @@ function printFileUploadButton(){
   //var input = document.createElement('input');
   var t = document.createTextNode("UPLOAD");
   input.style.color = "BLACK";
+  input.style.width = "100%";
+  input.style.height = "100%";
   input.id = "files";
-
-  // input.type = "file";
-  // input.id = "files";
-  // input.multiple = "multiple";
-  // input.name = "files[]";
+  input.multiple = "multiple";
+  input.name = "files[]";
 
   input.appendChild(t);
   button.appendChild(input);
@@ -26,7 +25,6 @@ function printFileUploadButton(){
 function getLocalFile(){
   var dropZone = document.getElementById('drop_zone');
   dropZone.style.visibility = 'visible';
-  dropZone.style.textAlign = 'center';
   dropZone.addEventListener('dragover', handleDragOver, false);
   dropZone.addEventListener('drop', handleFileSelect, false);
 

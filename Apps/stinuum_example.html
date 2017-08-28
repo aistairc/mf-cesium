@@ -32,9 +32,9 @@
 </head>
 
 <body style="margin-bottom:20%">
-  <div id="left_toolbar" style="z-index:3 ; width:15% ;position:absolute;  height : 100% ;min-height:100%; ">
-    <div class="panel panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
-      <ul id="menu_list" class="list-group" style=" height: 100%;display : -webkit-flex; display : flex; flex-direction:column;">
+  <div id="left_toolbar">
+    <div class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
+      <ul id="menu_list" class="list-group" >
         <li class="list-group-item" onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;">Back</li>
         <li id = "uploadButton" class = "list-group-item"></li>
 
@@ -42,28 +42,28 @@
 
 
 
-        <li id="featureLayer" role="presentation" class="list-group-item" style="flex-grow : 1 ; overflow : auto">
+        <li id="featureLayer" role="presentation" style="margin-top: 15px; flex-grow : 1 ; overflow : auto">
 
         </li>
       </ul>
 
     </div>
 
-    <div id="layer_list" class="panel panel-default" style="overflow : auto">
+    <div id="layer_list" class="left_toolbar_div panel-default" style="overflow : auto">
       <ul>
-        <li id="printedLayerListMenu" role="presentation" class="list-group-item active list-title">printed Layers List</li>
+        <li id="printedLayerListMenu" role="presentation" class="list-title">printed Layers List</li>
         <li id="list">
 
         </li>
 
       </ul>
     </div>
-    <div id="property_panel" class="panel panel-default" style="overflow : auto">
+    <div id="property_panel" class="left_toolbar_div panel-default" style="overflow : auto">
 
       <ul>
-        <li role="presentation" class="list-group-item active list-title">Properties</li>
-        <li role="presentation" class="list-group-item list-title">
-          <ul id="property" role="presentation" class="list-group-item">
+        <li role="presentation" class="list-title">Properties</li>
+        <li role="presentation">
+          <ul id="property" role="presentation">
 
           </ul>
         </li>
@@ -76,7 +76,8 @@
 
   </div>
 
-  <div id="drop_zone">Drop files here</div>
+  <div id="drop_zone">
+    <span style = "display: table-cell;  vertical-align: middle;">DROP FILES HERE</span></div>
 
   <div id="graph" class="graph">
   </div>
