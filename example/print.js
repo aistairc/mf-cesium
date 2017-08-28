@@ -68,7 +68,24 @@ function backButton() {
     console.log(printMenuState);
 }
 
-
+function toggle_toolbar(){
+  if (toolbar_show){
+    toolbar_show = false;
+    document.getElementById('left_toolbar').style.width = 0;
+    document.getElementById('left_toolbar').style.visibility = 'hidden';
+    $("#left_toolbar").children().hide();
+    document.getElementById('toolbar_btn').style.left = 0;
+    document.getElementById('toolbar_btn').innerHTML = '>';
+  }
+  else{
+    toolbar_show = true;
+    document.getElementById('left_toolbar').style.width = '15%';
+    document.getElementById('left_toolbar').style.visibility = 'visible';
+    $("#left_toolbar").children().show();
+    document.getElementById('toolbar_btn').style.left = '14.5%';
+    document.getElementById('toolbar_btn').innerHTML = '<';
+  }
+}
 function putProperties(id, name) {
     var obj = searchPropertyInfo(id, name);
     if (obj !== null) {

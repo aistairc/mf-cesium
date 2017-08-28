@@ -22,6 +22,15 @@ body,
     z-index: 1;
 }
 
+#toolbar_btn {
+  position : absolute;
+  z-index : 4;
+  padding : 0;
+  text-align: center;
+  height : 45px;
+  line-height: 45px;
+}
+
 #menu_list {
   height: 100%;
   display : -webkit-flex;

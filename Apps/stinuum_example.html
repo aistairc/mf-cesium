@@ -32,7 +32,7 @@
 </head>
 
 <body style="margin-bottom:20%">
-  <div id="toolbar_btn"></div>
+  <div id="toolbar_btn" onclick="toggle_toolbar()"> < </div>
   <div id="left_toolbar">
     <div class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
       <ul id="menu_list" class="list-group" >
@@ -117,7 +117,7 @@ var handler;
 var labelEntity;
 var slider;
 var label_timeout;
-
+var toolbar_show = true;
 
 (function() {
   viewer = new Cesium.Viewer('cesiumContainer', {
@@ -207,6 +207,11 @@ var label_timeout;
   var graph = document.getElementById('graph');
   graph.style.visibility = "visible";
 
+  var toolbar_btn = document.getElementById('toolbar_btn');
+  toolbar_btn.className = 'btn btn-default';
+  toolbar_btn.style.left = '14.5%';
+  toolbar_btn.style.top = '45%';
+  toolbar_btn.style.width = '15px';
 })()
 String.prototype.replaceAll = function(org, dest) {
   return this.split(org).join(dest);
