@@ -96,6 +96,50 @@ var urlParam = function(name, w) {
     return !val ? '' : val[1];
 }
 var isServer =true;
+
+function getLayerOnlyForOneFeature(){
+  var dropzone = document.getElementById("drop_zone");
+  dropzone.style.visibility = "hidden";
+  var url = urlParam('url');
+  var token = urlParam('token');
+  //var token = url_arr[1];
+  console.log(url);
+  console.log(token);
+  if (url == '' || url == undefined){
+    isServer = false;
+    dropzone.style.visibility = "visible";
+    printFileUploadButton();
+    getLocalFile();
+    return;
+  }
+  writeCookie('token', token);
+  url += "/$ref";
+  var featureLayers;
+  var printFeatureLayer_list = [];
+  var promise = request1(url);
+
+  setAnalysisDIV('analysis', 'graph', 'radar');
+  promise.then(function(arr) {
+          featureLayers = arr;
+          for (var i = 0; i < featureLayers.length; i++) {
+              if (getBuffer([featureLayers[i]]) == null) {
+                  updateBuffer([featureLayers[i]], null, true);
+                  printFeatureLayer_list.push(featureLayers[i]);
+              }
+          }
+          url = url.replace("/$ref", "");
+          var list = printFeatureLayerList(printFeatureLayer_list, url, "featureLayer");
+          var printArea = document.getElementById('featureLayer');
+          his_featurelayer = list;
+          printArea.innerHTML = "";
+          printArea.appendChild(list);
+          printMenuState = "layer";
+
+      })
+      .catch(function(err) {
+          console.log(err);
+      });
+}
 function getLayers() {
     //var url = window.location.href;
     //var url_arr = url.split('?token=');
@@ -254,8 +298,6 @@ function getFeature(layerID, featureID) {
     printArea.innerHTML = "";
     printArea.appendChild(list);
     printMenuState = "feature";
-
-
 }
 
 var request1 = function(url) {

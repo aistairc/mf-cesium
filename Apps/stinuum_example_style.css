@@ -95,7 +95,14 @@ body,
     text-align: center;
     box-shadow : 0 ;
 }
+.axis text {
+    font-family: sans-serif;
+    font-size: small;
 
+}
+.text{
+  font-size : small;
+}
 .slider-handle{
   background-color: black;
 }
