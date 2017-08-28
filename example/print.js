@@ -304,24 +304,17 @@ function printPrintedLayersList() {
 function printWhole(layerID) {
 
     var feature_list = getBuffer([layerID]);
-    var chk = document.getElementsByName(layerID)[0];
+    var chk = document.getElementById(layerID);
     if (feature_list.length !== 0 || feature_list !== undefined) {
-
-        console.log(chk.checked);
         if (chk.checked == true) {
-            console.log('check');
-            console.log(layerID);
             for (var key in feature_list) {
                 var data = getBuffer([layerID, key]);
                 stinuum.mfCollection.add(data);
             }
             layer_checkAll(layerID, 'chkf[]');
         } else {
-            console.log('uncheck');
-
             for (var key in feature_list) {
                 var data = getBuffer([layerID, key]);
-                console.log(data);
                 stinuum.mfCollection.remove(data);
             }
             layer_uncheckAll(layerID, 'chkf[]');

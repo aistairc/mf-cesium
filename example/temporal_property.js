@@ -2,6 +2,7 @@
 function getHighlight(feature, temporalProperty) {
   var pro_arr = [];
   var pair = stinuum.mfCollection.getFeatureByIdInFeatures(feature);
+  if (pair == -1) return;
   var property = Stinuum.getPropertyByName(pair.feature, temporalProperty, pair.id);
   pro_arr.push(property);
 
@@ -19,6 +20,7 @@ function getHighlightInContext(feature, temporalProperty) {
   context.innerHTML = "";
   var pro_arr = [];
   var pair = stinuum.mfCollection.getFeatureByIdInFeatures(feature);
+  if (pair == -1) return;
   var property = Stinuum.getPropertyByName(pair.feature, temporalProperty, pair.id);
   pro_arr.push(property);
 
