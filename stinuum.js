@@ -1659,10 +1659,7 @@ Stinuum.MFCollection.prototype.getAllPropertyType = function(){
         array.push(keys[k]);
       }
       return array;
-
-
     }
-
   }
   return array;
 }
@@ -3496,7 +3493,8 @@ Stinuum.getBoundingSphere = function(min_max, height){
   var middle_height = (height[0] + height[1]) / 2;
 
   var radius = Stinuum.calculateCarteDist([middle_x,middle_y,middle_height], [min_max.x[0],min_max.y[0],height[0]]);
-  return new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(middle_x,middle_y,middle_height), radius);
+  console.log(min_max);
+  return new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(middle_x,middle_y,middle_height), radius * 3);
 }
 
 Stinuum.findMaxCoordinatesLine = function(geometry){
