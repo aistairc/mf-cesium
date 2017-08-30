@@ -68,6 +68,14 @@ function showGraphDIV(graph_id){
   document.body.appendChild(pro_menu_div);
   document.getElementById('pro_menu').style.bottom = '20%';
   document.getElementById(graph_id).style.height = '20%';
+  if (toolbar_show) {
+    document.getElementById(graph_id).style.width = '85%';
+    document.getElementById('pro_menu').style.width = '85%';
+  }
+  else{
+    document.getElementById(graph_id).style.width = '100%';
+    document.getElementById('pro_menu').style.width = '100%';
+  }
   document.getElementById(graph_id).style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
 }
 

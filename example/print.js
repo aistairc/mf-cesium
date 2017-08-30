@@ -76,6 +76,7 @@ function toggle_toolbar(){
     $("#left_toolbar").children().hide();
     document.getElementById('toolbar_btn').style.left = 0;
     document.getElementById('toolbar_btn').innerHTML = '>';
+    cleanGraphDIV();
   }
   else{
     toolbar_show = true;
@@ -84,6 +85,7 @@ function toggle_toolbar(){
     $("#left_toolbar").children().show();
     document.getElementById('toolbar_btn').style.left = '14.5%';
     document.getElementById('toolbar_btn').innerHTML = '<';
+    cleanGraphDIV();
   }
 }
 function putProperties(id, name) {
