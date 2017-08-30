@@ -21,10 +21,18 @@ function handleFileSelect(evt) {
 
     var dropZone = document.getElementById('drop_zone');
     dropZone.style.visibility = 'hidden';
+    document.getElementById('drop_zone_bg').style.visibility = 'hidden';
     for(var i = 0 ; i < arr.length ; i++){
 
       var json_object = JSON.parse(arr[i]);
-
+      if (!Array.isArray(json_object.temporalGeometry.coordinates[0][0][0])){
+        var coord = json_object.temporalGeometry.coordinates;
+        var new_arr = [];
+        for (var j = 0 ; j < coord.length ; j++){
+          new_arr.push([coord[j]]);
+        }
+        json_object.temporalGeometry.coordinates = new_arr;
+      }
       if(json_object.name != undefined){
         if(!layer_list_local.contains(json_object.name)){
           layer_list_local.push(json_object.name);
@@ -159,7 +167,7 @@ function getFeatures_local(layerID, features_list) {
 
 function removeCheckAllandUnCheck(){
   if (document.getElementById('check_all_buttons')) {
-      document.getElementById('check_all_buttons').remove();
+    document.getElementById('check_all_buttons').remove();
   }
   cleanGraphDIV();
 }

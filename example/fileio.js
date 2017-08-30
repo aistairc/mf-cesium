@@ -46,8 +46,16 @@ function printFileUploadButton(){
 function getLocalFile(){
   var dropZone = document.getElementById('drop_zone');
   dropZone.style.visibility = 'visible';
+  document.getElementById('drop_zone_bg').style.visibility = 'visible';
   dropZone.addEventListener('dragover', handleDragOver, false);
   dropZone.addEventListener('drop', handleFileSelect, false);
 
   cleanGraphDIV();
+}
+
+function closeDrop(){
+    var dropZone = document.getElementById('drop_zone');
+    dropZone.style.visibility = 'hidden';
+    document.getElementById('drop_zone_bg').style.visibility = 'hidden';
+
 }

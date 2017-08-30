@@ -168,4 +168,5 @@ var selectProperty = function(graph_id) {
     })(graph_id);
 
     document.body.appendChild(pro_menu);
+  
 }

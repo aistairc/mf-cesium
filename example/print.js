@@ -36,7 +36,6 @@ function backButton() {
 
       if(isServer == false){
           uploadButton.style.visibility = "visible";
-          uploadButton.style.height = "7%";
           uploadButton.style.padding = "10px";
       }
       removeCheckAllandUnCheck();
@@ -69,7 +68,26 @@ function backButton() {
     console.log(printMenuState);
 }
 
-
+function toggle_toolbar(){
+  if (toolbar_show){
+    toolbar_show = false;
+    document.getElementById('left_toolbar').style.width = 0;
+    document.getElementById('left_toolbar').style.visibility = 'hidden';
+    $("#left_toolbar").children().hide();
+    document.getElementById('toolbar_btn').style.left = 0;
+    document.getElementById('toolbar_btn').innerHTML = '>';
+    cleanGraphDIV();
+  }
+  else{
+    toolbar_show = true;
+    document.getElementById('left_toolbar').style.width = '15%';
+    document.getElementById('left_toolbar').style.visibility = 'visible';
+    $("#left_toolbar").children().show();
+    document.getElementById('toolbar_btn').style.left = '14.5%';
+    document.getElementById('toolbar_btn').innerHTML = '<';
+    cleanGraphDIV();
+  }
+}
 function putProperties(id, name) {
     var obj = searchPropertyInfo(id, name);
     if (obj !== null) {
@@ -257,7 +275,7 @@ function printPrintedLayersList() {
         chk.type = "checkbox";
 
         temp_list.className = "layer-list-item";
-        chk.name = printedLayerList[i];
+        chk.id = printedLayerList[i];
 
         if(bool_printedLayerList[i] == 0){
             chk.checked = false;
@@ -288,24 +306,17 @@ function printPrintedLayersList() {
 function printWhole(layerID) {
 
     var feature_list = getBuffer([layerID]);
-    var chk = document.getElementsByName(layerID)[0];
+    var chk = document.getElementById(layerID);
     if (feature_list.length !== 0 || feature_list !== undefined) {
-
-        console.log(chk.checked);
         if (chk.checked == true) {
-            console.log('check');
-            console.log(layerID);
             for (var key in feature_list) {
                 var data = getBuffer([layerID, key]);
                 stinuum.mfCollection.add(data);
             }
             layer_checkAll(layerID, 'chkf[]');
         } else {
-            console.log('uncheck');
-
             for (var key in feature_list) {
                 var data = getBuffer([layerID, key]);
-                console.log(data);
                 stinuum.mfCollection.remove(data);
             }
             layer_uncheckAll(layerID, 'chkf[]');
@@ -389,37 +400,37 @@ function layer_checkAll(featureLayerID, name) {
 }
 
 function layer_uncheckAll(featureLayerID, name) {
-    var layerID;
-    if (printMenuState == "features") {
-        var checked = document.getElementsByName(name);
-        var temp = checked[0].id;
+  var layerID;
+  if (printMenuState == "features") {
+    var checked = document.getElementsByName(name);
+    var temp = checked[0].id;
+    temp = temp.split("##");
+    if (temp[1] == featureLayerID) {
+
+      for (var i = 0; i < checked.length; i++) {
+        temp = checked[i].id;
         temp = temp.split("##");
-        if (temp[1] == featureLayerID) {
-
-            for (var i = 0; i < checked.length; i++) {
-                temp = checked[i].id;
-                temp = temp.split("##");
-                var feature_layer = temp[1];
-                layerID = feature_layer;
-                var feature_name = temp[0];
-                var data = getBuffer([feature_layer, feature_name]);
-                if (checked[i].checked == true) {
-                    checked[i].checked = false;
-                    stinuum.mfCollection.remove(data);
-                } else {
-                    stinuum.mfCollection.remove(data);
-                }
-            }
+        var feature_layer = temp[1];
+        layerID = feature_layer;
+        var feature_name = temp[0];
+        var data = getBuffer([feature_layer, feature_name]);
+        if (checked[i].checked == true) {
+          checked[i].checked = false;
+          stinuum.mfCollection.remove(data);
+        } else {
+          stinuum.mfCollection.remove(data);
         }
-
-
-
-
+      }
     }
 
 
-        var index = printedLayerList.indexOf(featureLayerID);
-        bool_printedLayerList[index] = 0;
+
+
+  }
+
+
+  var index = printedLayerList.indexOf(featureLayerID);
+  bool_printedLayerList[index] = 0;
 
 
 }
@@ -440,7 +451,6 @@ function uncheckAll(name) {
         var feature_layer = temp[1];
         layerID = feature_layer;
         var feature_name = temp[0];
-        console.log(feature_layer, feature_name);
         var data = getBuffer([feature_layer, feature_name]);
         if (checked[i].checked == true) {
             checked[i].checked = false;
@@ -449,10 +459,8 @@ function uncheckAll(name) {
             stinuum.mfCollection.remove(data);
         }
     }
-
     if (printedLayerList.contains(layerID)) {
         var layer_checked = document.getElementById(layerID);
-        console.log(layer_checked);
         layer_checked.checked = false;
         var index = printedLayerList.indexOf(layerID);
         bool_printedLayerList[index] = 0;
@@ -591,7 +599,7 @@ function printFeature(featureID, data, id) {
 
     //printMenuState = 'feature';
     //chk_btn.parentNode.removeChild(chk_btn);
-    //printState.innerText = printMenuState + " : " + featureID;
+    printState.innerText = featureID;
 
     printedLayers.style.visibility = "hidden";
     property_panel.style.visibility = "visible";
@@ -611,7 +619,6 @@ function printFeature(featureID, data, id) {
     li.role = "presentation";
     li.style.marginLeft = "5%";
     li.style.display ="block";
-    //ul.className = "list-group";
     ul.id = name;
     //a.innerText = name;
     var temporalProperties_name = Object.keys(temporalProperties[0]);
@@ -643,9 +650,6 @@ function printFeature(featureID, data, id) {
     li.appendChild(ul);
     his_feature = target;
     return li;
-
-
-
 
 }
 
