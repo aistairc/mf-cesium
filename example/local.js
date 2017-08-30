@@ -21,7 +21,7 @@ function handleFileSelect(evt) {
 
     var dropZone = document.getElementById('drop_zone');
     dropZone.style.visibility = 'hidden';
-
+    document.getElementById('drop_zone_bg').style.visibility = 'hidden';
     for(var i = 0 ; i < arr.length ; i++){
 
       var json_object = JSON.parse(arr[i]);

@@ -369,6 +369,17 @@ body {
  background-color:rgba(0,0,0,0);
 }
 
+#drop_zone_bg {
+  height : 100%;
+  width : 100%;
+  background-color: rgba(0,0,0,0.3);
+  z-index : 49;
+
+  position : absolute;
+  top : 0;
+  left : 0;
+}
+
 #drop_zone {
   display : table;
   position : absolute;
@@ -377,7 +388,7 @@ body {
   height : 90%;
   width : 90%;
   z-index : 50;
-  background-color:rgba(0,0,0,0.3);
+  background-color:rgba(255,255,255,0.3);
   font-size : 300%;
   border: 2px dashed #f69c55;
   text-align : center;
