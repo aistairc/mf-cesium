@@ -52,3 +52,10 @@ function getLocalFile(){
 
   cleanGraphDIV();
 }
+
+function closeDrop(){
+    var dropZone = document.getElementById('drop_zone');
+    dropZone.style.visibility = 'hidden';
+    document.getElementById('drop_zone_bg').style.visibility = 'hidden';
+
+}

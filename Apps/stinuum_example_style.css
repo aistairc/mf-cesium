@@ -374,10 +374,23 @@ body {
   width : 100%;
   background-color: rgba(0,0,0,0.3);
   z-index : 49;
-
   position : absolute;
   top : 0;
   left : 0;
+}
+
+#drop_zone_close {
+  display : table;
+  height : 5%;
+  width : 5%;
+  background-color: transparent;
+  z-index : 51;
+  font-size: 100%;
+  position : absolute;
+  top : 6%;
+  left : 88%;
+  text-align : center;
+  cursor: pointer;
 }
 
 #drop_zone {
