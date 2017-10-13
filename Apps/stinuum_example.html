@@ -180,8 +180,8 @@ var toolbar_show = true;
 
         showContextMenu(pick.primitive.id, movement.position);
         label_timeout = window.setTimeout(function() {
+          featureName.innerHTML = "";
           featureName.style.visibility = "hidden";
-          featureName.style.height = "0%";
           context.innerHTML = "";
           context.style.visibility = "hidden";
         }, 10000);
@@ -189,6 +189,8 @@ var toolbar_show = true;
 
     }
     else{
+      featureName.innerHTML = "";
+      featureName.style.visibility = "hidden";
       context.innerHTML = "";
       context.style.visibility = "hidden";
     }
