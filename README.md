@@ -20,7 +20,12 @@ https://ksookim.github.io/mf-json/.
 
 1. Download Cesium. (http://cesiumjs.org/downloads.html)
 
-2. Clone this Project and paste project to Cesium Folder.
+2. clone this project after enter Cesium Folder.
+
+```
+$ cd Cesium-[Version ...]
+$ clone http://github.com/aistairc/mf-cesium
+```
 
 3. Install Node.js
 
@@ -34,7 +39,7 @@ https://ksookim.github.io/mf-json/.
   ```
   $ node server.js
   ```
-6. Enter http://localhost:8080/Apps/stinuum_example.html on your browser (Chrome).
+6. Enter http://localhost:8080/mf-cesium/practice/demo.html on your browser (Chrome Recommended).
 
 7. If you have the information of url and token to access a data server that provides RESTful API as descrbied in [OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/), please append "?url=data_server_url&token=your_token"
 Otherwise, you can drag and drop json files to explore the data.
