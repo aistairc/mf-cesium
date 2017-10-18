@@ -1,35 +1,36 @@
 
+
 Stinuum.MFCollection.prototype.add= function(mf, id){
-    if (Array.isArray(mf)){
-      for (var i = 0 ; i < mf.length ; i++){
-        this.add(mf[i]);
-      }
+  if (Array.isArray(mf)){
+    for (var i = 0 ; i < mf.length ; i++){
+      this.add(mf[i]);
+    }
+  }
+  else{
+    if (mf.type != 'MovingFeature'){
+      console.log("it is not MovingFeature!!@!@!");
+      return -1;
+    }
+    if (this.inFeaturesIndexOf(mf) != -1 || this.inHiddenIndexOf(mf) != -1){
+      console.log("this mf already exist.");
+      return -2;
+    }
+    if (id != undefined && (this.inFeaturesIndexOfById(id) != -1 || this.inHiddenIndexOfById(id) != -1 ) ){
+      console.log("this id already exist.");
+      return -2;
+    }
+
+    if (id == undefined && mf.properties.name == undefined){
+      alert("feature has no name!");
+      return -1;
+    }
+    if (id != undefined){
+      this.features.push(new Stinuum.MFPair(id, mf));
     }
     else{
-      if (mf.type != 'MovingFeature'){
-        console.log("it is not MovingFeature!!@!@!");
-        return -1;
-      }
-      if (this.inFeaturesIndexOf(mf) != -1 || this.inHiddenIndexOf(mf) != -1){
-        console.log("this mf already exist.");
-        return -2;
-      }
-      if (id != undefined && (this.inFeaturesIndexOfById(id) != -1 || this.inHiddenIndexOfById(id) != -1 ) ){
-        console.log("this id already exist.");
-        return -2;
-      }
-
-      if (id == undefined && mf.properties.name == undefined){
-        alert("feature has no name!");
-        return -1;
-      }
-      if (id != undefined){
-        this.features.push(new Stinuum.MFPair(id, mf));
-      }
-      else{
-        this.features.push(new Stinuum.MFPair(mf.properties.name, mf));
-      }
+      this.features.push(new Stinuum.MFPair(mf.properties.name, mf));
     }
+  }
 }
 
 

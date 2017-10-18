@@ -231,3 +231,4 @@ Stinuum.getSampleProperty_Point = function(geometry){
   }
   return property;
 }
+
