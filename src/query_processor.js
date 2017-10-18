@@ -1,3 +1,4 @@
+
 Stinuum.QueryProcessor.prototype.queryByTime = function(start, end){
     var mf_arr = this.super.features;
     var new_mf_arr = [];

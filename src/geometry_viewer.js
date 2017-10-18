@@ -1,3 +1,4 @@
+
 Stinuum.GeometryViewer.prototype.update = function(options){
   this.clear();
   this.super.mfCollection.findMinMaxGeometry();

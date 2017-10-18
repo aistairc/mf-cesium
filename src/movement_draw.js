@@ -1,3 +1,4 @@
+
 Stinuum.MovementDrawing.prototype.moveMovingPoint = function(options){
   var czml = [];
 

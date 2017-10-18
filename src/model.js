@@ -1,3 +1,4 @@
+
 var LOG = console.log;
 var ERR = Stinuum.Exception;
 var debug_mode = true;

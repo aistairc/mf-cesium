@@ -1,3 +1,4 @@
+
 Stinuum.MFCollection.prototype.add= function(mf, id){
     if (Array.isArray(mf)){
       for (var i = 0 ; i < mf.length ; i++){

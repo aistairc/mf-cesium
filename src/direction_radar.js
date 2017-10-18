@@ -1,3 +1,4 @@
+
 Stinuum.DirectionRadar.prototype.remove = function(canvasID){
   var radar_canvas = document.getElementById(canvasID);
   radar_canvas.innerHTML = '';

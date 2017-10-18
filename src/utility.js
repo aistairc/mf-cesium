@@ -184,46 +184,50 @@ Stinuum.findMaxCoordinatesLine = function(geometry){
   return max_length;
 }
 
-Stinuum.getLinearSamplePolygon = function(polygon){
+Stinuum.addPolygonSample = function(geometry, index, property){
+  var datetimes = geometry.datetimes;
+  for (var time = 0 ; time < geometry.coordinates.length ; time++){
+    var coords = geometry.coordinates[time][0];
+    var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
+    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(coords[index][0],coords[index][1]));
+  }
+}
+
+Stinuum.getSampleProperties_Polygon = function(polygon){
   if (polygon.type != "MovingPolygon") throw new Stinuum.Exception("It should be MovingPolygon temporalGeometry", polygon);
   var polygon_size = polygon.coordinates[0][0].length;
   if (polygon_size < 4) new ERR("polygon_size is less than 3", polygon_size);
-
+  var isSpline = polygon.interpolations == "Spline";
   var sample_list = [];
-  var datetimes = polygon.datetimes;
 
   for (var i = 0 ; i < polygon_size ; i++){
     var property = new Cesium.SampledProperty(Cesium.Cartesian3);
-    for (var time = 0 ; time < polygon.coordinates.length ; time++){
-      var coords = polygon.coordinates[time][0];
-      var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
-      property.addSample(juldate, Cesium.Cartesian3.fromDegrees(coords[i][0],coords[i][1]));
+    if (isSpline){
+      property.setInterpolationOptions({
+      interpolationDegree : 2,
+      interpolationAlgorithm : Cesium.HermitePolynomialApproximation
+    });
     }
+    Stinuum.addPolygonSample(polygon, i, property);
     sample_list.push(property);
   }
   return sample_list;
 }
 
-Stinuum.getHermiteSamplePolygon = function(polygon){
-  if (polygon.type != "MovingPolygon") throw new Stinuum.Exception("It should be MovingPolygon temporalGeometry", polygon);
-  var polygon_size = polygon.coordinates[0][0].length;
-  if (polygon_size < 4) new ERR("polygon_size is less than 3", polygon_size);
-
-  var sample_list = [];
-  var datetimes = polygon.datetimes;
-
-  for (var i = 0 ; i < polygon_size ; i++){
-    var property = new Cesium.SampledProperty(Cesium.Cartesian3);
+Stinuum.getSampleProperty_Point = function(geometry){
+  if (geometry.type != "MovingPoint") throw new Stinuum.Exception("It should be MovingPoint", geometry);
+  var isSpline = polygon.interpolations == "Spline";
+  var datetimes = geometry.datetimes;
+  var property = new Cesium.SampledProperty(Cesium.Cartesian3);
+  if (isSpline){
     property.setInterpolationOptions({
       interpolationDegree : 2,
       interpolationAlgorithm : Cesium.HermitePolynomialApproximation
     });
-    for (var time = 0 ; time < polygon.coordinates.length ; time++){
-      var coords = polygon.coordinates[time][0];
-      var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
-      property.addSample(juldate, Cesium.Cartesian3.fromDegrees(coords[i][0],coords[i][1]));
-    }
-    sample_list.push(property);
   }
-  return sample_list;
+  for (var i = 0 ; i < geometry.coordinates.length ; i++){
+    var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[i]));
+    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(eometry.coordinates[i][0],eometry.coordinates[i][1]));
+  }
+  return property;
 }

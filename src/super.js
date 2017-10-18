@@ -1,3 +1,4 @@
+
 Stinuum.prototype.changeMode = null;
 
 Stinuum.prototype.changeMode = function(mode){
