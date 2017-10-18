@@ -1,4 +1,5 @@
 var LOG = console.log;
+var debug_mode = true;
 
 function Stinuum(viewer){
     this.cesiumViewer = viewer;
@@ -11,6 +12,20 @@ function Stinuum(viewer){
     this.temporalMap = new Stinuum.TemporalMap(this);
     this.occurrenceMap = new Stinuum.OccurrenceMap(this);
     this.propertyGraph = new Stinuum.PropertyGraph(this);
+}
+
+Stinumm.Exception = function(message, data){
+  this.name = "StinuumException";
+  this.message = message;
+  this.data = data;
+}
+
+Stinuum.Exception.prototype.toString = function(){
+  if (!debug_mode || this.data == undefined)
+    return [this.name + ' : "' + this.message + '"', this.data];
+  else {
+    return this.name + ' : "' + this.message + '"';
+  }
 }
 
 Stinuum.MFPair = function(id, feature){
