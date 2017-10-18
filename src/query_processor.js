@@ -26,3 +26,8 @@ Stinuum.QueryProcessor.prototype.queryByTime = function(start, end){
     this.super.features = new_mf_arr;
     this.super.hiddenFeatures = del_mf_arr;
 }
+
+Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source, target){
+
+  
+}

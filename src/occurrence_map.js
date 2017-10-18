@@ -410,6 +410,61 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
   var max_num = this.max_num;
   var datetimes = geometry.datetimes;
 
+  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+    var sapmle_list;
+
+
+    if (geometry.interpolations == "Spline"){
+      sample_list = Stinuum.getHermiteSamplePolygon(geometry);
+    }
+    else{
+      sample_list = Stinuum.getLinearSamplePolygon(geometry);
+    }
+    var polygon_size = geometry.coordinates[0][0].length;
+
+    for (var i = 0 ; i < time_length - 1 ; i++){
+      var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time, time_deg/2, new Cesium.JulianDate());
+      var time = [cube_data[i].time, middle_time, cube_data[i+1].time];
+
+      for (var ti = 0 ; ti <time.length ; ti++){
+        var x_min = x_length + 1;
+        var y_min = y_length + 1;
+        var x_max = -1;
+        var y_max = -1;
+        LOG( Cesium.JulianDate.toIso8601(time[ti]) );
+        for (var index = 0 ; index < polygon_size ; index++){
+          var sample_coord = sample_list[index].getValue(time[ti]);
+          var x = Stinuum.getCubeIndexFromSample(Cesium.CesiumMath.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).longitude), x_deg, min_max.x[0]);
+          var y = Stinuum.getCubeIndexFromSample(Cesium.CesiumMath.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude), y_deg, min_max.y[0]);
+          if (x == undefined){
+            LOG("undefined");
+            continue;
+          }
+          
+          LOG(Cesium.Cartographic.fromCartesian(sample_coord));
+          LOG(x,y);
+          if (x < x_min) x_min = x;
+          if (y < y_min) y_min = y;
+          if (x > x_max) x_max = x;
+          if (y > y_max) y_max = y;
+        }
+
+        for (var x_i = x_min ; x_i <= x_max ; x_i++){
+          for (var y_i = y_min ; y_i <= y_max ; y_i++){
+            cube_data[i].count[x_i][y_i] += 1;
+            max_num = Math.max(cube_data[i].count[x_i][y_i],max_num);
+          }
+        }
+
+      }
+
+    }
+  }
+  else{
+    //TODO
+  }
+  this.max_num = Math.max(max_num, this.max_num);
+/*
   var lower_x_property = new Cesium.SampledProperty(Number);
   var upper_x_property = new Cesium.SampledProperty(Number);
 
@@ -502,6 +557,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
 
   }
   this.max_num = Math.max(max_num,this.max_num);
+*/
 
 }
 

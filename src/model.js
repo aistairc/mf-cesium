@@ -1,4 +1,5 @@
 var LOG = console.log;
+var ERR = Stinuum.Exception;
 var debug_mode = true;
 
 function Stinuum(viewer){
@@ -14,7 +15,7 @@ function Stinuum(viewer){
     this.propertyGraph = new Stinuum.PropertyGraph(this);
 }
 
-Stinumm.Exception = function(message, data){
+Stinuum.Exception = function(message, data){
   this.name = "StinuumException";
   this.message = message;
   this.data = data;
@@ -22,9 +23,9 @@ Stinumm.Exception = function(message, data){
 
 Stinuum.Exception.prototype.toString = function(){
   if (!debug_mode || this.data == undefined)
-    return [this.name + ' : "' + this.message + '"', this.data];
-  else {
     return this.name + ' : "' + this.message + '"';
+  else {
+    return [this.name + ' : "' + this.message + '"', this.data];
   }
 }
 

@@ -1,4 +1,6 @@
 var LOG = console.log;
+var ERR = Stinuum.Exception;
+var debug_mode = true;
 
 function Stinuum(viewer){
     this.cesiumViewer = viewer;
@@ -11,6 +13,20 @@ function Stinuum(viewer){
     this.temporalMap = new Stinuum.TemporalMap(this);
     this.occurrenceMap = new Stinuum.OccurrenceMap(this);
     this.propertyGraph = new Stinuum.PropertyGraph(this);
+}
+
+Stinuum.Exception = function(message, data){
+  this.name = "StinuumException";
+  this.message = message;
+  this.data = data;
+}
+
+Stinuum.Exception.prototype.toString = function(){
+  if (!debug_mode || this.data == undefined)
+    return this.name + ' : "' + this.message + '"';
+  else {
+    return [this.name + ' : "' + this.message + '"', this.data];
+  }
 }
 
 Stinuum.MFPair = function(id, feature){
@@ -1938,6 +1954,61 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
   var max_num = this.max_num;
   var datetimes = geometry.datetimes;
 
+  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+    var sapmle_list;
+
+
+    if (geometry.interpolations == "Spline"){
+      sample_list = Stinuum.getHermiteSamplePolygon(geometry);
+    }
+    else{
+      sample_list = Stinuum.getLinearSamplePolygon(geometry);
+    }
+    var polygon_size = geometry.coordinates[0][0].length;
+
+    for (var i = 0 ; i < time_length - 1 ; i++){
+      var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time, time_deg/2, new Cesium.JulianDate());
+      var time = [cube_data[i].time, middle_time, cube_data[i+1].time];
+
+      for (var ti = 0 ; ti <time.length ; ti++){
+        var x_min = x_length + 1;
+        var y_min = y_length + 1;
+        var x_max = -1;
+        var y_max = -1;
+        LOG( Cesium.JulianDate.toIso8601(time[ti]) );
+        for (var index = 0 ; index < polygon_size ; index++){
+          var sample_coord = sample_list[index].getValue(time[ti]);
+          var x = Stinuum.getCubeIndexFromSample(Cesium.CesiumMath.toDegrees(Cesium.Cartographic.fromCartesian(sample_coord).longitude), x_deg, min_max.x[0]);
+          var y = Stinuum.getCubeIndexFromSample(Cesium.CesiumMath.toDegrees(Cesium.Cartographic.fromCartesian(sample_coord).latitude), y_deg, min_max.y[0]);
+          if (x == undefined){
+            LOG("undefined");
+            continue;
+          }
+          
+          LOG(Cesium.Cartographic.fromCartesian(sample_coord));
+          LOG(x,y);
+          if (x < x_min) x_min = x;
+          if (y < y_min) y_min = y;
+          if (x > x_max) x_max = x;
+          if (y > y_max) y_max = y;
+        }
+
+        for (var x_i = x_min ; x_i <= x_max ; x_i++){
+          for (var y_i = y_min ; y_i <= y_max ; y_i++){
+            cube_data[i].count[x_i][y_i] += 1;
+            max_num = Math.max(cube_data[i].count[x_i][y_i],max_num);
+          }
+        }
+
+      }
+
+    }
+  }
+  else{
+    //TODO
+  }
+  this.max_num = Math.max(max_num, this.max_num);
+/*
   var lower_x_property = new Cesium.SampledProperty(Number);
   var upper_x_property = new Cesium.SampledProperty(Number);
 
@@ -2030,6 +2101,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
 
   }
   this.max_num = Math.max(max_num,this.max_num);
+*/
 
 }
 
@@ -3207,6 +3279,11 @@ Stinuum.QueryProcessor.prototype.queryByTime = function(start, end){
     this.super.features = new_mf_arr;
     this.super.hiddenFeatures = del_mf_arr;
 }
+
+Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source, target){
+
+  
+}
 Stinuum.prototype.changeMode = null;
 
 Stinuum.prototype.changeMode = function(mode){
@@ -3513,4 +3590,48 @@ Stinuum.findMaxCoordinatesLine = function(geometry){
     }
   }
   return max_length;
+}
+
+Stinuum.getLinearSamplePolygon = function(polygon){
+  if (polygon.type != "MovingPolygon") throw new Stinuum.Exception("It should be MovingPolygon temporalGeometry", polygon);
+  var polygon_size = polygon.coordinates[0][0].length;
+  if (polygon_size < 4) new ERR("polygon_size is less than 3", polygon_size);
+
+  var sample_list = [];
+  var datetimes = polygon.datetimes;
+
+  for (var i = 0 ; i < polygon_size ; i++){
+    var property = new Cesium.SampledProperty(Cesium.Cartesian3);
+    for (var time = 0 ; time < polygon.coordinates.length ; time++){
+      var coords = polygon.coordinates[time][0];
+      var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
+      property.addSample(juldate, Cesium.Cartesian3.fromDegrees(coords[i][0],coords[i][1]));
+    }
+    sample_list.push(property);
+  }
+  return sample_list;
+}
+
+Stinuum.getHermiteSamplePolygon = function(polygon){
+  if (polygon.type != "MovingPolygon") throw new Stinuum.Exception("It should be MovingPolygon temporalGeometry", polygon);
+  var polygon_size = polygon.coordinates[0][0].length;
+  if (polygon_size < 4) new ERR("polygon_size is less than 3", polygon_size);
+
+  var sample_list = [];
+  var datetimes = polygon.datetimes;
+
+  for (var i = 0 ; i < polygon_size ; i++){
+    var property = new Cesium.SampledProperty(Cesium.Cartesian3);
+    property.setInterpolationOptions({
+      interpolationDegree : 2,
+      interpolationAlgorithm : Cesium.HermitePolynomialApproximation
+    });
+    for (var time = 0 ; time < polygon.coordinates.length ; time++){
+      var coords = polygon.coordinates[time][0];
+      var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
+      property.addSample(juldate, Cesium.Cartesian3.fromDegrees(coords[i][0],coords[i][1]));
+    }
+    sample_list.push(property);
+  }
+  return sample_list;
 }
