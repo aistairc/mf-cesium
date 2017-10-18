@@ -28,7 +28,7 @@ function backButton() {
     var printedLayer = document.getElementById('layer_list');
     var property_panel = document.getElementById("property_panel");
     var menu = document.getElementById('menu_list');
-    var slinder = document.getElementById('zoom');
+    var slider_div = document.getElementById('zoom');
     var uploadButton = document.getElementById("uploadButton");
     if (printMenuState == "layer") {}
     else if (printMenuState == "features") {
@@ -43,9 +43,6 @@ function backButton() {
       printState.innerText = printMenuState;
       printArea.innerHTML = "";
       printArea.appendChild(his_featurelayer);
-
-
-
     } else if (printMenuState == "feature") {
         printMenuState = 'features';
         printCheckAllandUnCheck();
@@ -698,7 +695,7 @@ function zoom() {
     stinuum.geometryViewer.adjustCameraView();
 }
 
-function printSlinder() {
+function printSlider() {
     if (time_min_max == undefined){
       //TODO
       LOG("time min max undefined");
@@ -721,24 +718,23 @@ function drawFeatureWithoutModi() {
     time_min_max = stinuum.mfCollection.getWholeMinMax();
     time_min_max = time_min_max.date;
     console.log('drawFeatureWithoutModi');
-    printSlinder();
+    printSlider();
 
     stinuum.geometryViewer.adjustCameraView();
 }
 
 function drawFeature() { //아이디로 찾을까
-    var slinder = document.getElementById('zoom');
+    var slider_div = document.getElementById('zoom');
     getCheckedFeatures();
     stinuum.geometryViewer.update()
     time_min_max = stinuum.mfCollection.getWholeMinMax();
     time_min_max = time_min_max.date;
-    //slinder.style.visibility = "hidden";
 
     if (printMenuState == "features" || printMenuState == "layer") {
-        slinder.style.visibility = "visible";
-        printSlinder();
+        slider_div.style.visibility = "visible";
+        printSlider();
     } else {
-        slinder.style.visibility = "hidden";
+        slider_div.style.visibility = "hidden";
     }
 
     stinuum.geometryViewer.adjustCameraView();

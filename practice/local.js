@@ -1,7 +1,7 @@
 
-var filelist_local = [];
 var layer_list_local = [];
 
+/** File upload event */
 function handleFileSelect(evt) {
   LOG("handleFileSelect");
   evt.stopPropagation();
@@ -9,10 +9,8 @@ function handleFileSelect(evt) {
 
   var files = evt.dataTransfer.files; // FileList object.
 
-  // files is a FileList of File objects. List some properties.
   var output = [];
   var promises = [];
-
 
   for (var i = 0, f; f = files[i]; i++) {
     var promise = readFile(f);
@@ -37,13 +35,13 @@ function handleFileSelect(evt) {
       if(json_object.name != undefined){
         if(!layer_list_local.contains(json_object.name)){
           layer_list_local.push(json_object.name);
-          updateBuffer_local(json_object.name, json_object,true);
+          updateBuffer_local(json_object.name, json_object);
         }
       }
       else{
         if(!layer_list_local.contains(files[i].name)){
           layer_list_local.push(files[i].name);
-          updateBuffer_local(files[i].name, json_object,true);
+          updateBuffer_local(files[i].name, json_object);
         }
       }
     }
@@ -76,27 +74,22 @@ function readFile(file) {
   return deferred.promise();
 }
 
-function updateBuffer_local(filename, data,bool){
+function updateBuffer_local(filename, data){
   LOG("updateBuffer_local")
-  if(bool == true){
-    var layer = data.name;
-    if(getBuffer([layer])==null){
-      filelist_local.push(layer);
-
-      if(data.features != undefined){
-        for(var i = 0 ; i < data.features.length; i++){
-          var feature = data.features[i].properties.name;
-
-          updateBuffer([layer,feature],data.features[i],true);
-
-        }
-      }
-      else{
-        updateBuffer([filename,data.properties.name],data,true);
-      }
-
+  var layer = data.name;
+  if(getBuffer([layer]) == null){ // ths is new data.
+    if(data.features != undefined){
+      setBuffer_layer(data);
+      // for(var i = 0 ; i < data.features.length; i++){
+      //   var feature = data.features[i].properties.name;
+      //   updateBuffer([layer, feature], data.features[i]);
+      // }
     }
-
+    else{ // file is not layer
+      createLayer(filename);
+      setBuffer_feature(filename, data.properties.name, data);
+      //updateBuffer([filename,data.properties.name],data);
+    }
   }
 }
 

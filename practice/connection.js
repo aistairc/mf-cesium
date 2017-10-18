@@ -1,6 +1,9 @@
-var buffer = {};
+
 var get_features_progress = 0;
 var get_total_progress = 0;
+var isServer =true;
+
+
 function readTextFile(file, callback) {
     var rawFile = new XMLHttpRequest();
     rawFile.overrideMimeType("application/json");
@@ -13,74 +16,8 @@ function readTextFile(file, callback) {
     rawFile.send(null);
 }
 
-function getBuffer(id) {
-    if (id.length == 1) {
-        if (buffer.hasOwnProperty(id[0])) {
-            return buffer[id[0]];
-        }
-    } else if (id.length == 2) {
-
-      if (buffer.hasOwnProperty(id[0])) {
-          var temp = buffer[id[0]];
-          if (temp.hasOwnProperty(id[1])) {
-              return temp[id[1]];
-          }
-
-      }
 
 
-    }
-    return null;
-}
-
-function updateBuffer(id, feature, bool) {
-    if (bool == true) {
-        if (id.length == 1) {
-            if (!buffer.hasOwnProperty(id[0])) {
-                buffer[id[0]] = {};
-            }
-        } else if (id.length == 2) {
-            if (!buffer.hasOwnProperty(id[0])) {
-                buffer[id[0]] = {};
-                buffer[id[0]][id[1]] = {};
-                try{
-                  JSON.parse(feature);
-                  buffer[id[0]][id[1]] = JSON.parse(feature);
-                  console.log(buffer[id[0]][id[1]]);
-                }
-                catch(e) {
-                  buffer[id[0]][id[1]] =feature;
-               }
-
-
-                //buffer[id[0]][id[1]] = feature;
-            } else {
-                if (!buffer[id[0]].hasOwnProperty(id[1])) {
-                    buffer[id[0]][id[1]] = {};
-                    try{
-                      buffer[id[0]][id[1]] = JSON.parse(feature);
-                    }
-                    catch(e){
-                      buffer[id[0]][id[1]] = feature;
-                    }
-
-
-                }
-            }
-        }
-    } else {
-        if (id.length == 1) {
-            if (getBuffer(id) !== null) {
-                delete buffer[id[0]];
-            }
-        } else if (id.length == 2) {
-            if (getBuffer(id) !== null) {
-                delete buffer[id[0]][id[1]];
-            }
-        }
-    }
-
-}
 var urlParam = function(name, w) {
     w = w || window;
     var rx, val;
@@ -95,7 +32,6 @@ var urlParam = function(name, w) {
 
     return !val ? '' : val[1];
 }
-var isServer =true;
 
 
 function getLayers() {
@@ -120,7 +56,7 @@ function getLayers() {
             featureLayers = arr;
             for (var i = 0; i < featureLayers.length; i++) {
                 if (getBuffer([featureLayers[i]]) == null) {
-                    updateBuffer([featureLayers[i]], null, true);
+                    updateBuffer([featureLayers[i]], null);
                     printFeatureLayer_list.push(featureLayers[i]);
                 }
             }
@@ -204,9 +140,7 @@ function getFeatures(url, layerID) {
                   serverState.innerText = "finish";
                     get_data = values;
                     for (var i = 0; i < get_data.length; i++) {
-
-                        updateBuffer([layerID, features[i]], get_data[i], true);
-
+                        updateBuffer([layerID, features[i]], get_data[i]);
                     }
 
                     var new_url = url.replace("$ref", "");
@@ -452,7 +386,7 @@ function getLayerOnlyForOneFeature(){
           featureLayers = arr;
           for (var i = 0; i < featureLayers.length; i++) {
               if (getBuffer([featureLayers[i]]) == null) {
-                  updateBuffer([featureLayers[i]], null, true);
+                  updateBuffer([featureLayers[i]], null);
                   printFeatureLayer_list.push(featureLayers[i]);
               }
           }
