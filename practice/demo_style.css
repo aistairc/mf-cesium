@@ -104,7 +104,7 @@ body,
 }
 
 #zoom {
-    position: relative;
+    position: absolute;
     left: 88%;
     border : 0;
     z-index: 20;

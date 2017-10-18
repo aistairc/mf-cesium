@@ -12,13 +12,13 @@ Stinuum.QueryProcessor.prototype.queryByTime = function(start, end){
       }
     }
 
-    for (var i = 0 ; i < this.hiddenFeatures.length ; i++){
-      var min_max_date = Stinuum.findMinMaxTime(this.hiddenFeatures[i].feature.temporalGeometry.datetimes);
+    for (var i = 0 ; i < this.super.hiddenFeatures.length ; i++){
+      var min_max_date = Stinuum.findMinMaxTime(this.super.hiddenFeatures[i].feature.temporalGeometry.datetimes);
       if (min_max_date[0] >= start && min_max_date[1] <= end){
-        new_mf_arr.push(this.hiddenFeatures[i]);
+        new_mf_arr.push(this.super.hiddenFeatures[i]);
       }
       else{
-        del_mf_arr.push(this.hiddenFeatures[i]);
+        del_mf_arr.push(this.super.hiddenFeatures[i]);
       }
 
     }

@@ -694,7 +694,7 @@ function zoom() {
 
     stinuum.mfCollection.spliceByTime(fastest, latest);
     stinuum.geometryViewer.update();
-    setAnalysisDIV('analysis', 'graph', 'radar');
+    setAnalysisDIV('graph');
     stinuum.geometryViewer.adjustCameraView();
 }
 
@@ -713,7 +713,6 @@ function printSlinder() {
     f_label.innerText = fastest.getFullYear() + " / " + (fastest.getMonth() + 1) + " / " + (fastest.getDate());
     l_label.innerText = latest.getFullYear() + " / " + (latest.getMonth() + 1) + " / " + (latest.getDate());
 
-    slinder.refresh();
 
 }
 

@@ -5,7 +5,6 @@ var setAnalysisDIV = function(graph_id){
   if (document.getElementById('pro_menu')) {
       document.getElementById('pro_menu').remove();
   }
-
 }
 
 var selectDegree = function(div, parent, graph_id) {
@@ -168,5 +167,5 @@ var selectProperty = function(graph_id) {
     })(graph_id);
 
     document.body.appendChild(pro_menu);
-  
+
 }

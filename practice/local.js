@@ -3,6 +3,7 @@ var filelist_local = [];
 var layer_list_local = [];
 
 function handleFileSelect(evt) {
+  LOG("handleFileSelect");
   evt.stopPropagation();
   evt.preventDefault();
 
@@ -59,6 +60,7 @@ function handleFileSelect(evt) {
 }
 
 function readFile(file) {
+  LOG("readFile")
   var reader = new FileReader();
   var deferred = $.Deferred();
 
@@ -75,6 +77,7 @@ function readFile(file) {
 }
 
 function updateBuffer_local(filename, data,bool){
+  LOG("updateBuffer_local")
   if(bool == true){
     var layer = data.name;
     if(getBuffer([layer])==null){
@@ -99,7 +102,7 @@ function updateBuffer_local(filename, data,bool){
 
 var inputbutton_height;
 function printFeatureLayerList_local(arr) {
-
+  LOG("printFeatureLayerList_local");
   printMenuState = "layer";
   var printState = document.getElementById('printMenuState');
   printState.innerText = printMenuState;
@@ -141,10 +144,9 @@ function printFeatureLayerList_local(arr) {
 }
 
 function getFeatures_local(layerID, features_list) {
+  LOG("getFeatures_local")
   var features = [];
-
   var printFeatures_list = [];
-
   var getdata;
 
   if(!printedLayerList.contains(layerID)){
@@ -166,6 +168,7 @@ function getFeatures_local(layerID, features_list) {
 }
 
 function removeCheckAllandUnCheck(){
+  LOG("removeCheckAllandUnCheck")
   if (document.getElementById('check_all_buttons')) {
     document.getElementById('check_all_buttons').remove();
   }
@@ -173,6 +176,7 @@ function removeCheckAllandUnCheck(){
 }
 
 function printCheckAllandUnCheck(){
+  LOG("printCheckAllandUnCheck");
   removeCheckAllandUnCheck();
 
   var menu = document.getElementById('menu_list');
@@ -227,6 +231,7 @@ function printCheckAllandUnCheck(){
 }
 
 function printFeatures_local(layerID, features_list, id) { //피쳐레이어아이디,
+  LOG("printFeatures_local")
   var printedLayer = document.getElementById('layer_list');
   var property_panel = document.getElementById("property_panel");
   var target = document.createElement('ul');

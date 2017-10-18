@@ -246,9 +246,9 @@ Stinuum.MFCollection.prototype.getAllPropertyType = function(){
   return array;
 }
 
-// Stinuum.MFCollection.prototype.spliceByTime = function(start, end){//Date, Date
-//     this.queryProcessor.queryByTime(start, end);
-// }
+Stinuum.MFCollection.prototype.spliceByTime = function(start, end){//Date, Date
+    this.queryProcessor.queryByTime(start, end);
+}
 
 Stinuum.MFCollection.prototype.getFeatureById = function(id){
   var inFeatures = this.getFeatureByIdInFeatures(id);
