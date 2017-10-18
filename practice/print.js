@@ -701,6 +701,7 @@ function zoom() {
 function printSlinder() {
     if (time_min_max == undefined){
       //TODO
+      LOG("time min max undefined");
       return 0;
     }
     var fastest = time_min_max[1];
@@ -712,7 +713,7 @@ function printSlinder() {
     f_label.innerText = fastest.getFullYear() + " / " + (fastest.getMonth() + 1) + " / " + (fastest.getDate());
     l_label.innerText = latest.getFullYear() + " / " + (latest.getMonth() + 1) + " / " + (latest.getDate());
 
-    ///slinder.refresh();
+    slinder.refresh();
 
 }
 
@@ -733,13 +734,13 @@ function drawFeature() { //아이디로 찾을까
     time_min_max = stinuum.mfCollection.getWholeMinMax();
     time_min_max = time_min_max.date;
     //slinder.style.visibility = "hidden";
-    /*
+
     if (printMenuState == "features" || printMenuState == "layer") {
         slinder.style.visibility = "visible";
         printSlinder();
     } else {
         slinder.style.visibility = "hidden";
     }
-    */
+
     stinuum.geometryViewer.adjustCameraView();
 }

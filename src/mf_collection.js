@@ -246,35 +246,9 @@ Stinuum.MFCollection.prototype.getAllPropertyType = function(){
   return array;
 }
 
-Stinuum.MFCollection.prototype.spliceByTime = function(start, end){//Date, Date
-
-  var mf_arr = this.features;
-  var new_mf_arr = [];
-  var del_mf_arr = [];
-  for (var i = 0 ; i < mf_arr.length ; i++){
-    var min_max_date = Stinuum.findMinMaxTime(mf_arr[i].feature.temporalGeometry.datetimes);
-    if (min_max_date[0] >= start && min_max_date[1] <= end){
-      new_mf_arr.push(mf_arr[i]);
-    }
-    else{
-      del_mf_arr.push(mf_arr[i]);
-    }
-  }
-
-  for (var i = 0 ; i < this.hiddenFeatures.length ; i++){
-    var min_max_date = Stinuum.findMinMaxTime(this.hiddenFeatures[i].feature.temporalGeometry.datetimes);
-    if (min_max_date[0] >= start && min_max_date[1] <= end){
-      new_mf_arr.push(this.hiddenFeatures[i]);
-    }
-    else{
-      del_mf_arr.push(this.hiddenFeatures[i]);
-    }
-
-  }
-
-  this.features = new_mf_arr;
-  this.hiddenFeatures = del_mf_arr;
-}
+// Stinuum.MFCollection.prototype.spliceByTime = function(start, end){//Date, Date
+//     this.queryProcessor.queryByTime(start, end);
+// }
 
 Stinuum.MFCollection.prototype.getFeatureById = function(id){
   var inFeatures = this.getFeatureByIdInFeatures(id);

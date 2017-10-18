@@ -2,104 +2,103 @@
 <html lang="en">
 
 <head>
-  <!-- Use correct character set. -->
-  <meta charset="utf-8">
-  <!-- Tell IE to use the latest, best version. -->
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
-  <title id="title">Stinuum Example</title>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8">
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title id="title">Stinuum Example</title>
 
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 
-  <!-- bootstarp -->
-  <script src="lib/bootstrap.min.js"></script>
-  <link type="text/css" href="lib/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.css" />
-  
-  <!-- d3 -->
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  
-  <!-- cesium -->
-  <script type="text/javascript" src="../../Apps/Sandcastle/Sandcastle-header.js"></script>
-  <script src="../../Build/Cesium/Cesium.js"></script>
+    <!-- bootstarp -->
+    <script src="lib/bootstrap.min.js"></script>
+    <link type="text/css" href="lib/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.css" />
 
-  <!-- Stinuum -->
-  <script src="../stinuum.js"></script>
-  <script src="connection.js"></script>
-  <script src="fileio.js"></script>
-  <script src="temporal_property.js"></script>
-  <script src="print.js"></script>
-  <script src="local.js"></script>
-  <script src="example_analysis.js"></script>
-  <link rel="stylesheet" type="text/css" href="demo_style.css">
-  <style>
+    <!-- d3 -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
 
-  </style>
+    <!-- cesium -->
+    <script type="text/javascript" src="../../Apps/Sandcastle/Sandcastle-header.js"></script>
+    <script src="../../Build/Cesium/Cesium.js"></script>
+
+    <!-- Stinuum -->
+    <script src="../stinuum.js"></script>
+    <script src="connection.js"></script>
+    <script src="fileio.js"></script>
+    <script src="temporal_property.js"></script>
+    <script src="print.js"></script>
+    <script src="local.js"></script>
+    <script src="example_analysis.js"></script>
+    <link rel="stylesheet" type="text/css" href="demo_style.css">
+    <link rel="stylesheet" type="text/css" href="bs.css">
+    <style>
+
+    </style>
 </head>
 
 <body style="margin-bottom:20%">
-  <div id="toolbar_btn" onclick="toggle_toolbar()"> < </div>
-  <div id="left_toolbar">
-    <div class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
-      <ul id="menu_list" class="list-group" >
-        <li onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;">Back</li>
-        <li id = "uploadButton" ></li>
+    <div id="toolbar_btn" onclick="toggle_toolbar()"> < </div>
+    <div id="left_toolbar">
+        <div class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
+            <ul id="menu_list" class="list-group" >
+                <li onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;">Back</li>
+                <li id = "uploadButton" ></li>
 
-        <li id="printMenuState" role="presentation" class="list-group-item active list-title" style="flex-grow : 0;"></li>
+                <li id="printMenuState" role="presentation" class="list-group-item active list-title" style="flex-grow : 0;"></li>
+                <li id="featureLayer" role="presentation" style="margin-top: 15px; flex-grow : 1 ; overflow : auto">
+
+                </li>
+            </ul>
+
+        </div>
+
+        <div id="layer_list" class="left_toolbar_div panel-default" style="overflow : auto">
+            <ul>
+                <li id="printedLayerListMenu" role="presentation" class="list-title">printed Layers List</li>
+                <li id="list">
+
+                </li>
+
+            </ul>
+        </div>
+        <div id="property_panel" class="left_toolbar_div panel-default" style="overflow : auto">
+
+            <ul>
+                <li role="presentation" class="list-title">Properties</li>
+                <li role="presentation">
+                    <ul id="property" role="presentation">
+
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
 
 
 
-        <li id="featureLayer" role="presentation" style="margin-top: 15px; flex-grow : 1 ; overflow : auto">
-
-        </li>
-      </ul>
 
     </div>
 
-    <div id="layer_list" class="left_toolbar_div panel-default" style="overflow : auto">
-      <ul>
-        <li id="printedLayerListMenu" role="presentation" class="list-title">printed Layers List</li>
-        <li id="list">
-
-        </li>
-
-      </ul>
-    </div>
-    <div id="property_panel" class="left_toolbar_div panel-default" style="overflow : auto">
-
-      <ul>
-        <li role="presentation" class="list-title">Properties</li>
-        <li role="presentation">
-          <ul id="property" role="presentation">
-
-          </ul>
-        </li>
-      </ul>
-
+    <div id="drop_zone_bg">
+        <div id="drop_zone_close" onclick="closeDrop()"> <span style = "display: table-cell;  vertical-align: middle;"> CLOSE </span> </div>
+        <div id="drop_zone">
+            <span style = "display: table-cell;  vertical-align: middle;">DROP FILES HERE</span>
+        </div>
     </div>
 
+    <div id="graph" class="graph">
+    </div>
 
+    <div id="cesiumContainer">
 
-
-  </div>
-
-  <div id="drop_zone_bg">
-    <div id="drop_zone_close" onclick="closeDrop()"> <span style = "display: table-cell;  vertical-align: middle;"> CLOSE </span> </div> 
-    <div id="drop_zone">
-    <span style = "display: table-cell;  vertical-align: middle;">DROP FILES HERE</span>
-  </div>
-  </div>
-
-  <div id="graph" class="graph">
-  </div>
-
-  <div id="cesiumContainer">
-
-  </div>
-  </br>
-  <a id="min-date" style="white-space: nowrap; align:right; float : center; font-size:small"></a>
+    </div>
+</br>
+ <div id="zoom">
+<a id="min-date" style="white-space: nowrap; align:right; float : center; font-size:small"></a>
 </br>
 </br>
 <input id="slider" type="text" class="span3" value="" data-slider-orientation="vertical" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="[0,100]" />
@@ -132,103 +131,100 @@ var label_timeout;
 var toolbar_show = true;
 
 (function() {
-  viewer = new Cesium.Viewer('cesiumContainer', {
-    orderIndependentTranslucency: false,
+    viewer = new Cesium.Viewer('cesiumContainer', {
+        orderIndependentTranslucency: false,
+        baseLayerPicker: true
+    });
 
-    baseLayerPicker: true
-  });
+    viewer.scene.fxaa = false;
+
+    stinuum = new Stinuum(viewer);
+    viewer.scene.mode = Cesium.SceneMode.SCENE2D;
+
+    viewer.scene.morphComplete.addEventListener(function() {
+        if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
+            stinuum.changeMode('SPACETIME');
+        } else if (viewer.scene.mode == Cesium.SceneMode.SCENE2D){
+            stinuum.changeMode('STATICMAP');
+        } else if (viewer.scene.mode == Cesium.SceneMode.SCENE3D){
+            stinuum.changeMode('ANIMATEDMAP');
+        } else {
+            alert('error');
+        }
+
+        setAnalysisDIV('graph');
+    });
+    slider = new Slider("#slider", {
+        reversed: true
+
+    });
+
+    slider.on("slide", function(sliderValue) {
+        zoom_time = sliderValue;
+    });
 
 
+    scene = viewer.scene;
+    viewer.clock.shouldAnimate = false;
 
-  viewer.scene.fxaa = false;
+    handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+    this.handler.setInputAction(function(movement) {
+        var featureName = document.getElementById('featureName');
+        if(label_timeout !== undefined){
+            window.clearTimeout(label_timeout);
+        }
+        var pick = scene.pick(movement.position);
+        if (Cesium.defined(pick)) {
+            featureName.innerText = "";
+            if(pick.primitive.id !== undefined){
+                stinuum.geometryViewer.clickMovingFeature(pick.primitive.id);
+                var cesiumContainer = document.getElementById('cesiumContainer');
+                featureName.innerText = pick.primitive.id;
+                featureName.style.visibility = 'visible';
 
-  stinuum = new Stinuum(viewer);
-  viewer.scene.mode = Cesium.SceneMode.SCENE2D;
+                showContextMenu(pick.primitive.id, movement.position);
+                label_timeout = window.setTimeout(function() {
+                    featureName.innerHTML = "";
+                    featureName.style.visibility = "hidden";
+                    context.innerHTML = "";
+                    context.style.visibility = "hidden";
+                }, 10000);
+            }
 
-  viewer.scene.morphComplete.addEventListener(function() {
-    if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
-      stinuum.changeMode('SPACETIME');
-    } else if (viewer.scene.mode == Cesium.SceneMode.SCENE2D){
-      stinuum.changeMode('STATICMAP');
-    } else if (viewer.scene.mode == Cesium.SceneMode.SCENE3D){
-      stinuum.changeMode('ANIMATEDMAP');
-    } else {
-      alert('error');
-    }
+        }
+        else{
+            featureName.innerHTML = "";
+            featureName.style.visibility = "hidden";
+            context.innerHTML = "";
+            context.style.visibility = "hidden";
+        }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    this.handler.setInputAction(function(movement){
+        context.innerHTML = "";
+        context.style.visibility = "hidden";
+    }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
     setAnalysisDIV('graph');
-  });
-  slider = new Slider("#slider", {
-    reversed: true
+    getLayers();
 
-  });
+    var printedLayerListMenu = document.getElementById('printedLayerListMenu');
+    var layer_list = document.getElementById('layer_list');
+    var uploadButton = document.getElementById('uploadButton');
 
-  slider.on("slide", function(sliderValue) {
-    zoom_time = sliderValue;
-  });
+    uploadButton.style.padding = "10px";
 
+    var graph = document.getElementById('graph');
+    graph.style.visibility = "visible";
 
-  scene = viewer.scene;
-  viewer.clock.shouldAnimate = false;
-
-  handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
-  this.handler.setInputAction(function(movement) {
-    var featureName = document.getElementById('featureName');
-    if(label_timeout !== undefined){
-      window.clearTimeout(label_timeout);
-    }
-    var pick = scene.pick(movement.position);
-    if (Cesium.defined(pick)) {
-      featureName.innerText = "";
-      if(pick.primitive.id !== undefined){
-        stinuum.geometryViewer.clickMovingFeature(pick.primitive.id);
-        var cesiumContainer = document.getElementById('cesiumContainer');
-        featureName.innerText = pick.primitive.id;
-        featureName.style.visibility = 'visible';
-
-        showContextMenu(pick.primitive.id, movement.position);
-        label_timeout = window.setTimeout(function() {
-          featureName.innerHTML = "";
-          featureName.style.visibility = "hidden";
-          context.innerHTML = "";
-          context.style.visibility = "hidden";
-        }, 10000);
-      }
-
-    }
-    else{
-      featureName.innerHTML = "";
-      featureName.style.visibility = "hidden";
-      context.innerHTML = "";
-      context.style.visibility = "hidden";
-    }
-  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-  this.handler.setInputAction(function(movement){
-    context.innerHTML = "";
-    context.style.visibility = "hidden";
-  }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-
-  setAnalysisDIV('graph');
-  getLayers();
-
-  var printedLayerListMenu = document.getElementById('printedLayerListMenu');
-  var layer_list = document.getElementById('layer_list');
-  var uploadButton = document.getElementById('uploadButton');
-
-  uploadButton.style.padding = "10px";
-
-  var graph = document.getElementById('graph');
-  graph.style.visibility = "visible";
-
-  var toolbar_btn = document.getElementById('toolbar_btn');
-  toolbar_btn.className = 'btn btn-default';
-  toolbar_btn.style.left = '14.5%';
-  toolbar_btn.style.top = '45%';
-  toolbar_btn.style.width = '15px';
+    var toolbar_btn = document.getElementById('toolbar_btn');
+    toolbar_btn.className = 'btn btn-default';
+    toolbar_btn.style.left = '14.5%';
+    toolbar_btn.style.top = '45%';
+    toolbar_btn.style.width = '15px';
 })()
 String.prototype.replaceAll = function(org, dest) {
-  return this.split(org).join(dest);
+    return this.split(org).join(dest);
 }
 </script>
 </body>

@@ -11,7 +11,6 @@ function Stinuum(viewer){
     this.temporalMap = new Stinuum.TemporalMap(this);
     this.occurrenceMap = new Stinuum.OccurrenceMap(this);
     this.propertyGraph = new Stinuum.PropertyGraph(this);
-
 }
 
 Stinuum.MFPair = function(id, feature){
@@ -25,6 +24,9 @@ Stinuum.OccurrenceMap = function(stinuum){
   this.primitive = null;
 }
 
+Stinuum.QueryProcessor = function(mfc){
+    this.super = mfc;
+}
 
 Stinuum.MFCollection = function(stinuum){
     this.super = stinuum;
@@ -33,7 +35,10 @@ Stinuum.MFCollection = function(stinuum){
     this.colorCollection = {};
     this.min_max = {};
     this.whole_min_max = {};
+
+    this.queryProcessor = new Stinuum.QueryProcessor(this);
 }
+
 
 Stinuum.PathDrawing = function(g_viewer){
   this.g_viewer = g_viewer;
@@ -70,6 +75,7 @@ Stinuum.PropertyGraph = function(stinuum){
     this.super = stinuum;
     this.graph_id;
 }
+
 
 
 Stinuum.BoxCoord = function(){
