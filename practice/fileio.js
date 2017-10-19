@@ -6,7 +6,7 @@ function printFileUploadButton(){
   button.style.visibility = "visible";
 
   var input = document.createElement('button');
-  var graph_bt = document.createElement('input');
+  var analysis_bt = document.createElement('input');
   //var input = document.createElement('input');
   input.style.color = "BLACK";
   input.style.width = "46%";
@@ -20,25 +20,25 @@ function printFileUploadButton(){
   var t = document.createTextNode("UPLOAD");
   input.appendChild(t);
 
-  graph_bt.type = 'button';
-  graph_bt.style.color = "BLACK";
-  graph_bt.className = "btn btn-default";
-  graph_bt.style.float = "right";
-  graph_bt.style.height = '85%';
-  graph_bt.style.width = "46%";
-  graph_bt.className = "btn btn-default";
-  graph_bt.style.position = "relative";
-  graph_bt.style.margin = "2%";
-  graph_bt.value = "GRAPH";
+  analysis_bt.type = 'button';
+  analysis_bt.style.color = "BLACK";
+  analysis_bt.className = "btn btn-default";
+  analysis_bt.style.float = "right";
+  analysis_bt.style.height = '85%';
+  analysis_bt.style.width = "46%";
+  analysis_bt.className = "btn btn-default";
+  analysis_bt.style.position = "relative";
+  analysis_bt.style.margin = "2%";
+  analysis_bt.value = "ANALYSIS";
 
-  graph_bt.onclick = (function() {
+  analysis_bt.onclick = (function() {
     return function() {
       selectProperty('graph');
     };
   })();
 
   button.appendChild(input);
-  button.appendChild(graph_bt);
+  button.appendChild(analysis_bt);
 
   document.getElementById('files').addEventListener('click', getLocalFile, false);
 }

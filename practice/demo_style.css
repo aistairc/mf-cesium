@@ -204,3 +204,13 @@ body,
   border: 2px dashed #f69c55;
   text-align : center;
 }
+
+
+/* hide cesium button */
+.cesium-viewer-geocoderContainer, .cesium-gecoder-input, .cesium-geocoder-searchButton, .cesium-baseLayerPicker-dropDown {
+  width : 0;
+  display: none;
+}
+button[title^=Bing]{
+  display: none;
+}

@@ -39,10 +39,10 @@ function getLayers() {
     dropzone.style.visibility = "hidden";
     var url = urlParam('url');
     var token = urlParam('token');
-
+    
+    printFileUploadButton();
     if (url == '' || url == undefined){
       isServer = false;
-      printFileUploadButton();
       getLocalFile();
       return;
     }
