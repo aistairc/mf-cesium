@@ -135,11 +135,14 @@ Stinuum.MFCollection.prototype.inHiddenIndexOf= function(mf){
 Stinuum.MFCollection.prototype.refresh = function(){
 
   for (var i = 0 ; i < this.hiddenFeatures.length ; i++){
+    var index = this.inFeaturesIndexOfById(this.hiddenFeatures[i].id);
+    if (index != -1){ //Query 찌꺼기 처리
+      this.features.splice(index, 1);
+    }
     this.features.push(this.hiddenFeatures[i]);
   }
 
   this.hiddenFeatures = [];
-
 }
 
 Stinuum.MFCollection.prototype.findMinMaxGeometry = function(p_mf_arr){
@@ -248,17 +251,18 @@ Stinuum.MFCollection.prototype.getAllPropertyType = function(){
   return array;
 }
 
-Stinuum.MFCollection.prototype.spliceByTime = function(start, end){//Date, Date
-    this.queryProcessor.queryByTime(start, end);
+Stinuum.MFCollection.prototype.queryByTime = function(start, end){//Date, Date
+  this.refresh();
+  this.queryProcessor.queryByTime(start, end);
 }
 
 Stinuum.MFCollection.prototype.getFeatureById = function(id){
-  var inFeatures = this.getFeatureByIdInFeatures(id);
+  var inFeatures = this.getMFPairByIdInFeatures(id);
   if (inFeatures != -1){
     return inFeatures;
   }
 
-  var inHidden = this.getFeatureByIdinHidden(id);
+  var inHidden = this.getMFPairByIdinHidden(id);
   if (inHidden != -1){
     return inHidden;
   }
@@ -266,7 +270,7 @@ Stinuum.MFCollection.prototype.getFeatureById = function(id){
   return -1;
 }
 
-Stinuum.MFCollection.prototype.getFeatureByIdInFeatures = function(id){
+Stinuum.MFCollection.prototype.getMFPairByIdInFeatures = function(id){
   for (var i = 0 ; i < this.features.length ; i++){
     if (this.features[i].id == id){
       return this.features[i];
@@ -276,7 +280,7 @@ Stinuum.MFCollection.prototype.getFeatureByIdInFeatures = function(id){
   return -1;
 }
 
-Stinuum.MFCollection.prototype.getFeatureByIdinHidden = function(id){
+Stinuum.MFCollection.prototype.getMFPairByIdinHidden = function(id){
   for (var i = 0 ; i < this.hiddenFeatures.length ; i++){
     if (this.hiddenFeatures[i].id == id){
       return this.hiddenFeatures[i];

@@ -5,7 +5,7 @@ var debug_mode = true;
 
 function Stinuum(viewer){
     this.cesiumViewer = viewer;
-    this.mode = 'STATICMAP';
+    this.mode = 'STATICMAP'; //'STATICMAP' : 2d, 'SPACETIME' : perspective view, and 'ANIMATEDMAP' : 3d globe
     this.maxHeight = 30000000;
 
     this.geometryViewer = new Stinuum.GeometryViewer(this);

@@ -160,8 +160,8 @@ function getFeatures_local(layerID, features_list) {
   drawFeature();
 }
 
-function removeCheckAllandUnCheck(){
-  LOG("removeCheckAllandUnCheck")
+function removeCheckAllandUnCheckBtn(){
+  LOG("removeCheckAllandUnCheckBtn")
   if (document.getElementById('check_all_buttons')) {
     document.getElementById('check_all_buttons').remove();
   }
@@ -170,7 +170,7 @@ function removeCheckAllandUnCheck(){
 
 function printCheckAllandUnCheck(){
   LOG("printCheckAllandUnCheck");
-  removeCheckAllandUnCheck();
+  removeCheckAllandUnCheckBtn();
 
   var menu = document.getElementById('menu_list');
   var check_all = document.createElement('li');
@@ -261,7 +261,7 @@ function printFeatures_local(layerID, features_list, id) { //피쳐레이어아�
     a.innerText =features_list[i].properties.name;
     a.onclick = (function(layer, feature) {
       return function() {
-        removeCheckAllandUnCheck();
+        removeCheckAllandUnCheckBtn();
         getFeature(layer, feature);
       }
     })(layerID, features_list[i].properties.name);

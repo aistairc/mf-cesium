@@ -32,13 +32,11 @@ function backButton() {
     var uploadButton = document.getElementById("uploadButton");
     if (printMenuState == "layer") {}
     else if (printMenuState == "features") {
-
-
       if(isServer == false){
           uploadButton.style.visibility = "visible";
           uploadButton.style.padding = "10px";
       }
-      removeCheckAllandUnCheck();
+      removeCheckAllandUnCheckBtn();
       printMenuState = 'layer';
       printState.innerText = printMenuState;
       printArea.innerHTML = "";
@@ -673,23 +671,24 @@ function getCheckedFeatures() {
 
 
 }
-
+/*
 function refresh() {
-    stinuum.mfCollection.spliceByTime(time_min_max[0], time_min_max[1]);
+    stinuum.mfCollection.queryByTime(time_min_max[0], time_min_max[1]);
     stinuum.geometryViewer.update();
     stinuum.geometryViewer.adjustCameraView();
 }
-
+*/
 function zoom() {
+    LOG("zoom time : " , zoom_time);
+
     var fastest = new Date(time_min_max[0]);
     var latest = new Date(time_min_max[1]);
 
-    console.log(zoom_time);
     var diff = (latest.getTime() - fastest.getTime()) / 100;
     latest.setTime(fastest.getTime() + diff * zoom_time[1]);
     fastest.setTime(fastest.getTime() + diff * zoom_time[0]);
 
-    stinuum.mfCollection.spliceByTime(fastest, latest);
+    stinuum.mfCollection.queryByTime(fastest, latest);
     stinuum.geometryViewer.update();
     setAnalysisDIV('graph');
     stinuum.geometryViewer.adjustCameraView();
@@ -714,16 +713,19 @@ function printSlider() {
 }
 
 function drawFeatureWithoutModi() {
+    LOG("drawFeatureWithoutModi");
+
     stinuum.geometryViewer.update()
     time_min_max = stinuum.mfCollection.getWholeMinMax();
     time_min_max = time_min_max.date;
-    console.log('drawFeatureWithoutModi');
     printSlider();
 
     stinuum.geometryViewer.adjustCameraView();
 }
 
 function drawFeature() { //아이디로 찾을까
+    LOG("drawFeature");
+
     var slider_div = document.getElementById('zoom');
     getCheckedFeatures();
     stinuum.geometryViewer.update()

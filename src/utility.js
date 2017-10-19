@@ -232,3 +232,7 @@ Stinuum.getSampleProperty_Point = function(geometry){
   return property;
 }
 
+Stinuum.copyObj = function(obj) {
+  var copy = jQuery.extend(true, {}, obj);
+  return copy;
+}

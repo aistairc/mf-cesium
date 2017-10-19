@@ -131,7 +131,7 @@ Stinuum.GeometryViewer.prototype.animate = function(options){
   var multiplier = 10000;
   var czml = [{
     "id" : "document",
-    "name" : "polygon_highlight",
+    "name" : "animationOfMovingFeature",
     "version" : "1.0"
   }];
 
