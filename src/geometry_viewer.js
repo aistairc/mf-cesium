@@ -41,12 +41,12 @@ Stinuum.GeometryViewer.prototype.draw = function(){
     this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0,0] );
 
   }
-    console.log(this.bounding_sphere);
   for (var index = 0 ; index < mf_arr.length ; index++){
     var mf = mf_arr[index];
     var path_prim, primitive;
 
     if (mf.feature.temporalGeometry.type == "MovingPoint"){
+      if (this.super.mode != 'SPACETIME' && this.super.s_query_on) continue;
       primitive = this.drawing.drawPathMovingPoint({
         temporalGeometry : mf.feature.temporalGeometry,
         id : mf.id
@@ -99,7 +99,7 @@ Stinuum.GeometryViewer.prototype.animate = function(options){
       }
 
       for (var i = 0 ; i < id_arr.length ; i++){
-        mf_arr.push(this.super.mfCollection.getFeatureById(id_arr[i]));
+        mf_arr.push(this.super.mfCollection.getMFPairById(id_arr[i]));
       }
       min_max = this.super.mfCollection.findMinMaxGeometry(mf_arr);
     }
@@ -225,7 +225,7 @@ Stinuum.GeometryViewer.prototype.drawZaxisLabel = function(){
 
 Stinuum.GeometryViewer.prototype.showProjection = function(id){
 
-  var mf = this.super.mfCollection.getFeatureById(id).feature;
+  var mf = this.super.mfCollection.getMFPairById(id).feature;
   var color = this.super.mfCollection.getColor(id);
 
   var geometry = mf.temporalGeometry;
@@ -281,7 +281,7 @@ Stinuum.GeometryViewer.prototype.showProjection = function(id){
 }
 
 Stinuum.GeometryViewer.prototype.showHeightBar = function(id){
-  var mf = this.super.mfCollection.getFeatureById(id).feature;
+  var mf = this.super.mfCollection.getMFPairById(id).feature;
   var color = this.super.mfCollection.getColor(id);
 
   var geometry = mf.temporalGeometry;

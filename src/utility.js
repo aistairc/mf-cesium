@@ -202,12 +202,12 @@ Stinuum.getSampleProperties_Polygon = function(polygon){
 
   for (var i = 0 ; i < polygon_size ; i++){
     var property = new Cesium.SampledProperty(Cesium.Cartesian3);
-    if (isSpline){
-      property.setInterpolationOptions({
-      interpolationDegree : 2,
-      interpolationAlgorithm : Cesium.HermitePolynomialApproximation
-    });
-    }
+    // if (isSpline){
+    //   property.setInterpolationOptions({
+    //   interpolationDegree : 2,
+    //   interpolationAlgorithm : Cesium.HermitePolynomialApproximation
+    // });
+    // }
     Stinuum.addPolygonSample(polygon, i, property);
     sample_list.push(property);
   }
@@ -216,7 +216,7 @@ Stinuum.getSampleProperties_Polygon = function(polygon){
 
 Stinuum.getSampleProperty_Point = function(geometry){
   if (geometry.type != "MovingPoint") throw new Stinuum.Exception("It should be MovingPoint", geometry);
-  var isSpline = polygon.interpolations == "Spline";
+  var isSpline = geometry.interpolations == "Spline";
   var datetimes = geometry.datetimes;
   var property = new Cesium.SampledProperty(Cesium.Cartesian3);
   if (isSpline){
@@ -235,4 +235,30 @@ Stinuum.getSampleProperty_Point = function(geometry){
 Stinuum.copyObj = function(obj) {
   var copy = jQuery.extend(true, {}, obj);
   return copy;
+}
+
+Stinuum.spliceElementInMovingPointByIndex = function(point_feature, remove_index){
+  var geometry = point_feature.temporalGeometry;
+  var properties = point_feature.temporalProperties;
+
+  geometry.coordinates.splice(remove_index, 1);
+  geometry.datetimes.splice(remove_index, 1);
+  Stinuum.spliceElementInPropertiesByIndex(properties, remove_index);
+}
+
+Stinuum.spliceElementInPropertiesByIndex = function(properties, remove_index){
+  for (var pro_i = 0 ; pro_i < properties.length ; pro_i++){
+    var property = properties[pro_i];
+    for (var key in property){
+      if (!property.hasOwnProperty(key)) continue;
+      var array;
+      if (Array.isArray(property[key])){
+        array = property[key];
+      }
+      else{
+        array = property[key].values;
+      }
+      array.splice(remove_index, 1);
+    }
+  }
 }

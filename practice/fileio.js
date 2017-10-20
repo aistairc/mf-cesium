@@ -33,12 +33,12 @@ function printFileUploadButton(){
 
   analysis_bt.onclick = (function() {
     return function() {
-      selectProperty('graph');
+      toggle_anlaysis();
     };
   })();
+  button.appendChild(analysis_bt);
 
   button.appendChild(input);
-  button.appendChild(analysis_bt);
 
   document.getElementById('files').addEventListener('click', getLocalFile, false);
 }

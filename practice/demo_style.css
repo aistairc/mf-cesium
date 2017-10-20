@@ -22,7 +22,7 @@ body,
     z-index: 1;
 }
 
-#toolbar_btn {
+#left_toolbar_btn {
   position : absolute;
   z-index : 4;
   padding : 0;
@@ -119,15 +119,6 @@ body,
 
 /*VERTICAL MENU*/
 
-#analysis {
-    width: 7%;
-    height: 50%;
-    position: absolute;
-    right: 0px;
-    z-index: 20;
-}
-
-
 #serverState {
     position: relative;
     left: 57%;
@@ -214,3 +205,63 @@ body,
 button[title^=Bing]{
   display: none;
 }
+
+/* slider */
+#slider_bar .slider-track-high, #slider_bar .slider-track-low {
+  background: rgba(0,0,0,0.7);
+}
+
+/*upper toolbar*/
+.upper_toolbar{
+ position: absolute;
+  z-index: 3;
+  left: 16%;
+  min-height: 36px;
+  right: 150px;
+  top: 0;
+  background-color: rgba(0,0,0,1);
+  border-radius: 5px;
+}
+
+#upper_toolbar{
+  display: flex; 
+}
+
+#option{
+  white-space: pre-wrap;
+  justify-content: center;
+  align-items: center; 
+}
+
+.upper_toolbar_btn{
+  padding: 6px; 
+  margin : 5px;
+  width:18%;
+  border:1px;
+  white-space: pre-wrap;
+  color: white;
+  border-width: 0px;
+  position: relative;
+  display: block;
+  flex:1;
+  
+  background-color: transparent;
+  text-align:center;
+}
+
+.upper_toolbar_btn:hover{
+  background-color: rgba(255,255,255,0.3);
+  cursor: pointer;  
+  border-radius: 10px;
+}
+
+/* */
+.time-query-date{
+  font-size:small;
+  display:block;
+  padding : 2px;
+  float:left;
+  margin-left: 5px;
+  margin-right:5px;
+}
+

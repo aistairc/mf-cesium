@@ -238,7 +238,7 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array
       end_date =  formatDate(x.invert(start_coord[0]-51.09));
     }
 
-    propertyGraph.super.mfCollection.queryByTime(new Date(start_date), new Date(end_date));
+    propertyGraph.super.queryProcessor.queryByTime(new Date(start_date), new Date(end_date));
     propertyGraph.super.geometryViewer.update();
     propertyGraph.show(propertyName, div_id);
     rect.remove();

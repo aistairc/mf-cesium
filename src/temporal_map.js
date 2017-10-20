@@ -2,7 +2,7 @@
 Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
   var pro_name = propertyName;
 
-  var mf = this.super.mfCollection.getFeatureById(mf_id);
+  var mf = this.super.mfCollection.getMFPairById(mf_id);
   if (mf == -1){
     console.log("please add mf first.");
     return;

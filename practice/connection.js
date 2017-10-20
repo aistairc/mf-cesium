@@ -381,7 +381,7 @@ function getLayerOnlyForOneFeature(){
   var printFeatureLayer_list = [];
   var promise = request1(url);
 
-  setAnalysisDIV('analysis', 'graph', 'radar');
+  clearAnalysis('analysis', 'graph', 'radar');
   promise.then(function(arr) {
           featureLayers = arr;
           for (var i = 0; i < featureLayers.length; i++) {
