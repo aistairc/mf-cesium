@@ -1,5 +1,10 @@
-
-Stinuum.prototype.changeMode = null;
+/**
+* change mode of stinuum. It is one-to-one correspondence with cesium mode.
+* @param {string} [mode]
+* ` ``js
+* stinuum.changmeMode("SPACETIME");
+* ` ``
+*/
 
 Stinuum.prototype.changeMode = function(mode){
     if (mode == undefined){

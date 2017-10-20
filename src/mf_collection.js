@@ -208,7 +208,6 @@ Stinuum.MFCollection.prototype.getAllPropertyType = function(){
         if (keys[k] == 'datetimes') continue;
         array.push(keys[k]);
       }
-      return array;
     }
   }
   return array;

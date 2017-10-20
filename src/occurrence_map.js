@@ -1,15 +1,14 @@
 
 Stinuum.OccurrenceMap.prototype.show = function(degree){
+  var min_max = this.super.mfCollection.min_max;
   if (degree == undefined){
-    var min_max = this.super.mfCollection.min_max;
-
     degree = {};
     degree.x = 5;
     degree.y = 5;
-    degree.time = (min_max.date[1].getTime() - min_max.date[0].getTime()) / (1000 * 10 * 86400);
   }
 
   if (this.super.mode == 'SPACETIME'){
+    if (degree.time == undefined) degree.time = (min_max.date[1].getTime() - min_max.date[0].getTime()) / (1000 * 10 * 86400);
     var x_deg = degree.x,
     y_deg = degree.y,
     z_deg = degree.time;
@@ -56,6 +55,7 @@ Stinuum.OccurrenceMap.prototype.show = function(degree){
     this.primitive = this.super.cesiumViewer.scene.primitives.add(cube_prim);
   }
   else{
+
     var x_deg = degree.x,
     y_deg = degree.y;
 
@@ -110,7 +110,7 @@ Stinuum.OccurrenceMap.prototype.remove = function(){
   }
 }
 
-
+//Discrete, TODO
 Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data){
   var min_max = this.super.mfCollection.min_max;
 
@@ -124,14 +124,8 @@ Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, 
   var y_length = Math.ceil(y_band/y_deg);
 
   var max_num = this.max_num;
-
-  var value_property = [];
-
-  for (var point = 0 ; point < geometry.coordinates[0][0].length - 1; point++){
-    var temp = new SampledProperty(Number);
-    value_property[point] = temp;
-  }
-
+  var datetimes = geometry.datetimes;
+  
   var temp_map = [];
   for (var x = 0 ; x < x_length ; x++){
     temp_map[x] = [];
@@ -140,33 +134,21 @@ Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, 
     }
   }
 
-  for (var index = 0 ; index < geometry.coordinates.length ; index++){
-    var coord = geometry.coordinates[index];
-
-    for (var point = 0 ; point < coord[0].length - 1; point++){
-      value_property[point].addSample(coord[0][point][0], coord[0][point][1]);
+  for (var i = 0 ; i < geometry.coordinates.length ; i++){
+    var coords = geometry.coordinates[i][0];
+    for (var j = 0 ; j < coords.length; j++){
+      var x = coords[j][0];
+      var y = coords[j][1];
+      var x_index = Stinuum.getCubeIndexFromSample(x, x_deg, min_max.x[0]);
+      var y_index = Stinuum.getCubeIndexFromSample(y, y_deg, min_max.y[0]);
+      if (temp_map[x_index][y_index] == 0) temp_map[x_index][y_index] = 1;
     }
   }
 
-  for (var x_index = 0 ; x_index < x_length ; x_index++){
-    for (var point = 0 ; point < value_property.length ; point++){
-      var x_value = min_max.x[0] + x_deg * x_index;
-      var y_value = value_property[point].getValue(x_value);
-      if (y_value != undefined){
-        var y_index = Stinuum.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
-        if (temp_map[x_index][y_index] == 0){
-          temp_map[x_index][y_index] = 1;
-        }
-      }
-
-    }
-  }
-  for (var x = 0 ; x < x_length ; x++){
-    for (var y = 0 ; y < y_length ; y++){
-      if (temp_map[x][y] == 1){
-        map_data[x][y] += 1;
-        max_num = Math.max(map_data[x][y],max_num);
-      }
+  for (var i = 0 ; i < x_length ; i++){
+    for (var j = 0 ; j < y_length; j++){
+      if (temp_map[i][j] == 1) map_data[i][j] += 1;
+      max_num = Math.max(map_data[i][j],max_num);
     }
   }
 
@@ -413,7 +395,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
   var datetimes = geometry.datetimes;
 
   if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
-    var sapmle_list = getSampleProperties_Polygon(geometry);
+    var sample_list = Stinuum.getSampleProperties_Polygon(geometry);
     
     var polygon_size = geometry.coordinates[0][0].length;
 
@@ -453,7 +435,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
     }
   }
   else{
-    //TODO
+    //TODO : DISCRETE
   }
   this.max_num = Math.max(max_num, this.max_num);
 }
@@ -499,6 +481,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPoint = function(geometry, de
   }
   else{
     //TODO : DISCRETE
+    LOG("Discrete occurrence is not supported now.")
   }
   this.max_num = Math.max(max_num,this.max_num);
 

@@ -4,12 +4,13 @@ function printFileUploadButton(){
   button.style.padding = "10px";
   button.style.display = "inline-block";
   button.style.visibility = "visible";
+  button.style.textAlign = "center";
 
   var input = document.createElement('button');
   var analysis_bt = document.createElement('input');
   //var input = document.createElement('input');
   input.style.color = "BLACK";
-  input.style.width = "46%";
+  input.style.width = "85%";
   input.style.height = "85%";
   input.id = "files";
   input.className = "btn btn-default";
@@ -19,7 +20,7 @@ function printFileUploadButton(){
 
   var t = document.createTextNode("UPLOAD");
   input.appendChild(t);
-
+/*
   analysis_bt.type = 'button';
   analysis_bt.style.color = "BLACK";
   analysis_bt.className = "btn btn-default";
@@ -37,7 +38,7 @@ function printFileUploadButton(){
     };
   })();
   button.appendChild(analysis_bt);
-
+*/
   button.appendChild(input);
 
   document.getElementById('files').addEventListener('click', getLocalFile, false);

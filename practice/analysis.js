@@ -6,30 +6,27 @@ var clearAnalysis = function(){
     var option_id = div_id.option;
     var upper_toolbar_id = div_id.upper_toolbar;
 
-  document.getElementById(graph_id).style.height = '0%';
-  if (document.getElementById('pro_menu')) {
-    document.getElementById('pro_menu').remove();
-  }
-  
-  document.getElementById(option_id).innerHTML = '';
-  document.getElementById(option_id).style.display = "none";
-  document.getElementById(upper_toolbar_id).style.display = "flex";
+    document.getElementById(graph_id).style.height = '0%';
+    if (document.getElementById('pro_menu')) {
+        document.getElementById('pro_menu').remove();
+    }
 
-  if (stinuum.s_query_on) {
+    document.getElementById(option_id).innerHTML = '';
+    document.getElementById(option_id).style.display = "none";
+    document.getElementById(upper_toolbar_id).style.display = "flex";
+
     stinuum.s_query_on = false;
-    toggle_toolbar();
-  }
+    turnon_toolbar();
 }
 
-var toggle_analysis = function(){
+var turnOnOptionDIV = function(){
     $("#upper_toolbar").hide();
     document.getElementById("option").style.display = "flex";
-   //document.getElementById('option').style.lineHeight = document.getElementById('option').clientHeight;
-
 }
 
-var selectDegree = function(div, parent, graph_id) {
-
+var selectDegree = function() {
+    turnoff_toolbar();
+    turnOnOptionDIV();
     if (stinuum.mfCollection.getLength() == 0) {
         console.log("no features");
         clearAnalysis();
@@ -42,77 +39,64 @@ var selectDegree = function(div, parent, graph_id) {
         return;
     }
 
-    div.innerHTML = 'Set Degree' + '<br><br>';
-    div.style.verticalAlign = 'initial';
+    var option_div = document.getElementById(div_id.option);
+
+    var div = document.createElement('div');
+    div.innerHTML = '<Set Degree>';
+    div.style.textAlign = 'center';
     div.style.display = 'block';
-    div.style.alignItems = 'initial';
-    div.style.height = div.offsetHeight * 1 + 'px';
+    div.style.marginRight = '10px';
+    div.style.height = '100%';
     div.onclick = null;
+    option_div.appendChild(div);
 
     var table = document.createElement('table');
-    table.style.paddingTop = '10px';
-
+    var row = table.insertRow(table.rows.length);
     var degree_string = ['long(°) : ', 'lat(°) : ', 'time(days) : '];
-    for (var i = 0; i < 3; i++) {
-        var row = table.insertRow(table.rows.length);
-        row.id = 'degree_row_' + i;
-        var celll = row.insertCell(0);
+    var length = 3;
+    if (viewer.scene.mode != Cesium.SceneMode.COLUMBUS_VIEW) length = 2;
+    for (var i = 0; i < length; i++) {
+        var celll = row.insertCell(i * 2);
         celll.innerHTML = degree_string[i];
-
-        var cell2 = row.insertCell(1);
+        var cell2 = row.insertCell(i * 2 + 1);
         var input = document.createElement('input');
         input.id = 'degree_' + i;
         input.value = 5;
         input.style.color = 'black';
         input.style.width = '30px';
+        input.style.height = '100%';
+        input.style.marginRight = '10px';
         cell2.appendChild(input);
-
     }
-    div.appendChild(table);
+    option_div.appendChild(table);
 
-    var btn_div = document.createElement('div');
-    var back_btn = document.createElement('input'),
-        submit_btn = document.createElement('input');
-
-    back_btn.type = 'button';
+    var submit_btn = document.createElement('input');
     submit_btn.type = 'button'
-    back_btn.style.float = 'right';
-    submit_btn.style.float = 'left';
-    back_btn.style.color = 'black';
+    submit_btn.className = 'btn btn-default';
     submit_btn.style.color = 'black';
-    back_btn.value = 'back';
-    submit_btn.value = 'submit'
-
-    submit_btn.onclick = (function(stinuum, parent, graph_id) {
+    submit_btn.value = 'SUBMIT'
+    submit_btn.style.marginRight = '10px';
+    submit_btn.onclick = (function() {
         return function() {
             var x = document.getElementById('degree_0').value,
-                y = document.getElementById('degree_1').value,
-                time = document.getElementById('degree_2').value;
-            document.getElementById(parent).innerHTML = 'Analysing...';
+                y = document.getElementById('degree_1').value;
+            var time = document.getElementById('degree_2');
+            if (time != undefined) time = time.value;
+            if (time == 0) time = undefined;
+            document.getElementById(div_id.option).innerHTML = 'Analysing...';
             stinuum.occurrenceMap.show({
                 x: x,
                 y: y,
                 time: time
             });
 
-            clearAnalysis();
+            document.getElementById(div_id.option).innerHTML = 'Done';
+            option_div.appendChild(makeAnalysisCloseBtn());
         };
-    })(stinuum, parent, graph_id);
+    })();
+    option_div.appendChild(submit_btn);
+    option_div.appendChild(makeAnalysisCloseBtn());
 
-    back_btn.onclick = (function(stinuum, parent, graph_id) {
-        return function() {
-            clearAnalysis();
-        };
-    })(stinuum, parent, graph_id);
-
-    btn_div.appendChild(back_btn);
-    btn_div.appendChild(submit_btn);
-
-    div.appendChild(btn_div);
-
-    if (viewer.scene.mode != Cesium.SceneMode.COLUMBUS_VIEW) {
-        document.getElementById('degree_row_2').style.visibility = 'hidden';
-    }
 }
 
 var selectProperty = function(graph_id) {
@@ -191,8 +175,19 @@ var selectProperty = function(graph_id) {
 
 }
 
+function processSpatioQuery(id1, id2){
+    var pair1 = stinuum.mfCollection.features[0];
+    var pair2 = stinuum.mfCollection.features[1];
+    if (pair1.feature.temporalGeometry.type == "MovingPoint"){
+        stinuum.queryProcessor.queryBySpatioTime(pair2.id, pair1.id);
+    }
+    else{
+        stinuum.queryProcessor.queryBySpatioTime(pair1.id, pair2.id);
+    }
+}
+
 function spatio_query(){
-    //toggle_analysis();
+    turnOnOptionDIV();
     //TODO : select
     if (stinuum.s_query_on){
         stinuum.s_query_on = false;
@@ -201,28 +196,40 @@ function spatio_query(){
     }
     else{
         if (stinuum.mfCollection.features.length == 2){
-            var pair1 = stinuum.mfCollection.features[0];
-            var pair2 = stinuum.mfCollection.features[1];
-            if (pair1.feature.temporalGeometry.type == "MovingPoint"){
-                stinuum.queryProcessor.queryBySpatioTime(pair2.id, pair1.id);
-            }
-            else{
-                stinuum.queryProcessor.queryBySpatioTime(pair1.id, pair2.id);
-            }
-            time_query();
             turnoff_toolbar();
-            drawFeature();
+            setOptionDIVforSQuery();
+            
         }    
     }
     
 }
 
-function showSliderTooltip(){
+function setOptionDIVforSQuery(){
+    var option_div = document.getElementById(div_id.option);
+    option_div.innerHTML = '';
 
+
+    var test_btn = document.createElement('input');
+    test_btn.type = 'button';
+    test_btn.value = "SPATIO TIME QUERY TEST";
+    test_btn.className ='btn btn-default'
+    test_btn.style.height = '30%';
+    test_btn.onclick = (function(){
+        return function(){
+            processSpatioQuery();
+            time_query();
+            drawFeature();           
+        }
+    })();
+
+    var close_btn = makeAnalysisCloseBtn();
+    option_div.appendChild(test_btn);
+    option_div.appendChild(close_btn);
 }
 
 function makeAnalysisCloseBtn(){
     var btn = document.createElement('input');
+    btn.id = 'close_btn';
     btn.type = 'button';
     btn.className = 'btn btn-default';
     btn.value = 'CLOSE';
@@ -266,12 +273,11 @@ function setOptionDIVforSlider(){
     slider_bar_div.style.width = '70%';
     slider_bar_div.style.float = "left";
     slider_bar_div.style.margin = '10px';
-
-    var close_btn = makeAnalysisCloseBtn();
     
-
     min_date_div.innerText = fastest.getFullYear() + " / " + (fastest.getMonth() + 1) + " / " + (fastest.getDate());
     max_date_div.innerText = latest.getFullYear() + " / " + (latest.getMonth() + 1) + " / " + (latest.getDate());
+
+    var close_btn = makeAnalysisCloseBtn();
 
     document.getElementById(div_id.option).appendChild(min_date_div);
     document.getElementById(div_id.option).appendChild(slider_bar_div);
@@ -281,7 +287,10 @@ function setOptionDIVforSlider(){
 }
 
 function time_query(){
-    toggle_analysis();
+    turnOnOptionDIV();
+    var option_div = document.getElementById(div_id.option);
+    option_div.innerHTML = '';
+
     var slider_div = document.createElement('input');
     slider_div.type = 'text';
     slider_div.id = 'slider';
@@ -291,14 +300,27 @@ function time_query(){
         id: "slider_bar",
         range : true,
         step:1,
-        //tooltip_position:'bottom',
+        tooltip_position:'bottom',
         min : 0,
         max : 100,
-        value : [0,100]
-    });
+        value : [0,100],
+        formatter: function(value){
+            var time_min_max;
+            if (stinuum.s_query_on) time_min_max = stinuum.mfCollection.min_max.date;
+            else time_min_max = stinuum.mfCollection.whole_min_max.date;
+            if (time_min_max == undefined) return;
+            var fastest = new Date(time_min_max[0]);
+            var latest = new Date(time_min_max[1]);
 
-    slider.on("slide", function(sliderValue) {
-        showSliderTooltip();
+            var diff = (latest.getTime() - fastest.getTime()) / 100;
+            fastest.setTime(fastest.getTime() + diff * value[0]);
+            latest.setTime(fastest.getTime() + diff * value[1]);
+            
+
+            var start = fastest.getFullYear() + " / " + (fastest.getMonth() + 1) + " / " + (fastest.getDate());
+            var end = latest.getFullYear() + " / " + (latest.getMonth() + 1) + " / " + (latest.getDate());
+            return start + " - " + end;
+        }
     });
 
     slider.on("slideStop", function(sliderValue) {
@@ -332,3 +354,4 @@ function zoom() {
     stinuum.geometryViewer.update();
     stinuum.geometryViewer.adjustCameraView();
 }
+
