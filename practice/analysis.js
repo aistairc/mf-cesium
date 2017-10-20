@@ -15,6 +15,9 @@ var clearAnalysis = function(){
     document.getElementById(option_id).style.display = "none";
     document.getElementById(upper_toolbar_id).style.display = "flex";
 
+    if (stinuum.occurrenceMap.primitive != null) {
+        stinuum.occurrenceMap.remove();
+    }
     stinuum.s_query_on = false;
     turnon_toolbar();
 }
@@ -33,7 +36,7 @@ var selectDegree = function() {
         return;
     }
 
-    if (stinuum.occurrenceMap.primitive != null) {//TODO
+    if (stinuum.occurrenceMap.primitive != null) {
         stinuum.occurrenceMap.remove();
         clearAnalysis();
         return;
