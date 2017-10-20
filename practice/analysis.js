@@ -18,6 +18,10 @@ var clearAnalysis = function(){
     if (stinuum.occurrenceMap.primitive != null) {
         stinuum.occurrenceMap.remove();
     }
+    if (document.getElementById('radar') != undefined){
+        stinuum.directionRadar.remove('radar');
+        $('#radar').remove();
+    }
     stinuum.s_query_on = false;
     turnon_toolbar();
 }
@@ -358,3 +362,21 @@ function zoom() {
     stinuum.geometryViewer.adjustCameraView();
 }
 
+
+function showRadar(){
+    turnOnOptionDIV();
+    var radar_canvas = document.createElement('canvas');
+    radar_canvas.id = 'radar';
+    radar_canvas.style.width = document.body.offsetHeight / 3 + 'px';
+    radar_canvas.style.height = document.body.offsetHeight / 3 + 'px';
+    radar_canvas.width = document.body.offsetHeight / 3;
+    radar_canvas.height = document.body.offsetHeight / 3;
+    radar_canvas.style.top = (document.body.offsetHeight / 4) + 'px';
+    radar_canvas.style.right = (document.body.offsetWidth / 4) + 'px';
+    
+    document.body.appendChild(radar_canvas);
+    stinuum.directionRadar.show('radar');
+
+    var close_btn = makeAnalysisCloseBtn();
+    document.getElementById(div_id.option).appendChild(close_btn);
+}

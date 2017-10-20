@@ -123,11 +123,8 @@ Stinuum.DirectionRadar.prototype.remove = function(canvasID){
 }
 
 Stinuum.DirectionRadar.prototype.show = function(canvasID){
-  var radar_canvas = document.getElementById(canvasID);
-
-  radar_canvas.innerHTML = '';
-  radar_canvas.getContext('2d').clearRect(0, 0, radar_canvas.width, radar_canvas.height);
-
+  var cnvs = document.getElementById(canvasID);
+  //Stinuum.DirectionRadar.drawBackRadar(canvasID);
   var cumulative = new Stinuum.SpatialInfo();
 
   for (var index = 0 ; index < this.super.mfCollection.features.length ; index++){
@@ -135,9 +132,11 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
     this.super.mfCollection.setColor(mf.id, Stinuum.addDirectionInfo(cumulative, mf.feature.temporalGeometry));
   }
 
+  LOG(cnvs.width, cnvs.height);
+
   var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
   var total_length = cumulative.west.total_length + cumulative.east.total_length + cumulative.north.total_length + cumulative.south.total_length;
-  var cnvs = document.getElementById(canvasID);
+
   if (cnvs.getContext){
     var h_width = cnvs.width / 2;
     var h_height = cnvs.height / 2;
@@ -1615,7 +1614,7 @@ Stinuum.OccurrenceMap.prototype.remove = function(){
   }
 }
 
-//Discrete
+//Discrete, TODO
 Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data){
   var min_max = this.super.mfCollection.min_max;
 
@@ -1646,11 +1645,9 @@ Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, 
       var y = coords[j][1];
       var x_index = Stinuum.getCubeIndexFromSample(x, x_deg, min_max.x[0]);
       var y_index = Stinuum.getCubeIndexFromSample(y, y_deg, min_max.y[0]);
-      LOG(x_index, y_index);
       if (temp_map[x_index][y_index] == 0) temp_map[x_index][y_index] = 1;
     }
   }
-  LOG(x_length, y_length, temp_map);
 
   for (var i = 0 ; i < x_length ; i++){
     for (var j = 0 ; j < y_length; j++){
@@ -1942,7 +1939,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
     }
   }
   else{
-    //TODO
+    //TODO : DISCRETE
   }
   this.max_num = Math.max(max_num, this.max_num);
 }
@@ -3094,6 +3091,7 @@ Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source_id, target_
   result.push(source);
   for (var i = 0 ; i < result.length ; i++){
     var pair = new Stinuum.MFPair(result[i].properties.name, result[i]) ;
+    if (result[i].temporalGeometry.datetimes.length == 0) continue;
     this.result_pairs.push(pair);
     this.super.mfCollection.features.push(pair);
   }
@@ -3187,7 +3185,9 @@ Stinuum.QueryProcessor.prototype.queryByTime = function(start, end){
   this.super.mfCollection.hideAll();
   if (this.super.s_query_on){
     for (var i = 0 ; i < this.result_pairs.length ; i++){
-      this.super.mfCollection.features.push(new Stinuum.MFPair(this.result_pairs[i].id, this.sliceFeatureByTime(this.result_pairs[i].feature,start, end)));  
+      var sliced_feature = this.sliceFeatureByTime(this.result_pairs[i].feature,start, end);
+      if (sliced_feature.temporalGeometry.datetimes.length != 0) 
+        this.super.mfCollection.features.push(new Stinuum.MFPair(this.result_pairs[i].id, sliced_feature));  
     }
   }
   else{
@@ -3201,7 +3201,9 @@ Stinuum.QueryProcessor.prototype.queryByTime = function(start, end){
       }
       else{
         if (min_max_date[1] >= start && min_max_date[0] <= end){
-          new_mf_arr.push(new Stinuum.MFPair(hid_arr[i].id, this.sliceFeatureByTime(hid_arr[i].feature, start, end)));
+          var sliced_feature = this.sliceFeatureByTime(hid_arr[i].feature, start, end);
+          if (sliced_feature.temporalGeometry.datetimes.length != 0) 
+            new_mf_arr.push(new Stinuum.MFPair(hid_arr[i].id, sliced_feature));
         }  
       }
     }

@@ -16,6 +16,7 @@ Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source_id, target_
   result.push(source);
   for (var i = 0 ; i < result.length ; i++){
     var pair = new Stinuum.MFPair(result[i].properties.name, result[i]) ;
+    if (result[i].temporalGeometry.datetimes.length == 0) continue;
     this.result_pairs.push(pair);
     this.super.mfCollection.features.push(pair);
   }
@@ -109,7 +110,9 @@ Stinuum.QueryProcessor.prototype.queryByTime = function(start, end){
   this.super.mfCollection.hideAll();
   if (this.super.s_query_on){
     for (var i = 0 ; i < this.result_pairs.length ; i++){
-      this.super.mfCollection.features.push(new Stinuum.MFPair(this.result_pairs[i].id, this.sliceFeatureByTime(this.result_pairs[i].feature,start, end)));  
+      var sliced_feature = this.sliceFeatureByTime(this.result_pairs[i].feature,start, end);
+      if (sliced_feature.temporalGeometry.datetimes.length != 0) 
+        this.super.mfCollection.features.push(new Stinuum.MFPair(this.result_pairs[i].id, sliced_feature));  
     }
   }
   else{
@@ -123,7 +126,9 @@ Stinuum.QueryProcessor.prototype.queryByTime = function(start, end){
       }
       else{
         if (min_max_date[1] >= start && min_max_date[0] <= end){
-          new_mf_arr.push(new Stinuum.MFPair(hid_arr[i].id, this.sliceFeatureByTime(hid_arr[i].feature, start, end)));
+          var sliced_feature = this.sliceFeatureByTime(hid_arr[i].feature, start, end);
+          if (sliced_feature.temporalGeometry.datetimes.length != 0) 
+            new_mf_arr.push(new Stinuum.MFPair(hid_arr[i].id, sliced_feature));
         }  
       }
     }

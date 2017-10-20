@@ -152,7 +152,7 @@ body,
 }
 
 #radar {
- top : 65%;
+z-index: 5;
  position : absolute;
  right : 5px;
  background-color:rgba(0,0,0,0);

@@ -8,11 +8,8 @@ Stinuum.DirectionRadar.prototype.remove = function(canvasID){
 }
 
 Stinuum.DirectionRadar.prototype.show = function(canvasID){
-  var radar_canvas = document.getElementById(canvasID);
-
-  radar_canvas.innerHTML = '';
-  radar_canvas.getContext('2d').clearRect(0, 0, radar_canvas.width, radar_canvas.height);
-
+  var cnvs = document.getElementById(canvasID);
+  //Stinuum.DirectionRadar.drawBackRadar(canvasID);
   var cumulative = new Stinuum.SpatialInfo();
 
   for (var index = 0 ; index < this.super.mfCollection.features.length ; index++){
@@ -20,9 +17,11 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
     this.super.mfCollection.setColor(mf.id, Stinuum.addDirectionInfo(cumulative, mf.feature.temporalGeometry));
   }
 
+  LOG(cnvs.width, cnvs.height);
+
   var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
   var total_length = cumulative.west.total_length + cumulative.east.total_length + cumulative.north.total_length + cumulative.south.total_length;
-  var cnvs = document.getElementById(canvasID);
+
   if (cnvs.getContext){
     var h_width = cnvs.width / 2;
     var h_height = cnvs.height / 2;
