@@ -1,4 +1,3 @@
-var buffer = {};
 
 function getBuffer(id) {
     if (id.length == 1) {
@@ -24,7 +23,6 @@ function createLayer(layer_id){
 }
 
 function setBuffer_layer(layer_data){
-  createLayer(layer_data.name);
   for(var i = 0 ; i < layer_data.features.length; i++){
     var feature_id = layer_data.features[i].properties.name;
     setBuffer_feature(layer_data.name, feature_id, layer_data.features[i]);
@@ -41,7 +39,6 @@ function setBuffer_feature(layer_id, feature_id, feature_data){
   }
   catch(e) {
     //throw new Stinuum.Exception("it is not json format", feature_data);
-    LOG(feature_data);
     buffer[layer_id][feature_id] = feature_data;
   }
 }
@@ -91,4 +88,14 @@ function removeBuffer(id){
              delete buffer[id[0]][id[1]];
          }
      }
+}
+
+function getLayerNameList(){
+  var list = [];
+  for (var key in buffer){
+    if (buffer.hasOwnProperty(key)) {
+      list.push(key);
+    }
+  }
+  return list;
 }

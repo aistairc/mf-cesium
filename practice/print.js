@@ -9,14 +9,11 @@ var his_featurelayer;
 var his_features;
 var his_feature;
 var his_temporalproperty;
-var printMenuState = "layer";
+var printMenuState = "LAYER";
 
 var printedLayerList = [];
 var bool_printedLayerList = [];
 var check_button;
-var zoom_time = [0,100];
-
-
 
 
 function backButton() {
@@ -28,14 +25,14 @@ function backButton() {
     var property_panel = document.getElementById("property_panel");
     var menu = document.getElementById('menu_list');
     var uploadButton = document.getElementById("uploadButton");
-    if (printMenuState == "layer") {}
+    if (printMenuState == "LAYER") {}
     else if (printMenuState == "features") {
       if(isServer == false){
           uploadButton.style.visibility = "visible";
           uploadButton.style.padding = "10px";
       }
       removeCheckAllandUnCheckBtn();
-      printMenuState = 'layer';
+      printMenuState = 'LAYER';
       printState.innerText = printMenuState;
       printArea.innerHTML = "";
       printArea.appendChild(his_featurelayer);
@@ -224,7 +221,7 @@ Array.prototype.contains = function(obj) {
 }
 
 function printFeatureLayerList(arr, url, id) { //출력할피쳐리스트, 베이스주소, 출력할화면요소아이디
-    printMenuState = "layer";
+    printMenuState = "LAYER";
     var printState = document.getElementById('printMenuState');
     printState.innerText = printMenuState;
     var target = document.getElementsByClassName("vertical");
@@ -472,6 +469,7 @@ function uncheckAll(name) {
 }
 
 function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
+    LOG("printFeatures");
     var printedLayer = document.getElementById('layer_list');
     var property_panel = document.getElementById("property_panel");
     var target = document.createElement('ul');

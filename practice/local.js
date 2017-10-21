@@ -1,5 +1,5 @@
 
-var layer_list_local = [];
+
 
 /** File upload event */
 function handleFileSelect(evt) {
@@ -17,14 +17,14 @@ function handleFileSelect(evt) {
     promises.push(promise);
   }
   Promise.all(promises).then(function(arr){
-
-    var dropZone = document.getElementById('drop_zone');
-    dropZone.style.visibility = 'hidden';
+    document.getElementById('drop_zone').style.visibility = 'hidden';
     document.getElementById('drop_zone_bg').style.visibility = 'hidden';
     for(var i = 0 ; i < arr.length ; i++){
 
       var json_object = JSON.parse(arr[i]);
-      if (!Array.isArray(json_object.temporalGeometry.coordinates[0][0][0]) && json_object.temporalGeometry.type == 'MovingPolygon'){
+      LOG(json_object);
+      if (!Array.isArray(json_object.temporalGeometry.coordinates[0][0][0]) 
+        && json_object.temporalGeometry.type == 'MovingPolygon'){ //old mf-json format for polygon
         var coord = json_object.temporalGeometry.coordinates;
         var new_arr = [];
         for (var j = 0 ; j < coord.length ; j++){
@@ -33,27 +33,21 @@ function handleFileSelect(evt) {
         json_object.temporalGeometry.coordinates = new_arr;
       }
       if(json_object.name != undefined){
-        if(!layer_list_local.contains(json_object.name)){
-          layer_list_local.push(json_object.name);
-          updateBuffer_local(json_object.name, json_object);
-        }
+        updateBuffer_local(json_object.name, json_object);
       }
       else{
-        if(!layer_list_local.contains(files[i].name)){
-          layer_list_local.push(files[i].name);
-          updateBuffer_local(files[i].name, json_object);
-        }
+        updateBuffer_local(files[i].name, json_object);
       }
     }
 
-    var list = printFeatureLayerList_local(layer_list_local);
-    var printArea = document.getElementById('featureLayer');
-    his_featurelayer = list;
+    var list = list_maker.getLayerDivList();//printFeatureLayerList_local(layer_list_local);
+    var list_div = div_id.left_upper_list;
+    var printArea = document.getElementById(list_div);
+    //his_featurelayer = list;
     printArea.innerHTML = "";
     printArea.appendChild(list);
-    printMenuState = "layer";
-    var printState = document.getElementById('printMenuState');
-    printState.innerText = printMenuState;
+
+    changeMenuMode("LAYER");
   });
 }
 
@@ -77,64 +71,18 @@ function readFile(file) {
 function updateBuffer_local(filename, data){
   LOG("updateBuffer_local")
   var layer = data.name;
+  if (layer == undefined) layer = filename;
   if(getBuffer([layer]) == null){ // ths is new data.
+    createLayer(layer);
     if(data.features != undefined){
       setBuffer_layer(data);
-      // for(var i = 0 ; i < data.features.length; i++){
-      //   var feature = data.features[i].properties.name;
-      //   updateBuffer([layer, feature], data.features[i]);
-      // }
     }
     else{ // file is not layer
-      createLayer(filename);
       setBuffer_feature(filename, data.properties.name, data);
-      //updateBuffer([filename,data.properties.name],data);
     }
   }
 }
 
-var inputbutton_height;
-function printFeatureLayerList_local(arr) {
-  LOG("printFeatureLayerList_local");
-  printMenuState = "layer";
-  var printState = document.getElementById('printMenuState');
-  printState.innerText = printMenuState;
-  var target = document.getElementsByClassName("vertical");
-  var upper_ul = document.createElement('ul');
-  //upper_ul.className = "list-group-item";
-  console.log(arr);
-  for (var i = 0; i < arr.length; i++) {
-    var li = document.createElement('li');
-    var a = document.createElement('a');
-    var ul = document.createElement('ul');
-
-    ul.id = arr[i];
-    a.innerText = arr[i];
-
-    var data = getBuffer([arr[i]]);//the single layer data. coontains several feature
-    var feature_list = [];
-    for(var j in data){
-      feature_list.push(data[j]);
-    }
-    a.onclick = (function(id, feature) {
-      return function() {
-        getFeatures_local(id,feature);
-        printCheckAllandUnCheck();
-      };
-    })(arr[i], feature_list);
-    getFeatures_local(arr[i],feature_list);
-    li.style = "width:inherit";
-    a.style = "width:inherit";
-    li.className = "list-group-item";
-    ul.className = "list-group";
-    li.appendChild(a);
-    li.appendChild(ul);
-
-    upper_ul.appendChild(li);
-  }
-  his_featurelayer = upper_ul;
-  return upper_ul;
-}
 
 function getFeatures_local(layerID, features_list) {
   LOG("getFeatures_local")
@@ -295,3 +243,50 @@ function handleDragOver(evt) {
   evt.preventDefault();
   evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
 }
+
+
+
+/*
+
+function printFeatureLayerList_local(arr) {
+  LOG("printFeatureLayerList_local");
+  printMenuState = "LAYER";
+  var printState = document.getElementById('printMenuState');
+  printState.innerText = printMenuState;
+  var target = document.getElementsByClassName("vertical");
+  var upper_ul = document.createElement('ul');
+  //upper_ul.className = "list-group-item";
+  console.log(arr);
+  for (var i = 0; i < arr.length; i++) {
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    var ul = document.createElement('ul');
+
+    ul.id = arr[i];
+    a.innerText = arr[i];
+
+    var data = getBuffer([arr[i]]);//the single layer data. coontains several feature
+    var feature_list = [];
+    for(var j in data){
+      feature_list.push(data[j]);
+    }
+    a.onclick = (function(id, feature) {
+      return function() {
+        getFeatures_local(id,feature);
+        printCheckAllandUnCheck();
+      };
+    })(arr[i], feature_list);
+    getFeatures_local(arr[i],feature_list);
+    li.style = "width:inherit";
+    a.style = "width:inherit";
+    li.className = "list-group-item";
+    ul.className = "list-group";
+    li.appendChild(a);
+    li.appendChild(ul);
+
+    upper_ul.appendChild(li);
+  }
+  his_featurelayer = upper_ul;
+  return upper_ul;
+}
+*/

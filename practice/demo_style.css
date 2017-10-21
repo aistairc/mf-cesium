@@ -52,7 +52,7 @@ body,
     position: absolute;
     min-height: 30%;
     height: 30%;
-    bottom: 0px;
+    bottom: 30%;
     z-index: 3;
     float: left;
     overflow: auto;
