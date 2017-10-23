@@ -173,6 +173,7 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
   //li.className = "list-group-item";
   li.role = "presentation";
   li.style.marginLeft = "5%";
+  li.style.textAlign = "left";
   li.style.display ="block";
   ul.id = name;
   var temporalProperties_name = Object.keys(temporalProperties[0]);

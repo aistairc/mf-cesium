@@ -20,25 +20,7 @@ function printFileUploadButton(){
 
   var t = document.createTextNode("UPLOAD");
   input.appendChild(t);
-/*
-  analysis_bt.type = 'button';
-  analysis_bt.style.color = "BLACK";
-  analysis_bt.className = "btn btn-default";
-  analysis_bt.style.float = "right";
-  analysis_bt.style.height = '85%';
-  analysis_bt.style.width = "46%";
-  analysis_bt.className = "btn btn-default";
-  analysis_bt.style.position = "relative";
-  analysis_bt.style.margin = "2%";
-  analysis_bt.value = "ANALYSIS";
 
-  analysis_bt.onclick = (function() {
-    return function() {
-      toggle_anlaysis();
-    };
-  })();
-  button.appendChild(analysis_bt);
-*/
   button.appendChild(input);
 
   document.getElementById('files').addEventListener('click', getLocalFile, false);

@@ -279,6 +279,9 @@ button[title^=Bing]{
 .input-group{
   position: relative;
   display:block;
+  width:95%;
+  text-align: left;
+  display:inline-block;
 }
 
 
@@ -290,7 +293,6 @@ button[title^=Bing]{
 
 .list-group-item {
   padding: 5px;
-  margin-left: 5px;
   color: #FFFFFF;
   white-space: pre-wrap;
   color: white;
@@ -301,16 +303,14 @@ button[title^=Bing]{
   border-radius: 4px;
 }
 
-/*
-#featureLayer{
-  flex-grow : 1 ;
-}
-*/
 
-/* printed features */
-#printed_features{
-  margin-top : 5px;
+#featureLayer, #printed_features{
+  margin-top : 10px;
+  overflow-y:auto;
+  text-align: center;
+  /*flex-grow : 1 ;*/
 }
+
 
 
 

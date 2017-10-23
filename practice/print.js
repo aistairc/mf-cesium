@@ -1,21 +1,4 @@
-/*
-var isMoving = false;
-var property_name;
-var features = new Array();
-var checked_list = [];
-var url_list = [];
-var default_set = false;
 
-var his_featurelayer;
-var his_features;
-var his_feature;
-var his_temporalproperty;
-var printMenuState = "LAYER";
-
-var printedLayerList = [];
-var bool_printedLayerList = [];
-var check_button;
-*/
 
 /**
  * @author Dongmin Kim <dongmin.kim@pnu.edu>
@@ -41,7 +24,7 @@ function backButton() {
     } 
     else if (printMenuState == MENU_STATE.one_feature) {
         printCheckAllandUnCheck();
-        changeMenuMode(MENU_STATE.one_feature);
+        changeMenuMode(MENU_STATE.features);
         turnOffProperties();
         printProperty.innerHTML = "";
 
@@ -140,7 +123,24 @@ function drawFeatures() { //아이디로 찾을까
 
 
 
+/*
+var isMoving = false;
+var property_name;
+var features = new Array();
+var checked_list = [];
+var url_list = [];
+var default_set = false;
 
+var his_featurelayer;
+var his_features;
+var his_feature;
+var his_temporalproperty;
+var printMenuState = "LAYER";
+
+var printedLayerList = [];
+var bool_printedLayerList = [];
+var check_button;
+*/
 
 /*
 
