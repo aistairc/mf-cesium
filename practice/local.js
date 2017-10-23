@@ -48,7 +48,6 @@ function handleFileSelect(evt) {
     var list = list_maker.getLayerDivList();//printFeatureLayerList_local(layer_list_local);
     var list_div = div_id.left_upper_list;
     var printArea = document.getElementById(list_div);
-    //his_featurelayer = list;
     printArea.innerHTML = "";
     printArea.appendChild(list);
 

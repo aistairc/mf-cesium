@@ -22,61 +22,6 @@ body,
     z-index: 1;
 }
 
-#left_toolbar_btn {
-  position : absolute;
-  z-index : 4;
-  padding : 0;
-  text-align: center;
-  height : 45px;
-  line-height: 45px;
-}
-
-#menu_list {
-  height: 100%;
-  display : -webkit-flex;
-  display : flex;
-  flex-direction:column;
-}
-
-#left_toolbar {
-    color: white;
-    background-color: rgba(0, 0, 0, 0.9);
-    z-index:3 ;
-    width:15% ;
-    position:absolute;
-    height : 100% ;
-    min-height:100%;
-}
-
-#property_panel {
-    position: absolute;
-    min-height: 30%;
-    height: 30%;
-    bottom: 30%;
-    z-index: 3;
-    float: left;
-    overflow: auto;
-    margin-bottom: 0px;
-    width: 100%;
-    text-decoration: none;
-    color: white;
-    visibility: hidden;
-}
-
-#layer_list {
-    position: absolute;
-    min-height: 20%;
-    height: 30%;
-    bottom: 0;
-    z-index: 3;
-    float: left;
-    overflow: auto;
-    margin-bottom: 0px;
-    width: 100%;
-    text-decoration: none;
-    color: white;
-}
-
 #geoInfo {
     height: auto;
     position: absolute;
@@ -275,8 +220,65 @@ button[title^=Bing]{
   position : relative;
 }
 
+/* left toolbar */
+
+#left_toolbar_btn {
+  position : absolute;
+  z-index : 4;
+  padding : 0;
+  text-align: center;
+  height : 45px;
+  line-height: 45px;
+}
+
+#menu_list {
+  height: 100%;
+  display : -webkit-flex;
+  display : flex;
+  flex-direction:column;
+}
+
+#left_toolbar {
+    color: white;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index:3 ;
+    width:15% ;
+    position:absolute;
+    height : 100% ;
+    min-height:100%;
+}
+
+#property_panel {
+    position: absolute;
+    min-height: 30%;
+    height: 30%;
+    bottom: 30%;
+    z-index: 3;
+    float: left;
+    overflow: auto;
+    margin-bottom: 0px;
+    width: 100%;
+    text-decoration: none;
+    color: white;
+}
+
+#layer_list {
+    position: absolute;
+    min-height: 20%;
+    height: 30%;
+    bottom: 0;
+    z-index: 3;
+    float: left;
+    overflow: auto;
+    margin-bottom: 0px;
+    width: 100%;
+    text-decoration: none;
+    color: white;
+}
+
 
 /* printed features */
 #printed_features{
   margin-top : 5px;
 }
+

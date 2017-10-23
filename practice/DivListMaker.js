@@ -19,7 +19,7 @@ DivListMaker.prototype.getLayerDivList = function(){
         changeMenuMode(MENU_STATE.features);
         printFeaturesList(id);
         printCheckAllandUnCheck(id);
-        update_printed_features();
+        afterChangingCheck();
       };
     })(layer_name_list[i]);
     li.style = "width:inherit";
@@ -77,14 +77,12 @@ DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, is_pri
   chk.style.float = "left";
 
   if (this.isFeatureChecked[layer_id][feature_id] == undefined){
-    this.isFeatureChecked[layer_id][feature_id] = true;
+    showFeature(layer_id, feature_id);
   }
   chk.checked = this.isFeatureChecked[layer_id][feature_id];
-  chk.onclick = (function(layer, feature) {
-    return function(layer,feature) {
-      toggleFeature(layer,feature);
-    }
-  })(layer_id, feature_id);
+  chk.addEventListener('click', function(){
+      toggleFeature(layer_id,feature_id);
+  });
 
   div.appendChild(chk);
   div.appendChild(a);
@@ -137,5 +135,67 @@ DivListMaker.prototype.getDivAllFeaturesAreTurnedOn = function(){
       target.appendChild(this.createLIforFeature(layer_id, feature_id));
     }
   }
+  if (target.childNodes.length == 0) return 0;
   return target;
+}
+
+DivListMaker.prototype.getDivProperties = function(layer_id, feature_id){
+
+  var feature = buffer.getFeature(layer_id, feature_id);
+  var upper_ul = document.createElement("ul");
+  var temp_feature_property = [];
+  for (var key in feature.properties) {
+      temp_feature_property.push([key, feature.properties[key]]);
+  }
+  //upper_ul.className = "list-group";
+  upper_ul.style.paddingTop = '10px';
+  upper_ul.style.paddingLeft = '5px';
+
+  for (var j = 0; j < temp_feature_property.length; j++) {
+    var t_property = document.createElement('li');
+    t_property.className = "property-list";
+    t_property.innerText = temp_feature_property[j][0] + " : " + temp_feature_property[j][1];
+    upper_ul.appendChild(t_property);
+  } 
+  return upper_ul;
+}
+
+DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature_id){
+  var feature = buffer.getFeature(layer_id, feature_id);
+
+  var name = feature.properties.name;
+  var temporalProperties = feature.temporalProperties;
+  var li = document.createElement("li");
+  var ul = document.createElement("ul");
+
+  //li.className = "list-group-item";
+  li.role = "presentation";
+  li.style.marginLeft = "5%";
+  li.style.display ="block";
+  ul.id = name;
+  var temporalProperties_name = Object.keys(temporalProperties[0]);
+  console.log(temporalProperties_name);
+  for (var i = 0; i < temporalProperties_name.length; i++) {
+    if (temporalProperties_name[i] == 'datetimes') continue;
+    var li_temp = document.createElement("li");
+    var a_temp = document.createElement("a");
+    var div_temp = document.createElement("div");
+    var chk_temp = document.createElement("input");
+
+    li_temp.className = "list-group-item";
+    li_temp.style.display = "inline-block";
+    li_temp.role = "presentation";
+
+    a_temp.innerText = temporalProperties_name[i];
+    a_temp.onclick = (function(feature_id, temporalProperty) {
+      return function() {
+        getHighlight(feature_id, temporalProperty);
+      }
+    })(name, temporalProperties_name[i]);
+    div_temp.appendChild(a_temp);
+    li_temp.appendChild(div_temp);
+    ul.appendChild(li_temp);
+  }
+  li.appendChild(ul);
+  return li;
 }

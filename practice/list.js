@@ -1,14 +1,16 @@
 function printFeaturesList(layer){
+  current_layer = layer;
 	var list = list_maker.getFeaturesDivList(layer);
   var printArea = document.getElementById(div_id.left_upper_list);
   printArea.innerHTML = "";
   printArea.appendChild(list);
 }
 
-function changeMenuMode(mode){
+function changeMenuMode(mode, feature_id){
     printMenuState = mode;
     var printState = document.getElementById(div_id.menu_mode);
-    printState.innerText = printMenuState;
+    if (mode != MENU_STATE.one_feature) printState.innerText = printMenuState;
+    else printState.innerText = feature_id;
 }
 
 
@@ -17,7 +19,6 @@ function removeCheckAllandUnCheckBtn(){
   if (document.getElementById(div_id.chk_unchk_li)) {
     document.getElementById(div_id.chk_unchk_li).remove();
   }
-  //cleanGraphDIV();
   clearAnalysis();
 }
 
@@ -97,7 +98,8 @@ function update_printed_features(){
   var layer_features = list_maker.getDivAllFeaturesAreTurnedOn();
   var list_div = document.getElementById(div_id.printed_features);
   list_div.innerHTML = "";
-  list_div.appendChild(layer_features);
+
+  if (layer_features) list_div.appendChild(layer_features);
 }
 
 /*

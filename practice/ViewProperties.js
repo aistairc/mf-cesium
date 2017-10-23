@@ -1,19 +1,31 @@
-//print one Feature's TemporalProperties List and property.
+//print one Feature's TemporalProperties List and properties.
 function printFeatureProperties(layer_id, feature_id){
-  var feature = buffer.getFeature(layer_id, feature_id);
+  turnOnProperties();
+  var printProper = document.getElementById(div_id.properties);
+  printProper.innerHTML = "";
+  printProper.appendChild(list_maker.getDivProperties(layer_id,feature_id) );
+
+  changeMenuMode(MENU_STATE.one_feature, feature_id);
+  var left_upper_div = document.getElementById(div_id.left_upper_list);
+  left_upper_div.innerHTML = '';
+
+  var list = list_maker.getTemporalPropertiesListDiv(layer_id, feature_id);
+  left_upper_div.appendChild(list);
+}
+
+function turnOnProperties(){
+  document.getElementById(div_id.properties_panel).style.visibility = "visible";
+  document.getElementById(div_id.menu_list).style.height = '40%';
+
+}
+
+function turnOffProperties(){
+  document.getElementById(div_id.properties_panel).style.visibility = "hidden";
+  document.getElementById(div_id.menu_list).style.height = '70%';
 }
 
 function getHighlight(feature, temporalProperty) {
-  var pro_arr = [];
-  var pair = stinuum.mfCollection.getMFPairByIdInFeatures(feature);
-  if (pair == -1) return;
-  var property = Stinuum.getPropertyByName(pair.feature, temporalProperty, pair.id);
-  pro_arr.push(property);
-
-  cleanGraphDIV();
-  showGraphDIV("graph");
-
-  stinuum.propertyGraph.showPropertyArray(temporalProperty, pro_arr, "graph");
+  showOneFeatureGraph(feature, temporalProperty);
   stinuum.temporalMap.show(feature, temporalProperty);
     //stinuum.geometryViewer.adjustCameraView();
 }
@@ -22,18 +34,19 @@ function getHighlight(feature, temporalProperty) {
 function getHighlightInContext(feature, temporalProperty) {
   var context = document.getElementById("context");
   context.innerHTML = "";
-  var pro_arr = [];
+  showOneFeatureGraph(feature, temporalProperty);
+}
+
+function showOneFeatureGraph(feature, temporalProperty){
   var pair = stinuum.mfCollection.getMFPairByIdInFeatures(feature);
   if (pair == -1) return;
   var property = Stinuum.getPropertyByName(pair.feature, temporalProperty, pair.id);
-  pro_arr.push(property);
 
   cleanGraphDIV();
   showGraphDIV("graph");
 
-  stinuum.propertyGraph.showPropertyArray(temporalProperty, pro_arr, "graph");
+  stinuum.propertyGraph.showPropertyArray(temporalProperty, [property], "graph");
 }
-
 
 function showContextMenu(id, pos){
   var context = document.getElementById("context");

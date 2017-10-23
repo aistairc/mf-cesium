@@ -1,3 +1,4 @@
+/*
 var isMoving = false;
 var property_name;
 var features = new Array();
@@ -14,45 +15,41 @@ var printMenuState = "LAYER";
 var printedLayerList = [];
 var bool_printedLayerList = [];
 var check_button;
+*/
 
-
+/**
+ * @author Dongmin Kim <dongmin.kim@pnu.edu>
+ * @author Hyemi Jeong <hyemi.jeong@pnu.edu>
+ */
 function backButton() {
     var printArea = document.getElementById('featureLayer');
     var printProperty = document.getElementById('property');
-    var printGraph = document.getElementById('graph');
-    var printState = document.getElementById('printMenuState');
-    var printedLayer = document.getElementById('layer_list');
     var property_panel = document.getElementById("property_panel");
     var menu = document.getElementById('menu_list');
-    var uploadButton = document.getElementById("uploadButton");
-    if (printMenuState == MENU_STATE.layers) {}
-    else if (printMenuState == MENU_STATE.features) {
-      if(isServer == false){
-          uploadButton.style.visibility = "visible";
-          uploadButton.style.padding = "10px";
-      }
-      removeCheckAllandUnCheckBtn();
-      printMenuState = MENU_STATE.layers;
-      printState.innerText = printMenuState;
-      printArea.innerHTML = "";
-      printArea.appendChild(his_featurelayer);
-    } else if (printMenuState == MENU_STATE.one_feature) {
-        printMenuState = MENU_STATE.features;
-        printCheckAllandUnCheck();
-        printState.innerText = printMenuState;
-        printedLayer.style.visibility = "visible";
-        property_panel.style.visibility = "hidden";
+    if (printMenuState == MENU_STATE.layers) {
+        //nothing
+    }
+    else if (printMenuState == MENU_STATE.features) { //go to LAYER
+    // if(isServer == false){
+    //     uploadButton.style.visibility = "visible";
+    //     uploadButton.style.padding = "10px";
+    // }
+        removeCheckAllandUnCheckBtn();
+        changeMenuMode(MENU_STATE.layers);
         printArea.innerHTML = "";
+        printArea.appendChild(list_maker.getLayerDivList());
+    } 
+    else if (printMenuState == MENU_STATE.one_feature) {
+        printCheckAllandUnCheck();
+        changeMenuMode(MENU_STATE.one_feature);
+        turnOffProperties();
         printProperty.innerHTML = "";
-        printGraph.innerHTML = "";
-        printGraph.style.height = "0%";
-        printArea.appendChild(his_features);
 
-        if (document.getElementById('pro_menu'))
-          document.getElementById('pro_menu').remove();
-        refresh();
-        drawFeatures();
-    } else {
+        printArea.innerHTML = "";
+        printArea.appendChild(list_maker.getFeaturesDivList(current_layer));
+        clearAnalysis();
+        afterChangingCheck();
+    }else {
         throw "BACK BUTTON, STATE ERROR"
     }
     clearAnalysis();
@@ -100,13 +97,13 @@ Array.prototype.contains = function(obj) {
 
 function eraseFeature(layer_id, feature_id){
     list_maker.turnOffFeature(layer_id,feature_id);
-    var ft = buffer.getFeature(layer_id, features[i]);
+    var ft = buffer.getFeature(layer_id, feature_id);
     stinuum.mfCollection.remove(ft);
 }
 
 function showFeature(layer_id, feature_id){
     list_maker.turnOnFeature(layer_id,feature_id);
-    var ft = buffer.getFeature(layer_id, features[i]);
+    var ft = buffer.getFeature(layer_id, feature_id);
     stinuum.mfCollection.add(ft);
 }
 

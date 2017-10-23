@@ -54,8 +54,8 @@
     </div>
     <div id="option" class="upper_toolbar" style="display:none"></div>
     <div id="left_toolbar">
-        <div class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
-            <ul id="menu_list" class="list-group" >
+        <!-- <div id="left_toolbar_div" class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%;"> -->
+            <ul id="menu_list" class="list-group left_toolbar_div panel-default" style="height: 70%; z-index:3;" >
                 <li onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;">Back</li>
                 <li id = "uploadButton" ></li>
 
@@ -65,8 +65,8 @@
                 </li>
             </ul>
 
-        </div>
-        <div id="property_panel" class="left_toolbar_div panel-default" style="overflow : auto">
+        <!-- </div> -->
+        <div id="property_panel" class="left_toolbar_div panel-default" style="overflow : auto;     visibility: hidden;">
 
             <ul>
                 <li role="presentation" class="list-title">Properties</li>
@@ -123,8 +123,8 @@
 
 
 <script>
-var properties = new Array();
-var checked_property = new Array();
+//var properties = new Array();
+//var checked_property = new Array();
 //var features = new Array();
 //var feature = new Array();
 var viewer;
@@ -133,6 +133,7 @@ var stinuum;
 var handler;
 var slider;
 var label_timeout;
+var current_layer;
 var toolbar_show = true;
 var div_id = {
     'graph' : 'graph',
@@ -143,7 +144,10 @@ var div_id = {
     "left_upper_list" : "featureLayer",
     "menu_mode" : "printMenuState",
     "printed_features" :"printed_features",
-    "chk_unchk_li" :"chk_unchk_li"
+    "chk_unchk_li" :"chk_unchk_li",
+    "properties" : "property",
+    "properties_panel" : "property_panel",
+    "menu_list" : "menu_list"
 };
 
 var MENU_STATE = {
