@@ -6,10 +6,7 @@ var clearAnalysis = function(){
     var option_id = div_id.option;
     var upper_toolbar_id = div_id.upper_toolbar;
 
-    document.getElementById(graph_id).style.height = '0%';
-    if (document.getElementById('pro_menu')) {
-        document.getElementById('pro_menu').remove();
-    }
+    cleanGraphDIV();
 
     document.getElementById(option_id).innerHTML = '';
     document.getElementById(option_id).style.display = "none";
@@ -199,7 +196,7 @@ function spatio_query(){
     if (stinuum.s_query_on){
         stinuum.s_query_on = false;
         refresh();
-        drawFeature();
+        drawFeatures();
     }
     else{
         if (stinuum.mfCollection.features.length == 2){
@@ -225,7 +222,7 @@ function setOptionDIVforSQuery(){
         return function(){
             processSpatioQuery();
             time_query();
-            drawFeature();           
+            drawFeatures();           
         }
     })();
 
@@ -251,7 +248,7 @@ function makeAnalysisCloseBtn(){
         return function(){
             clearAnalysis();
             refresh();
-            drawFeature();
+            drawFeatures();
         }
     })();
     return btn;
@@ -379,4 +376,53 @@ function showRadar(){
 
     var close_btn = makeAnalysisCloseBtn();
     document.getElementById(div_id.option).appendChild(close_btn);
+}
+
+
+function cleanGraphDIV() {
+    if (document.getElementById('pro_menu')) {
+        document.getElementById('pro_menu').remove();
+    }
+    document.getElementById("graph").innerHTML = '';
+    document.getElementById("graph").style.height = '0%';
+}
+
+function showGraphDIV(graph_id){
+  var pro_menu_div = document.createElement('div');
+  pro_menu_div.style.bottom = '0';
+  pro_menu_div.style.backgroundColor = 'rgba(55, 55, 55, 0.8)';
+  pro_menu_div.style.height = "5%";
+  pro_menu_div.style.zIndex = "25";
+  pro_menu_div.id = 'pro_menu';
+  pro_menu_div.style.cursor = 'pointer';
+  pro_menu_div.className = 'graph';
+
+  var close_div = document.createElement('div');
+  close_div.style.padding = "10px";
+  close_div.style.color = 'white';
+  close_div.style.textAlign = 'center';
+  close_div.style.fontSize = 'small';
+  close_div.style.verticalAlign = 'middle';
+  close_div.innerHTML = 'CLOSE';
+  pro_menu_div.appendChild(close_div);
+
+  close_div.onclick = (function(graph_id) {
+      return function() {
+          document.getElementById('pro_menu').remove();
+          document.getElementById(graph_id).style.height = "0%";
+      }
+  })(graph_id);
+
+  document.body.appendChild(pro_menu_div);
+  document.getElementById('pro_menu').style.bottom = '20%';
+  document.getElementById(graph_id).style.height = '20%';
+  if (toolbar_show) {
+    document.getElementById(graph_id).style.width = '85%';
+    document.getElementById('pro_menu').style.width = '85%';
+  }
+  else{
+    document.getElementById(graph_id).style.width = '100%';
+    document.getElementById('pro_menu').style.width = '100%';
+  }
+  document.getElementById(graph_id).style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
 }

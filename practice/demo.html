@@ -27,10 +27,10 @@
 
     <!-- Stinuum -->
     <script src="../stinuum.js"></script>
-    <script src="buffer.js"></script>
+    <script src="FeatureBuffer.js"></script>
     <script src="connection.js"></script>
     <script src="fileio.js"></script>
-    <script src="temporal_property.js"></script>
+    <script src="ViewProperties.js"></script>
     <script src="print.js"></script>
     <script src="local.js"></script>
     <script src="analysis.js"></script>
@@ -81,7 +81,7 @@
         <div id="layer_list" class="left_toolbar_div panel-default" style="overflow : auto">
             <ul>
                 <li id="printedLayerListMenu" role="presentation" class="list-title">Printed Features</li>
-                <li id="list">
+                <li id="printed_features">
 
                 </li>
 
@@ -125,11 +125,11 @@
 <script>
 var properties = new Array();
 var checked_property = new Array();
-var features = new Array();
-var feature = new Array();
+//var features = new Array();
+//var feature = new Array();
 var viewer;
 var stinuum;
-var labelEntity;
+//var labelEntity;
 var handler;
 var slider;
 var label_timeout;
@@ -142,11 +142,19 @@ var div_id = {
     "left_toolbar" : "left_toolbar",
     "left_upper_list" : "featureLayer",
     "menu_mode" : "printMenuState",
-
+    "printed_features" :"printed_features",
+    "chk_unchk_li" :"chk_unchk_li"
 };
-var buffer = {};
 
-var list_maker = new DivListMaker();
+var MENU_STATE = {
+    "features" : "FEATURE",
+    "layers" : "LAYER",
+    "one_feature" : "one_feature"
+}
+
+var buffer = new FeatureBuffer();
+var list_maker = new DivListMaker(undefined);
+
 
 (function() {
     viewer = new Cesium.Viewer('cesiumContainer', {

@@ -40,7 +40,14 @@ Stinuum.MFCollection.prototype.remove= function(mf){
   var index = this.inFeaturesIndexOfById(mf.properties.name);
   if (index != -1) this.removeByIndexInFeatures(index);
   index = this.inWholeIndexOfById(mf.properties.name);
-  if (index != -1) return this.removeByIndexInWhole(index);
+
+  var ret;
+  if (index != -1) ret = this.removeByIndexInWhole(index);
+
+  if (this.inFeaturesIndexOfById(mf.properties.name) != -1 || this.inWholeIndexOfById(mf.properties.name) != -1){
+    throw new Stinuum.Excetion("after removing but exist", [this, mf]);
+  }
+  if (ret != undefined) return ret;
   console.log("this mf is not exist in array", mf);
   return 0;
 }

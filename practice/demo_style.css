@@ -255,7 +255,7 @@ button[title^=Bing]{
   border-radius: 10px;
 }
 
-/* */
+/* time query*/
 .time-query-date{
   font-size:small;
   display:block;
@@ -265,3 +265,18 @@ button[title^=Bing]{
   margin-right:5px;
 }
 
+/* All RESET BUTTON */
+.chk_unchk_btn{
+  height : 100%;
+  width : 46%;
+  margin : 2%;
+  margin-bottom : 0;
+  flex : 0;
+  position : relative;
+}
+
+
+/* printed features */
+#printed_features{
+  margin-top : 5px;
+}

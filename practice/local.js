@@ -1,9 +1,14 @@
 
 
+function handleDragOver(evt) {
+  evt.stopPropagation();
+  evt.preventDefault();
+  evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+}
+
 
 /** File upload event */
 function handleFileSelect(evt) {
-  LOG("handleFileSelect");
   evt.stopPropagation();
   evt.preventDefault();
 
@@ -22,7 +27,7 @@ function handleFileSelect(evt) {
     for(var i = 0 ; i < arr.length ; i++){
 
       var json_object = JSON.parse(arr[i]);
-      LOG(json_object);
+      LOG("handleFileSelect", json_object);
       if (!Array.isArray(json_object.temporalGeometry.coordinates[0][0][0]) 
         && json_object.temporalGeometry.type == 'MovingPolygon'){ //old mf-json format for polygon
         var coord = json_object.temporalGeometry.coordinates;
@@ -47,7 +52,7 @@ function handleFileSelect(evt) {
     printArea.innerHTML = "";
     printArea.appendChild(list);
 
-    changeMenuMode("LAYER");
+    changeMenuMode(MENU_STATE.layers);
   });
 }
 
@@ -72,18 +77,19 @@ function updateBuffer_local(filename, data){
   LOG("updateBuffer_local")
   var layer = data.name;
   if (layer == undefined) layer = filename;
-  if(getBuffer([layer]) == null){ // ths is new data.
-    createLayer(layer);
+  if(buffer.getBuffer([layer]) == null){ // ths is new data.
+    buffer.createLayer(layer);
     if(data.features != undefined){
-      setBuffer_layer(data);
+      buffer.setBuffer_layer(data);
     }
     else{ // file is not layer
-      setBuffer_feature(filename, data.properties.name, data);
+      buffer.setBuffer_feature(filename, data.properties.name, data);
     }
   }
 }
 
 
+/*
 function getFeatures_local(layerID, features_list) {
   LOG("getFeatures_local")
   var features = [];
@@ -96,7 +102,7 @@ function getFeatures_local(layerID, features_list) {
     bool_printedLayerList[index] = 1;
   }
 
-  var layerlist = document.getElementById('list');
+  var layerlist = document.getElementById(div_id.printed_features);
   layerlist.innerHTML = "";
   layerlist.appendChild(printPrintedLayersList());
   var list = printFeatures_local(layerID, features_list, "features");
@@ -104,71 +110,8 @@ function getFeatures_local(layerID, features_list) {
   his_features = list;
   printArea.innerHTML = "";
   printArea.appendChild(list);
-  printMenuState = "features";
-  drawFeature();
-}
-
-function removeCheckAllandUnCheckBtn(){
-  LOG("removeCheckAllandUnCheckBtn")
-  if (document.getElementById('check_all_buttons')) {
-    document.getElementById('check_all_buttons').remove();
-  }
-  cleanGraphDIV();
-}
-
-function printCheckAllandUnCheck(){
-  LOG("printCheckAllandUnCheck");
-  removeCheckAllandUnCheckBtn();
-
-  var menu = document.getElementById('menu_list');
-  var check_all = document.createElement('li');
-  var chk_all = document.createElement('input');
-  var unchk_all = document.createElement('input');
-
-  check_all.style = "flex-grow : 0;align-items: center;justify-content: center;";
-  //check_all.style.display = "flex";
-  check_all.id = "check_all_buttons";
-  check_all.style.display = "inline-block";
-  check_all.style.padding = "10px";
-
-
-  chk_all.type = 'button';
-  chk_all.style.height = '100%';
-  chk_all.style.width = "46%";
-  chk_all.style.margin = "2%";
-  chk_all.style.marginBottom = "0";
-  chk_all.className = "btn btn-default";
-  chk_all.value = 'ALL';
-  chk_all.style.flex = '0';
-  chk_all.style.position = 'relative';
-  chk_all.onclick = (function(name) {
-    return function() {
-      checkAll(name);
-    };
-  })("chkf[]");
-  check_all.appendChild(chk_all);
-
-  unchk_all.type = 'button';
-  unchk_all.className = "btn btn-default";
-  unchk_all.style.height = '100%';
-  unchk_all.style.width = "46%";
-  unchk_all.style.position = "relative";
-  unchk_all.style.margin = "2%";
-  unchk_all.style.float = "right";
-  unchk_all.style.marginBottom = "0";
-  unchk_all.value = 'RESET';
-  unchk_all.style.flex = '0';
-
-  unchk_all.onclick = (function(name) {
-    return function() {
-      uncheckAll(name);
-    };
-  })("chkf[]");
-
-  check_all.appendChild(unchk_all);
-
-  menu.insertBefore(check_all, document.getElementById('featureLayer'));
-
+  printMenuState = MENU_STATE.features;
+  drawFeatures();
 }
 
 function printFeatures_local(layerID, features_list, id) { //피쳐레이어아이디,
@@ -186,12 +129,12 @@ function printFeatures_local(layerID, features_list, id) { //피쳐레이어아�
 
   //check_button = check_all;
   target.className = "list-group-item";
-  printMenuState = "features";
+  printMenuState = MENU_STATE.features;
 
   printState.innerText = printMenuState;
   for (var i = 0; i < features_list.length; i++) {
 
-    var data = getBuffer([layerID, features_list[i]]);
+    var data = buffer.getBuffer([layerID, features_list[i]]);
     var li = document.createElement("li");
     var a = document.createElement("a");
     var ul = document.createElement("ul");
@@ -221,7 +164,7 @@ function printFeatures_local(layerID, features_list, id) { //피쳐레이어아�
     chk.id = features_list[i].properties.name + "##" + layerID;
     chk.onclick = (function() {
       return function() {
-        drawFeature();
+        drawFeatures();
       }
     })();
 
@@ -238,15 +181,7 @@ function printFeatures_local(layerID, features_list, id) { //피쳐레이어아�
   return target;
 }
 
-function handleDragOver(evt) {
-  evt.stopPropagation();
-  evt.preventDefault();
-  evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-}
 
-
-
-/*
 
 function printFeatureLayerList_local(arr) {
   LOG("printFeatureLayerList_local");

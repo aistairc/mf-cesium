@@ -55,8 +55,10 @@ function getLayers() {
     promise.then(function(arr) {
             featureLayers = arr;
             for (var i = 0; i < featureLayers.length; i++) {
-                if (getBuffer([featureLayers[i]]) == null) {
-                    updateBuffer([featureLayers[i]], null);
+                //if (getBuffer([featureLayers[i]]) == null) {
+                if (buffer.getFeatruesByLayerID(featureLayers[i]) == undefined) {
+                    //updateBuffer([featureLayers[i]], null);
+                    buffer.createLayer(featureLayers[i]);
                     printFeatureLayer_list.push(featureLayers[i]);
                 }
             }
@@ -118,7 +120,7 @@ function getFeatures(url, layerID) {
             }
 
             if (promise_list.length == 0) { //이미 불러온 적이 있다
-              var layerlist = document.getElementById('list');
+              var layerlist = document.getElementById(div_id.printed_features);
               layerlist.innerHTML = "";
               layerlist.appendChild(printPrintedLayersList());
               var serverState = document.getElementById('serverState');
@@ -130,8 +132,8 @@ function getFeatures(url, layerID) {
                 his_features = list;
                 printArea.innerHTML = "";
                 printArea.appendChild(list);
-                printMenuState = "features";
-                drawFeature();
+                printMenuState = MENU_STATE.features;
+                drawFeatures();
             } else {
                 Promise.all(promise_list).then(function(values) {
 
@@ -150,12 +152,12 @@ function getFeatures(url, layerID) {
                     his_features = list;
                     printArea.innerHTML = "";
                     printArea.appendChild(list);
-                    var layerlist = document.getElementById('list');
+                    var layerlist = document.getElementById(div_id.printed_features);
                     layerlist.innerHTML = "";
                     layerlist.appendChild(printPrintedLayersList());
 
-                    printMenuState = "features";
-                    drawFeature();
+                    printMenuState = MENU_STATE.features;
+                    drawFeatures();
                     setTimeout(function(){serverState.style.visibility = "hidden";},2000);
 
                 });
@@ -357,6 +359,231 @@ function getToken(url) {
     return token_result;
 }
 
+function printFeatureLayerList(arr, url, id) { //출력할피쳐리스트, 베이스주소, 출력할화면요소아이디
+    printMenuState = "LAYER";
+    var printState = document.getElementById('printMenuState');
+    printState.innerText = printMenuState;
+    var target = document.getElementsByClassName("vertical");
+    var upper_ul = document.createElement('ul');
+
+    for (var i = 0; i < arr.length; i++) {
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        var ul = document.createElement('ul');
+
+
+
+
+        //ul.style = "overflow-y : scroll;";
+
+        a.innerText = parse_layer_name(arr[i]);
+
+
+          var new_url = url + "/" + arr[i] + "/$ref";
+
+          a.onclick = (function(url, id) {
+              return function() {
+                  getFeatures(url, id);
+              };
+          })(new_url, arr[i]);
+
+        li.style = "width:inherit";
+        a.style = "width:inherit";
+        li.className = "list-group-item";
+        ul.className = "list-group";
+        li.appendChild(a);
+        li.appendChild(ul);
+
+        upper_ul.appendChild(li);
+    }
+    his_featurelayer = upper_ul;
+    return upper_ul;
+}
+
+function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
+    LOG("printFeatures");
+    var printedLayer = document.getElementById('layer_list');
+    var property_panel = document.getElementById("property_panel");
+    var target = document.createElement('ul');
+    var check_all = document.createElement('li');
+    var chk_all = document.createElement('input');
+    var unchk_all = document.createElement('input');
+    var printState = document.getElementById('printMenuState');
+    var menu = document.getElementById('menu_list');
+
+    //printedLayer.style.visibility = "visible";
+    printedLayer.style.visibility = "hidden";
+
+    property_panel.style.visibility = "hidden";
+
+
+
+    check_all.style.display = "flex";
+    check_all.style.position = "absolute";
+    check_all.className = "list-group-item";
+
+    chk_all.type = 'button';
+    chk_all.style = "min-height : 100%;min-width : 50%";
+
+    chk_all.className = "btn btn-default";
+    chk_all.value = 'check all';
+    //chk_all.style.display = "flex";
+    chk_all.style.flex = '0';
+    chk_all.style.position = 'relative';
+    chk_all.onclick = (function(name) {
+        return function() {
+            checkAll(name);
+        };
+    })("chkf[]");
+    check_all.appendChild(chk_all);
+    check_all.id = "check_all_buttons";
+    check_all.style = "flex-grow : 0;align-items: center;justify-content: center;";
+
+    //unchk_all.style.display = "flex";
+    unchk_all.type = 'button';
+    unchk_all.className = "btn btn-default";
+    unchk_all.style = "min-height : 100% ; min-width : 50%";
+    unchk_all.style.position = "relative";
+    unchk_all.value = 'uncheck all';
+    unchk_all.style.flex = '0';
+
+    unchk_all.onclick = (function(name) {
+        return function() {
+            uncheckAll(name);
+        };
+    })("chkf[]");
+
+    check_all.appendChild(unchk_all);
+
+    //menu.insertBefore(check_all, document.getElementById('featureLayer'));
+    //check_button = check_all;
+    target.className = "list-group-item";
+    printMenuState = MENU_STATE.features;
+    console.log(layerID);
+    /*
+    if(!layerID.includes("\'")){
+
+        printState.innerText = printMenuState + " :" + layerID;
+    }
+    else{
+      printState.innerText = printMenuState + " :" + parse_layer_name(layerID);
+    }
+    */
+
+
+    for (var i = 0; i < features_list.length; i++) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        var ul = document.createElement("ul");
+        var chk = document.createElement("input");
+        var span = document.createElement("span");
+        var div = document.createElement("div");
+
+        //span.className = "input-group-addon";
+        div.className = "input-group";
+        li.className = "list-group-item";
+        ul.className = "list-group";
+        li.role = "presentation";
+        var parse_name = features_list[i];
+        parse_name = parse_name.split('\'');
+        parse_name = parse_name[1];
+        a.innerText = parse_name;
+        a.onclick = (function(layer, feature) {
+            return function() {
+                getFeature(layer, feature);
+            }
+        })(layerID, features_list[i]);
+
+        chk.type = "checkbox";
+        chk.checked = "true";
+        chk.name = 'chkf[]';
+
+        chk.id = features_list[i] + "##" + layerID;
+        chk.onclick = (function() {
+            return function() {
+                drawFeatures();
+            }
+        })();
+
+        div.appendChild(chk);
+        div.appendChild(a);
+
+        //li.appendChild(a);
+        //li.appendChild(span);
+        li.appendChild(div);
+        target.appendChild(li);
+
+    }
+
+    his_features = target;
+
+    return target;
+    //drawFeatures();
+
+}
+
+function printFeature(featureID, data, id) {
+    //var chk_btn = document.getElementById('check_all_buttons');
+    var printState = document.getElementById('printMenuState');
+    var property_panel = document.getElementById('property_panel');
+    var printedLayers = document.getElementById('layer_list');
+    var target = document.createElement('ul');
+
+    //printMenuState = 'feature';
+    //chk_btn.parentNode.removeChild(chk_btn);
+    printState.innerText = featureID;
+
+    printedLayers.style.visibility = "hidden";
+    property_panel.style.visibility = "visible";
+
+    //var target = document.getElementById(featureID);
+
+    if (!features.contains(data)) {
+        features.push(data);
+    }
+    var name = data.properties.name;
+    var temporalProperties = data.temporalProperties;
+    var li = document.createElement("li");
+    var a = document.createElement("a");
+    var ul = document.createElement("ul");
+
+    //li.className = "list-group-item";
+    li.role = "presentation";
+    li.style.marginLeft = "5%";
+    li.style.display ="block";
+    ul.id = name;
+    //a.innerText = name;
+    var temporalProperties_name = Object.keys(temporalProperties[0]);
+    console.log(temporalProperties_name);
+    for (var i = 0; i < temporalProperties_name.length; i++) {
+      if (temporalProperties_name[i] == 'datetimes') continue;
+      var li_temp = document.createElement("li");
+      var a_temp = document.createElement("a");
+      var ul_temp = document.createElement("ul");
+      var div_temp = document.createElement("div");
+      var chk_temp = document.createElement("input");
+
+      li_temp.className = "list-group-item";
+      li_temp.style.display = "inline-block";
+      li_temp.role = "presentation";
+      ul_temp.className = "list-group";
+
+      a_temp.innerText = temporalProperties_name[i];
+      a_temp.onclick = (function(feature, temporalProperty) {
+        return function() {
+          getHighlight(feature, temporalProperty);
+        }
+      })(name, temporalProperties_name[i]);
+      div_temp.appendChild(a_temp);
+      li_temp.appendChild(div_temp);
+      ul.appendChild(li_temp);
+    }
+    li.appendChild(a);
+    li.appendChild(ul);
+    his_feature = target;
+    return li;
+
+}
 
 
 /*
