@@ -19,7 +19,6 @@ function removeCheckAllandUnCheckBtn(){
   if (document.getElementById(div_id.chk_unchk_li)) {
     document.getElementById(div_id.chk_unchk_li).remove();
   }
-  clearAnalysis();
 }
 
 function printCheckAllandUnCheck(layer_id){
@@ -35,6 +34,7 @@ function printCheckAllandUnCheck(layer_id){
   chk_unchk_li.id = div_id.chk_unchk_li;
   chk_unchk_li.style.display = "inline-block";
   chk_unchk_li.style.padding = "10px";
+  chk_unchk_li.style.paddingBottom = "1px";
 
   chk_all.type = 'button';
   chk_all.className = "chk_unchk_btn btn btn-default";

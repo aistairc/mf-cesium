@@ -6,8 +6,10 @@ function DivListMaker(p_connection){
 DivListMaker.prototype.getLayerDivList = function(){
   var upper_ul = document.createElement('ul');
   upper_ul.style.height = "10%";
+  upper_ul.className = "input-group";
   var layer_name_list = buffer.getLayerNameList();
   for (var i = 0; i < layer_name_list.length; i++) {
+    var layer_id = layer_name_list[i];
     var li = document.createElement('li');
     var a = document.createElement('a');
     a.style = "width:inherit";
@@ -21,13 +23,13 @@ DivListMaker.prototype.getLayerDivList = function(){
         printCheckAllandUnCheck(id);
         afterChangingCheck();
       };
-    })(layer_name_list[i]);
+    })(layer_id);
     li.style = "width:inherit";
     li.className = "list-group-item";
     li.appendChild(a);
     upper_ul.appendChild(li);
 
-    this.isFeatureChecked[layer_name_list[i]] = {};
+    if (this.isFeatureChecked[layer_id] == undefined) this.isFeatureChecked[layer_id] = {};
   }
   return upper_ul;
 }
@@ -54,9 +56,9 @@ DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, is_pri
   var div = document.createElement("div");
   
   li.role = "presentation";
-  div.className = "input-group";
+  div.className = "list-group-item";
   div.style.width = "100%";
-  ul.className = "list-group";
+//  ul.className = "list-group";
   
   a.style.width = "90%";
   a.innerText = feature_id;
@@ -94,7 +96,7 @@ DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, is_pri
 DivListMaker.prototype.getFeaturesDivList = function(layer_id){
   var target = document.createElement('ul');
   var features_list = buffer.getFeatureIDsByLayerID(layer_id);
-  target.className = "list-group-item";
+  target.className = "input-group";
   for (var feature_id in features_list) {
     var data = buffer.getFeature(layer_id, feature_id);//buffer.getBuffer([layer_id, features_list[i]]);
     var li = this.createLIforFeature(layer_id, feature_id);
@@ -128,7 +130,7 @@ DivListMaker.prototype.getFeaturesAndLayersTurnedOn = function(){
 DivListMaker.prototype.getDivAllFeaturesAreTurnedOn = function(){
   var object = this.getFeaturesAndLayersTurnedOn();
   var target = document.createElement('ul');
-  target.className = "list-group-item";
+  target.className = "input-group";
   for (var layer_id in object){
     for (var i = 0 ; i < object[layer_id].length ; i++){
       var feature_id = object[layer_id][i];

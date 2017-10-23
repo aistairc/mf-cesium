@@ -33,7 +33,7 @@ FeatureBuffer.prototype.deleteBuffer = function(layer_id, feature_id){
 FeatureBuffer.prototype.setBuffer_layer = function(layer_data){
   for(var i = 0 ; i < layer_data.features.length; i++){
     var feature_id = layer_data.features[i].properties.name;
-    setBuffer_feature(layer_data.name, feature_id, layer_data.features[i]);
+    this.setBuffer_feature(layer_data.name, feature_id, layer_data.features[i]);
   }
 }
 

@@ -25,24 +25,25 @@ function handleFileSelect(evt) {
     document.getElementById('drop_zone').style.visibility = 'hidden';
     document.getElementById('drop_zone_bg').style.visibility = 'hidden';
     for(var i = 0 ; i < arr.length ; i++){
-
       var json_object = JSON.parse(arr[i]);
       LOG("handleFileSelect", json_object);
-      if (!Array.isArray(json_object.temporalGeometry.coordinates[0][0][0]) 
-        && json_object.temporalGeometry.type == 'MovingPolygon'){ //old mf-json format for polygon
-        var coord = json_object.temporalGeometry.coordinates;
-        var new_arr = [];
-        for (var j = 0 ; j < coord.length ; j++){
-          new_arr.push([coord[j]]);
+      if (json_object.features == undefined){
+        if (!Array.isArray(json_object.temporalGeometry.coordinates[0][0][0]) 
+          && json_object.temporalGeometry.type == 'MovingPolygon'){ //old mf-json format for polygon
+          var coord = json_object.temporalGeometry.coordinates;
+          var new_arr = [];
+          for (var j = 0 ; j < coord.length ; j++){
+            new_arr.push([coord[j]]);
+          }
+          json_object.temporalGeometry.coordinates = new_arr;
         }
-        json_object.temporalGeometry.coordinates = new_arr;
       }
       if(json_object.name != undefined){
         updateBuffer_local(json_object.name, json_object);
       }
       else{
         updateBuffer_local(files[i].name, json_object);
-      }
+      }  
     }
 
     var list = list_maker.getLayerDivList();//printFeatureLayerList_local(layer_list_local);

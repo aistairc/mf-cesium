@@ -22,10 +22,10 @@ var check_button;
  * @author Hyemi Jeong <hyemi.jeong@pnu.edu>
  */
 function backButton() {
-    var printArea = document.getElementById('featureLayer');
+    var printArea = document.getElementById(div_id.left_upper_list);
     var printProperty = document.getElementById('property');
     var property_panel = document.getElementById("property_panel");
-    var menu = document.getElementById('menu_list');
+    var menu = document.getElementById(div_id.menu_list);
     if (printMenuState == MENU_STATE.layers) {
         //nothing
     }
@@ -142,7 +142,7 @@ function drawFeatures() { //아이디로 찾을까
 
 
 
-
+/*
 
 
 function printPrintedLayersList() {
@@ -312,3 +312,4 @@ function getCheckedFeatures() {
         }
     }
 }
+*/

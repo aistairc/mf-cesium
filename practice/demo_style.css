@@ -276,9 +276,41 @@ button[title^=Bing]{
     color: white;
 }
 
+.input-group{
+  position: relative;
+  display:block;
+}
+
+
+.list-group-item:hover {
+  color: white;
+  text-decoration: none;
+  background-color: rgb(100, 100, 100);
+}
+
+.list-group-item {
+  padding: 5px;
+  margin-left: 5px;
+  color: #FFFFFF;
+  white-space: pre-wrap;
+  color: white;
+  text-decoration: none;
+  background-color: rgba(0, 0, 0, 0);
+  border-width: 0px;
+  cursor:pointer;
+  border-radius: 4px;
+}
+
+/*
+#featureLayer{
+  flex-grow : 1 ;
+}
+*/
 
 /* printed features */
 #printed_features{
   margin-top : 5px;
 }
+
+
 
