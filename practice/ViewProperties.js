@@ -25,13 +25,14 @@ function turnOffProperties(){
 }
 
 function getHighlight(feature, temporalProperty) {
+  changeOptionToolbarToCloseDIV();
   showOneFeatureGraph(feature, temporalProperty);
   stinuum.temporalMap.show(feature, temporalProperty);
-    //stinuum.geometryViewer.adjustCameraView();
 }
 
 
 function getHighlightInContext(feature, temporalProperty) {
+  changeOptionToolbarToCloseDIV();
   var context = document.getElementById("context");
   context.innerHTML = "";
   showOneFeatureGraph(feature, temporalProperty);

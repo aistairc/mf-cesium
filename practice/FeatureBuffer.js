@@ -42,6 +42,18 @@ FeatureBuffer.prototype.setBuffer_feature = function(layer_id, feature_id, featu
     throw layer_id + " is not created layer";
   }
   this.data[layer_id][feature_id] = {};
+
+  if (!Array.isArray(feature_data.temporalGeometry.coordinates[0][0][0]) 
+   && feature_data.temporalGeometry.type == 'MovingPolygon'){ //old mf-json format for polygon
+    var coord = feature_data.temporalGeometry.coordinates;
+    var new_arr = [];
+    for (var j = 0 ; j < coord.length ; j++){
+      new_arr.push([coord[j]]);
+    }
+    feature_data.temporalGeometry.coordinates = new_arr;
+    LOG("old data format coming..")
+  }
+
   try{
     this.data[layer_id][feature_id] = JSON.parse(feature_data);
   }

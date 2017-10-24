@@ -25,7 +25,8 @@ var clearAnalysis = function(){
 
 var turnOnOptionDIV = function(){
     $("#upper_toolbar").hide();
-    document.getElementById("option").style.display = "flex";
+    document.getElementById(div_id.option).innerHTML = "";
+    document.getElementById(div_id.option).style.display = "flex";
 }
 
 var selectDegree = function() {
@@ -232,7 +233,7 @@ function setOptionDIVforSQuery(){
 }
 
 function makeAnalysisBigCloseDiv(){
-    var btn = document.createElement('div');
+    var close_btn = document.createElement('div');
     close_btn.className = 'upper_toolbar_btn';
     close_btn.onclick = (function(){
         return function(){
@@ -244,7 +245,7 @@ function makeAnalysisBigCloseDiv(){
     close_btn.innerText = "CLOSE";
     close_btn.style.width = "90%";
     //close_btn.id = 'big_close_btn';
-    return btn;
+    return close_btn;
 }
 
 
@@ -378,7 +379,6 @@ function zoom() {
 
 
 function showRadar(){
-    turnOnOptionDIV();
     var radar_canvas = document.createElement('canvas');
     radar_canvas.id = 'radar';
     radar_canvas.style.width = document.body.offsetHeight / 3 + 'px';
@@ -390,8 +390,12 @@ function showRadar(){
     
     document.body.appendChild(radar_canvas);
     stinuum.directionRadar.show('radar');
+    
+    changeOptionToolbarToCloseDIV();
+}
 
-    //var close_btn = makeAnalysisCloseBtn();
+function changeOptionToolbarToCloseDIV(){
+    turnOnOptionDIV();
     var close_btn = makeAnalysisBigCloseDiv();
     document.getElementById(div_id.option).appendChild(close_btn);
 }

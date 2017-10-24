@@ -116,7 +116,7 @@ Stinuum.GeometryViewer.prototype.animate = function(options){
 
 
   if (options != undefined){
-    if (options.change != undefined){
+    if (options.change != undefined && options.change){ //dont change current animation time.
       current_time = Cesium.JulianDate.toIso8601(this.super.cesiumViewer.clock.currentTime) ;
     }
     else{

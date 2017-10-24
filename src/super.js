@@ -19,8 +19,6 @@ Stinuum.prototype.changeMode = function(mode){
       this.mode = mode;
     }
     
-    this.occurrenceMap.remove();
-    this.s_query_on = false;
     this.geometryViewer.update({
         change : true
     });

@@ -27,17 +27,6 @@ function handleFileSelect(evt) {
     for(var i = 0 ; i < arr.length ; i++){
       var json_object = JSON.parse(arr[i]);
       LOG("handleFileSelect", json_object);
-      if (json_object.features == undefined){
-        if (!Array.isArray(json_object.temporalGeometry.coordinates[0][0][0]) 
-          && json_object.temporalGeometry.type == 'MovingPolygon'){ //old mf-json format for polygon
-          var coord = json_object.temporalGeometry.coordinates;
-          var new_arr = [];
-          for (var j = 0 ; j < coord.length ; j++){
-            new_arr.push([coord[j]]);
-          }
-          json_object.temporalGeometry.coordinates = new_arr;
-        }
-      }
       if(json_object.name != undefined){
         updateBuffer_local(json_object.name, json_object);
       }

@@ -42,19 +42,22 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
   if (type == 'MovingPolygon'){
     highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingPolygon({
       temporalGeometry : mf.feature.temporalGeometry,
-      temporalProperty : property
+      temporalProperty : property,
+      id : mf_id
     }));
   }
   else if (type == 'MovingPoint'){
     highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingPoint({
       temporalGeometry : mf.feature.temporalGeometry,
-      temporalProperty : property
+      temporalProperty : property,
+      id : mf_id
     }));
   }
   else if (type == 'MovingLineString'){
     highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingLineString({
       temporalGeometry : mf.feature.temporalGeometry,
-      temporalProperty : property
+      temporalProperty : property,
+      id : mf_id
     }));
   }
   else{
