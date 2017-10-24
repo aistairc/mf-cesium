@@ -231,9 +231,26 @@ function setOptionDIVforSQuery(){
     option_div.appendChild(close_btn);
 }
 
+function makeAnalysisBigCloseDiv(){
+    var btn = document.createElement('div');
+    close_btn.className = 'upper_toolbar_btn';
+    close_btn.onclick = (function(){
+        return function(){
+            clearAnalysis();
+            refresh();
+            drawFeatures();
+        }
+    })();
+    close_btn.innerText = "CLOSE";
+    close_btn.style.width = "90%";
+    //close_btn.id = 'big_close_btn';
+    return btn;
+}
+
+
 function makeAnalysisCloseBtn(){
     var btn = document.createElement('input');
-    btn.id = 'close_btn';
+    //btn.id = 'close_btn';
     btn.type = 'button';
     btn.className = 'btn btn-default';
     btn.value = 'CLOSE';
@@ -374,7 +391,8 @@ function showRadar(){
     document.body.appendChild(radar_canvas);
     stinuum.directionRadar.show('radar');
 
-    var close_btn = makeAnalysisCloseBtn();
+    //var close_btn = makeAnalysisCloseBtn();
+    var close_btn = makeAnalysisBigCloseDiv();
     document.getElementById(div_id.option).appendChild(close_btn);
 }
 

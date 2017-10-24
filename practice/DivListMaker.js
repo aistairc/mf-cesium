@@ -134,7 +134,7 @@ DivListMaker.prototype.getDivAllFeaturesAreTurnedOn = function(){
   for (var layer_id in object){
     for (var i = 0 ; i < object[layer_id].length ; i++){
       var feature_id = object[layer_id][i];
-      target.appendChild(this.createLIforFeature(layer_id, feature_id));
+      target.appendChild(this.createLIforFeature(layer_id, feature_id, true));
     }
   }
   if (target.childNodes.length == 0) return 0;

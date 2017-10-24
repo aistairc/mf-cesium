@@ -804,7 +804,14 @@ Stinuum.MFCollection.prototype.remove= function(mf){
   var index = this.inFeaturesIndexOfById(mf.properties.name);
   if (index != -1) this.removeByIndexInFeatures(index);
   index = this.inWholeIndexOfById(mf.properties.name);
-  if (index != -1) return this.removeByIndexInWhole(index);
+
+  var ret;
+  if (index != -1) ret = this.removeByIndexInWhole(index);
+
+  if (this.inFeaturesIndexOfById(mf.properties.name) != -1 || this.inWholeIndexOfById(mf.properties.name) != -1){
+    throw new Stinuum.Excetion("after removing but exist", [this, mf]);
+  }
+  if (ret != undefined) return ret;
   console.log("this mf is not exist in array", mf);
   return 0;
 }
@@ -2162,6 +2169,7 @@ var SampledProperty = function(){
 Stinuum.PathDrawing.prototype.drawMovingPoint = function(options){
 
   var geometry = options.temporalGeometry;
+  var property = options.temporalProperty;
   var id = options.id;
 
   var pointCollection = new Cesium.PointPrimitiveCollection();
@@ -2169,15 +2177,36 @@ Stinuum.PathDrawing.prototype.drawMovingPoint = function(options){
   var r_color = this.supersuper.mfCollection.getColor(id);
 
   var data = geometry.coordinates;
+  var heights = this.supersuper.getListOfHeight(geometry.datetimes);
+  var pro_min_max;
+
+  if (property != undefined) pro_min_max = Stinuum.findMinMaxProperties(property);
+  for(var i = 0 ; i < data.length ; i++ ){
+    if (property != undefined){
+      var value = property.values[i];
+      var blue_rate = (value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+      if (blue_rate < 0.2){
+        blue_rate = 0.2;
+      }
+      if (blue_rate > 0.9){
+        blue_rate = 0.9;
+      }
+      r_color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
+    }
+    if(this.supersuper.mode == 'SPACETIME'){
+      pointCollection.add(Stinuum.drawOnePoint(data[i], heights[i], r_color));
+    }
+    else{
+      pointCollection.add(Stinuum.drawOnePoint(data[i], 0, r_color));
+    }
+  }
   if(this.supersuper.mode == 'SPACETIME'){
     var heights = this.supersuper.getListOfHeight(geometry.datetimes);
     for(var i = 0 ; i < data.length ; i++ ){
-      pointCollection.add(Stinuum.drawOnePoint(data[i], heights[i], r_color));
     }
   }
   else{
     for(var i = 0 ; i < data.length ; i++ ){
-      pointCollection.add(Stinuum.drawOnePoint(data[i], 0, r_color));
     }
   }
   pointCollection.id = id;
@@ -3357,7 +3386,6 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
     this.super.geometryViewer.primitives[mf_id] = undefined;
   }
 
-
   this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry([mf]);
   var type = mf.feature.temporalGeometry.type;
   this.super.geometryViewer.clear();
@@ -3369,12 +3397,10 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
     for (var i = 0 ; i < entities.values.length ; i ++ ){
       this.super.cesiumViewer.entities.add(entities.values[i]);
     }
-
   }
   else{
   //  this.bounding_sphere = Stinuum.getBoundingSphere(this.min_max, [0,0] );
   }
-
 
   var highlight_prim;
   if (type == 'MovingPolygon'){

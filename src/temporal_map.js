@@ -22,7 +22,6 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
     this.super.geometryViewer.primitives[mf_id] = undefined;
   }
 
-
   this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry([mf]);
   var type = mf.feature.temporalGeometry.type;
   this.super.geometryViewer.clear();
@@ -34,12 +33,10 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
     for (var i = 0 ; i < entities.values.length ; i ++ ){
       this.super.cesiumViewer.entities.add(entities.values[i]);
     }
-
   }
   else{
   //  this.bounding_sphere = Stinuum.getBoundingSphere(this.min_max, [0,0] );
   }
-
 
   var highlight_prim;
   if (type == 'MovingPolygon'){
