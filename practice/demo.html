@@ -28,7 +28,7 @@
     <!-- Stinuum -->
     <script src="../stinuum.js"></script>
     <script src="FeatureBuffer.js"></script>
-    <script src="connection.js"></script>
+    <script src="ServerConnector.js"></script>
     <script src="fileio.js"></script>
     <script src="ViewProperties.js"></script>
     <script src="print.js"></script>
@@ -57,7 +57,7 @@
         <!-- <div id="left_toolbar_div" class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%;"> -->
             <ul id="menu_list" class="list-group left_toolbar_div panel-default" style="height: 70%; z-index:3;" >
                 <li onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;">Back</li>
-                <li id = "uploadButton" ></li>
+                <li id = "uploadButton" style="padding :10px;"></li>
 
                 <li id="printMenuState" role="presentation" class="list-title" style="flex-grow : 0;"></li>
                 <li id="featureLayer" role="presentation" style="margin-top: 10px;  overflow-y : auto">
@@ -78,7 +78,7 @@
             </ul>
 
         </div>
-        <div id="layer_list" class="left_toolbar_div panel-default" style="overflow : auto">
+        <div id="layer_list" class="left_toolbar_div panel-default" >
             <ul>
                 <li id="printedLayerListMenu" role="presentation" class="list-title">Printed Features</li>
                 <li id="printed_features">
@@ -156,9 +156,9 @@ var MENU_STATE = {
     "one_feature" : "one_feature"
 }
 
-var buffer = new FeatureBuffer();
-var list_maker = new DivListMaker(undefined);
-
+var connector = new ServerConnector();
+var buffer = new FeatureBuffer(connector);
+var list_maker = new DivListMaker(connector);
 
 (function() {
     viewer = new Cesium.Viewer('cesiumContainer', {
@@ -228,16 +228,8 @@ var list_maker = new DivListMaker(undefined);
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
     clearAnalysis();
-    getLayers();
-
-    var printedLayerListMenu = document.getElementById('printedLayerListMenu');
-    var layer_list = document.getElementById('layer_list');
-    var uploadButton = document.getElementById('uploadButton');
-
-    uploadButton.style.padding = "10px";
-
-    var graph = document.getElementById('graph');
-    graph.style.visibility = "visible";
+    printFileUploadButton();
+    if (connector.start() == -1) getLocalFile();
 
     var left_toolbar_btn = document.getElementById('left_toolbar_btn');
     left_toolbar_btn.className = 'btn btn-default';

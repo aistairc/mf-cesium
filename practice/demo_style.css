@@ -82,6 +82,7 @@ body,
     z-index: 20;
     right: 0;
     width: 85%;
+    visibility: visible;
 }
 
 
@@ -270,7 +271,6 @@ button[title^=Bing]{
     bottom: 0;
     z-index: 3;
     float: left;
-    overflow: auto;
     margin-bottom: 0px;
     width: 100%;
     text-decoration: none;
@@ -302,14 +302,16 @@ button[title^=Bing]{
   border-width: 0px;
   cursor:pointer;
   border-radius: 4px;
+  margin-top:5px;
+  margin-bottom:5px;
 }
 
 
 #featureLayer, #printed_features{
   margin-top : 10px;
   overflow-y:auto;
-  text-align: center;
-  /*flex-grow : 1 ;*/
+  /*text-align: center;
+  flex-grow : 1 ;*/
 }
 
 

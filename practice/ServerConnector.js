@@ -1,24 +1,53 @@
-
-var get_features_progress = 0;
-var get_total_progress = 0;
-var isServer =true;
-
-
-function readTextFile(file, callback) {
-    var rawFile = new XMLHttpRequest();
-    rawFile.overrideMimeType("application/json");
-    rawFile.open("GET", file, true);
-    rawFile.onreadystatechange = function() {
-        if (rawFile.readyState === 4 && rawFile.status == "200") {
-            callback(rawFile.responseText);
-        }
-    }
-    rawFile.send(null);
+/**
+- [url]/$ref : get featurelayers
+- [url]/[layer]/$ref : get features list, (e.g. [layer] : FeatureLayers('Typhoon2016'))
+- [url]/[layer]/[feature]?token = [token] : get moving feature json (e.g. [feature] : features('Typhoon2016000023'))
+*/
+function ServerConnector(){
+    this.on = false; //is Server connected?
+    this.server_url;
+    this.token;
 }
 
+ServerConnector.prototype.start = function(){
+    var url = this.urlParam('url');
+    var token = this.urlParam('token');
 
+    if (url == '' || url == undefined){
+        this.on = false;
+        return -1;
+    }
+    this.on = true;
+    this.server_url = url;
+    this.token = token;
 
-var urlParam = function(name, w) {
+    url += "/$ref";
+    var promise = this.requestData(url);
+    LOG("server start");
+    promise.then(function(text){
+        LOG(url, text);
+        var json_object = JSON.parse(text);
+        for (var j = 0 ; j < json_object.url.length ; j++){
+            var layer_id = json_object.url[j].split("\'")[1];
+            buffer.createLayer(layer_id, true);
+        }
+        document.getElementById('drop_zone').style.visibility = 'hidden';
+        document.getElementById('drop_zone_bg').style.visibility = 'hidden';
+
+        var list = list_maker.getLayerDivList();//printFeatureLayerList_local(layer_list_local);
+        var list_div = div_id.left_upper_list;
+        var printArea = document.getElementById(list_div);
+        printArea.innerHTML = "";
+        printArea.appendChild(list);
+
+        changeMenuMode(MENU_STATE.layers);
+    })
+    .catch(function(err) {
+        console.log(err);
+    });
+}
+
+ServerConnector.prototype.urlParam = function(name, w) {
     w = w || window;
     var rx, val;
     if (name == "url") {
@@ -33,50 +62,158 @@ var urlParam = function(name, w) {
     return !val ? '' : val[1];
 }
 
+ServerConnector.prototype.requestFeatureObject = function(url) {
+    return new Promise(function(resolved, rejected) {
+        var xhr = createCORSRequest('GET', url);
+        if (!xhr) {
+            alert('CORS not supported');
+            return;
+        }
+        xhr.onload = function() {
+            //get_features_progress = get_features_progress + 1;
+            var serverState = document.getElementById('serverState');
+            serverState.style.visibility = "visible";
+            serverState.innerText = "loading";
+            var text = xhr.responseText;
+            var json_object = JSON.parse(text);
+            resolved(json_object);
+        };
+        xhr.onerror = function() {
+            alert('Woops, there was an error making the request.');
+        };
+        xhr.send();
 
-function getLayers() {
-    var dropzone = document.getElementById("drop_zone");
-    dropzone.style.visibility = "hidden";
-    var url = urlParam('url');
-    var token = urlParam('token');
-    
-    printFileUploadButton();
-    if (url == '' || url == undefined){
-      isServer = false;
-      getLocalFile();
-      return;
-    }
-    writeCookie('token', token);
-    url += "/$ref";
-    var featureLayers;
-    var printFeatureLayer_list = [];
-    var promise = request1(url);
+    });
+};
 
-    promise.then(function(arr) {
-            featureLayers = arr;
-            for (var i = 0; i < featureLayers.length; i++) {
-                //if (getBuffer([featureLayers[i]]) == null) {
-                if (buffer.getFeatruesByLayerID(featureLayers[i]) == undefined) {
-                    //updateBuffer([featureLayers[i]], null);
-                    buffer.createLayer(featureLayers[i]);
-                    printFeatureLayer_list.push(featureLayers[i]);
-                }
-            }
-            url = url.replace("/$ref", "");
-            var list = printFeatureLayerList(printFeatureLayer_list, url, "featureLayer");
-            var printArea = document.getElementById('featureLayer');
-            his_featurelayer = list;
-            printArea.innerHTML = "";
-            printArea.appendChild(list);
-            printMenuState = "layer";
+ServerConnector.prototype.requestData = function(url) {
+    return new Promise(function(resolved, rejected) {
+        var xhr = createCORSRequest('GET', url);
+        if (!xhr) {
+            alert('CORS not supported');
+            return;
+        }
+        xhr.onload = function() {
+            //get_features_progress = get_features_progress + 1;
+            var serverState = document.getElementById('serverState');
+            serverState.style.visibility = "visible";
+            serverState.innerText = "loading";
+            var text = xhr.responseText;
+            resolved(text);
+        };
+        xhr.onerror = function() {
+            alert('Woops, there was an error making the request.');
+        };
+        xhr.send();
 
-        })
-        .catch(function(err) {
-            console.log(err);
-        });
+    });
+};
 
+ServerConnector.prototype.getFeaturesByLayerID = function(layer_id, layer_buffer, callback){
+    var features_url = this.server_url + "/FeatureLayers(\'" + layer_id + "\')" + "/$ref" ;
+    var promise = this.requestData(features_url);
+    var connector = this;
+    promise.then(function(text){
+        var json_object = JSON.parse(text);
+        
+        for(var i = 0 ; i < json_object.url.length ; i++){
+            var feature_url = connector.server_url + "/FeatureLayers(\'" + layer_id + "\')/" + json_object.url[i] + "?token=" + connector.token;
+            LOG("request feature : ", feature_url);
+            var feature_promise = connector.requestFeatureObject(feature_url);
+            feature_promise.then(function(feature_object){
+                layer_buffer[feature_object.properties.name] = feature_object;
+                callback();
+            })
+            .catch(function(err) {
+                console.log(err);
+            });
+        }
+        LOG("layer_buffer in promise",layer_buffer);
+    })
+    .catch(function(err) {
+        console.log(err);
+    });
 }
 
+
+function createCORSRequest(method, url) {
+    var xhr = new XMLHttpRequest();
+    if ("withCredentials" in xhr) {
+        // XHR for Chrome/Firefox/Opera/Safari.
+        xhr.open(method, url, true);
+    } else if (typeof XDomainRequest != "undefined") {
+        // XDomainRequest for IE.
+        xhr = new XDomainRequest();
+        xhr.open(method, url);
+    } else {
+        // CORS not supported.
+        xhr = null;
+    }
+    return xhr;
+}
+
+
+
+
+
+/*
+var request1 = function(url) {
+    return new Promise(function(resolved, rejected) {
+        var xhr = createCORSRequest('GET', url);
+        if (!xhr) {
+            alert('CORS not supported');
+            return;
+        }
+        xhr.onload = function() {
+            var text = xhr.responseText;
+            var arr = JSON.parse("[" + text + "]");
+            arr = $.map(arr[0], function(el) {
+                return el
+            });
+            resolved(arr);
+        };
+        xhr.onerror = function() {
+            alert('Woops, there was an error making the request.');
+        };
+        xhr.send();
+    });
+};
+
+var request2 = function(url) {
+    return new Promise(function(resolved, rejected) {
+        var xhr = createCORSRequest('GET', url);
+        if (!xhr) {
+            alert('CORS not supported');
+            return;
+        }
+
+        xhr.onprogress = function() {
+            console.log('LOADING', xhr.readyState); // readyState will be 3
+        };
+
+
+        xhr.onload = function() {
+            //console.log('DONE', xhr.readyState);
+            var text = xhr.responseText;
+            var arr = JSON.parse("[" + text + "]");
+
+            arr = $.map(arr[0], function(el) {
+                return el
+            });
+            resolved(arr);
+        };
+
+        xhr.onerror = function() {
+            alert('Woops, there was an error making the request.');
+        };
+        xhr.send();
+
+        xhr.addEvent
+    });
+};
+*/
+
+/*
 function getParameterByName(name, url) {
     if (!url) {
         url = window.location.href;
@@ -185,139 +322,9 @@ function getFeature(layerID, featureID) {
     printMenuState = "feature";
 }
 
-var request1 = function(url) {
-    return new Promise(function(resolved, rejected) {
-        var xhr = createCORSRequest('GET', url);
-        if (!xhr) {
-            alert('CORS not supported');
-            return;
-        }
-        xhr.onload = function() {
-            var text = xhr.responseText;
-
-            var arr = JSON.parse("[" + text + "]");
-            arr = $.map(arr[0], function(el) {
-                return el
-            });
-            resolved(arr);
-        };
-        xhr.onerror = function() {
-            alert('Woops, there was an error making the request.');
-        };
-        xhr.send();
-    });
-};
-
-var request2 = function(url) {
-    return new Promise(function(resolved, rejected) {
-        var date = new Date();
-        var xhr = createCORSRequest('GET', url);
-        if (!xhr) {
-            alert('CORS not supported');
-            return;
-        }
-
-        xhr.onprogress = function() {
-            console.log('LOADING', xhr.readyState); // readyState will be 3
-        };
 
 
-        xhr.onload = function() {
-            console.log('DONE', xhr.readyState);
-            var temp = new Date();
-            var text = xhr.responseText;
-            var arr = JSON.parse("[" + text + "]");
 
-            arr = $.map(arr[0], function(el) {
-                return el
-            });
-            resolved(arr);
-        };
-
-        xhr.onerror = function() {
-            alert('Woops, there was an error making the request.');
-        };
-        xhr.send();
-
-        xhr.addEvent
-    });
-};
-var request3 = function(url) {
-    return new Promise(function(resolved, rejected) {
-
-        var xhr = createCORSRequest('GET', url);
-        if (!xhr) {
-            alert('CORS not supported');
-            return;
-        }
-        xhr.onload = function() {
-            //get_features_progress = get_features_progress + 1;
-            var serverState = document.getElementById('serverState');
-            serverState.style.visibility = "visible";
-            serverState.innerText = "loading";
-            var text = xhr.responseText;
-            resolved(text);
-        };
-        xhr.onerror = function() {
-            alert('Woops, there was an error making the request.');
-        };
-        xhr.send();
-
-    });
-};
-
-function createCORSRequest(method, url) {
-    var xhr = new XMLHttpRequest();
-    if ("withCredentials" in xhr) {
-        // XHR for Chrome/Firefox/Opera/Safari.
-        xhr.open(method, url, true);
-    } else if (typeof XDomainRequest != "undefined") {
-        // XDomainRequest for IE.
-        xhr = new XDomainRequest();
-        xhr.open(method, url);
-    } else {
-        // CORS not supported.
-        xhr = null;
-    }
-    return xhr;
-}
-
-function sendRequest() { //later we need to put url as parameter
-    var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
-    var featureLayers = new Array();
-    var feature = new Array();
-    var featureProperty;
-    url += "$ref";
-    var promise = request1(url);
-    promise.then(function(arr) {
-            //featureLayers = arr.splice(0,1);
-            featureLayers = arr;
-            var new_url = url.replace("$ref", "") + arr[0] + "/$ref";
-            printFeatureLayerList(featureLayers, "featureLayers");
-            return request2(new_url);
-        })
-        .catch(function() {
-            console.log("error");
-        })
-        .then(function(arr) {
-            feature = arr[1].splice(0, 1);
-            var new_url = arr[0].replace("$ref", "") + feature[0];
-            var token = prompt("token", "");
-            new_url += "?token=" + token;
-            return (request3(new_url));
-        })
-        .catch(function() {
-            console.log("error");
-        })
-        .then(function(arr) {
-            featureProperty = arr;
-            console.log(arr);
-        })
-        .catch(function() {
-            console.log("you do not get full properties without token");
-        });
-
-}
 
 function writeCookie(name, value, days) {
     var date, expires;
@@ -460,15 +467,6 @@ function printFeatures(layerID, features_list, id) { //피쳐레이어아이디,
     target.className = "list-group-item";
     printMenuState = MENU_STATE.features;
     console.log(layerID);
-    /*
-    if(!layerID.includes("\'")){
-
-        printState.innerText = printMenuState + " :" + layerID;
-    }
-    else{
-      printState.innerText = printMenuState + " :" + parse_layer_name(layerID);
-    }
-    */
 
 
     for (var i = 0; i < features_list.length; i++) {
@@ -586,7 +584,92 @@ function printFeature(featureID, data, id) {
 }
 
 
-/*
+
+function getLayers() {
+    var dropzone = document.getElementById("drop_zone");
+    dropzone.style.visibility = "hidden";
+    
+    writeCookie('token', token);
+    var featureLayers;
+    var printFeatureLayer_list = [];
+
+    promise.then(function(arr) {
+            featureLayers = arr;
+            for (var i = 0; i < featureLayers.length; i++) {
+                //if (getBuffer([featureLayers[i]]) == null) {
+                if (buffer.getFeatruesByLayerID(featureLayers[i]) == undefined) {
+                    //updateBuffer([featureLayers[i]], null);
+                    buffer.createLayer(featureLayers[i]);
+                    printFeatureLayer_list.push(featureLayers[i]);
+                }
+            }
+            url = url.replace("/$ref", "");
+            var list = printFeatureLayerList(printFeatureLayer_list, url, "featureLayer");
+            var printArea = document.getElementById('featureLayer');
+            his_featurelayer = list;
+            printArea.innerHTML = "";
+            printArea.appendChild(list);
+            printMenuState = "layer";
+
+        })
+        .catch(function(err) {
+            console.log(err);
+        });
+
+}
+function sendRequest() { //later we need to put url as parameter
+    var url = "http://ec2-52-198-116-39.ap-northeast-1.compute.amazonaws.com:9876/";
+    var featureLayers = new Array();
+    var feature = new Array();
+    var featureProperty;
+    url += "$ref";
+    var promise = request1(url);
+    promise.then(function(arr) {
+            //featureLayers = arr.splice(0,1);
+            featureLayers = arr;
+            var new_url = url.replace("$ref", "") + arr[0] + "/$ref";
+            printFeatureLayerList(featureLayers, "featureLayers");
+            return request2(new_url);
+        })
+        .catch(function() {
+            console.log("error");
+        })
+        .then(function(arr) {
+            feature = arr[1].splice(0, 1);
+            var new_url = arr[0].replace("$ref", "") + feature[0];
+            var token = prompt("token", "");
+            new_url += "?token=" + token;
+            return (request3(new_url));
+        })
+        .catch(function() {
+            console.log("error");
+        })
+        .then(function(arr) {
+            featureProperty = arr;
+            console.log(arr);
+        })
+        .catch(function() {
+            console.log("you do not get full properties without token");
+        });
+
+}
+
+
+
+function readTextFile(file, callback) {
+    var rawFile = new XMLHttpRequest();
+    rawFile.overrideMimeType("application/json");
+    rawFile.open("GET", file, true);
+    rawFile.onreadystatechange = function() {
+        if (rawFile.readyState === 4 && rawFile.status == "200") {
+            callback(rawFile.responseText);
+        }
+    }
+    rawFile.send(null);
+}
+
+
+
 function getLayerOnlyForOneFeature(){
   var dropzone = document.getElementById("drop_zone");
   dropzone.style.visibility = "hidden";

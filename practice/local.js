@@ -21,6 +21,7 @@ function handleFileSelect(evt) {
     var promise = readFile(f);
     promises.push(promise);
   }
+
   Promise.all(promises).then(function(arr){
     document.getElementById('drop_zone').style.visibility = 'hidden';
     document.getElementById('drop_zone_bg').style.visibility = 'hidden';
@@ -43,6 +44,7 @@ function handleFileSelect(evt) {
 
     changeMenuMode(MENU_STATE.layers);
   });
+  
 }
 
 function readFile(file) {

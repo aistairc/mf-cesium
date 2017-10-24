@@ -1,33 +1,35 @@
 function FeatureBuffer(p_connection){
-  this.connection = p_connection;
+  this.connector = p_connection;
   this.data = {};
+  this.fromServer = {};
 }
 
 FeatureBuffer.prototype.getFeatureIDsByLayerID = function(layer_id){
   if (this.data[layer_id] == undefined){
-    LOG("connection work");
-    throw "";
-    //throw "this layer_id is not in buffer";
+    LOG("no layer");
+    throw "this layer_id is not in buffer";
   }
-  return this.data[layer_id];
+  return this.data[layer_id];  
 }
 
 FeatureBuffer.prototype.getFeature = function(layer_id, feature_id){
   if (this.data[layer_id][feature_id] == undefined){
-    LOG("connection work");
-    throw "";
+    LOG("no feature", layer_id, feature_id);
+    throw "this layer_id, feature_id is not in buffer";
   }
   return this.data[layer_id][feature_id];
 }
 
-FeatureBuffer.prototype.createLayer = function(layer_id){
+FeatureBuffer.prototype.createLayer = function(layer_id, isFromServer){
   if (!this.data.hasOwnProperty(layer_id)) {
     this.data[layer_id] = {};
   }
+  if (isFromServer != undefined) this.fromServer[layer_id] = isFromServer;
+  else this.fromServer[layer_id] = false;
 }
 
 FeatureBuffer.prototype.deleteBuffer = function(layer_id, feature_id){
-  LOG();
+  LOG("TODO deleteBuffer");
 }
 
 FeatureBuffer.prototype.setBuffer_layer = function(layer_data){

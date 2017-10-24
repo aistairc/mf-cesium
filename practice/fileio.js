@@ -1,14 +1,11 @@
 function printFileUploadButton(){
 
   var button = document.getElementById("uploadButton");
-  button.style.padding = "10px";
   button.style.display = "inline-block";
   button.style.visibility = "visible";
   button.style.textAlign = "center";
 
   var input = document.createElement('button');
-  var analysis_bt = document.createElement('input');
-  //var input = document.createElement('input');
   input.style.color = "BLACK";
   input.style.width = "85%";
   input.style.height = "85%";
@@ -37,8 +34,8 @@ function getLocalFile(){
 }
 
 function closeDrop(){
-    var dropZone = document.getElementById('drop_zone');
-    dropZone.style.visibility = 'hidden';
-    document.getElementById('drop_zone_bg').style.visibility = 'hidden';
+  var dropZone = document.getElementById('drop_zone');
+  dropZone.style.visibility = 'hidden';
+  document.getElementById('drop_zone_bg').style.visibility = 'hidden';
 
 }

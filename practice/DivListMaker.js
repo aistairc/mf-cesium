@@ -1,5 +1,5 @@
 function DivListMaker(p_connection){
-  this.connection = p_connection;
+  this.connector = p_connection;
   this.isFeatureChecked = {};
 }
 
@@ -19,9 +19,23 @@ DivListMaker.prototype.getLayerDivList = function(){
     li.onclick = (function(id) {
       return function() {
         changeMenuMode(MENU_STATE.features);
-        printFeaturesList(id);
-        printCheckAllandUnCheck(id);
-        afterChangingCheck();
+        var features = buffer.getFeatureIDsByLayerID(id);
+        var features_is_empty = Object.keys(features).length === 0 && features.constructor === Object
+        if (features_is_empty && buffer.fromServer[id]){
+          LOG("features from server");
+          var callback = function(){
+            printFeaturesList(id);
+            printCheckAllandUnCheck(id);
+            afterChangingCheck();    
+          };
+          connector.getFeaturesByLayerID(id, buffer.data[id], callback);
+        }
+        else{
+          LOG("features from local", features);
+          printFeaturesList(id);
+          printCheckAllandUnCheck(id);
+          afterChangingCheck();  
+        }
       };
     })(layer_id);
     li.style = "width:inherit";
@@ -98,7 +112,8 @@ DivListMaker.prototype.getFeaturesDivList = function(layer_id){
   var features_list = buffer.getFeatureIDsByLayerID(layer_id);
   target.className = "input-group";
   for (var feature_id in features_list) {
-    var data = buffer.getFeature(layer_id, feature_id);//buffer.getBuffer([layer_id, features_list[i]]);
+    //var data = buffer.getFeature(layer_id, feature_id);
+    //buffer.getBuffer([layer_id, features_list[i]]);
     var li = this.createLIforFeature(layer_id, feature_id);
     
     target.appendChild(li);
