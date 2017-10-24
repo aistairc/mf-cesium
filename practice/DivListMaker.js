@@ -202,3 +202,64 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
   li.appendChild(ul);
   return li;
 }
+
+
+DivListMaker.prototype.getDropdownDIVofFeaturesWithType = function(type){
+  var dwn_btn_id = "btn_"+type;
+  var feature_ids = [];
+  var features = this.getFeaturesAndLayersTurnedOn();
+  for (var layer_id in features){
+    if (this.isFeatureChecked.hasOwnProperty(layer_id)){
+      for (var i = 0 ; i < features[layer_id].length ; i++){
+        var f_id = features[layer_id][i];
+        if (buffer.getFeature(layer_id, f_id).temporalGeometry.type == type){
+          feature_ids.push(f_id);
+        }
+      }
+    }
+  }
+  var dwn_div = document.createElement("div");
+  dwn_div.className = "dropdown";
+  dwn_div.style.width = "20%";
+  dwn_div.value = undefined;
+
+  var dwn_btn = document.createElement("button");
+  dwn_btn.type = 'button';
+  dwn_btn.id = dwn_btn_id;
+  dwn_btn.className = 'upper_toolbar_btn';
+  dwn_btn.innerText = type;
+  dwn_btn.style.width = '90%';
+  dwn_btn.setAttribute("data-toggle","dropdown");
+
+  var dropdown_icon = document.createElement("span");
+  dropdown_icon.className = 'caret';
+
+  dwn_btn.appendChild(dropdown_icon);
+
+  var list = document.createElement("ul");
+  list.className = 'dropdown-menu';
+  list.role = "menu";
+  list.setAttribute("aria-labelledby",dwn_btn_id);
+
+  for (var i = 0 ; i < feature_ids.length ; i++){
+    var li = document.createElement("li");
+    li.role = "presentation";
+    var a = document.createElement("a");
+    a.role = "presentation";
+    a.tabindex = "-1";
+    a.href ="#";
+    a.innerText = feature_ids[i];
+    li.appendChild(a);
+    li.onclick = (function(feature_id, btn_id) {
+      return function() {
+        document.getElementById(btn_id).innerText = feature_id;
+        dwn_div.value = feature_id;
+      }
+    })(feature_ids[i], dwn_btn_id);
+    list.appendChild(li);
+  }
+
+  dwn_div.appendChild(dwn_btn);
+  dwn_div.appendChild(list);
+  return dwn_div;
+}

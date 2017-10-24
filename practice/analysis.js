@@ -181,14 +181,7 @@ var selectProperty = function(graph_id) {
 }
 
 function processSpatioQuery(id1, id2){
-    var pair1 = stinuum.mfCollection.features[0];
-    var pair2 = stinuum.mfCollection.features[1];
-    if (pair1.feature.temporalGeometry.type == "MovingPoint"){
-        stinuum.queryProcessor.queryBySpatioTime(pair2.id, pair1.id);
-    }
-    else{
-        stinuum.queryProcessor.queryBySpatioTime(pair1.id, pair2.id);
-    }
+    stinuum.queryProcessor.queryBySpatioTime(id1, id2);
 }
 
 function spatio_query(){
@@ -200,11 +193,13 @@ function spatio_query(){
         drawFeatures();
     }
     else{
-        if (stinuum.mfCollection.features.length == 2){
+        if (stinuum.mfCollection.features.length >= 2){
             turnoff_toolbar();
             setOptionDIVforSQuery();
-            
-        }    
+        }
+        else{
+            clearAnalysis();
+        }
     }
     
 }
@@ -213,22 +208,30 @@ function setOptionDIVforSQuery(){
     var option_div = document.getElementById(div_id.option);
     option_div.innerHTML = '';
 
+    var div1 = list_maker.getDropdownDIVofFeaturesWithType("MovingPolygon");
+    var div2 = list_maker.getDropdownDIVofFeaturesWithType("MovingPoint");
 
-    var test_btn = document.createElement('input');
-    test_btn.type = 'button';
-    test_btn.value = "SPATIO TIME QUERY TEST";
-    test_btn.className ='btn btn-default'
-    test_btn.style.height = '30%';
-    test_btn.onclick = (function(){
+    option_div.appendChild(div1);
+    option_div.appendChild(div2);    
+
+    var submit_btn = document.createElement('input');
+    submit_btn.type = 'button';
+    submit_btn.value = "SUBMIT";
+    submit_btn.className = "btn btn-default";
+    submit_btn.style.height = "50%";
+    submit_btn.onclick = (function(){
         return function(){
-            processSpatioQuery();
-            time_query();
-            drawFeatures();           
+            if (div1.value != undefined && div2.value != undefined){
+                processSpatioQuery(div1.value, div2.value);
+                time_query();
+                drawFeatures();               
+            }
         }
     })();
 
+    option_div.appendChild(submit_btn);
+
     var close_btn = makeAnalysisCloseBtn();
-    option_div.appendChild(test_btn);
     option_div.appendChild(close_btn);
 }
 
