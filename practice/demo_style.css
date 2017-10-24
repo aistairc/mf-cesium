@@ -222,7 +222,24 @@ button[title^=Bing]{
   position : relative;
 }
 
+.btn.btn-default.upload{
+  color : BLACK;
+  width : 85%;
+  height :85%;
+  margin :2%;
+}
+
+.upload-li{
+  display : inline-block;
+  visibility : visible;
+  text-align : center;
+  padding: 10px;
+}
+
 /* left toolbar */
+.back-btn{
+  padding : 10px; flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;
+}
 
 #left_toolbar_btn {
   position : absolute;
@@ -234,7 +251,8 @@ button[title^=Bing]{
 }
 
 #menu_list {
-  height: 100%;
+  height: 70%;
+  z-index:3;
   display : -webkit-flex;
   display : flex;
   flex-direction:column;
@@ -262,6 +280,7 @@ button[title^=Bing]{
     width: 100%;
     text-decoration: none;
     color: white;
+    visibility: hidden;
 }
 
 #layer_list {
@@ -271,6 +290,7 @@ button[title^=Bing]{
     bottom: 0;
     z-index: 3;
     float: left;
+    overflow-y:auto;
     margin-bottom: 0px;
     width: 100%;
     text-decoration: none;

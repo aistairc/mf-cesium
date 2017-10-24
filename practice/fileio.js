@@ -1,18 +1,9 @@
 function printFileUploadButton(){
-
   var button = document.getElementById("uploadButton");
-  button.style.display = "inline-block";
-  button.style.visibility = "visible";
-  button.style.textAlign = "center";
-
   var input = document.createElement('button');
-  input.style.color = "BLACK";
-  input.style.width = "85%";
-  input.style.height = "85%";
   input.id = "files";
-  input.className = "btn btn-default";
+  input.className = "btn btn-default upload";
   input.multiple = "multiple";
-  input.style.margin = "2%";
   input.name = "files[]";
 
   var t = document.createTextNode("UPLOAD");

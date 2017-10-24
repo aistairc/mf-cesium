@@ -54,19 +54,17 @@
     </div>
     <div id="option" class="upper_toolbar" style="display:none"></div>
     <div id="left_toolbar">
-        <!-- <div id="left_toolbar_div" class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%;"> -->
-            <ul id="menu_list" class="list-group left_toolbar_div panel-default" style="height: 70%; z-index:3;" >
-                <li onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;">Back</li>
-                <li id = "uploadButton" style="padding :10px;"></li>
+        <ul id="menu_list" class="list-group left_toolbar_div panel-default" >
+            <li onclick="backButton()" class="back-btn">Back</li>
+            <li id = "uploadButton" class="upload-li"></li>
 
-                <li id="printMenuState" role="presentation" class="list-title" style="flex-grow : 0;"></li>
-                <li id="featureLayer" role="presentation" style="margin-top: 10px;  overflow-y : auto">
+            <li id="printMenuState" role="presentation" class="list-title" style="flex-grow : 0;"></li>
+            <li id="featureLayer" role="presentation" >
 
-                </li>
-            </ul>
+            </li>
+        </ul>
 
-        <!-- </div> -->
-        <div id="property_panel" class="left_toolbar_div panel-default" style="overflow : auto;     visibility: hidden;">
+        <div id="property_panel" class="left_toolbar_div panel-default" >
 
             <ul>
                 <li role="presentation" class="list-title">Properties</li>
@@ -78,7 +76,7 @@
             </ul>
 
         </div>
-        <div id="layer_list" class="left_toolbar_div panel-default" >
+        <ul id="layer_list" class="left_toolbar_div panel-default" >
             <ul>
                 <li id="printedLayerListMenu" role="presentation" class="list-title">Printed Features</li>
                 <li id="printed_features">
@@ -86,7 +84,7 @@
                 </li>
 
             </ul>
-        </div>
+        </ul>
     
 
     </div>
