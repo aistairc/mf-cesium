@@ -7,6 +7,9 @@ Stinuum.DirectionRadar.prototype.remove = function(canvasID){
   this.super.mfCollection.colorCollection = {};
 }
 
+/**
+@color : [west : yellow, east : green, north : cyan, south : red]
+*/
 Stinuum.DirectionRadar.prototype.show = function(canvasID){
   var cnvs = document.getElementById(canvasID);
   //Stinuum.DirectionRadar.drawBackRadar(canvasID);
@@ -16,8 +19,6 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
     var mf = this.super.mfCollection.features[index];
     this.super.mfCollection.setColor(mf.id, Stinuum.addDirectionInfo(cumulative, mf.feature.temporalGeometry));
   }
-
-  LOG(cnvs.width, cnvs.height);
 
   var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
   var total_length = cumulative.west.total_length + cumulative.east.total_length + cumulative.north.total_length + cumulative.south.total_length;
@@ -46,6 +47,12 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
 
       total_velocity += velocity[i];
     }
+
+    this.result = {
+      'distance': length,
+      'lifetime' : life,
+      'speed' : velocity
+    };
 
     var color = ['rgb(255, 255, 0)','rgb(0, 255, 0)','Cyan','red'];
 

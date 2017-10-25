@@ -20,26 +20,27 @@ ServerConnector.prototype.start = function(){
     this.on = true;
     this.server_url = url;
     this.token = token;
+    document.getElementById('drop_zone').style.visibility = 'hidden';
+    document.getElementById('drop_zone_bg').style.visibility = 'hidden';
 
     url += "/$ref";
     var promise = this.requestData(url);
-    LOG("server start");
+    this.turnOnLoading();
+    var connector = this;
     promise.then(function(text){
-        LOG(url, text);
         var json_object = JSON.parse(text);
         for (var j = 0 ; j < json_object.url.length ; j++){
             var layer_id = json_object.url[j].split("\'")[1];
             buffer.createLayer(layer_id, true);
         }
-        document.getElementById('drop_zone').style.visibility = 'hidden';
-        document.getElementById('drop_zone_bg').style.visibility = 'hidden';
 
         var list = list_maker.getLayerDivList();//printFeatureLayerList_local(layer_list_local);
         var list_div = div_id.left_upper_list;
         var printArea = document.getElementById(list_div);
         printArea.innerHTML = "";
         printArea.appendChild(list);
-
+        LOG("layer load done");
+        connector.turnOffLoading();
         changeMenuMode(MENU_STATE.layers);
     })
     .catch(function(err) {
@@ -71,9 +72,6 @@ ServerConnector.prototype.requestFeatureObject = function(url) {
         }
         xhr.onload = function() {
             //get_features_progress = get_features_progress + 1;
-            var serverState = document.getElementById('serverState');
-            serverState.style.visibility = "visible";
-            serverState.innerText = "loading";
             var text = xhr.responseText;
             var json_object = JSON.parse(text);
             resolved(json_object);
@@ -95,9 +93,6 @@ ServerConnector.prototype.requestData = function(url) {
         }
         xhr.onload = function() {
             //get_features_progress = get_features_progress + 1;
-            var serverState = document.getElementById('serverState');
-            serverState.style.visibility = "visible";
-            serverState.innerText = "loading";
             var text = xhr.responseText;
             resolved(text);
         };
@@ -109,17 +104,47 @@ ServerConnector.prototype.requestData = function(url) {
     });
 };
 
+ServerConnector.prototype.turnOnLoading = function(layer_id = 'layers'){
+    document.getElementById(div_id.server_state).style.visibility = 'visible';
+
+    var middle = document.createElement('div');
+    middle.style = "display: table-cell;    vertical-align: middle;";
+
+    var text = document.createElement('div');
+    text.innerText = 'Loading ' + layer_id.toString() +  ' ...';
+    text.style = "width: 100%; font-size:50px; margin-bottom : 10px;";
+
+    middle.appendChild(text);
+
+    var icon = document.createElement('i');
+    icon.className = "fa fa-spinner fa-spin";
+    icon.style = "margin-left: auto; margin-right: auto; font-size:50px";
+    middle.appendChild(icon);
+
+
+
+    document.getElementById(div_id.server_state).appendChild(middle);
+}
+
+
+ServerConnector.prototype.turnOffLoading = function(){
+    document.getElementById(div_id.server_state).style.visibility = 'hidden';
+    document.getElementById(div_id.server_state).innerHTML = '';
+}
+
 ServerConnector.prototype.getFeaturesByLayerID = function(layer_id, layer_buffer, callback){
     var features_url = this.server_url + "/FeatureLayers(\'" + layer_id + "\')" + "/$ref" ;
     var promise = this.requestData(features_url);
     var connector = this;
+    this.turnOnLoading(layer_id);
     promise.then(function(text){
         var json_object = JSON.parse(text);
-        
+        var promises = [];
         for(var i = 0 ; i < json_object.url.length ; i++){
             var feature_url = connector.server_url + "/FeatureLayers(\'" + layer_id + "\')/" + json_object.url[i] + "?token=" + connector.token;
             LOG("request feature : ", feature_url);
             var feature_promise = connector.requestFeatureObject(feature_url);
+            promises.push(feature_promise);
             feature_promise.then(function(feature_object){
                 layer_buffer[feature_object.properties.name] = feature_object;
                 callback();
@@ -128,7 +153,12 @@ ServerConnector.prototype.getFeaturesByLayerID = function(layer_id, layer_buffer
                 console.log(err);
             });
         }
-        LOG("layer_buffer in promise",layer_buffer);
+
+        Promise.all(promises).then(function (value){
+            LOG(value);
+            connector.turnOffLoading();
+            LOG("layer_buffer in promise",layer_buffer);
+        });
     })
     .catch(function(err) {
         console.log(err);

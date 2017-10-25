@@ -43,6 +43,30 @@ body,
     border-radius: 4px;
 }
 
+/* radar */
+#radar {
+  z-index: 5;
+  position : absolute;
+  background-color:rgba(0,0,0,0);
+  top : 17%;
+  right: 5px;
+}
+
+#radar_comment{
+  background-color: rgba(0,0,0,0);
+  position: absolute;
+  top : 18%;
+  z-index : 5;
+}
+
+.radar-item.list-group-item{
+  background-color: rgba(100,100,100,0.5);
+}
+.radar-item.list-group-item-text{
+  font-size : 11px;
+}
+
+
 @import url(Sandcastle/templates/bucket.css);
 #name_list {
     cursor: pointer;
@@ -62,17 +86,18 @@ body,
     box-shadow : 0 ;
 }
 
-/*VERTICAL MENU*/
-
 #serverState {
-    position: relative;
-    left: 57%;
-    top: 50%;
-    background: rgba(0, 0, 0, 0);
+    position: absolute;
+    left:0%;
+    top:0%;
+    width:100%;
+    height:100%;
+    background: rgba(255, 255, 255, 0.8);
     visibility: hidden;
     z-index: 10;
     color: black;
-    font-size: xx-large;
+    display: table;
+    text-align: center;
 }
 
 .graph {
@@ -97,12 +122,6 @@ body,
     text-shadow: -1px 0 #F2F1F6, 0 1px #F2F1F6, 1px 0 #F2F1F6, 0 -1px #F2F1F6;
 }
 
-#radar {
-z-index: 5;
- position : absolute;
- right : 5px;
- background-color:rgba(0,0,0,0);
-}
 
 #drop_zone_bg {
   height : 100%;
@@ -201,6 +220,29 @@ button[title^=Bing]{
   border-radius: 10px;
 }
 
+.dropdown-menu{
+  overflow: auto;
+  max-height : 500px;
+}
+
+.dropdown-menu>li>a.drop-item{
+  color : rgb(0,0,0);
+}
+
+.dropdown-menu>li>a.drop-item:hover{
+  background-color : rgba(0,0,0,0.1);
+}
+
+.dropdown-menu input{
+  border-box: box-sizing;
+  border: none;
+  display: block;
+  margin: 3px 20px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  color: black;
+  white-space: nowrap;
+}
 
 /* time query*/
 .time-query-date{
@@ -285,12 +327,10 @@ button[title^=Bing]{
 
 #layer_list {
     position: absolute;
-    min-height: 20%;
     height: 30%;
     bottom: 0;
     z-index: 3;
     float: left;
-    overflow-y:auto;
     margin-bottom: 0px;
     width: 100%;
     text-decoration: none;
@@ -306,17 +346,16 @@ button[title^=Bing]{
 }
 
 
-.list-group-item:hover {
+.list-group-item.left-toolbar-item:hover {
   color: white;
   text-decoration: none;
   background-color: rgb(100, 100, 100);
 }
 
-.list-group-item {
+.list-group-item.left-toolbar-item {
   padding: 5px;
   color: #FFFFFF;
   white-space: pre-wrap;
-  color: white;
   text-decoration: none;
   background-color: rgba(0, 0, 0, 0);
   border-width: 0px;
@@ -326,7 +365,6 @@ button[title^=Bing]{
   margin-bottom:5px;
 }
 
-
 #featureLayer, #printed_features{
   margin-top : 10px;
   overflow-y:auto;
@@ -334,6 +372,9 @@ button[title^=Bing]{
   flex-grow : 1 ;*/
 }
 
-
+#printed_features{
+  height: 80%;
+  overflow: auto;
+}
 
 

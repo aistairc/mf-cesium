@@ -122,6 +122,9 @@ Stinuum.DirectionRadar.prototype.remove = function(canvasID){
   this.super.mfCollection.colorCollection = {};
 }
 
+/**
+@color : [west : yellow, east : green, north : cyan, south : red]
+*/
 Stinuum.DirectionRadar.prototype.show = function(canvasID){
   var cnvs = document.getElementById(canvasID);
   //Stinuum.DirectionRadar.drawBackRadar(canvasID);
@@ -131,8 +134,6 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
     var mf = this.super.mfCollection.features[index];
     this.super.mfCollection.setColor(mf.id, Stinuum.addDirectionInfo(cumulative, mf.feature.temporalGeometry));
   }
-
-  LOG(cnvs.width, cnvs.height);
 
   var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
   var total_length = cumulative.west.total_length + cumulative.east.total_length + cumulative.north.total_length + cumulative.south.total_length;
@@ -161,6 +162,12 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
 
       total_velocity += velocity[i];
     }
+
+    this.result = {
+      'distance': length,
+      'lifetime' : life,
+      'speed' : velocity
+    };
 
     var color = ['rgb(255, 255, 0)','rgb(0, 255, 0)','Cyan','red'];
 
@@ -3109,21 +3116,31 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array
 
 }
 
-//TODO : support multiple query.
-Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source_id, target_id){
-  if (this.super.s_query_on) return -1;
-  this.super.s_query_on = true;
-  this.super.mfCollection.hideAll();
-
-  var source = this.super.mfCollection.getMFPairByIdinWhole(source_id);
-  source = source.feature;
-
-  var target = this.super.mfCollection.getMFPairByIdinWhole(target_id);
-  target = target.feature;
-
+//TODO : support multiple query. 
+Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source_id_arr, target_id){
+  if (!this.super.s_query_on){
+    this.super.s_query_on = true;
+    this.super.mfCollection.hideAll();
+    this.result_pairs = [];
+  }
+  else{
+    LOG("its already query mode");
+    return;
+  }
+  
+  if (!Array.isArray(source_id_arr)) source_id_arr = [source_id_arr];
   var result = [];
-  result.push(this.makeQueryResultBySpatioTime(source, target));
-  result.push(source);
+  for (var i = 0 ; i < source_id_arr.length ; i++){
+    var source = this.super.mfCollection.getMFPairByIdinWhole(source_id_arr[i]);
+    source = source.feature;
+
+    var target = this.super.mfCollection.getMFPairByIdinWhole(target_id);
+    target = target.feature;
+
+    result.push(this.makeQueryResultBySpatioTime(source, target));
+    result.push(source);  
+  }
+  
   for (var i = 0 ; i < result.length ; i++){
     var pair = new Stinuum.MFPair(result[i].properties.name, result[i]) ;
     if (result[i].temporalGeometry.datetimes.length == 0) continue;
@@ -3134,11 +3151,20 @@ Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source_id, target_
 
 Stinuum.QueryProcessor.prototype.makeQueryResultBySpatioTime = function(source, p_target){
   target = Stinuum.copyObj(p_target);
-  if (source.temporalGeometry.type != "MovingPolygon"){
-    throw new Stinuum.Exception("query source is only for MovingPolygon", source);
+  
+  if (source.temporalGeometry.type == "MovingPolygon" && target.temporalGeometry.type == "MovingPoint"){ //Polygon Point 
+
   }
-  if (target.temporalGeometry.type != "MovingPoint"){
-    throw new Stinuum.Exception("query source is only for MovingPoint", target);
+  //Polygon Polygon
+  else if (source.temporalGeometry.type == "MovingPolygon" && target.temporalGeometry.type == "MovingPolygon"){
+    throw new Stinuum.Exception("TODO polygon polygon", source);
+  }
+  //Point Polygon
+  else if (source.temporalGeometry.type == "MovingPoint" && target.temporalGeometry.type == "MovingPolygon"){
+    throw new Stinuum.Exception("TODO polygon polygon", source);
+  }
+  else{
+    throw new Stinuum.Exception("point and point cannot be quried");
   }
 
   var sample_arr = Stinuum.getSampleProperties_Polygon(source.temporalGeometry);
@@ -3152,7 +3178,6 @@ Stinuum.QueryProcessor.prototype.makeQueryResultBySpatioTime = function(source, 
       var sample_coord = sample_arr[node].getValue(time);
       if (sample_coord == undefined){
         break;
-        //throw new Stinuum.Exception("time is wrong in make query ", this);
       }
       polygon_coords.push([Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).longitude), 
         Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude)]);

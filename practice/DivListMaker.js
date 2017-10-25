@@ -39,7 +39,7 @@ DivListMaker.prototype.getLayerDivList = function(){
       };
     })(layer_id);
     li.style = "width:inherit";
-    li.className = "list-group-item";
+    li.className = "list-group-item left-toolbar-item";
     li.appendChild(a);
     upper_ul.appendChild(li);
 
@@ -70,7 +70,7 @@ DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, is_pri
   var div = document.createElement("div");
   
   li.role = "presentation";
-  div.className = "list-group-item";
+  div.className = "list-group-item left-toolbar-item";
   div.style.width = "100%";
 //  ul.className = "list-group";
   
@@ -200,7 +200,7 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
     var div_temp = document.createElement("div");
     var chk_temp = document.createElement("input");
 
-    li_temp.className = "list-group-item";
+    li_temp.className = "list-group-item left-toolbar-item";
     li_temp.style.display = "inline-block";
     li_temp.role = "presentation";
 
@@ -218,8 +218,24 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
   return li;
 }
 
+DivListMaker.prototype.getLayersTurnedOn = function(){
+  var layers = [];
+  for (var layer_id in this.isFeatureChecked){
+    if (this.isFeatureChecked.hasOwnProperty(layer_id)){
+      for (var feature_id in this.isFeatureChecked[layer_id]){
+        if (this.isFeatureChecked[layer_id].hasOwnProperty(feature_id)){
+          if (this.isFeatureChecked[layer_id][feature_id]){
+            layers.push(layer_id);
+            break;
+          } 
+        }
+      }
+    }
+  }
+  return layers;
+}
 
-DivListMaker.prototype.getDropdownDIVofFeaturesWithType = function(type){
+DivListMaker.prototype.getDropdownDIVofFeaturesWithType = function(type, appendLayer = false){
   var dwn_btn_id = "btn_"+type;
   var feature_ids = [];
   var features = this.getFeaturesAndLayersTurnedOn();
@@ -250,12 +266,14 @@ DivListMaker.prototype.getDropdownDIVofFeaturesWithType = function(type){
   dropdown_icon.className = 'caret';
 
   dwn_btn.appendChild(dropdown_icon);
-
   var list = document.createElement("ul");
   list.className = 'dropdown-menu';
   list.role = "menu";
   list.setAttribute("aria-labelledby",dwn_btn_id);
 
+  list.innerHTML += '<input type="text" class="drop-item" placeholder="Search.." id="myInput" onkeyup="filterFunction('+appendLayer+')">';
+  list.innerHTML += '<li role="presentation" class="divider" style="background-color : rgb(200,200,200);"></li>';
+  list.innerHTML += '<li class="dropdown-header">Features</li>';
   for (var i = 0 ; i < feature_ids.length ; i++){
     var li = document.createElement("li");
     li.role = "presentation";
@@ -263,6 +281,9 @@ DivListMaker.prototype.getDropdownDIVofFeaturesWithType = function(type){
     a.role = "presentation";
     a.tabindex = "-1";
     a.href ="#";
+    a.className = "drop-item";
+    if (appendLayer) a.className += " first";
+    else a.className += " second";
     a.innerText = feature_ids[i];
     li.appendChild(a);
     li.onclick = (function(feature_id, btn_id) {
@@ -274,7 +295,57 @@ DivListMaker.prototype.getDropdownDIVofFeaturesWithType = function(type){
     list.appendChild(li);
   }
 
+  if (appendLayer){
+    list.innerHTML += '<li role="presentation" class="divider" style="background-color : rgb(200,200,200);"></li>';
+    list.innerHTML += '<li class="dropdown-header">Layers</li>';
+    var layer_list = this.getLayersTurnedOn();//buffer.getLayerNameList();
+    for (var i = 0 ; i < layer_list.length ; i++){
+      var li = document.createElement("li");
+      li.role = "presentation";
+      var a = document.createElement("a");
+      a.role = "presentation";
+      a.tabindex = "-1";
+      a.href ="#";
+      a.className = "drop-item";
+      if (appendLayer) a.className += " first";
+      else a.className += " second";
+      a.innerText = "Layer : " + layer_list[i];
+      li.appendChild(a);
+      li.onclick = (function(layer_id, btn_id) {
+        return function() {
+          document.getElementById(btn_id).innerText = "Layer : " + layer_id;
+          dwn_div.value = [];
+          var feature_list_inLayer = buffer.getFeatureIDsByLayerID(layer_id);
+          for (var fi in feature_list_inLayer){
+            if (feature_list_inLayer.hasOwnProperty(fi)){
+              dwn_div.value.push(fi);
+            }
+          }
+        }
+      })(layer_list[i], dwn_btn_id);
+      list.appendChild(li);
+    }    
+  }
   dwn_div.appendChild(dwn_btn);
   dwn_div.appendChild(list);
   return dwn_div;
+}
+
+
+function filterFunction(appendLayer){
+  var input, filter, ul, li, a, i;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  div = document.getElementById("myDropdown");
+  var className = "drop-item";
+  if (appendLayer) className+=" first";
+  else className += " second";
+  a = document.getElementsByClassName(className);
+  for (i = 0; i < a.length; i++) {
+      if (a[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
+          a[i].style.display = "";
+      } else {
+          a[i].style.display = "none";
+      }
+  }
 }

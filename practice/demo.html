@@ -17,6 +17,7 @@
     <link type="text/css" href="lib/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <!-- d3 -->
     <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -66,24 +67,21 @@
 
         <div id="property_panel" class="left_toolbar_div panel-default" >
 
-            <ul>
-                <li role="presentation" class="list-title">Properties</li>
-                <li role="presentation">
-                    <ul id="property" role="presentation">
+            <li role="presentation" class="list-title">Properties</li>
+            <li role="presentation">
+                <ul id="property" role="presentation">
 
-                    </ul>
-                </li>
-            </ul>
+                </ul>
+            </li>
 
         </div>
         <ul id="layer_list" class="left_toolbar_div panel-default" >
-            <ul>
-                <li id="printedLayerListMenu" role="presentation" class="list-title">Printed Features</li>
-                <li id="printed_features">
 
-                </li>
+            <li id="printedLayerListMenu" role="presentation" class="list-title">Printed Features</li>
+            <li id="printed_features">
 
-            </ul>
+            </li>
+
         </ul>
     
 
@@ -102,23 +100,26 @@
     <div id="cesiumContainer">
 
     </div>
-</br><!--
- <div id="zoom">
-<a id="min-date" style="white-space: nowrap; align:right; float : center; font-size:small"></a>
-<input id="slider" type="text"/>  
 </br>
-</br>
-<a id="max-date" style="white-space: nowrap; align:right;  float : center; font-size:small"></a>
-</br>
-
-</div>
--->
 <div id="featureName"></div>
 <div id="context">
 </div>
 <div id="serverState">
 </div>
-
+<div id="radar_comment" class="input-group" style="visibility: hidden">
+    <div class="radar-item list-group-item">
+        <h4 class="list-group-item-heading"> Distance </h4>
+        <a class="radar-item list-group-item-text"> 화살표 굵기 </a>
+    </div>
+    <div class="radar-item list-group-item">
+        <h4 class="list-group-item-heading"> Lifetime </h4>
+        <a class="radar-item list-group-item-text"> 원 크기 </a>
+    </div>
+    <div class="radar-item list-group-item">
+        <h4 class="list-group-item-heading"> Speed </h4>
+        <a class="radar-item list-group-item-text"> 화살표 길이 </a>
+    </div>
+</div>
 
 <script>
 //var properties = new Array();
@@ -145,7 +146,9 @@ var div_id = {
     "chk_unchk_li" :"chk_unchk_li",
     "properties" : "property",
     "properties_panel" : "property_panel",
-    "menu_list" : "menu_list"
+    "menu_list" : "menu_list",
+    "radar_comment" : "radar_comment",
+    "server_state" : "serverState"
 };
 
 var MENU_STATE = {
