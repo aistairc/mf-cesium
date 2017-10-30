@@ -6,8 +6,8 @@ function FeatureBuffer(p_connection){
 
 FeatureBuffer.prototype.getFeatureIDsByLayerID = function(layer_id){
   if (this.data[layer_id] == undefined){
-    LOG("no layer");
-    throw "this layer_id is not in buffer";
+    LOG("no layer", layer_id);
+    throw "this layer_id is not in buffer" + layer_id;
   }
   return this.data[layer_id];  
 }

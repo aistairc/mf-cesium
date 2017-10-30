@@ -114,9 +114,10 @@ function refresh() {
 
 function drawFeatures() { //아이디로 찾을까
     LOG("drawFeatures");
-
+/*
     stinuum.geometryViewer.update()
     stinuum.geometryViewer.adjustCameraView();
+    */
 }
 
 

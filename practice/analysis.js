@@ -390,9 +390,7 @@ function showRadar(){
     radar_canvas.style.height = document.body.offsetHeight / 4 + 'px';
     radar_canvas.width = document.body.offsetHeight / 4;
     radar_canvas.height = document.body.offsetHeight / 4;
-    // radar_canvas.style.top = (document.body.offsetHeight / 6) + 'px';
-    // radar_canvas.style.right = (document.body.offsetWidth / 6) + 'px';
-    
+  
     document.body.appendChild(radar_canvas);
     stinuum.directionRadar.show('radar');
     
@@ -401,7 +399,6 @@ function showRadar(){
     radar_exp.style.width = document.body.offsetHeight / 4 + 'px';
     radar_exp.style.right = (document.body.offsetHeight / 4 + 10) + 'px'
     
-
     // var arr = ['distance', 'lifetime', 'speed'];
     // var dir_arr = ['west','east','north','south'];
     // for (var i = 0 ; i < arr.length ; i++){

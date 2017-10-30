@@ -122,10 +122,7 @@
 </div>
 
 <script>
-//var properties = new Array();
-//var checked_property = new Array();
-//var features = new Array();
-//var feature = new Array();
+var isHTMLDebug = true;
 var viewer;
 var stinuum;
 //var labelEntity;
@@ -188,6 +185,9 @@ var list_maker = new DivListMaker(connector);
     });
 
     scene = viewer.scene;
+
+    if (isHTMLDebug) scene.destroy();
+
     viewer.clock.shouldAnimate = false;
 
     handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);

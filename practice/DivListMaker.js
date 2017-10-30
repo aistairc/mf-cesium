@@ -20,21 +20,20 @@ DivListMaker.prototype.getLayerDivList = function(){
       return function() {
         changeMenuMode(MENU_STATE.features);
         var features = buffer.getFeatureIDsByLayerID(id);
-        var features_is_empty = Object.keys(features).length === 0 && features.constructor === Object
+        var features_is_empty = Object.keys(features).length === 0 && features.constructor === Object;
+        var callback = function(){
+            printFeaturesList(id);
+            afterChangingCheck();
+            printCheckAllandUnCheck(id);    
+        };
+
         if (features_is_empty && buffer.fromServer[id]){
           LOG("features from server");
-          var callback = function(){
-            printFeaturesList(id);
-            printCheckAllandUnCheck(id);
-            afterChangingCheck();    
-          };
           connector.getFeaturesByLayerID(id, buffer.data[id], callback);
         }
         else{
           LOG("features from local", features);
-          printFeaturesList(id);
-          printCheckAllandUnCheck(id);
-          afterChangingCheck();  
+          callback();
         }
       };
     })(layer_id);
@@ -272,11 +271,13 @@ DivListMaker.prototype.getDropdownDIVofFeaturesWithType = function(type, appendL
   list.setAttribute("aria-labelledby",dwn_btn_id);
 
   list.innerHTML += '<input type="text" class="drop-item" placeholder="Search.." id="myInput" onkeyup="filterFunction('+appendLayer+')">';
-  list.innerHTML += '<li role="presentation" class="divider" style="background-color : rgb(200,200,200);"></li>';
-  list.innerHTML += '<li class="dropdown-header">Features</li>';
+  list.appendChild(this.makeDropDownDivider());
+  list.appendChild(this.makeDropDownHeader('Features'));
+
   for (var i = 0 ; i < feature_ids.length ; i++){
-    var li = document.createElement("li");
-    li.role = "presentation";
+    var feature_li = document.createElement("li");
+    feature_li.role = "presentation";
+    feature_li.id = feature_ids[i];
     var a = document.createElement("a");
     a.role = "presentation";
     a.tabindex = "-1";
@@ -285,23 +286,25 @@ DivListMaker.prototype.getDropdownDIVofFeaturesWithType = function(type, appendL
     if (appendLayer) a.className += " first";
     else a.className += " second";
     a.innerText = feature_ids[i];
-    li.appendChild(a);
-    li.onclick = (function(feature_id, btn_id) {
+    feature_li.appendChild(a);
+    feature_li.onclick = (function(feature_id, btn_id) {
       return function() {
         document.getElementById(btn_id).innerText = feature_id;
-        dwn_div.value = feature_id;
+        dwn_div.value = [feature_id];
       }
     })(feature_ids[i], dwn_btn_id);
-    list.appendChild(li);
+    list.appendChild(feature_li);
   }
 
   if (appendLayer){
-    list.innerHTML += '<li role="presentation" class="divider" style="background-color : rgb(200,200,200);"></li>';
-    list.innerHTML += '<li class="dropdown-header">Layers</li>';
-    var layer_list = this.getLayersTurnedOn();//buffer.getLayerNameList();
+    list.appendChild(this.makeDropDownDivider());
+    list.appendChild(this.makeDropDownHeader('Layers'));
+
+    var layer_list = this.getLayersTurnedOn();
     for (var i = 0 ; i < layer_list.length ; i++){
       var li = document.createElement("li");
       li.role = "presentation";
+      li.id = layer_list[i];
       var a = document.createElement("a");
       a.role = "presentation";
       a.tabindex = "-1";
@@ -325,12 +328,32 @@ DivListMaker.prototype.getDropdownDIVofFeaturesWithType = function(type, appendL
       })(layer_list[i], dwn_btn_id);
       list.appendChild(li);
     }    
+    
   }
   dwn_div.appendChild(dwn_btn);
   dwn_div.appendChild(list);
   return dwn_div;
 }
 
+/*
+  list.innerHTML += '<li role="presentation" class="divider" style="background-color : rgb(200,200,200);"></li>';
+  list.innerHTML += '<li class="dropdown-header">Layers</li>';
+*/
+DivListMaker.prototype.makeDropDownDivider = function(){
+  var li = document.createElement('li');
+  li.role = "presentation";
+  li.className = "divider";
+  li.style = "background-color : rgb(200,200,200)";
+  return li;
+}
+
+
+DivListMaker.prototype.makeDropDownHeader = function(name){
+  var li = document.createElement('li');
+  li.className = "dropdown-header";
+  li.innerText = name;
+  return li;
+}
 
 function filterFunction(appendLayer){
   var input, filter, ul, li, a, i;
