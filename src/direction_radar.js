@@ -12,7 +12,6 @@ Stinuum.DirectionRadar.prototype.remove = function(canvasID){
 */
 Stinuum.DirectionRadar.prototype.show = function(canvasID){
   var cnvs = document.getElementById(canvasID);
-  //Stinuum.DirectionRadar.drawBackRadar(canvasID);
   var cumulative = new Stinuum.SpatialInfo();
 
   for (var index = 0 ; index < this.super.mfCollection.features.length ; index++){
@@ -20,33 +19,32 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
     this.super.mfCollection.setColor(mf.id, Stinuum.addDirectionInfo(cumulative, mf.feature.temporalGeometry));
   }
 
-  var total_life = cumulative.west.total_life + cumulative.east.total_life + cumulative.north.total_life + cumulative.south.total_life;
-  var total_length = cumulative.west.total_length + cumulative.east.total_length + cumulative.north.total_length + cumulative.south.total_length;
+  var total_life = 0;
+  var total_length = 0;
+  var total_velocity = 0;
+  for (var WENS in cumulative){
+    if (cumulative.hasOwnProperty(WENS)){
+      total_life += cumulative[WENS].total_life;
+      total_length += cumulative[WENS].total_length;
+      total_velocity += cumulative[WENS].avg_velocity;
+    }
+  }
 
   if (cnvs.getContext){
     var h_width = cnvs.width / 2;
     var h_height = cnvs.height / 2;
     var ctx = cnvs.getContext('2d');
-    var max_life = Math.max.apply(null, [cumulative.west.total_life , cumulative.east.total_life , cumulative.north.total_life, cumulative.south.total_life]);
 
+    var max_life = Math.max.apply(null, [cumulative.west.total_life , cumulative.east.total_life , cumulative.north.total_life, cumulative.south.total_life]);
     var max_length = Math.max.apply(null, [cumulative.west.total_length , cumulative.east.total_length , cumulative.north.total_length, cumulative.south.total_length]);
+
     var scale = 1 / (max_length/total_length) * 0.8;
 
-
     var length = [cumulative.west.total_length, cumulative.east.total_length, cumulative.north.total_length, cumulative.south.total_length];
-    var length2 = [cumulative.west.total_length,- cumulative.east.total_length, cumulative.north.total_length, -cumulative.south.total_length];
+    // north와 east는 반대
+    var length_for_drawing = [cumulative.west.total_length, -cumulative.east.total_length, cumulative.north.total_length, -cumulative.south.total_length];
     var life = [cumulative.west.total_life, cumulative.east.total_life, cumulative.north.total_life, cumulative.south.total_life];
-    var velocity = [];
-    var total_velocity = 0.0;
-    for (var i = 0 ; i < length.length ; i++){
-      if (life[i] == 0){
-        velocity[i] = 0;
-        continue;
-      }
-      velocity[i] = length[i]/life[i];
-
-      total_velocity += velocity[i];
-    }
+    var velocity = [cumulative.west.avg_velocity, cumulative.east.avg_velocity, cumulative.north.avg_velocity, cumulative.south.avg_velocity];
 
     this.result = {
       'distance': length,
@@ -57,7 +55,6 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
     var color = ['rgb(255, 255, 0)','rgb(0, 255, 0)','Cyan','red'];
 
     for (var i = 0 ; i < life.length ; i++){
-
       for (var j = 0 ; j < 2 ; j += 0.1){
         ctx.beginPath();
         ctx.arc(h_width,h_height,h_width * life[i] / max_life, j * Math.PI,(j+0.05)*Math.PI);
@@ -69,11 +66,11 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
     for (var i = 0 ; i < 2 ; i++){
       ctx.beginPath();
       ctx.moveTo(h_width,h_height);
-      ctx.lineTo(h_width - length2[i]/max_length * 0.375 * 0.9 * h_width, h_height - 0.25 * 1 * h_height * velocity[i]/total_velocity);
-      ctx.lineTo(h_width - length2[i]/max_length * 0.5 * 0.9 *  h_width, h_height - 0.5 * 1 * h_height * velocity[i]/total_velocity);
-      ctx.lineTo(h_width - length2[i]/max_length * 1.0 * 0.9 *  h_width, h_height);
-      ctx.lineTo(h_width - length2[i]/max_length * 0.5 * 0.9 *  h_width, h_height + 0.5 * 1 * h_height * velocity[i]/total_velocity);
-      ctx.lineTo(h_width - length2[i]/max_length * 0.375 * 0.9 *  h_width, h_height + 0.25 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length_for_drawing[i]/max_length * 0.375 * 0.9 * h_width, h_height - 0.25 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length_for_drawing[i]/max_length * 0.5 * 0.9 *  h_width, h_height - 0.5 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length_for_drawing[i]/max_length * 1.0 * 0.9 *  h_width, h_height);
+      ctx.lineTo(h_width - length_for_drawing[i]/max_length * 0.5 * 0.9 *  h_width, h_height + 0.5 * 1 * h_height * velocity[i]/total_velocity);
+      ctx.lineTo(h_width - length_for_drawing[i]/max_length * 0.375 * 0.9 *  h_width, h_height + 0.25 * 1 * h_height * velocity[i]/total_velocity);
       ctx.fillStyle= color[i];
       ctx.fill();
     }
@@ -81,19 +78,20 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
     for (var i = 2 ; i < 4 ; i++){
       ctx.beginPath();
       ctx.moveTo(h_width,h_height);
-      ctx.lineTo(h_width - velocity[i]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * 0.9* h_height * length2[i]/max_length);
-      ctx.lineTo(h_width - velocity[i]/total_velocity* 0.5 * 1 * h_width, h_height - 0.5 * 0.9  * h_height * length2[i]/max_length);
-      ctx.lineTo(h_width, h_height - 1.0 * 0.9 *  h_height * length2[i]/max_length);
-      ctx.lineTo(h_width +  velocity[i]/total_velocity * 0.5 * 1 * h_width, h_height - 0.5 * 0.9 * h_height * length2[i]/max_length);
-      ctx.lineTo(h_width +  velocity[i]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * 0.9 * h_height * length2[i]/max_length);
+      ctx.lineTo(h_width - velocity[i]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * 0.9* h_height * length_for_drawing[i]/max_length);
+      ctx.lineTo(h_width - velocity[i]/total_velocity* 0.5 * 1 * h_width, h_height - 0.5 * 0.9  * h_height * length_for_drawing[i]/max_length);
+      ctx.lineTo(h_width, h_height - 1.0 * 0.9 *  h_height * length_for_drawing[i]/max_length);
+      ctx.lineTo(h_width +  velocity[i]/total_velocity * 0.5 * 1 * h_width, h_height - 0.5 * 0.9 * h_height * length_for_drawing[i]/max_length);
+      ctx.lineTo(h_width +  velocity[i]/total_velocity * 0.25 * 1 * h_width, h_height - 0.375 * 0.9 * h_height * length_for_drawing[i]/max_length);
       ctx.fillStyle = color[i];
       ctx.fill();
     }
 
+    return this.result;
 
   }
   else{
-    alert('canvas를 지원하지 않는 브라우저');
+    alert('canvas를 지원하지 않는 브라우저, not support canvas');
   }
 }
 
@@ -121,8 +119,10 @@ Stinuum.DirectionRadar.drawBackRadar = function(radar_id) {
 }
 
 Stinuum.addDirectionInfo = function(cumulative, geometry){
-  var life = Stinuum.calculateLife(geometry) / 1000000;
-  var length = Stinuum.calculateLength(geometry);
+  var life = Stinuum.calculateLife(geometry) / (1000 * 60 * 60); // hours, ms * sec * min)
+  var length = Stinuum.calculateLength(geometry) / 1000; // kilo-meter
+  var velocity = length / life; // km/h;
+  LOG(life, length, velocity);
 
   var start_point = geometry.coordinates[0][0];
   var end_point = geometry.coordinates[geometry.coordinates.length-1][0];
@@ -137,11 +137,20 @@ Stinuum.addDirectionInfo = function(cumulative, geometry){
   dist_x = end_point[0] - start_point[0];
   dist_y = end_point[1] - start_point[1];
 
+  if (isNaN(life) || isNaN(length) || isNaN(dist_x) || isNaN(dist_y)){
+    LOG(geometry);
+    LOG(life, length, dist_x, dist_y);
+    throw new Stinuum.Exception("Nan in Direction");
+  }
+
   var r_color ;
   if (dist_x == 0){
     if (dist_y > 0){
       cumulative.north.total_life += life;
       cumulative.north.total_length += length;
+      cumulative.north.velocity.push(velocity);
+        cumulative.north.updateAvgVelocity();
+
       r_color = Cesium.Color.fromRandom({
         maximumRed : 0.2,
         minimumBlue : 0.7,
@@ -152,6 +161,9 @@ Stinuum.addDirectionInfo = function(cumulative, geometry){
     else if (dist_y < 0){
       cumulative.south.total_life += life;
       cumulative.south.total_length += length;
+      cumulative.south.velocity.push(velocity);
+        cumulative.south.updateAvgVelocity();
+
       r_color = Cesium.Color.fromRandom({
         minimumRed : 0.7,
         maximumBlue : 0.2,
@@ -169,6 +181,8 @@ Stinuum.addDirectionInfo = function(cumulative, geometry){
       if (dist_x > 0 ){
         cumulative.east.total_life += life;
         cumulative.east.total_length += length;
+        cumulative.east.velocity.push(velocity);
+        cumulative.east.updateAvgVelocity();
         r_color = Cesium.Color.fromRandom({
           maximumRed : 0.2,
           maximumBlue : 0.2,
@@ -179,6 +193,8 @@ Stinuum.addDirectionInfo = function(cumulative, geometry){
       else{
         cumulative.west.total_life += life;
         cumulative.west.total_length += length;
+        cumulative.west.velocity.push(velocity);
+        cumulative.west.updateAvgVelocity();
         r_color = Cesium.Color.fromRandom({
           minimumRed : 0.7,
           maximumBlue : 0.2,
@@ -191,6 +207,8 @@ Stinuum.addDirectionInfo = function(cumulative, geometry){
       if (dist_y >0){
         cumulative.north.total_life += life;
         cumulative.north.total_length += length;
+        cumulative.north.velocity.push(velocity);
+        cumulative.north.updateAvgVelocity();
         r_color = Cesium.Color.fromRandom({
           maximumRed : 0.2,
           minimumBlue : 0.7,
@@ -201,6 +219,8 @@ Stinuum.addDirectionInfo = function(cumulative, geometry){
       else{
         cumulative.south.total_life += life;
         cumulative.south.total_length += length;
+        cumulative.south.velocity.push(velocity);
+        cumulative.south.updateAvgVelocity();
         r_color = Cesium.Color.fromRandom({
           minimumRed : 0.7,
           maximumBlue : 0.2,
@@ -211,15 +231,27 @@ Stinuum.addDirectionInfo = function(cumulative, geometry){
     }
   }
 
+
   return r_color;
-
-
 }
 
+/**
+metric : ms
+*/
 Stinuum.calculateLife = function(geometry){
-  return - new Date(geometry.datetimes[0]).getTime() + new Date(geometry.datetimes[geometry.datetimes.length-1]).getTime();
+  var last = new Date(geometry.datetimes[geometry.datetimes.length-1]).getTime();
+  var start = new Date(geometry.datetimes[0]).getTime();
+  if (isNaN(last) || isNaN(start)){
+    LOG(geometry.datetimes[geometry.datetimes.length-1], new Date(geometry.datetimes[geometry.datetimes.length-1]));
+    LOG("it sholud be ISO String, YYYY-MM-DDTHH:MM:SSZ");
+    throw new Error("is NaN in", 'direction_radar', 230);
+  }
+  return last - start ;
 };
 
+/**
+metric : meter
+*/
 Stinuum.calculateLength = function(geometry){
   var total = 0;
   for (var i = 0 ; i < geometry.coordinates.length - 1 ; i++){
@@ -233,10 +265,17 @@ Stinuum.calculateLength = function(geometry){
       point1 = Stinuum.getCenter(geometry.coordinates[i][0], geometry.type);
       point2 = Stinuum.getCenter(geometry.coordinates[i+1][0], geometry.type);
     }
-    //total += Stinuum.calculateDist(point1, point2);
     total += Stinuum.calculateCarteDist(point1, point2);
-
   }
 
   return total;
 };
+
+Stinuum.DirectionInfo.prototype.updateAvgVelocity = function(){
+  this.avg_velocity = 0.0;
+  var total = 0;
+  for (var i = 0 ; i < this.velocity.length; i++){
+    total += this.velocity[i];
+  }
+  this.avg_velocity = total / this.velocity.length;
+}

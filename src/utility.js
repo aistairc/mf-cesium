@@ -160,8 +160,7 @@ Stinuum.calculateCarteDist = function(point1, point2){
     alert("dist error");
     return;
   }
-
-  return Cesium.Cartesian2.distance(Cesium.Cartesian2.fromCartesian3(carte3_1),Cesium.Cartesian2.fromCartesian3(carte3_2));
+  return Cesium.Cartesian3.distance(carte3_1, carte3_2);
 }
 
 Stinuum.getBoundingSphere = function(min_max, height){

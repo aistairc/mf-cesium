@@ -112,4 +112,6 @@ Stinuum.SpatialInfo = function(){
 Stinuum.DirectionInfo =function(life=0, leng=0){
   this.total_life = life;
   this.total_length = leng;
+  this.velocity = [];
+  this.avg_velocity = 0;
 }

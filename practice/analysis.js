@@ -386,18 +386,19 @@ function zoom() {
 function showRadar(){
     var radar_canvas = document.createElement('canvas');
     radar_canvas.id = 'radar';
-    radar_canvas.style.width = document.body.offsetHeight / 4 + 'px';
-    radar_canvas.style.height = document.body.offsetHeight / 4 + 'px';
-    radar_canvas.width = document.body.offsetHeight / 4;
-    radar_canvas.height = document.body.offsetHeight / 4;
+    radar_canvas.style.width = document.body.offsetHeight / 3 + 'px';
+    radar_canvas.style.height = document.body.offsetHeight / 3 + 'px';
+    radar_canvas.width = document.body.offsetHeight / 3;
+    radar_canvas.height = document.body.offsetHeight / 3;
   
     document.body.appendChild(radar_canvas);
-    stinuum.directionRadar.show('radar');
+    var result = stinuum.directionRadar.show('radar');
     
     var radar_exp = document.getElementById(div_id.radar_comment);
     radar_exp.style.visibility = 'visible';
-    radar_exp.style.width = document.body.offsetHeight / 4 + 'px';
-    radar_exp.style.right = (document.body.offsetHeight / 4 + 10) + 'px'
+    radar_exp.style.width = document.body.offsetHeight / 3 + 'px';
+    radar_exp.style.right = (document.body.offsetHeight / 3 + 10) + 'px'
+    radar_exp.style.height = document.body.offsetHeight / 3 + 'px';
     
     // var arr = ['distance', 'lifetime', 'speed'];
     // var dir_arr = ['west','east','north','south'];
@@ -416,7 +417,7 @@ function showRadar(){
     //     }
         
     // }
-
+    LOG(result);
 
 
     changeOptionToolbarToCloseDIV();
