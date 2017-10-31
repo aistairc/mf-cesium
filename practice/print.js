@@ -115,12 +115,20 @@ function refresh() {
 function drawFeatures() { //아이디로 찾을까
     LOG("drawFeatures");
 
-    stinuum.geometryViewer.update()
-    stinuum.geometryViewer.adjustCameraView();
+    stinuum.geometryViewer.update();
 
 }
 
-
+function connectHomeButton(){
+    $('.cesium-button.cesium-toolbar-button.cesium-home-button').each(function(){
+        $this = $(this);
+        LOG($this);
+        $this.unbind(); 
+        $this.click(function(){
+            stinuum.geometryViewer.adjustCameraView();
+        });
+    });
+}
 
 
 
@@ -209,7 +217,6 @@ function printWhole(layerID) {
             document.getElementById('graph').style.height = "0%";
         }
         stinuum.geometryViewer.update();
-        stinuum.geometryViewer.adjustCameraView();
     }
     //selectProperty("graph");
     drawFeatures();

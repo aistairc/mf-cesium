@@ -75,9 +75,7 @@ Stinuum.QueryProcessor.prototype.makeQueryResultBySpatioTime = function(source, 
       polygon_coords.push([Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).longitude), 
         Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude)]);
     }
-    LOG(coord, polygon_coords);
     Stinuum.QueryProcessor.moveToRelativeCoords(coord, polygon_coords);
-    LOG(coord, polygon_coords);
     if (polygon_coords.length != sample_arr.length){
       removed_indexes.push(i);
     }
@@ -85,7 +83,6 @@ Stinuum.QueryProcessor.prototype.makeQueryResultBySpatioTime = function(source, 
       removed_indexes.push(i);
     }
     else{ //intersect..
-      LOG(polygon_coords, coord);
     }
 
   }

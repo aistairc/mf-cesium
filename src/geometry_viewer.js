@@ -4,7 +4,7 @@ Stinuum.GeometryViewer.prototype.update = function(options){
   this.super.mfCollection.findMinMaxGeometry();
   this.draw();
   this.animate(options);
-  this.adjustCameraView();
+  //this.adjustCameraView();
 }
 
 Stinuum.GeometryViewer.prototype.clear = function(){
@@ -74,9 +74,7 @@ Stinuum.GeometryViewer.prototype.draw = function(){
         this.primitives[mf.id] = path_prim;
     }
   }
-  this.adjustCameraView();
-  //return 0;
-  this.super.cesiumViewer.camera.flyTo({    destination : this.super.cesiumViewer.camera.position  });
+  
 }
 
 Stinuum.GeometryViewer.prototype.animate = function(options){
@@ -325,17 +323,15 @@ Stinuum.GeometryViewer.prototype.showHeightBar = function(id){
 
 Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
   //TODO
-  //
+  LOG("adjustCameraView");
+
   var bounding = this.bounding_sphere;
   var viewer = this.viewer;
   var geomview = this;
   if (bounding == undefined || bounding == -1){
     return;
   }
-
-
-  setTimeout(function(){
-    if (geomview.super.mode == "SPACETIME"){
+  if (geomview.super.mode == "SPACETIME"){
     geomview.super.cesiumViewer.camera.flyTo({
       duration : 0.5,
       destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
@@ -343,13 +339,29 @@ Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
         direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
         up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
       }});
-    }
-    else{
-      geomview.super.cesiumViewer.camera.flyToBoundingSphere(bounding, {
-        duration : 0.5
-      });
-    }
-  }, 300);
+  }
+  else{
+    geomview.super.cesiumViewer.camera.flyToBoundingSphere(bounding, {
+      duration : 0.5
+    });
+  }
+
+  // setTimeout(function(){
+  //   if (geomview.super.mode == "SPACETIME"){
+  //   geomview.super.cesiumViewer.camera.flyTo({
+  //     duration : 0.5,
+  //     destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
+  //     orientation : {
+  //       direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
+  //       up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
+  //     }});
+  //   }
+  //   else{
+  //     geomview.super.cesiumViewer.camera.flyToBoundingSphere(bounding, {
+  //       duration : 0.5
+  //     });
+  //   }
+  // }, 300);
 
 }
 

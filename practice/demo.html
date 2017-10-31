@@ -163,11 +163,12 @@ var list_maker = new DivListMaker(connector);
         orderIndependentTranslucency: false,
         baseLayerPicker: true,
         geocoder : false,
-        homeButton : false,
+        homeButton : true,
         infoBox : false,
         sceneModePicker : true,
         navigationHelpButton : false,
-        navigationInstructionsInitiallyVisible : false
+        navigationInstructionsInitiallyVisible : false,
+        fullscreenButton : false
     });
 
     viewer.resolutionScale = 0.5; //for Debug..
@@ -238,6 +239,8 @@ var list_maker = new DivListMaker(connector);
     clearAnalysis();
     printFileUploadButton();
     if (connector.start() == -1) getLocalFile();
+
+    connectHomeButton();
 
     var left_toolbar_btn = document.getElementById('left_toolbar_btn');
     left_toolbar_btn.className = 'btn btn-default';
