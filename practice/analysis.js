@@ -18,6 +18,7 @@ var clearAnalysis = function(){
     if (document.getElementById('radar') != undefined){
         stinuum.directionRadar.remove('radar');
         $('#radar').remove();
+        $('#radar_stat').remove();
         document.getElementById(div_id.radar_comment).style.visibility = 'hidden';
     }
     stinuum.s_query_on = false;
@@ -104,7 +105,6 @@ var selectDegree = function() {
     })();
     option_div.appendChild(submit_btn);
     option_div.appendChild(makeAnalysisCloseBtn());
-
 }
 
 var selectProperty = function(graph_id) {
@@ -176,11 +176,15 @@ var selectProperty = function(graph_id) {
         return function() {
             document.getElementById('pro_menu').remove();
             document.getElementById(graph_id).style.height = "0%";
+            clearAnalysis();
+            refresh();
+            drawFeatures();
+            
         }
     })(graph_id);
 
     document.body.appendChild(pro_menu);
-
+    changeOptionToolbarToCloseDIV();
 }
 
 function processSpatioQuery(id1, id2){
@@ -279,13 +283,8 @@ function makeAnalysisCloseBtn(){
 }
 
 function setOptionDIVforSlider(){
-    var time_min_max;
-    if (stinuum.s_query_on){
-      time_min_max = stinuum.mfCollection.findMinMaxGeometry().date;  
-    } 
-    else {
-        time_min_max = stinuum.mfCollection.getWholeMinMax().date;
-    }
+    var time_min_max = stinuum.mfCollection.getWholeMinMax().date;
+    
     var fastest = new Date(time_min_max[0]);
     var latest = new Date(time_min_max[1]);
 
@@ -333,20 +332,23 @@ function time_query(){
         max : 100,
         value : [0,100],
         formatter: function(value){
-            var time_min_max;
-            if (stinuum.s_query_on) time_min_max = stinuum.mfCollection.min_max.date;
-            else time_min_max = stinuum.mfCollection.whole_min_max.date;
+            if (!Array.isArray(value)) return;
+            var time_min_max = stinuum.mfCollection.whole_min_max.date;
             if (time_min_max == undefined) return;
             var fastest = new Date(time_min_max[0]);
             var latest = new Date(time_min_max[1]);
-
             var diff = (latest.getTime() - fastest.getTime()) / 100;
-            fastest.setTime(fastest.getTime() + diff * value[0]);
-            latest.setTime(fastest.getTime() + diff * value[1]);
-            
 
-            var start = fastest.getFullYear() + " / " + (fastest.getMonth() + 1) + " / " + (fastest.getDate());
-            var end = latest.getFullYear() + " / " + (latest.getMonth() + 1) + " / " + (latest.getDate());
+            var new_fastest = new Date();
+            var new_latest = new Date(); 
+            new_fastest.setTime(fastest.getTime() + diff * value[0]);
+            if (value[1] == 100) new_latest = latest;
+            else new_latest.setTime(fastest.getTime() + diff * value[1]);
+
+            var start = new_fastest.getFullYear() + " / " + (new_fastest.getMonth() + 1) + " / " + (new_fastest.getDate()) 
+                + " " + (new_fastest.getHours()) + ":00";
+            var end = new_latest.getFullYear() + " / " + (new_latest.getMonth() + 1) + " / " + (new_latest.getDate()) 
+                + " " + (new_fastest.getHours()) + ":00";
             return start + " - " + end;
         }
     });
@@ -363,13 +365,8 @@ function zoom() {
     var zoom_time = slider.getValue();
     LOG("zoom time : " , zoom_time);
 
-    var time_min_max;
-    if (stinuum.s_query_on){
-      time_min_max = stinuum.mfCollection.findMinMaxGeometry().date;  
-    } 
-    else {
-        time_min_max = stinuum.mfCollection.getWholeMinMax().date;
-    }
+    var time_min_max = stinuum.mfCollection.getWholeMinMax().date;
+    
     var fastest = new Date(time_min_max[0]);
     var latest = new Date(time_min_max[1]);
 
@@ -384,43 +381,105 @@ function zoom() {
 
 
 function showRadar(){
+    var attr_arr = ['Total Distance', 'Whole Lifetime', 'Average Speed'];
+    var color_object = {
+        'west' : 'yellow',
+        'east' : 'green',
+        'north' : 'cyan',
+        'south' : 'red'
+    }
+    //radar_parent.style = ""
+
     var radar_canvas = document.createElement('canvas');
     radar_canvas.id = 'radar';
     radar_canvas.style.width = document.body.offsetHeight / 3 + 'px';
     radar_canvas.style.height = document.body.offsetHeight / 3 + 'px';
     radar_canvas.width = document.body.offsetHeight / 3;
     radar_canvas.height = document.body.offsetHeight / 3;
-  
+
+
     document.body.appendChild(radar_canvas);
     var result = stinuum.directionRadar.show('radar');
+
+    var offset = $('#radar').offset();
+    $('#radar').mousemove(function(event){
+        //LOG(event);
+        var bearing_type = findBearing(event.pageX - offset.left, event.pageY - offset.top);
+        document.getElementById('radar_stat').style.color = color_object[bearing_type];
+        document.getElementById('radar_stat_bearing').innerText = bearing_type;
+        
+        document.getElementById(attr_arr[0]).innerText = result[bearing_type].total_length.toFixed(3) + ' km';
+        document.getElementById(attr_arr[1]).innerText = result[bearing_type].total_life + ' hours';
+        document.getElementById(attr_arr[2]).innerText = result[bearing_type].avg_velocity.toFixed(3) + ' km/h';
+        document.getElementById('radar_stat').style.top = event.pageY + 'px';
+        document.getElementById('radar_stat').style.left = (event.pageX - document.getElementById('radar_stat').offsetWidth) + 'px';
+        document.getElementById('radar_stat').style.visibility = "visible"; 
+    });
+
+     $('#radar').mouseout(function(){
+        document.getElementById('radar_stat').style.visibility = "hidden";
+
+     });
+
+    var radar_stat = document.createElement('div');
+    radar_stat.id = "radar_stat";
+    //radar_stat.style.height = document.body.offsetHeight / 3 + 'px';
+
+    var bearing_row = document.createElement('div');
+    bearing_row.className = "row title";
+    var bearing_col = document.createElement('h4');
+    bearing_col.className = "col-md-12";
+    bearing_col.setAttribute("style", "margin : 0;");
+    bearing_col.id = "radar_stat_bearing";
+    bearing_row.appendChild(bearing_col);
+    radar_stat.appendChild(bearing_row);
     
+    for (var i = 0 ; i < attr_arr.length ; i++){
+        var item = attr_arr[i];
+        var row = document.createElement('div');
+        row.className = "row";
+        var attr_col = document.createElement('div');
+        attr_col.className = "col-md-5";
+        attr_col.innerText = item;
+        var value_col = document.createElement('div');
+        value_col.className = "col-md-7";
+        value_col.id = item;
+        row.appendChild(attr_col);
+        row.appendChild(value_col);
+        radar_stat.appendChild(row);
+    }
+
+    document.body.appendChild(radar_stat);
+
     var radar_exp = document.getElementById(div_id.radar_comment);
     radar_exp.style.visibility = 'visible';
     radar_exp.style.width = document.body.offsetHeight / 3 + 'px';
     radar_exp.style.right = (document.body.offsetHeight / 3 + 10) + 'px'
     radar_exp.style.height = document.body.offsetHeight / 3 + 'px';
-    
-    // var arr = ['distance', 'lifetime', 'speed'];
-    // var dir_arr = ['west','east','north','south'];
-    // for (var i = 0 ; i < arr.length ; i++){
-    //     var exp_div = document.getElementById('radar_' + arr[i]);
-    //     exp_div.innerHTML = '';
-    //     var title = document.createElement('li');
-    //     title.className = 'radar_li radar_title';
-    //     title.innerText = arr[i];
-    //     exp_div.appendChild(title);
-    //     for (var dir = 0 ; dir < dir_arr.length ; dir++){
-    //         var dir_li = document.createElement('li');    
-    //         dir_li.className = 'radar_li';
-    //         dir_li.innerText = i * dir;
-    //         exp_div.appendChild(dir_li);
-    //     }
-        
-    // }
-    LOG(result);
-
 
     changeOptionToolbarToCloseDIV();
+    drawFeatures();
+}
+
+function findBearing(x,y){
+    var dist = document.body.offsetHeight / 3;
+    var center = [dist/2, dist/2];
+    if (x > y){ // north, east
+        if ( y > -x + dist){ // east
+            return 'east';
+        }
+        else{ // north
+            return 'north';
+        }
+    }
+    else{ // south, west
+        if ( y > -x + dist){ // south
+            return 'south';
+        }
+        else{ //west
+            return 'west';
+        }
+    }   
 }
 
 function changeOptionToolbarToCloseDIV(){
@@ -461,6 +520,9 @@ function showGraphDIV(graph_id){
       return function() {
           document.getElementById('pro_menu').remove();
           document.getElementById(graph_id).style.height = "0%";
+          clearAnalysis();
+          refresh();
+          drawFeatures();
       }
   })(graph_id);
 
@@ -476,4 +538,5 @@ function showGraphDIV(graph_id){
     document.getElementById('pro_menu').style.width = '100%';
   }
   document.getElementById(graph_id).style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
+  changeOptionToolbarToCloseDIV();
 }

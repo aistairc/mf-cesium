@@ -22,7 +22,7 @@ function removeCheckAllandUnCheckBtn(){
 }
 
 function printCheckAllandUnCheck(layer_id){
-  LOG("printCheckAllandUnCheck");
+  LOG("printCheckAllandUnCheck", layer_id);
   removeCheckAllandUnCheckBtn();
 
   var menu = document.getElementById('menu_list');
@@ -39,9 +39,9 @@ function printCheckAllandUnCheck(layer_id){
   chk_all.type = 'button';
   chk_all.className = "chk_unchk_btn btn btn-default";
   chk_all.value = 'ALL';
-  chk_all.onclick = (function(layer_id) {
-    return function(layer_id) {
-      checkAllandUpdate(layer_id);
+  chk_all.onclick = (function(layerID) {
+    return function() {
+      checkAllandUpdate(layerID);
     };
   })(layer_id);
 
@@ -52,9 +52,9 @@ function printCheckAllandUnCheck(layer_id){
   unchk_all.style.float = "right";
   unchk_all.value = 'RESET';
 
-  unchk_all.onclick = (function(layer_id) {
-    return function(layer_id) {
-      uncheckAllandUpdate(layer_id);
+  unchk_all.onclick = (function(layerID) {
+    return function() {
+      uncheckAllandUpdate(layerID);
     };
   })(layer_id);
 
@@ -64,6 +64,7 @@ function printCheckAllandUnCheck(layer_id){
 }
 
 function afterChangingCheck(){
+  LOG("afterChangingCheck");
   update_printed_features();
   clearAnalysis();
   refresh(); //All whole -> features And remove Anlaysis mf.
@@ -71,8 +72,9 @@ function afterChangingCheck(){
 }
 
 function checkAllandUpdate(layer_id) {
+  LOG("checkAllandUpdate", layer_id);
   var features = buffer.getFeatureIDsByLayerID(layer_id);
-  for (var feature_id in layer_id){
+  for (var feature_id in features){
     list_maker.turnOnFeature(layer_id, feature_id);
     var ft = buffer.getFeature(layer_id, feature_id);
     stinuum.mfCollection.add(ft);
@@ -83,8 +85,9 @@ function checkAllandUpdate(layer_id) {
 }
 
 function uncheckAllandUpdate(layer_id) {
+  LOG("uncheckAllandUpdate", layer_id);
   var features = buffer.getFeatureIDsByLayerID(layer_id);
-  for (var feature_id in layer_id){
+  for (var feature_id in features){
     list_maker.turnOffFeature(layer_id, feature_id);
     var ft = buffer.getFeature(layer_id, feature_id);
     stinuum.mfCollection.remove(ft);

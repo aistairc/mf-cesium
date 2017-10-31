@@ -216,8 +216,8 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array
   function dragended(d){
     d3.select(this).classed("dragging", false);
     var end_coord = d3.mouse(this);
-    var formatDate = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-  //  console.log(end_coord);
+    var formatDate = d3.timeFormat("%Y-%m-%dT%H:%M:%SZ");
+    console.log(start_coord, end_coord);
     var start_date, end_date;
 
     if (end_coord[0] > start_coord[0]){
@@ -237,7 +237,7 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array
       start_date = formatDate(x.invert(end_coord[0]-51.09));
       end_date =  formatDate(x.invert(start_coord[0]-51.09));
     }
-
+    LOG(new Date(start_date), new Date(end_date));
     propertyGraph.super.queryProcessor.queryByTime(new Date(start_date), new Date(end_date));
     propertyGraph.super.geometryViewer.update();
     propertyGraph.show(propertyName, div_id);

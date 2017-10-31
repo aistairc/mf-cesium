@@ -12,7 +12,7 @@ DivListMaker.prototype.getLayerDivList = function(){
     var layer_id = layer_name_list[i];
     var li = document.createElement('li');
     var a = document.createElement('a');
-    a.style = "width:inherit";
+    a.style.width = "inherit";
     a.innerText = layer_name_list[i];
 
     li.id = layer_name_list[i];
@@ -181,27 +181,27 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
 
   var name = feature.properties.name;
   var temporalProperties = feature.temporalProperties;
-  var li = document.createElement("li");
   var ul = document.createElement("ul");
 
-  //li.className = "list-group-item";
-  li.role = "presentation";
-  li.style.marginLeft = "5%";
-  li.style.textAlign = "left";
-  li.style.display ="block";
   ul.id = name;
-  var temporalProperties_name = Object.keys(temporalProperties[0]);
-  console.log(temporalProperties_name);
+  ul.className = "input-group";
+  var temporalProperties_name;
+  if (Array.isArray(temporalProperties)) temporalProperties_name = Object.keys(temporalProperties[0]);
+  else {
+    LOG(temporalProperties);
+    throw new Error("temporalProperties should be array");
+    //temporalProperties_name = Object.keys(temporalProperties);
+  }
+  LOG(temporalProperties_name);
   for (var i = 0; i < temporalProperties_name.length; i++) {
     if (temporalProperties_name[i] == 'datetimes') continue;
     var li_temp = document.createElement("li");
     var a_temp = document.createElement("a");
     var div_temp = document.createElement("div");
-    var chk_temp = document.createElement("input");
 
-    li_temp.className = "list-group-item left-toolbar-item";
-    li_temp.style.display = "inline-block";
-    li_temp.role = "presentation";
+    div_temp.className = "list-group-item left-toolbar-item";
+    //div_temp.style.display = "inline-block";
+    div_temp.role = "presentation";
 
     a_temp.innerText = temporalProperties_name[i];
     a_temp.onclick = (function(feature_id, temporalProperty) {
@@ -213,8 +213,7 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
     li_temp.appendChild(div_temp);
     ul.appendChild(li_temp);
   }
-  li.appendChild(ul);
-  return li;
+  return ul;
 }
 
 DivListMaker.prototype.getLayersTurnedOn = function(){

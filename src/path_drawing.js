@@ -159,7 +159,7 @@ Stinuum.PathDrawing.prototype.drawPathMovingPoint = function(options){
         if (blue_rate > 0.9){
           blue_rate = 0.9;
         }
-        color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
+        color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , 0.8);
 
         var positions;
         if (this.supersuper.mode == 'STATICMAP' || this.supersuper.mode == 'ANIMATEDMAP'){
@@ -215,7 +215,7 @@ Stinuum.PathDrawing.prototype.drawPathMovingPolygon = function(options){
 
   var heights = this.supersuper.getListOfHeight(datetimes);
 
-  var color = this.supersuper.mfCollection.getColor(options.id).withAlpha(0.6);
+  var color = this.supersuper.mfCollection.getColor(options.id).withAlpha(0.5);
 
   if (geometry.interpolations[0] == 'Discrete'){
     return this.drawMovingPolygon(options);

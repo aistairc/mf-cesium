@@ -3,7 +3,7 @@ Stinuum.findMinMaxTime = function(datetimes){
   var min_max_date = [];
   min_max_date[0] = new Date(datetimes[0]);
   min_max_date[1] = new Date(datetimes[0]);
-
+  if (isNaN(min_max_date[0].getTime())) throw new Error("cannot be date type, utility.js, findMinMaxTime");
   for (var j = 1 ; j < datetimes.length ; j++){
     var time = new Date(datetimes[j]);
 
@@ -64,6 +64,14 @@ Stinuum.findMinMaxCoord = function(coordinates){
         min_max.z[1] = coord[2];
       }
     }
+  }
+
+  //maybe pass international Date line
+  if (Math.abs(min_max.x[0] - min_max.x[1]) > 180){
+    LOG("it pass IDL");
+    var temp = min_max.x[0];
+    min_max.x[0] = min_max.x[1];
+    min_max.x[1] = temp;
   }
 
   return min_max;
@@ -132,14 +140,38 @@ Stinuum.getMBRFromPolygon = function(coordinates){
 Stinuum.getPropertyByName = function(mf, name, id){
   if (mf.temporalProperties == undefined) return -1;
 
-  for (var i = 0 ; i < mf.temporalProperties.length ; i++){
-    var property = mf.temporalProperties[i][name];
-    if (property != undefined){
-      property.datetimes = mf.temporalProperties[i].datetimes;
-      return [property, id];
+  if (Array.isArray(mf.temporalProperties)){
+    for (var i = 0 ; i < mf.temporalProperties.length ; i++){
+      var property = mf.temporalProperties[i][name];
+      if (property != undefined){
+        property.datetimes = mf.temporalProperties[i].datetimes;
+        return [property, id];
+      }
     }
   }
+  else{
+    var property = mf.temporalProperties[name];
+      if (property != undefined){
+        property.datetimes = mf.temporalProperties[i].datetimes;
+        return [property, id];
+      }
+  }
   return -1;
+}
+
+Stinuum.pushPropertyNamesToArrayExceptTime = function(array, properties){
+  var keys = Object.keys(properties);
+  for (var k = 0 ; k < keys.length ; k++){
+    if (keys[k] == 'datetimes') continue;
+    var isExist = false;
+    for (var arr_i = 0 ; arr_i < array.length ; arr_i++){
+      if (array[arr_i] == keys[k]){
+        isExist = true;
+        break;
+      }
+    }
+    if (!isExist) array.push(keys[k]);
+  }
 }
 
 Stinuum.calculateDist = function(point_1, point_2){
@@ -169,7 +201,6 @@ Stinuum.getBoundingSphere = function(min_max, height){
   var middle_height = (height[0] + height[1]) / 2;
 
   var radius = Stinuum.calculateCarteDist([middle_x,middle_y,middle_height], [min_max.x[0],min_max.y[0],height[0]]);
-  console.log(min_max);
   return new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(middle_x,middle_y,middle_height), radius * 3);
 }
 

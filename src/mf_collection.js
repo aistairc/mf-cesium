@@ -209,13 +209,18 @@ Stinuum.MFCollection.prototype.getAllPropertyType = function(){
   var array = [];
   for (var i = 0 ; i < this.features.length ; i++){
     if (this.features[i].feature.temporalProperties == undefined) continue;
-    for (var j = 0 ; j < this.features[i].feature.temporalProperties.length ; j++){
-      var keys = Object.keys(this.features[i].feature.temporalProperties[j]);
-      for (var k = 0 ; k < keys.length ; k++){
-        if (keys[k] == 'datetimes') continue;
-        array.push(keys[k]);
+
+    if (Array.isArray(this.features[i].feature.temporalProperties)){
+      for (var j = 0 ; j < this.features[i].feature.temporalProperties.length ; j++){
+        Stinuum.pushPropertyNamesToArrayExceptTime(array, this.features[i].feature.temporalProperties[j]);
       }
     }
+    else{
+      //Stinuum.pushPropertyNamesToArrayExceptTime(array, this.features[i].feature.temporalProperties);
+      LOG(this.features[i].feature.temporalProperties);
+      throw new Error("temporalProperties should be array");
+    }
+    
   }
   return array;
 }
