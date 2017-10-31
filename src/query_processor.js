@@ -20,7 +20,8 @@ Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source_id_arr, tar
     var target = this.super.mfCollection.getMFPairByIdinWhole(target_id);
     target = target.feature;
 
-    result.push(this.makeQueryResultBySpatioTime(source, target));
+    var new_target = this.makeQueryResultBySpatioTime(source, target);
+    if (new_target != -1) result.push(new_target);
     result.push(source);  
   }
   
@@ -34,7 +35,10 @@ Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source_id_arr, tar
 
 Stinuum.QueryProcessor.prototype.makeQueryResultBySpatioTime = function(source, p_target){
   target = Stinuum.copyObj(p_target);
-  
+  if (source.temporalGeometry == undefined || target.temporalGeometry == undefined){
+    LOG(source, target);  
+    throw new Error("temporalGeometry is undefined, query_processor, makeQueryResultBySpatioTime");
+  }
   if (source.temporalGeometry.type == "MovingPolygon" && target.temporalGeometry.type == "MovingPoint"){ //Polygon Point 
 
   }
@@ -44,14 +48,20 @@ Stinuum.QueryProcessor.prototype.makeQueryResultBySpatioTime = function(source, 
   }
   //Point Polygon
   else if (source.temporalGeometry.type == "MovingPoint" && target.temporalGeometry.type == "MovingPolygon"){
-    throw new Stinuum.Exception("TODO polygon polygon", source);
+    throw new Stinuum.Exception("TODO point polygon", source);
   }
   else{
-    throw new Stinuum.Exception("point and point cannot be quried");
+    throw new Stinuum.Exception("point and point OR the others cannot be quried");
   }
 
   var sample_arr = Stinuum.getSampleProperties_Polygon(source.temporalGeometry);
   var t_geometry = target.temporalGeometry;
+  var source_time_minmax = Stinuum.findMinMaxTime(source.temporalGeometry.datetimes);
+  var target_time_minmax = Stinuum.findMinMaxTime(target.temporalGeometry.datetimes);
+  if (source_time_minmax[0].getTime() > target_time_minmax[1].getTime() 
+      || source_time_minmax[1].getTime() < target_time_minmax[0].getTime()){
+    return -1;
+  }
   var removed_indexes = [];
   for (var i = 0 ; i < t_geometry.datetimes.length ; i++){
     var coord = t_geometry.coordinates[i];
@@ -65,22 +75,53 @@ Stinuum.QueryProcessor.prototype.makeQueryResultBySpatioTime = function(source, 
       polygon_coords.push([Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).longitude), 
         Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude)]);
     }
-    if (polygon_coords.length == 0){
+    LOG(coord, polygon_coords);
+    Stinuum.QueryProcessor.moveToRelativeCoords(coord, polygon_coords);
+    LOG(coord, polygon_coords);
+    if (polygon_coords.length != sample_arr.length){
       removed_indexes.push(i);
     }
     else if (!Stinuum.QueryProcessor.isPointInPolygon(coord, polygon_coords)) {
       removed_indexes.push(i);
     }
+    else{ //intersect..
+      LOG(polygon_coords, coord);
+    }
 
   }
+
+  if (removed_indexes.length == t_geometry.datetimes.length) return -1;
 
   for (var i = removed_indexes.length - 1 ; i >= 0 ; i--){
     Stinuum.spliceElementInMovingPointByIndex(target, removed_indexes[i]);
   }
+  LOG(target);
+
   return target;
 }
 
+Stinuum.QueryProcessor.moveToRelativeCoords = function(point, polygon){
+  var isChanged = false;
+  for (var i = 0 ; i < polygon.length - 1 ; i++){
+    if (Math.abs(polygon[i][0] - polygon[i+1][0]) > 180){
+      isChanged = true;
+    }
+  }
+  if (isChanged){
+    for (var i = 0 ; i < polygon.length ; i++){
+      if (polygon[i][0] < 0){
+        polygon[i][0] = 180 + (180 + polygon[i][0]);
+      }
+    }
+    if (point[0] < 0 ) {
+      var new_point = [point[0] + 360, point[1]] ;
+      point = new_point;
+    }
+  }
+}
+
 Stinuum.QueryProcessor.isPointInPolygon = function(point, polygon){
+
   var virtual_line = [point, [180,0]];
   var intersect_num = 0;
   for (var i = 0 ; i < polygon.length - 1; i++){
