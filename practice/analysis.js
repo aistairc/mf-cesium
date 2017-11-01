@@ -179,7 +179,7 @@ var selectProperty = function(graph_id) {
             clearAnalysis();
             refresh();
             drawFeatures();
-            
+
         }
     })(graph_id);
 
@@ -376,7 +376,6 @@ function zoom() {
 
     stinuum.queryProcessor.queryByTime(fastest, latest);
     stinuum.geometryViewer.update();
-    stinuum.geometryViewer.adjustCameraView();
 }
 
 
