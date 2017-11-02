@@ -144,17 +144,25 @@ function drawBoundingBox(layer_id){
 function printBoundingTime(layer_id, event){
     var boundedBy = buffer.getBoundedBy(layer_id);
     if (boundedBy == undefined) return;
-    LOG(event);
+    var layerBound = document.getElementById('layerBound');
+
+    layerBound.style.top = event.pageY + "px";
+    layerBound.style.visibility = 'visible';
+
+    document.getElementById('layerBound_start').innerText = new Date(boundedBy.period.begin).toDateString();
+    document.getElementById('layerBound_end').innerText = new Date(boundedBy.period.end).toDateString();
 }
 
 function removeBoundingBox(layer_id){
     var boundedBy = buffer.getBoundedBy(layer_id);
     if (boundedBy == undefined) return;
+    stinuum.geometryViewer.removeBoundingBox(layer_id);
 
 }
 
 function removeBoundingTime(layer_id){
     var boundedBy = buffer.getBoundedBy(layer_id);
     if (boundedBy == undefined) return;
-    stinuum.geometryViewer.removeBoundingBox(layer_id);
+    var layerBound = document.getElementById('layerBound');
+    layerBound.style.visibility = 'hidden';
 }

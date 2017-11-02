@@ -63,8 +63,8 @@ body,
   visibility: hidden;
   z-index : 10;
   position: absolute;
-  font-size: 10px;
-  width : 280px;
+  font-size: 15px;
+  width : 350px;
   background-color : rgba(10,10,10,1);
   border-radius: 5px;
   border: 1px solid white;
@@ -403,4 +403,36 @@ button[title^=Bing]{
   overflow: auto;
 }
 
+#layerBound{
+  visibility: hidden;
+  position: absolute;
+  font-size: 10px;
+  width : 280px;
+  background-color : rgba(150,150,150,0.99);
+  border: 2px solid black;
+  z-index: 4;
+  color : black;
+  font-size: 15px;
+  border-radius : 5px;
+  left: 15%;
+}
 
+#layerBound>.list-group-item{
+  background-color: transparent;
+  border :0;
+  border-radius: 0px;
+}
+
+#layerBound>.list-group-item:first-child{
+  border-bottom: 1px solid white;
+}
+
+#layerBound_start, #layerBound_end{
+  color : black;
+  font-size:17px;
+}
+
+.layerBound.list-group-item-text{
+  color : black;
+
+}

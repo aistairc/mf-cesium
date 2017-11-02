@@ -19,6 +19,7 @@ DivListMaker.prototype.getLayerDivList = function(){
     li.onclick = (function(id) {
       return function() {
         removeBoundingTime(id);
+        removeBoundingBox(id);
         changeMenuMode(MENU_STATE.features);
         var features = buffer.getFeatureIDsByLayerID(id);
         var features_is_empty = Object.keys(features).length === 0 && features.constructor === Object;

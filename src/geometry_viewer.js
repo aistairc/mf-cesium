@@ -426,6 +426,9 @@ Stinuum.GeometryViewer.prototype.clickMovingFeature = function(id){
 }
 
 Stinuum.GeometryViewer.prototype.drawBoundingBox = function(bounding_box, layer_id){
+  // if (bounding_box.bbox[1] < -90 || bounding_box.bbox[3] > 90 || bounding_box.bbox[0] < -180 || bounding_box.bbox[1] > 180){
+  //   return;
+  // }
   var coords = Cesium.Rectangle.fromDegrees(bounding_box.bbox[0],bounding_box.bbox[1], bounding_box.bbox[2], bounding_box.bbox[3]);
   var box_entity = this.super.cesiumViewer.entities.add({
     id : layer_id,
@@ -438,7 +441,8 @@ Stinuum.GeometryViewer.prototype.drawBoundingBox = function(bounding_box, layer_
       outlineWidth : 5.0
     }
   });
-  this.super.cesiumViewer.zoomTo(box_entity, new Cesium.HeadingPitchRange(0,0,20000000));
+  if (this.super.mode == 'STATIC_MAP') this.super.cesiumViewer.zoomTo(box_entity, new Cesium.HeadingPitchRange(0,0,20000000));
+  else this.super.cesiumViewer.zoomTo(box_entity);
 }
 
 Stinuum.GeometryViewer.prototype.removeBoundingBox = function(layer_id){
