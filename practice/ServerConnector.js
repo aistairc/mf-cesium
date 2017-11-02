@@ -33,6 +33,7 @@ ServerConnector.prototype.start = function(){
             var layer_id = json_object.url[j].split("\'")[1];
             buffer.createLayer(layer_id, true);
         }
+        buffer.stBoundedBy = json_object.stBoundedBy;
 
         var list = list_maker.getLayerDivList();//printFeatureLayerList_local(layer_list_local);
         var list_div = div_id.left_upper_list;

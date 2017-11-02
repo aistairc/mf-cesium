@@ -108,20 +108,20 @@
 <div id="radar_comment" class="input-group" style="visibility: hidden">
     <div class="radar-item list-group-item">
         <h4 class="list-group-item-heading"> Distance </h4>
-        <a class="radar-item list-group-item-text"> 화살표 굵기 </a>
+        <a class="radar-item list-group-item-text"> Thickness of Arrow </a>
     </div>
     <div class="radar-item list-group-item">
         <h4 class="list-group-item-heading"> Lifetime </h4>
-        <a class="radar-item list-group-item-text"> 원 크기 </a>
+        <a class="radar-item list-group-item-text"> Size of Circle </a>
     </div>
     <div class="radar-item list-group-item">
         <h4 class="list-group-item-heading"> Speed </h4>
-        <a class="radar-item list-group-item-text"> 화살표 길이 </a>
+        <a class="radar-item list-group-item-text"> Length of Arrow </a>
     </div>
 </div>
 
 <script>
-var isHTMLDebug = true;
+var isHTMLDebug = false;
 var viewer;
 var stinuum;
 //var labelEntity;
@@ -171,7 +171,7 @@ var list_maker = new DivListMaker(connector);
         fullscreenButton : false
     });
 
-    viewer.resolutionScale = 0.5; //for Debug..
+    if (isHTMLDebug) viewer.resolutionScale = 0.5; //for Debug..
     viewer.scene.fxaa = false;
 
     stinuum = new Stinuum(viewer);
@@ -194,8 +194,6 @@ var list_maker = new DivListMaker(connector);
 
     scene = viewer.scene;
 
-    if (isHTMLDebug) scene.destroy();
-
     viewer.clock.shouldAnimate = false;
 
     handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
@@ -215,7 +213,7 @@ var list_maker = new DivListMaker(connector);
 
                 showContextMenu(pick.primitive.id, movement.position);
                 label_timeout = window.setTimeout(function() {
-                    featureName.innerHTML = "";
+                    featureName.innerText = "";
                     featureName.style.visibility = "hidden";
                     context.innerHTML = "";
                     context.style.visibility = "hidden";

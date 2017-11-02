@@ -424,3 +424,23 @@ Stinuum.GeometryViewer.prototype.clickMovingFeature = function(id){
   return 1;
 
 }
+
+Stinuum.GeometryViewer.prototype.drawBoundingBox = function(bounding_box, layer_id){
+  var coords = Cesium.Rectangle.fromDegrees(bounding_box.bbox[0],bounding_box.bbox[1], bounding_box.bbox[2], bounding_box.bbox[3]);
+  var box_entity = this.super.cesiumViewer.entities.add({
+    id : layer_id,
+    rectangle :{
+      coordinates : coords,
+      height :0,
+      material : Cesium.Color.YELLOW.withAlpha(0.1),
+      outline:true,
+      outlineColor: Cesium.Color.RED,
+      outlineWidth : 5.0
+    }
+  });
+  this.super.cesiumViewer.zoomTo(box_entity, new Cesium.HeadingPitchRange(0,0,20000000));
+}
+
+Stinuum.GeometryViewer.prototype.removeBoundingBox = function(layer_id){
+  var ret = this.super.cesiumViewer.entities.removeById(layer_id);
+}

@@ -18,6 +18,7 @@ DivListMaker.prototype.getLayerDivList = function(){
     li.id = layer_name_list[i];
     li.onclick = (function(id) {
       return function() {
+        removeBoundingTime(id);
         changeMenuMode(MENU_STATE.features);
         var features = buffer.getFeatureIDsByLayerID(id);
         var features_is_empty = Object.keys(features).length === 0 && features.constructor === Object;
@@ -38,6 +39,20 @@ DivListMaker.prototype.getLayerDivList = function(){
         }
       };
     })(layer_id);
+
+    li.onmouseenter = (function(id){
+      return function(event){
+        drawBoundingBox(id);
+        printBoundingTime(id, event);
+      }
+    })(layer_id);
+    li.onmouseleave = (function(id){
+      return function(){
+        removeBoundingBox(id);
+        removeBoundingTime(id);
+      }
+    })(layer_id);
+
     li.style = "width:inherit";
     li.className = "list-group-item left-toolbar-item";
     li.appendChild(a);

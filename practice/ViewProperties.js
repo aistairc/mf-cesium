@@ -35,7 +35,9 @@ function getHighlightInContext(feature, temporalProperty) {
   changeOptionToolbarToCloseDIV();
   var context = document.getElementById("context");
   context.innerHTML = "";
+  document.getElementById("featureName").style.visibility = "hidden";
   showOneFeatureGraph(feature, temporalProperty);
+  stinuum.temporalMap.show(feature, temporalProperty);
 }
 
 function showOneFeatureGraph(feature, temporalProperty){

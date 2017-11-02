@@ -1,6 +1,7 @@
 function FeatureBuffer(p_connection){
   this.connector = p_connection;
   this.data = {};
+  this.stBoundedBy = {};
   this.fromServer = {};
 }
 
@@ -76,7 +77,9 @@ FeatureBuffer.prototype.getLayerNameList = function(){
   return list;
 }
 
-
+FeatureBuffer.prototype.getBoundedBy = function(layer){
+  return this.stBoundedBy[layer];
+}
 
 
 
@@ -113,6 +116,7 @@ FeatureBuffer.prototype.removeBuffer = function(id){
              delete this.data[id[0]][id[1]];
          }
      }
+    LOG("TODO remove");
 }
 
 

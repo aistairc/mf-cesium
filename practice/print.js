@@ -130,3 +130,31 @@ function connectHomeButton(){
     });
 }
 
+      
+function drawBoundingBox(layer_id){
+    LOG("drawBoundingBox");
+    var boundedBy = buffer.getBoundedBy(layer_id);
+    LOG(boundedBy, layer_id);
+    if (boundedBy == undefined) {
+        return;
+    }
+    stinuum.geometryViewer.drawBoundingBox(boundedBy, layer_id);
+}
+
+function printBoundingTime(layer_id, event){
+    var boundedBy = buffer.getBoundedBy(layer_id);
+    if (boundedBy == undefined) return;
+    LOG(event);
+}
+
+function removeBoundingBox(layer_id){
+    var boundedBy = buffer.getBoundedBy(layer_id);
+    if (boundedBy == undefined) return;
+
+}
+
+function removeBoundingTime(layer_id){
+    var boundedBy = buffer.getBoundedBy(layer_id);
+    if (boundedBy == undefined) return;
+    stinuum.geometryViewer.removeBoundingBox(layer_id);
+}
