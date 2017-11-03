@@ -905,6 +905,9 @@ Stinuum.GeometryViewer.prototype.clickMovingFeature = function(id){
 }
 
 Stinuum.GeometryViewer.prototype.drawBoundingBox = function(bounding_box, layer_id){
+  // if (bounding_box.bbox[1] < -90 || bounding_box.bbox[3] > 90 || bounding_box.bbox[0] < -180 || bounding_box.bbox[1] > 180){
+  //   return;
+  // }
   var coords = Cesium.Rectangle.fromDegrees(bounding_box.bbox[0],bounding_box.bbox[1], bounding_box.bbox[2], bounding_box.bbox[3]);
   var box_entity = this.super.cesiumViewer.entities.add({
     id : layer_id,
@@ -917,7 +920,8 @@ Stinuum.GeometryViewer.prototype.drawBoundingBox = function(bounding_box, layer_
       outlineWidth : 5.0
     }
   });
-  this.super.cesiumViewer.zoomTo(box_entity, new Cesium.HeadingPitchRange(0,0,20000000));
+  if (this.super.mode == 'STATIC_MAP') this.super.cesiumViewer.zoomTo(box_entity, new Cesium.HeadingPitchRange(0,0,20000000));
+  else this.super.cesiumViewer.zoomTo(box_entity);
 }
 
 Stinuum.GeometryViewer.prototype.removeBoundingBox = function(layer_id){
@@ -2052,7 +2056,7 @@ Stinuum.OccurrenceMap.prototype.makeBasicCube = function(degree){
 }
 
 Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data){
-  var min_max = this.super.mfCollection.min_max;
+  var min_max = this.super.mfCollection.findMinMaxGeometry();
 
   var x_deg = degree.x,
   y_deg = degree.y,
@@ -2087,16 +2091,34 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
         for (var index = 0 ; index < polygon_size ; index++){
           var sample_coord = sample_list[index].getValue(time[ti]);
           if (sample_coord == undefined){
-            LOG("undefined");
+            //LOG("undefined");
             continue;
           }
-          var x = Stinuum.getCubeIndexFromSample(Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).longitude), x_deg, min_max.x[0]);
-          var y = Stinuum.getCubeIndexFromSample(Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude), y_deg, min_max.y[0]);
+
+          var long = Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).longitude);
+          var lat = Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude);
+          if (long < 0) long += 180;
+
+          var x = Stinuum.getCubeIndexFromSample(long, x_deg, min_max.x[0]);
+          var y = Stinuum.getCubeIndexFromSample(lat , y_deg, min_max.y[0]);
           
+          if (x < 0 || y < 0 || x > x_length || y > y_length){
+            LOG(x,y);
+            LOG(min_max)
+            LOG(Cesium.Math.DEGREES_PER_RADIAN * Cesium.Cartographic.fromCartesian(sample_coord).longitude,
+             Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude));
+            LOG(x_deg);
+            throw new Error("Wrong sampling");
+          }
+
           if (x < x_min) x_min = x;
           if (y < y_min) y_min = y;
           if (x > x_max) x_max = x;
           if (y > y_max) y_max = y;
+        }
+
+        if (x_min == x_length + 1 && y_max == -1){
+          continue;
         }
 
         for (var x_i = x_min ; x_i <= x_max ; x_i++){
@@ -3290,14 +3312,18 @@ Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source_id_arr, tar
   var result = [];
   for (var i = 0 ; i < source_id_arr.length ; i++){
     var source = this.super.mfCollection.getMFPairByIdinWhole(source_id_arr[i]);
-    source = source.feature;
-
     var target = this.super.mfCollection.getMFPairByIdinWhole(target_id);
+    if (source == -1 || target == -1){
+      continue;
+    }
+    source = source.feature;
     target = target.feature;
 
     var new_target = this.makeQueryResultBySpatioTime(source, target);
-    if (new_target != -1) result.push(new_target);
-    result.push(source);  
+    if (new_target != -1) { //Not Intersect (different time stamp)
+      result.push(new_target);
+      result.push(source);  
+    }
   }
   
   for (var i = 0 ; i < result.length ; i++){
@@ -3310,6 +3336,7 @@ Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source_id_arr, tar
 
 Stinuum.QueryProcessor.prototype.makeQueryResultBySpatioTime = function(source, p_target){
   target = Stinuum.copyObj(p_target);
+  LOG(source, p_target);
   if (source.temporalGeometry == undefined || target.temporalGeometry == undefined){
     LOG(source, target);  
     throw new Error("temporalGeometry is undefined, query_processor, makeQueryResultBySpatioTime");
@@ -3439,34 +3466,30 @@ Stinuum.QueryProcessor.ccw = function(a,b,c){//counter-clock wise
 
 Stinuum.QueryProcessor.prototype.queryByTime = function(start, end){
   this.super.mfCollection.hideAll();
+  var pair_arr;
+  var new_mf_arr = [];
   if (this.super.s_query_on){
-    for (var i = 0 ; i < this.result_pairs.length ; i++){
-      var sliced_feature = this.sliceFeatureByTime(this.result_pairs[i].feature,start, end);
-      if (sliced_feature.temporalGeometry.datetimes.length != 0) 
-        this.super.mfCollection.features.push(new Stinuum.MFPair(this.result_pairs[i].id, sliced_feature));  
-    }
+    pair_arr = this.result_pairs;
   }
   else{
-    var hid_arr = this.super.mfCollection.wholeFeatures;
-    var new_mf_arr = [];
-
-    for (var i = 0 ; i < hid_arr.length ; i++){
-      var min_max_date = Stinuum.findMinMaxTime(hid_arr[i].feature.temporalGeometry.datetimes);
-      if (min_max_date[1] <= end && min_max_date[0] >= start){
-        new_mf_arr.push(hid_arr[i]);
-      }
-      else{
-        if (min_max_date[1] >= start && min_max_date[0] <= end){
-          var sliced_feature = this.sliceFeatureByTime(hid_arr[i].feature, start, end);
-          if (sliced_feature.temporalGeometry.datetimes.length != 0) 
-            new_mf_arr.push(new Stinuum.MFPair(hid_arr[i].id, sliced_feature));
-        }  
-      }
-    }
-
-    this.super.mfCollection.features = new_mf_arr;
+    pair_arr = this.super.mfCollection.wholeFeatures
   }
-  
+  for (var i = 0 ; i < pair_arr.length ; i++){
+    var min_max_date = Stinuum.findMinMaxTime(pair_arr[i].feature.temporalGeometry.datetimes);
+    if (min_max_date[1] <= end && min_max_date[0] >= start){
+      new_mf_arr.push(pair_arr[i]);
+    }
+    else{
+      if (min_max_date[1] >= start && min_max_date[0] <= end){
+        var sliced_feature = this.sliceFeatureByTime(pair_arr[i].feature, start, end);
+        if (sliced_feature.temporalGeometry.datetimes.length != 0) 
+          new_mf_arr.push(new Stinuum.MFPair(pair_arr[i].id, sliced_feature));
+      }  
+    }
+  }
+
+  this.super.mfCollection.features = new_mf_arr;
+
 }
 
 Stinuum.QueryProcessor.prototype.sliceFeatureByTime = function(feature, start, end){
@@ -3493,9 +3516,11 @@ Stinuum.QueryProcessor.prototype.sliceFeatureByTime = function(feature, start, e
       break;
     } 
   }
-  if (geometry.datetimes.length != properties[0].datetimes.length){
-    throw new ERR("TODO.. property length is different from geometry datetimes.", new_feature);
-  }
+  
+  // if (geometry.datetimes.length != properties[0].datetimes.length){
+  //   LOG(feature, geometry.datetimes, properties[0].datetimes);
+  //   throw new Error("TODO");
+  // }
 
   if (end_i != -1){
     geometry.datetimes.splice(end_i, Number.MAX_VALUE);

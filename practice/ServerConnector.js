@@ -7,6 +7,7 @@ function ServerConnector(){
     this.on = false; //is Server connected?
     this.server_url;
     this.token;
+    this.nameArray = ['name', 'taxiId'];
 }
 
 ServerConnector.prototype.start = function(){
@@ -23,7 +24,8 @@ ServerConnector.prototype.start = function(){
     document.getElementById('drop_zone').style.visibility = 'hidden';
     document.getElementById('drop_zone_bg').style.visibility = 'hidden';
 
-    url += "/$ref";
+    if (token == "local_server" ) url += "/index.json";
+    else url += "/$ref";
     var promise = this.requestData(url);
     this.turnOnLoading();
     var connector = this;
@@ -66,22 +68,29 @@ ServerConnector.prototype.urlParam = function(name, w) {
 
 ServerConnector.prototype.requestFeatureObject = function(url) {
     return new Promise(function(resolved, rejected) {
+
         var xhr = createCORSRequest('GET', url);
         if (!xhr) {
             alert('CORS not supported');
             return;
         }
         xhr.onload = function() {
-            //get_features_progress = get_features_progress + 1;
-            var text = xhr.responseText;
-            var json_object = JSON.parse(text);
-            resolved(json_object);
-        };
-        xhr.onerror = function() {
-            alert('Woops, there was an error making the request.');
-        };
-        xhr.send();
-
+            try{
+                var text = xhr.responseText;                
+                var json_object = JSON.parse(text);
+                resolved(json_object);
+            }
+            catch (e) {
+                LOG(e);
+                resolved(-1);
+            }
+            };
+            xhr.onerror = function() {
+                alert('Woops, there was an error making the request.');
+            };
+            xhr.send();
+        
+        
     });
 };
 
@@ -93,7 +102,6 @@ ServerConnector.prototype.requestData = function(url) {
             return;
         }
         xhr.onload = function() {
-            //get_features_progress = get_features_progress + 1;
             var text = xhr.responseText;
             resolved(text);
         };
@@ -134,7 +142,11 @@ ServerConnector.prototype.turnOffLoading = function(){
 }
 
 ServerConnector.prototype.getFeaturesByLayerID = function(layer_id, layer_buffer, callback){
-    var features_url = this.server_url + "/FeatureLayers(\'" + layer_id + "\')" + "/$ref" ;
+    var features_url = this.server_url + "/FeatureLayers(\'" + layer_id + "\')";
+    
+    if (this.token == "local_server") features_url += "/index.json";
+    else features_url += "/$ref" ;
+
     var promise = this.requestData(features_url);
     var connector = this;
     this.turnOnLoading(layer_id);
@@ -147,8 +159,23 @@ ServerConnector.prototype.getFeaturesByLayerID = function(layer_id, layer_buffer
             var feature_promise = connector.requestFeatureObject(feature_url);
             promises.push(feature_promise);
             feature_promise.then(function(feature_object){
-                layer_buffer[feature_object.properties.name] = feature_object;
-                callback();
+                if (feature_object == -1){
+                    return;
+                }
+                for (var name_i = 0 ; name_i < connector.nameArray.length ; name_i++){
+                    var id_value = connector.nameArray[name_i];
+                    if (feature_object.properties[id_value] != undefined){
+                        feature_object.properties.name = feature_object.properties[id_value];
+                        layer_buffer[feature_object.properties.name] = feature_object;    
+                        //callback();
+                        break;    
+                    }
+                }
+                if (feature_object.properties.name == undefined){
+                    LOG(feature_object.properties);
+                    throw new Error("no name in feature");
+                }
+                
             })
             .catch(function(err) {
                 console.log(err);
@@ -156,8 +183,9 @@ ServerConnector.prototype.getFeaturesByLayerID = function(layer_id, layer_buffer
         }
 
         Promise.all(promises).then(function (value){
-            LOG(value);
+            LOG("Promise.all : ",value);
             connector.turnOffLoading();
+            callback();
             LOG("layer_buffer in promise",layer_buffer);
         });
     })

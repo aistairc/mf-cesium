@@ -27,7 +27,7 @@ DivListMaker.prototype.getLayerDivList = function(){
             printFeaturesList(id);
             afterChangingCheck();
             printCheckAllandUnCheck(id);  
-            stinuum.geometryViewer.adjustCameraView();  
+          //  stinuum.geometryViewer.adjustCameraView();  
         };
 
         if (features_is_empty && buffer.fromServer[id]){

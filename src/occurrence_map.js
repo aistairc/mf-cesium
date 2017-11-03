@@ -376,7 +376,7 @@ Stinuum.OccurrenceMap.prototype.makeBasicCube = function(degree){
 }
 
 Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data){
-  var min_max = this.super.mfCollection.min_max;
+  var min_max = this.super.mfCollection.findMinMaxGeometry();
 
   var x_deg = degree.x,
   y_deg = degree.y,
@@ -411,16 +411,34 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
         for (var index = 0 ; index < polygon_size ; index++){
           var sample_coord = sample_list[index].getValue(time[ti]);
           if (sample_coord == undefined){
-            LOG("undefined");
+            //LOG("undefined");
             continue;
           }
-          var x = Stinuum.getCubeIndexFromSample(Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).longitude), x_deg, min_max.x[0]);
-          var y = Stinuum.getCubeIndexFromSample(Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude), y_deg, min_max.y[0]);
+
+          var long = Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).longitude);
+          var lat = Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude);
+          if (long < 0) long += 180;
+
+          var x = Stinuum.getCubeIndexFromSample(long, x_deg, min_max.x[0]);
+          var y = Stinuum.getCubeIndexFromSample(lat , y_deg, min_max.y[0]);
           
+          if (x < 0 || y < 0 || x > x_length || y > y_length){
+            LOG(x,y);
+            LOG(min_max)
+            LOG(Cesium.Math.DEGREES_PER_RADIAN * Cesium.Cartographic.fromCartesian(sample_coord).longitude,
+             Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude));
+            LOG(x_deg);
+            throw new Error("Wrong sampling");
+          }
+
           if (x < x_min) x_min = x;
           if (y < y_min) y_min = y;
           if (x > x_max) x_max = x;
           if (y > y_max) y_max = y;
+        }
+
+        if (x_min == x_length + 1 && y_max == -1){
+          continue;
         }
 
         for (var x_i = x_min ; x_i <= x_max ; x_i++){
