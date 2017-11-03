@@ -66,9 +66,25 @@ ServerConnector.prototype.urlParam = function(name, w) {
     return !val ? '' : val[1];
 }
 
+ServerConnector.prototype.promiseTimeout = function(feature_id, ms, promise){
+  // Create a promise that rejects in <ms> milliseconds
+  let timeout = new Promise((resolve, reject) => {
+    let id = setTimeout(() => {
+      clearTimeout(id);
+      reject(feature_id);
+    }, ms)
+  })
+
+  // Returns a race between our timeout and the passed in promise
+  return Promise.race([
+    promise,
+    timeout
+  ]);
+}
+
+//Using Promise Pattern
 ServerConnector.prototype.requestFeatureObject = function(url) {
     return new Promise(function(resolved, rejected) {
-
         var xhr = createCORSRequest('GET', url);
         if (!xhr) {
             alert('CORS not supported');
@@ -82,15 +98,13 @@ ServerConnector.prototype.requestFeatureObject = function(url) {
             }
             catch (e) {
                 LOG(e);
-                resolved(-1);
+                rejected('parseError');
             }
-            };
-            xhr.onerror = function() {
-                alert('Woops, there was an error making the request.');
-            };
-            xhr.send();
-        
-        
+        };
+        xhr.onerror = function() {
+            alert('Woops, there was an error making the request.');
+        };
+        xhr.send();
     });
 };
 
@@ -130,15 +144,41 @@ ServerConnector.prototype.turnOnLoading = function(layer_id = 'layers'){
     icon.style = "margin-left: auto; margin-right: auto; font-size:50px";
     middle.appendChild(icon);
 
-
-
     document.getElementById(div_id.server_state).appendChild(middle);
 }
-
 
 ServerConnector.prototype.turnOffLoading = function(){
     document.getElementById(div_id.server_state).style.visibility = 'hidden';
     document.getElementById(div_id.server_state).innerHTML = '';
+}
+
+ServerConnector.prototype.getOneFeature = function(layer_id, feature_id, layer_buffer, callback){
+    this.turnOnLoading(feature_id);
+    var connector = this;
+    var feature_url = connector.server_url + "/FeatureLayers(\'" + layer_id + "\')/" + feature_id + "?token=" + connector.token;
+    let promise = this.requestFeatureObject(feature_url);
+    promise.then(function(json_object){
+        for (var name_i = 0 ; name_i < connector.nameArray.length ; name_i++){
+            var id_value = connector.nameArray[name_i];
+            if (json_object.properties[id_value] != undefined){
+                json_object.properties.name = json_object.properties[id_value];
+                layer_buffer[json_object.properties.name] = json_object; 
+                
+                connector.turnOffLoading();
+                callback();
+                break;
+            }
+        }
+        if (json_object.properties.name == undefined){
+            // Cannot come here
+            LOG(json_object.properties);
+            throw new Error("no name in feature");
+        }
+    })
+    .catch(function(err){
+        LOG(err);
+        return -1;
+    })
 }
 
 ServerConnector.prototype.getFeaturesByLayerID = function(layer_id, layer_buffer, callback){
@@ -147,21 +187,20 @@ ServerConnector.prototype.getFeaturesByLayerID = function(layer_id, layer_buffer
     if (this.token == "local_server") features_url += "/index.json";
     else features_url += "/$ref" ;
 
-    var promise = this.requestData(features_url);
+    let promise = this.requestData(features_url);
     var connector = this;
-    this.turnOnLoading(layer_id);
+    this.turnOnLoading(layer_id + " List");
     promise.then(function(text){
         var json_object = JSON.parse(text);
-        var promises = [];
+        let promises = [];
         for(var i = 0 ; i < json_object.url.length ; i++){
             var feature_url = connector.server_url + "/FeatureLayers(\'" + layer_id + "\')/" + json_object.url[i] + "?token=" + connector.token;
             LOG("request feature : ", feature_url);
-            var feature_promise = connector.requestFeatureObject(feature_url);
+            var feature_promise = connector.promiseTimeout(json_object.url[i], 5000, connector.requestFeatureObject(feature_url));//connector.requestFeatureObject(feature_url);
             promises.push(feature_promise);
+            
+            /*
             feature_promise.then(function(feature_object){
-                if (feature_object == -1){
-                    return;
-                }
                 for (var name_i = 0 ; name_i < connector.nameArray.length ; name_i++){
                     var id_value = connector.nameArray[name_i];
                     if (feature_object.properties[id_value] != undefined){
@@ -172,28 +211,67 @@ ServerConnector.prototype.getFeaturesByLayerID = function(layer_id, layer_buffer
                     }
                 }
                 if (feature_object.properties.name == undefined){
+                    // Cannot come here
                     LOG(feature_object.properties);
                     throw new Error("no name in feature");
                 }
-                
             })
-            .catch(function(err) {
+            feature_promise.catch(function(err) {
                 console.log(err);
+                if (err == 'timeOut'){
+
+                }
+                else if (err == 'parseError'){
+
+                }
             });
+            */
         }
 
-        Promise.all(promises).then(function (value){
+        Promise.all(promises.map(reflect)).then(function (value){
+            let success = value.filter(x => x.status === "resolved");
+            for (let i = 0 ; i < success.length ; i++){
+                var feature_object = success[i].v;
+                for (var name_i = 0 ; name_i < connector.nameArray.length ; name_i++){
+                    var id_value = connector.nameArray[name_i];
+                    if (feature_object.properties[id_value] != undefined){
+                        feature_object.properties.name = feature_object.properties[id_value];
+                        layer_buffer[feature_object.properties.name] = feature_object;
+                        //callback();
+                        break;    
+                    }
+                } 
+            }
+
+            let failure = value.filter(x => x.status === "rejected");
+            for (let i = 0 ; i < failure.length ; i++){
+                if (failure[i].e == "parseError") {
+
+                }
+                else{
+                    layer_buffer[failure[i].e] = {
+                        empty : true
+                    };    
+                }
+                
+            }
+            
             LOG("Promise.all : ",value);
             connector.turnOffLoading();
             callback();
             LOG("layer_buffer in promise",layer_buffer);
+            connector.promises = [];
         });
     })
     .catch(function(err) {
-        console.log(err);
+        LOG("Load features in Layer Reject", err);
     });
 }
 
+function reflect(promise){
+    return promise.then(function(v){ return {v:v, status: "resolved" }},
+                        function(e){ return {e:e, status: "rejected" }});
+}
 
 function createCORSRequest(method, url) {
     var xhr = new XMLHttpRequest();

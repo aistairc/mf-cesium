@@ -90,7 +90,7 @@ function uncheckAllandUpdate(layer_id) {
   for (var feature_id in features){
     list_maker.turnOffFeature(layer_id, feature_id);
     var ft = buffer.getFeature(layer_id, feature_id);
-    stinuum.mfCollection.remove(ft);
+    if (!ft.empty) stinuum.mfCollection.remove(ft);
   }
 
   printFeaturesList(layer_id);

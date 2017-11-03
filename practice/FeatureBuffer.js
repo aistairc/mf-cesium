@@ -1,5 +1,5 @@
-function FeatureBuffer(p_connection){
-  this.connector = p_connection;
+function FeatureBuffer(_connector){
+  this.connector = _connector;
   this.data = {};
   this.stBoundedBy = {};
   this.fromServer = {};
@@ -66,6 +66,10 @@ FeatureBuffer.prototype.setBuffer_feature = function(layer_id, feature_id, featu
   }
 }
 
+FeatureBuffer.prototype.updateOneFeatureFromServer = function(layer_id, feature_id, callback){
+  delete this.data[layer_id][feature_id];
+  connector.getOneFeature(layer_id, feature_id, this.data[layer_id], callback);
+}
 
 FeatureBuffer.prototype.getLayerNameList = function(){
   var list = [];
