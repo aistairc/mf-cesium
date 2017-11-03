@@ -68,7 +68,7 @@ function updateBuffer_local(filename, data){
   LOG("updateBuffer_local")
   var layer = data.name;
   if (layer == undefined) layer = filename;
-  if(buffer.getBuffer([layer]) == null){ // ths is new data.
+  if(buffer.data[layer] == undefined){ // ths is new data.
     buffer.createLayer(layer);
     if(data.features != undefined){
       buffer.setBuffer_layer(data);

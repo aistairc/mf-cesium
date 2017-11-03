@@ -652,8 +652,8 @@ Stinuum.GeometryViewer.prototype.drawZaxis = function(){
   var polylineCollection = new Cesium.PolylineCollection();
   var positions = [179,89,0,179,89,this.super.maxHeight];
 
-  polylineCollection.add(Stinuum.drawOneLine(positions,Cesium.Color.WHITE));
-  polylineCollection.add(Stinuum.drawOneLine([178,88,this.super.maxHeight*0.95,179,89,this.super.maxHeight,179.9,89.9,this.super.maxHeight*0.95],Cesium.Color.WHITE));
+  polylineCollection.add(Stinuum.drawOneLine(positions,Cesium.Color.WHITE , 5));
+  polylineCollection.add(Stinuum.drawOneLine([178,88,this.super.maxHeight*0.95,179,89,this.super.maxHeight,179.9,89.9,this.super.maxHeight*0.95],Cesium.Color.WHITE , 5));
 
   for (var height = 10 ; height < 100 ; height += 20){
     for (var long = -179 ; long < 179 ; long += 10){
@@ -1107,6 +1107,7 @@ Stinuum.MFCollection.prototype.findMinMaxGeometry = function(p_mf_arr){
     this.min_max = min_max;
   }
 
+  this.super.maxHeight = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(min_max.x[0],min_max.y[0]),Cesium.Cartesian3.fromDegrees(min_max.x[1],min_max.y[1])) * 4;
   return min_max;
 }
 
@@ -2732,7 +2733,7 @@ Stinuum.makeDegreesArray = function(pos_2d, height){
   return points;
 }
 
-Stinuum.drawInstanceOneLine = function(positions, r_color, width = 5){
+Stinuum.drawInstanceOneLine = function(positions, r_color, width = 1){
   var carte = Cesium.Cartesian3.fromDegreesArrayHeights(positions);
   var polyline =  new Cesium.PolylineGeometry({
     positions : carte,
@@ -2749,7 +2750,7 @@ Stinuum.drawInstanceOneLine = function(positions, r_color, width = 5){
   return geoInstance;
 }
 
-Stinuum.drawOneLine = function(positions, r_color, width = 5){
+Stinuum.drawOneLine = function(positions, r_color, width = 1){
   var material = new Cesium.Material.fromType('Color');
   material.uniforms.color = r_color;
 

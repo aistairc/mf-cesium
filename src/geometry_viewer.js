@@ -173,8 +173,8 @@ Stinuum.GeometryViewer.prototype.drawZaxis = function(){
   var polylineCollection = new Cesium.PolylineCollection();
   var positions = [179,89,0,179,89,this.super.maxHeight];
 
-  polylineCollection.add(Stinuum.drawOneLine(positions,Cesium.Color.WHITE));
-  polylineCollection.add(Stinuum.drawOneLine([178,88,this.super.maxHeight*0.95,179,89,this.super.maxHeight,179.9,89.9,this.super.maxHeight*0.95],Cesium.Color.WHITE));
+  polylineCollection.add(Stinuum.drawOneLine(positions,Cesium.Color.WHITE , 5));
+  polylineCollection.add(Stinuum.drawOneLine([178,88,this.super.maxHeight*0.95,179,89,this.super.maxHeight,179.9,89.9,this.super.maxHeight*0.95],Cesium.Color.WHITE , 5));
 
   for (var height = 10 ; height < 100 ; height += 20){
     for (var long = -179 ; long < 179 ; long += 10){

@@ -15,13 +15,12 @@ function printFeatureProperties(layer_id, feature_id){
 
 function turnOnProperties(){
   document.getElementById(div_id.properties_panel).style.visibility = "visible";
-  document.getElementById(div_id.menu_list).style.height = '40%';
-
+  document.getElementById(div_id.menu_list).style.height = '70%';
 }
 
 function turnOffProperties(){
   document.getElementById(div_id.properties_panel).style.visibility = "hidden";
-  document.getElementById(div_id.menu_list).style.height = '70%';
+  document.getElementById(div_id.menu_list).style.height = '100%';
 }
 
 function getHighlight(feature, temporalProperty) {

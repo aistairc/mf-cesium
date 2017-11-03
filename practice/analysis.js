@@ -1,5 +1,3 @@
-var radar_on = false;
-
 var clearAnalysis = function(){
     var graph_id = div_id.graph;
     var radar_id = div_id.radar;

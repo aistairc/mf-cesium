@@ -86,7 +86,7 @@ FeatureBuffer.prototype.getBoundedBy = function(layer){
 
 
 //TODO remove
-
+/*
 FeatureBuffer.prototype.getBuffer = function(id) {
     if (id.length == 1) {
         if (this.data.hasOwnProperty(id[0])) {
@@ -154,3 +154,4 @@ FeatureBuffer.prototype.updateBuffer = function(id, feature) {
     }
   }
 }
+*/

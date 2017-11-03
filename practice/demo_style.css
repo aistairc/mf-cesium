@@ -318,7 +318,7 @@ button[title^=Bing]{
 }
 
 #menu_list {
-  height: 70%;
+  height: 100%;
   z-index:3;
   display : -webkit-flex;
   display : flex;
@@ -340,7 +340,7 @@ button[title^=Bing]{
     position: absolute;
     min-height: 30%;
     height: 30%;
-    bottom: 30%;
+    bottom: 0%;
     z-index: 3;
     float: left;
     overflow: auto;

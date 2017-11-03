@@ -95,7 +95,6 @@ DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, is_pri
   if (!is_printed_features){
     a.onclick = (function(layer, feature) {
       return function() {
-        //LOG("dra");
         changeMenuMode(MENU_STATE.one_feature);
         removeCheckAllandUnCheckBtn();
         printFeatureProperties(layer, feature);

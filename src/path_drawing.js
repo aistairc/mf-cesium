@@ -378,7 +378,7 @@ Stinuum.makeDegreesArray = function(pos_2d, height){
   return points;
 }
 
-Stinuum.drawInstanceOneLine = function(positions, r_color, width = 5){
+Stinuum.drawInstanceOneLine = function(positions, r_color, width = 1){
   var carte = Cesium.Cartesian3.fromDegreesArrayHeights(positions);
   var polyline =  new Cesium.PolylineGeometry({
     positions : carte,
@@ -395,7 +395,7 @@ Stinuum.drawInstanceOneLine = function(positions, r_color, width = 5){
   return geoInstance;
 }
 
-Stinuum.drawOneLine = function(positions, r_color, width = 5){
+Stinuum.drawOneLine = function(positions, r_color, width = 1){
   var material = new Cesium.Material.fromType('Color');
   material.uniforms.color = r_color;
 

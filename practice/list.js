@@ -98,9 +98,12 @@ function uncheckAllandUpdate(layer_id) {
 }
 
 function update_printed_features(){
+  //Dont use in Demo
+  /*
   var layer_features = list_maker.getDivAllFeaturesAreTurnedOn();
   var list_div = document.getElementById(div_id.printed_features);
   list_div.innerHTML = "";
 
   if (layer_features) list_div.appendChild(layer_features);
+  */
 }
