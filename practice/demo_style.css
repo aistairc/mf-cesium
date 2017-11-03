@@ -22,61 +22,6 @@ body,
     z-index: 1;
 }
 
-#toolbar_btn {
-  position : absolute;
-  z-index : 4;
-  padding : 0;
-  text-align: center;
-  height : 45px;
-  line-height: 45px;
-}
-
-#menu_list {
-  height: 100%;
-  display : -webkit-flex;
-  display : flex;
-  flex-direction:column;
-}
-
-#left_toolbar {
-    color: white;
-    background-color: rgba(0, 0, 0, 0.9);
-    z-index:3 ;
-    width:15% ;
-    position:absolute;
-    height : 100% ;
-    min-height:100%;
-}
-
-#property_panel {
-    position: absolute;
-    min-height: 30%;
-    height: 30%;
-    bottom: 0px;
-    z-index: 3;
-    float: left;
-    overflow: auto;
-    margin-bottom: 0px;
-    width: 100%;
-    text-decoration: none;
-    color: white;
-    visibility: hidden;
-}
-
-#layer_list {
-    position: absolute;
-    min-height: 20%;
-    height: 30%;
-    bottom: 0;
-    z-index: 3;
-    float: left;
-    overflow: auto;
-    margin-bottom: 0px;
-    width: 100%;
-    text-decoration: none;
-    color: white;
-}
-
 #geoInfo {
     height: auto;
     position: absolute;
@@ -98,6 +43,54 @@ body,
     border-radius: 4px;
 }
 
+/* radar */
+#radar {
+  z-index: 5;
+  position : absolute;
+  background-color:rgba(0,0,0,0);
+  top : 17%;
+  right: 5px;
+}
+
+#radar_comment{
+  background-color: rgba(0,0,0,0);
+  position: absolute;
+  top : 18%;
+  z-index : 5;
+}
+
+#radar_stat{
+  visibility: hidden;
+  z-index : 10;
+  position: absolute;
+  font-size: 15px;
+  width : 350px;
+  background-color : rgba(10,10,10,1);
+  border-radius: 5px;
+  border: 1px solid white;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+#radar_stat>.row.title{
+  margin: 0;
+  margin-left: 10px;
+}
+
+#radar_stat>.row{
+  margin-top : 5px;
+  margin-bottom: 5px;
+  margin-left: 5px;
+}
+
+.radar-item.list-group-item{
+  background-color: rgba(100,100,100,0.5);
+}
+.radar-item.list-group-item-text{
+  font-size : 11px;
+}
+
+
 @import url(Sandcastle/templates/bucket.css);
 #name_list {
     cursor: pointer;
@@ -117,26 +110,18 @@ body,
     box-shadow : 0 ;
 }
 
-/*VERTICAL MENU*/
-
-#analysis {
-    width: 7%;
-    height: 50%;
-    position: absolute;
-    right: 0px;
-    z-index: 20;
-}
-
-
 #serverState {
-    position: relative;
-    left: 57%;
-    top: 50%;
-    background: rgba(0, 0, 0, 0);
+    position: absolute;
+    left:0%;
+    top:0%;
+    width:100%;
+    height:100%;
+    background: rgba(255, 255, 255, 0.8);
     visibility: hidden;
     z-index: 10;
     color: black;
-    font-size: xx-large;
+    display: table;
+    text-align: center;
 }
 
 .graph {
@@ -146,6 +131,7 @@ body,
     z-index: 20;
     right: 0;
     width: 85%;
+    visibility: visible;
 }
 
 
@@ -160,12 +146,6 @@ body,
     text-shadow: -1px 0 #F2F1F6, 0 1px #F2F1F6, 1px 0 #F2F1F6, 0 -1px #F2F1F6;
 }
 
-#radar {
- top : 65%;
- position : absolute;
- right : 5px;
- background-color:rgba(0,0,0,0);
-}
 
 #drop_zone_bg {
   height : 100%;
@@ -203,4 +183,256 @@ body,
   font-size : 300%;
   border: 2px dashed #f69c55;
   text-align : center;
+}
+
+
+/* hide cesium button */
+/*
+.cesium-viewer-geocoderContainer, .cesium-gecoder-input, .cesium-geocoder-searchButton, .cesium-baseLayerPicker-dropDown {
+  width : 0;
+  display: none;
+}
+button[title^=Bing]{
+  display: none;
+}
+*/
+/* slider */
+#slider_bar .slider-track-high, #slider_bar .slider-track-low {
+  background: rgba(0,0,0,0.7);
+}
+
+/*upper toolbar*/
+.upper_toolbar{
+ position: absolute;
+  z-index: 3;
+  left: 16%;
+  min-height: 36px;
+  right: 150px;
+  top: 0;
+  background-color: rgba(0,0,0,1);
+  border-radius: 5px;
+}
+
+#upper_toolbar{
+  display: flex; 
+}
+
+#option{
+  white-space: pre-wrap;
+  justify-content: center;
+  align-items: center; 
+}
+
+.upper_toolbar_btn{
+  padding: 6px; 
+  margin : 5px;
+  width:18%;
+  border:1px;
+  white-space: pre-wrap;
+  color: white;
+  border-width: 0px;
+  position: relative;
+  display: block;
+  flex:1;
+  
+  background-color: transparent;
+  text-align:center;
+}
+
+.upper_toolbar_btn:hover{
+  background-color: rgba(255,255,255,0.3);
+  cursor: pointer;  
+  border-radius: 10px;
+}
+
+.dropdown-menu{
+  overflow: auto;
+  max-height : 500px;
+}
+
+.dropdown-menu>li>a.drop-item{
+  color : rgb(0,0,0);
+}
+
+.dropdown-menu>li>a.drop-item:hover{
+  background-color : rgba(0,0,0,0.1);
+}
+
+.dropdown-menu input{
+  border-box: box-sizing;
+  border: none;
+  display: block;
+  margin: 3px 20px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  color: black;
+  white-space: nowrap;
+}
+
+/* time query*/
+.time-query-date{
+  font-size:small;
+  display:block;
+  padding : 2px;
+  float:left;
+  margin-left: 5px;
+  margin-right:5px;
+}
+
+/* All RESET BUTTON */
+.chk_unchk_btn{
+  height : 100%;
+  width : 46%;
+  margin : 2%;
+  margin-bottom : 0;
+  flex : 0;
+  position : relative;
+}
+
+.btn.btn-default.upload{
+  color : BLACK;
+  width : 85%;
+  height :85%;
+  margin :2%;
+}
+
+.upload-li{
+  display : inline-block;
+  visibility : visible;
+  text-align : center;
+  padding: 10px;
+}
+
+/* left toolbar */
+.back-btn{
+  padding : 10px; flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;
+}
+
+#left_toolbar_btn {
+  position : absolute;
+  z-index : 4;
+  padding : 0;
+  text-align: center;
+  height : 45px;
+  line-height: 45px;
+}
+
+#menu_list {
+  height: 100%;
+  z-index:3;
+  display : -webkit-flex;
+  display : flex;
+  flex-direction:column;
+  white-space: nowrap;
+}
+
+#left_toolbar {
+    color: white;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index:3 ;
+    width:15% ;
+    position:absolute;
+    height : 100% ;
+    min-height:100%;
+}
+
+#property_panel {
+    position: absolute;
+    min-height: 30%;
+    height: 30%;
+    bottom: 0%;
+    z-index: 3;
+    float: left;
+    overflow: auto;
+    margin-bottom: 0px;
+    width: 100%;
+    text-decoration: none;
+    color: white;
+    visibility: hidden;
+}
+
+#layer_list {
+    position: absolute;
+    height: 30%;
+    bottom: 0;
+    z-index: 3;
+    float: left;
+    margin-bottom: 0px;
+    width: 100%;
+    text-decoration: none;
+    color: white;
+}
+
+.input-group{
+  position: relative;
+  display:block;
+  width:95%;
+  text-align: left;
+  display:inline-block;
+}
+
+
+.list-group-item.left-toolbar-item:hover {
+  color: white;
+  text-decoration: none;
+  background-color: rgb(100, 100, 100);
+}
+
+.list-group-item.left-toolbar-item {
+  padding: 5px;
+  color: #FFFFFF;
+  white-space: pre-wrap;
+  text-decoration: none;
+  background-color: rgba(0, 0, 0, 0);
+  border-width: 0px;
+  cursor:pointer;
+  border-radius: 4px;
+  margin-top:5px;
+  margin-bottom:5px;
+}
+
+#featureLayer, #printed_features{
+  margin-top : 10px;
+  overflow-y:auto;
+  /*text-align: center;
+  flex-grow : 1 ;*/
+}
+
+#printed_features{
+  height: 80%;
+  overflow: auto;
+}
+
+#layerBound{
+  visibility: hidden;
+  position: absolute;
+  font-size: 10px;
+  width : 280px;
+  background-color : rgba(150,150,150,0.99);
+  border: 2px solid black;
+  z-index: 4;
+  color : black;
+  font-size: 15px;
+  border-radius : 5px;
+  left: 15%;
+}
+
+#layerBound>.list-group-item{
+  background-color: transparent;
+  border :0;
+  border-radius: 0px;
+}
+
+#layerBound>.list-group-item:first-child{
+  border-bottom: 1px solid white;
+}
+
+#layerBound_start, #layerBound_end{
+  color : black;
+  font-size:17px;
+}
+
+.layerBound.list-group-item-text{
+  color : black;
+
 }

@@ -3,7 +3,7 @@ Stinuum.findMinMaxTime = function(datetimes){
   var min_max_date = [];
   min_max_date[0] = new Date(datetimes[0]);
   min_max_date[1] = new Date(datetimes[0]);
-
+  if (isNaN(min_max_date[0].getTime())) throw new Error("cannot be date type, utility.js, findMinMaxTime");
   for (var j = 1 ; j < datetimes.length ; j++){
     var time = new Date(datetimes[j]);
 
@@ -64,6 +64,14 @@ Stinuum.findMinMaxCoord = function(coordinates){
         min_max.z[1] = coord[2];
       }
     }
+  }
+
+  //maybe pass international Date line
+  if (Math.abs(min_max.x[0] - min_max.x[1]) > 180){
+    LOG("it pass IDL");
+    var temp = min_max.x[0];
+    min_max.x[0] = min_max.x[1];
+    min_max.x[1] = temp;
   }
 
   return min_max;
@@ -132,14 +140,38 @@ Stinuum.getMBRFromPolygon = function(coordinates){
 Stinuum.getPropertyByName = function(mf, name, id){
   if (mf.temporalProperties == undefined) return -1;
 
-  for (var i = 0 ; i < mf.temporalProperties.length ; i++){
-    var property = mf.temporalProperties[i][name];
-    if (property != undefined){
-      property.datetimes = mf.temporalProperties[i].datetimes;
-      return [property, id];
+  if (Array.isArray(mf.temporalProperties)){
+    for (var i = 0 ; i < mf.temporalProperties.length ; i++){
+      var property = mf.temporalProperties[i][name];
+      if (property != undefined){
+        property.datetimes = mf.temporalProperties[i].datetimes;
+        return [property, id];
+      }
     }
   }
+  else{
+    var property = mf.temporalProperties[name];
+      if (property != undefined){
+        property.datetimes = mf.temporalProperties[i].datetimes;
+        return [property, id];
+      }
+  }
   return -1;
+}
+
+Stinuum.pushPropertyNamesToArrayExceptTime = function(array, properties){
+  var keys = Object.keys(properties);
+  for (var k = 0 ; k < keys.length ; k++){
+    if (keys[k] == 'datetimes') continue;
+    var isExist = false;
+    for (var arr_i = 0 ; arr_i < array.length ; arr_i++){
+      if (array[arr_i] == keys[k]){
+        isExist = true;
+        break;
+      }
+    }
+    if (!isExist) array.push(keys[k]);
+  }
 }
 
 Stinuum.calculateDist = function(point_1, point_2){
@@ -160,8 +192,7 @@ Stinuum.calculateCarteDist = function(point1, point2){
     alert("dist error");
     return;
   }
-
-  return Cesium.Cartesian2.distance(Cesium.Cartesian2.fromCartesian3(carte3_1),Cesium.Cartesian2.fromCartesian3(carte3_2));
+  return Cesium.Cartesian3.distance(carte3_1, carte3_2);
 }
 
 Stinuum.getBoundingSphere = function(min_max, height){
@@ -170,7 +201,6 @@ Stinuum.getBoundingSphere = function(min_max, height){
   var middle_height = (height[0] + height[1]) / 2;
 
   var radius = Stinuum.calculateCarteDist([middle_x,middle_y,middle_height], [min_max.x[0],min_max.y[0],height[0]]);
-  console.log(min_max);
   return new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(middle_x,middle_y,middle_height), radius * 3);
 }
 
@@ -182,4 +212,83 @@ Stinuum.findMaxCoordinatesLine = function(geometry){
     }
   }
   return max_length;
+}
+
+Stinuum.addPolygonSample = function(geometry, index, property){
+  var datetimes = geometry.datetimes;
+  for (var time = 0 ; time < geometry.coordinates.length ; time++){
+    var coords = geometry.coordinates[time][0];
+    var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
+    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(coords[index][0],coords[index][1]));
+  }
+}
+
+Stinuum.getSampleProperties_Polygon = function(polygon){
+  if (polygon.type != "MovingPolygon") throw new Stinuum.Exception("It should be MovingPolygon temporalGeometry", polygon);
+  var polygon_size = polygon.coordinates[0][0].length;
+  if (polygon_size < 4) new ERR("polygon_size is less than 3", polygon_size);
+  var isSpline = polygon.interpolations == "Spline";
+  var sample_list = [];
+
+  for (var i = 0 ; i < polygon_size ; i++){
+    var property = new Cesium.SampledProperty(Cesium.Cartesian3);
+    // if (isSpline){
+    //   property.setInterpolationOptions({
+    //   interpolationDegree : 2,
+    //   interpolationAlgorithm : Cesium.HermitePolynomialApproximation
+    // });
+    // }
+    Stinuum.addPolygonSample(polygon, i, property);
+    sample_list.push(property);
+  }
+  return sample_list;
+}
+
+Stinuum.getSampleProperty_Point = function(geometry){
+  if (geometry.type != "MovingPoint") throw new Stinuum.Exception("It should be MovingPoint", geometry);
+  var isSpline = geometry.interpolations == "Spline";
+  var datetimes = geometry.datetimes;
+  var property = new Cesium.SampledProperty(Cesium.Cartesian3);
+  if (isSpline){
+    property.setInterpolationOptions({
+      interpolationDegree : 2,
+      interpolationAlgorithm : Cesium.HermitePolynomialApproximation
+    });
+  }
+  for (var i = 0 ; i < geometry.coordinates.length ; i++){
+    var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[i]));
+    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(eometry.coordinates[i][0],eometry.coordinates[i][1]));
+  }
+  return property;
+}
+
+Stinuum.copyObj = function(obj) {
+  var copy = jQuery.extend(true, {}, obj);
+  return copy;
+}
+
+Stinuum.spliceElementInMovingPointByIndex = function(point_feature, remove_index){
+  var geometry = point_feature.temporalGeometry;
+  var properties = point_feature.temporalProperties;
+
+  geometry.coordinates.splice(remove_index, 1);
+  geometry.datetimes.splice(remove_index, 1);
+  Stinuum.spliceElementInPropertiesByIndex(properties, remove_index);
+}
+
+Stinuum.spliceElementInPropertiesByIndex = function(properties, remove_index){
+  for (var pro_i = 0 ; pro_i < properties.length ; pro_i++){
+    var property = properties[pro_i];
+    for (var key in property){
+      if (!property.hasOwnProperty(key)) continue;
+      var array;
+      if (Array.isArray(property[key])){
+        array = property[key];
+      }
+      else{
+        array = property[key].values;
+      }
+      array.splice(remove_index, 1);
+    }
+  }
 }

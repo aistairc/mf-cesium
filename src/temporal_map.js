@@ -1,7 +1,8 @@
+
 Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
   var pro_name = propertyName;
 
-  var mf = this.super.mfCollection.getFeatureById(mf_id);
+  var mf = this.super.mfCollection.getMFPairById(mf_id);
   if (mf == -1){
     console.log("please add mf first.");
     return;
@@ -21,7 +22,6 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
     this.super.geometryViewer.primitives[mf_id] = undefined;
   }
 
-
   this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry([mf]);
   var type = mf.feature.temporalGeometry.type;
   this.super.geometryViewer.clear();
@@ -33,30 +33,31 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
     for (var i = 0 ; i < entities.values.length ; i ++ ){
       this.super.cesiumViewer.entities.add(entities.values[i]);
     }
-
   }
   else{
   //  this.bounding_sphere = Stinuum.getBoundingSphere(this.min_max, [0,0] );
   }
 
-
   var highlight_prim;
   if (type == 'MovingPolygon'){
     highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingPolygon({
       temporalGeometry : mf.feature.temporalGeometry,
-      temporalProperty : property
+      temporalProperty : property,
+      id : mf_id
     }));
   }
   else if (type == 'MovingPoint'){
     highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingPoint({
       temporalGeometry : mf.feature.temporalGeometry,
-      temporalProperty : property
+      temporalProperty : property,
+      id : mf_id
     }));
   }
   else if (type == 'MovingLineString'){
     highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingLineString({
       temporalGeometry : mf.feature.temporalGeometry,
-      temporalProperty : property
+      temporalProperty : property,
+      id : mf_id
     }));
   }
   else{

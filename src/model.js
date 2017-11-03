@@ -1,10 +1,14 @@
+
 var LOG = console.log;
+var ERR = Stinuum.Exception;
 var debug_mode = true;
+var debug_var = undefined;
 
 function Stinuum(viewer){
     this.cesiumViewer = viewer;
-    this.mode = 'STATICMAP';
+    this.mode = 'STATICMAP'; //'STATICMAP' : 2d, 'SPACETIME' : perspective view, and 'ANIMATEDMAP' : 3d globe
     this.maxHeight = 30000000;
+    this.s_query_on = false;
 
     this.geometryViewer = new Stinuum.GeometryViewer(this);
     this.mfCollection = new Stinuum.MFCollection(this);
@@ -12,9 +16,10 @@ function Stinuum(viewer){
     this.temporalMap = new Stinuum.TemporalMap(this);
     this.occurrenceMap = new Stinuum.OccurrenceMap(this);
     this.propertyGraph = new Stinuum.PropertyGraph(this);
+    this.queryProcessor = new Stinuum.QueryProcessor(this);
 }
 
-Stinumm.Exception = function(message, data){
+Stinuum.Exception = function(message, data){
   this.name = "StinuumException";
   this.message = message;
   this.data = data;
@@ -22,9 +27,9 @@ Stinumm.Exception = function(message, data){
 
 Stinuum.Exception.prototype.toString = function(){
   if (!debug_mode || this.data == undefined)
-    return [this.name + ' : "' + this.message + '"', this.data];
-  else {
     return this.name + ' : "' + this.message + '"';
+  else {
+    return [this.name + ' : "' + this.message + '"', this.data];
   }
 }
 
@@ -39,19 +44,18 @@ Stinuum.OccurrenceMap = function(stinuum){
   this.primitive = null;
 }
 
-Stinuum.QueryProcessor = function(mfc){
-    this.super = mfc;
+Stinuum.QueryProcessor = function(stinuum){
+  this.super = stinuum;
+  this.result_pairs = [];
 }
 
 Stinuum.MFCollection = function(stinuum){
     this.super = stinuum;
     this.features = [];
-    this.hiddenFeatures = [];
+    this.wholeFeatures = [];
     this.colorCollection = {};
     this.min_max = {};
     this.whole_min_max = {};
-
-    this.queryProcessor = new Stinuum.QueryProcessor(this);
 }
 
 
@@ -108,4 +112,6 @@ Stinuum.SpatialInfo = function(){
 Stinuum.DirectionInfo =function(life=0, leng=0){
   this.total_life = life;
   this.total_length = leng;
+  this.velocity = [];
+  this.avg_velocity = 0;
 }

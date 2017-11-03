@@ -1,13 +1,14 @@
 
 Stinuum.OccurrenceMap.prototype.show = function(degree){
+  var min_max = this.super.mfCollection.min_max;
   if (degree == undefined){
     degree = {};
     degree.x = 5;
     degree.y = 5;
-    degree.time = 5;
   }
 
   if (this.super.mode == 'SPACETIME'){
+    if (degree.time == undefined) degree.time = (min_max.date[1].getTime() - min_max.date[0].getTime()) / (1000 * 10 * 86400);
     var x_deg = degree.x,
     y_deg = degree.y,
     z_deg = degree.time;
@@ -54,6 +55,7 @@ Stinuum.OccurrenceMap.prototype.show = function(degree){
     this.primitive = this.super.cesiumViewer.scene.primitives.add(cube_prim);
   }
   else{
+
     var x_deg = degree.x,
     y_deg = degree.y;
 
@@ -108,7 +110,7 @@ Stinuum.OccurrenceMap.prototype.remove = function(){
   }
 }
 
-
+//Discrete, TODO
 Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, degree, map_data){
   var min_max = this.super.mfCollection.min_max;
 
@@ -122,14 +124,8 @@ Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, 
   var y_length = Math.ceil(y_band/y_deg);
 
   var max_num = this.max_num;
-
-  var value_property = [];
-
-  for (var point = 0 ; point < geometry.coordinates[0][0].length - 1; point++){
-    var temp = new SampledProperty(Number);
-    value_property[point] = temp;
-  }
-
+  var datetimes = geometry.datetimes;
+  
   var temp_map = [];
   for (var x = 0 ; x < x_length ; x++){
     temp_map[x] = [];
@@ -138,33 +134,21 @@ Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPolygon = function(geometry, 
     }
   }
 
-  for (var index = 0 ; index < geometry.coordinates.length ; index++){
-    var coord = geometry.coordinates[index];
-
-    for (var point = 0 ; point < coord[0].length - 1; point++){
-      value_property[point].addSample(coord[0][point][0], coord[0][point][1]);
+  for (var i = 0 ; i < geometry.coordinates.length ; i++){
+    var coords = geometry.coordinates[i][0];
+    for (var j = 0 ; j < coords.length; j++){
+      var x = coords[j][0];
+      var y = coords[j][1];
+      var x_index = Stinuum.getCubeIndexFromSample(x, x_deg, min_max.x[0]);
+      var y_index = Stinuum.getCubeIndexFromSample(y, y_deg, min_max.y[0]);
+      if (temp_map[x_index][y_index] == 0) temp_map[x_index][y_index] = 1;
     }
   }
 
-  for (var x_index = 0 ; x_index < x_length ; x_index++){
-    for (var point = 0 ; point < value_property.length ; point++){
-      var x_value = min_max.x[0] + x_deg * x_index;
-      var y_value = value_property[point].getValue(x_value);
-      if (y_value != undefined){
-        var y_index = Stinuum.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
-        if (temp_map[x_index][y_index] == 0){
-          temp_map[x_index][y_index] = 1;
-        }
-      }
-
-    }
-  }
-  for (var x = 0 ; x < x_length ; x++){
-    for (var y = 0 ; y < y_length ; y++){
-      if (temp_map[x][y] == 1){
-        map_data[x][y] += 1;
-        max_num = Math.max(map_data[x][y],max_num);
-      }
+  for (var i = 0 ; i < x_length ; i++){
+    for (var j = 0 ; j < y_length; j++){
+      if (temp_map[i][j] == 1) map_data[i][j] += 1;
+      max_num = Math.max(map_data[i][j],max_num);
     }
   }
 
@@ -392,7 +376,7 @@ Stinuum.OccurrenceMap.prototype.makeBasicCube = function(degree){
 }
 
 Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, degree, cube_data){
-  var min_max = this.super.mfCollection.min_max;
+  var min_max = this.super.mfCollection.findMinMaxGeometry();
 
   var x_deg = degree.x,
   y_deg = degree.y,
@@ -410,99 +394,68 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
   var max_num = this.max_num;
   var datetimes = geometry.datetimes;
 
-  var lower_x_property = new Cesium.SampledProperty(Number);
-  var upper_x_property = new Cesium.SampledProperty(Number);
+  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+    var sample_list = Stinuum.getSampleProperties_Polygon(geometry);
+    
+    var polygon_size = geometry.coordinates[0][0].length;
 
-  var lower_y_property = new Cesium.SampledProperty(Number);
-  var upper_y_property = new Cesium.SampledProperty(Number);
+    for (var i = 0 ; i < time_length - 1 ; i++){
+      var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time, time_deg/2, new Cesium.JulianDate());
+      var time = [cube_data[i].time, middle_time, cube_data[i+1].time];
 
+      for (var ti = 0 ; ti <time.length ; ti++){
+        var x_min = x_length + 1;
+        var y_min = y_length + 1;
+        var x_max = -1;
+        var y_max = -1;
+        for (var index = 0 ; index < polygon_size ; index++){
+          var sample_coord = sample_list[index].getValue(time[ti]);
+          if (sample_coord == undefined){
+            //LOG("undefined");
+            continue;
+          }
 
-  if (geometry.interpolations == "Spline"){
-    upper_y_property.setInterpolationOptions({
-      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
-      interpolationDegree : 2
-    });
-    lower_y_property.setInterpolationOptions({
-      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
-      interpolationDegree : 2
-    });
-    upper_x_property.setInterpolationOptions({
-      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
-      interpolationDegree : 2
-    });
-    lower_x_property.setInterpolationOptions({
-      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
-      interpolationDegree : 2
-    });
+          var long = Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).longitude);
+          var lat = Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude);
+          if (long < 0) long += 180;
 
-  }
+          var x = Stinuum.getCubeIndexFromSample(long, x_deg, min_max.x[0]);
+          var y = Stinuum.getCubeIndexFromSample(lat , y_deg, min_max.y[0]);
+          
+          if (x < 0 || y < 0 || x > x_length || y > y_length){
+            LOG(x,y);
+            LOG(min_max)
+            LOG(Cesium.Math.DEGREES_PER_RADIAN * Cesium.Cartographic.fromCartesian(sample_coord).longitude,
+             Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude));
+            LOG(x_deg);
+            throw new Error("Wrong sampling");
+          }
 
-  for (var time = 0 ; time < datetimes.length ; time++){
-    var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
-    var normalize = Stinuum.normalizeTime(new Date(datetimes[time]), this.super.mfCollection.min_max.date, this.super.maxHeight);
-
-    var coordinates = geometry.coordinates[time][0];
-    var mbr = Stinuum.getMBRFromPolygon(coordinates);
-
-    lower_x_property.addSample(jul_time, mbr.x[0]);
-    upper_x_property.addSample(jul_time, mbr.x[1]);
-    lower_y_property.addSample(jul_time, mbr.y[0]);
-    upper_y_property.addSample(jul_time, mbr.y[1]);
-  }
-
-  for (var i = 0 ; i < time_length - 1 ; i++){
-    var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time, time_deg/2, new Cesium.JulianDate());
-    var time = [cube_data[i].time, middle_time, cube_data[i+1].time];
-
-    for (var ti = 0 ; ti <time.length ; ti++){
-      var mbr = {
-        x : [],
-        y : []
-      };
-
-      mbr.x[0] = lower_x_property.getValue(time[ti]);
-      mbr.x[1] = upper_x_property.getValue(time[ti]);
-      mbr.y[0] = lower_y_property.getValue(time[ti]);
-      mbr.y[1] = upper_y_property.getValue(time[ti]);
-
-
-      if (mbr.y[1] != undefined){
-        var x_min = Stinuum.getCubeIndexFromSample(mbr.x[0], x_deg, min_max.x[0]);
-        var y_min = Stinuum.getCubeIndexFromSample(mbr.y[0], y_deg, min_max.y[0]);
-        var x_max = Stinuum.getCubeIndexFromSample(mbr.x[1], x_deg, min_max.x[0]);
-        var y_max = Stinuum.getCubeIndexFromSample(mbr.y[1], y_deg, min_max.y[0]);
-
-        var x_equal = (x_min == x_max);
-        var y_equal = (y_min == y_max);
-
-        if (x_equal && y_equal){
-          cube_data[i].count[x_min][y_min] += 1;
+          if (x < x_min) x_min = x;
+          if (y < y_min) y_min = y;
+          if (x > x_max) x_max = x;
+          if (y > y_max) y_max = y;
         }
-        else if(x_equal){
-          cube_data[i].count[x_min][y_min] += 1;
-          cube_data[i].count[x_min][y_max] += 1;
+
+        if (x_min == x_length + 1 && y_max == -1){
+          continue;
         }
-        else if(y_equal){
-          cube_data[i].count[x_min][y_min] += 1;
-          cube_data[i].count[x_max][y_min] += 1;
+
+        for (var x_i = x_min ; x_i <= x_max ; x_i++){
+          for (var y_i = y_min ; y_i <= y_max ; y_i++){
+            cube_data[i].count[x_i][y_i] += 1;
+            max_num = Math.max(cube_data[i].count[x_i][y_i],max_num);
+          }
         }
-        else{
-          cube_data[i].count[x_max][y_min] += 1;
-          cube_data[i].count[x_max][y_max] += 1;
-          cube_data[i].count[x_min][y_min] += 1;
-          cube_data[i].count[x_min][y_max] += 1;
-        }
-        max_num = Math.max(cube_data[i].count[x_min][y_min],max_num);
-        max_num = Math.max(cube_data[i].count[x_min][y_max],max_num);
-        max_num = Math.max(cube_data[i].count[x_max][y_min],max_num);
-        max_num = Math.max(cube_data[i].count[x_max][y_max],max_num);
+
       }
 
     }
-
   }
-  this.max_num = Math.max(max_num,this.max_num);
-
+  else{
+    //TODO : DISCRETE
+  }
+  this.max_num = Math.max(max_num, this.max_num);
 }
 
 Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPoint = function(geometry, degree, cube_data){
@@ -523,50 +476,33 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPoint = function(geometry, de
   var y_length = Math.ceil(y_band/y_deg);
 
   var max_num = this.max_num;
-  //  console.log(cube_data);
   var datetimes = geometry.datetimes;
-  var x_property = new Cesium.SampledProperty(Number);
-  var y_property = new Cesium.SampledProperty(Number);
 
-  if (geometry.interpolations == "Spline"){
-    x_property.setInterpolationOptions({
-      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
-      interpolationDegree : 2
-    });
-    y_property.setInterpolationOptions({
-      interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
-      interpolationDegree : 2
-    });
-  }
 
-  for (var time = 0 ; time < datetimes.length; time++){
-    var jul_time = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
-    var position = {        x : geometry.coordinates[time][0],y : geometry.coordinates[time][1]      };
+  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+    var property;
+    property = Stinuum.getSampleProperty_Point(geometry);
+    for (var i = 0 ; i < time_length - 1 ; i++){
+      var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time,time_deg/2,new Cesium.JulianDate());
+      var time = [cube_data[i].time, middle_time, cube_data[i+1].time];
 
-    x_property.addSample(jul_time, position.x);
-    y_property.addSample(jul_time, position.y);
-  }
-
-  for (var i = 0 ; i < time_length - 1 ; i++){
-    var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time,time_deg/2,new Cesium.JulianDate());
-    var time = [cube_data[i].time, middle_time, cube_data[i+1].time];
-
-    for (var ti = 0 ; ti <time.length ; ti++){
-      var x_position = x_property.getValue(time[ti]);
-      var y_position = y_property.getValue(time[ti]);
-
-      if (x_position != undefined && y_position != undefined){
-        var x = Stinuum.getCubeIndexFromSample(x_position, x_deg, min_max.x[0]);
-        var y = Stinuum.getCubeIndexFromSample(y_position, y_deg, min_max.y[0]);
-        cube_data[i].count[x][y] += 1;
-        max_num = Math.max(cube_data[i].count[x][y],max_num);
+      for (var ti = 0 ; ti <time.length ; ti++){
+        var sample_coord = property.getValue(time[ti]);
+        if (sample_coord != undefined){
+          var x = Stinuum.getCubeIndexFromSample(Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).longitude), x_deg, min_max.x[0]);
+          var y = Stinuum.getCubeIndexFromSample(Cesium.Math.DEGREES_PER_RADIAN * (Cesium.Cartographic.fromCartesian(sample_coord).latitude), y_deg, min_max.y[0]);
+          cube_data[i].count[x][y] += 1;
+          max_num = Math.max(cube_data[i].count[x][y],max_num);
+        }
       }
-
     }
-
   }
-
+  else{
+    //TODO : DISCRETE
+    LOG("Discrete occurrence is not supported now.")
+  }
   this.max_num = Math.max(max_num,this.max_num);
+
 }
 
 Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingLineString = function(geometry, degree, cube_data){

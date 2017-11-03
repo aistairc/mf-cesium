@@ -2,6 +2,7 @@
 Stinuum.PathDrawing.prototype.drawMovingPoint = function(options){
 
   var geometry = options.temporalGeometry;
+  var property = options.temporalProperty;
   var id = options.id;
 
   var pointCollection = new Cesium.PointPrimitiveCollection();
@@ -9,16 +10,30 @@ Stinuum.PathDrawing.prototype.drawMovingPoint = function(options){
   var r_color = this.supersuper.mfCollection.getColor(id);
 
   var data = geometry.coordinates;
-  if(this.supersuper.mode == 'SPACETIME'){
-    var heights = this.supersuper.getListOfHeight(geometry.datetimes);
-    for(var i = 0 ; i < data.length ; i++ ){
-      pointCollection.add(Stinuum.drawOnePoint(data[i], heights[i], r_color));
+  var heights = this.supersuper.getListOfHeight(geometry.datetimes);
+  var pro_min_max;
+
+  if (property != undefined) pro_min_max = Stinuum.findMinMaxProperties(property);
+  for(var i = 0 ; i < data.length ; i++ ){
+    if (property != undefined){
+      var value = property.values[i];
+      var blue_rate = (value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+      if (blue_rate < 0.2){
+        blue_rate = 0.2;
+      }
+      if (blue_rate > 0.9){
+        blue_rate = 0.9;
+      }
+      r_color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
     }
-  }
-  else{
-    for(var i = 0 ; i < data.length ; i++ ){
-      pointCollection.add(Stinuum.drawOnePoint(data[i], 0, r_color));
+    var height = 0;
+    if(this.supersuper.mode == 'SPACETIME'){
+      height = heights[i];
     }
+    else{
+      height = 0;
+    }
+    pointCollection.add(Stinuum.drawOnePoint(data[i], height, r_color));
   }
   pointCollection.id = id;
   return pointCollection;
@@ -49,9 +64,8 @@ Stinuum.PathDrawing.prototype.drawMovingLineString = function(options){
 Stinuum.PathDrawing.prototype.drawMovingPolygon = function(options){
 
   var geometry = options.temporalGeometry;
+  var property = options.temporalProperty;
   var id = options.id;
-
-
   var r_color = this.supersuper.mfCollection.getColor(id).withAlpha(0.3);
 
   var min_max_date = this.supersuper.mfCollection.min_max.date;
@@ -62,6 +76,9 @@ Stinuum.PathDrawing.prototype.drawMovingPolygon = function(options){
   var poly_list = new Array();
   var heights = null;
 
+  var pro_min_max;
+  if (property != undefined) pro_min_max = Stinuum.findMinMaxProperties(property);
+
   var with_height = false;
   if (this.supersuper.mode == 'SPACETIME'){
     with_height = true;
@@ -69,6 +86,17 @@ Stinuum.PathDrawing.prototype.drawMovingPolygon = function(options){
   }
 
   for (var i = 0; i < coordinates.length; i++) {
+    if (property != undefined){
+      var value = property.values[i];
+      var blue_rate = (value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+      if (blue_rate < 0.2){
+        blue_rate = 0.2;
+      }
+      if (blue_rate > 0.9){
+        blue_rate = 0.9;
+      }
+      r_color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
+    }
     var height;
     if (!with_height){
       height = 0;
@@ -131,7 +159,7 @@ Stinuum.PathDrawing.prototype.drawPathMovingPoint = function(options){
         if (blue_rate > 0.9){
           blue_rate = 0.9;
         }
-        color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , blue_rate);
+        color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , 0.8);
 
         var positions;
         if (this.supersuper.mode == 'STATICMAP' || this.supersuper.mode == 'ANIMATEDMAP'){
@@ -187,7 +215,7 @@ Stinuum.PathDrawing.prototype.drawPathMovingPolygon = function(options){
 
   var heights = this.supersuper.getListOfHeight(datetimes);
 
-  var color = this.supersuper.mfCollection.getColor(options.id).withAlpha(0.6);
+  var color = this.supersuper.mfCollection.getColor(options.id).withAlpha(0.5);
 
   if (geometry.interpolations[0] == 'Discrete'){
     return this.drawMovingPolygon(options);
@@ -350,7 +378,7 @@ Stinuum.makeDegreesArray = function(pos_2d, height){
   return points;
 }
 
-Stinuum.drawInstanceOneLine = function(positions, r_color, width = 5){
+Stinuum.drawInstanceOneLine = function(positions, r_color, width = 1){
   var carte = Cesium.Cartesian3.fromDegreesArrayHeights(positions);
   var polyline =  new Cesium.PolylineGeometry({
     positions : carte,
@@ -367,7 +395,7 @@ Stinuum.drawInstanceOneLine = function(positions, r_color, width = 5){
   return geoInstance;
 }
 
-Stinuum.drawOneLine = function(positions, r_color, width = 5){
+Stinuum.drawOneLine = function(positions, r_color, width = 1){
   var material = new Cesium.Material.fromType('Color');
   material.uniforms.color = r_color;
 

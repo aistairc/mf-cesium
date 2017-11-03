@@ -17,7 +17,7 @@
     <link type="text/css" href="lib/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.css" />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- d3 -->
     <script src="https://d3js.org/d3.v4.min.js"></script>
 
@@ -27,13 +27,15 @@
 
     <!-- Stinuum -->
     <script src="../stinuum.js"></script>
-    <script src="buffer.js"></script>
-    <script src="connection.js"></script>
-    <script src="fileio.js"></script>
-    <script src="temporal_property.js"></script>
-    <script src="print.js"></script>
-    <script src="local.js"></script>
-    <script src="example_analysis.js"></script>
+    <script src="FeatureBuffer.js"></script>
+    <script src="ServerConnector.js"></script>
+    <script src="FileIO.js"></script>
+    <script src="ViewProperties.js"></script>
+    <script src="Print.js"></script>
+    <script src="Local.js"></script>
+    <script src="analysis.js"></script>
+    <script src="List.js"></script>
+    <script src="DivListMaker.js"></script>
     <link rel="stylesheet" type="text/css" href="demo_style.css">
     <link rel="stylesheet" type="text/css" href="bs.css">
     <style>
@@ -42,45 +44,46 @@
 </head>
 
 <body style="margin-bottom:20%">
-    <div id="toolbar_btn" onclick="toggle_toolbar()"> < </div>
+    <div id="left_toolbar_btn" onclick="toggle_toolbar()"> < </div>
+    <div id="upper_toolbar" class="upper_toolbar" style="display:flex">
+        <div id="graph_btn" class="upper_toolbar_btn" onclick="selectProperty('graph')"> GRAPH </div>
+        <div id="occurrence_btn" class="upper_toolbar_btn" onclick="selectDegree()"> OCCURENCE </div>
+        <div id="st_query_btn" class="upper_toolbar_btn" onclick="spatio_query()"> INTERSECTION </div>
+        <div id="t_query_btn" class="upper_toolbar_btn" onclick="time_query()"> TIMEQUERY </div>
+        <div id="radar_btn" class="upper_toolbar_btn" onclick="showRadar()"> RADAR </div>
+    </div>
+    <div id="option" class="upper_toolbar" style="display:none"></div>
     <div id="left_toolbar">
-        <div class="left_toolbar_div panel-default" style="z-index:3 ;   height : 70%; min-height : 70%; ">
-            <ul id="menu_list" class="list-group" >
-                <li onclick="backButton()" style="padding : 10px;flex-grow : 0; background : white ; color : black ;text-align: center; cursor :pointer;">Back</li>
-                <li id = "uploadButton" ></li>
+        <ul id="menu_list" class="list-group left_toolbar_div panel-default" >
+            <li onclick="backButton()" class="back-btn">Back</li>
+            <li id = "uploadButton" class="upload-li"></li>
 
-                <li id="printMenuState" role="presentation" class="list-group-item active list-title" style="flex-grow : 0;"></li>
-                <li id="featureLayer" role="presentation" style="margin-top: 15px; flex-grow : 1 ; overflow : auto">
+            <li id="printMenuState" role="presentation" class="list-title" style="flex-grow : 0;"></li>
+            <li id="featureLayer" role="presentation" >
 
-                </li>
-            </ul>
+            </li>
+        </ul>
 
-        </div>
+        <div id="property_panel" class="left_toolbar_div panel-default" >
 
-        <div id="layer_list" class="left_toolbar_div panel-default" style="overflow : auto">
-            <ul>
-                <li id="printedLayerListMenu" role="presentation" class="list-title">printed Layers List</li>
-                <li id="list">
+            <li role="presentation" class="list-title">Properties</li>
+            <li role="presentation">
+                <ul id="property" role="presentation">
 
-                </li>
-
-            </ul>
-        </div>
-        <div id="property_panel" class="left_toolbar_div panel-default" style="overflow : auto">
-
-            <ul>
-                <li role="presentation" class="list-title">Properties</li>
-                <li role="presentation">
-                    <ul id="property" role="presentation">
-
-                    </ul>
-                </li>
-            </ul>
+                </ul>
+            </li>
 
         </div>
+    <!-- Dont use in acm demo
+        <ul id="layer_list" class="left_toolbar_div panel-default" >
 
+            <li id="printedLayerListMenu" role="presentation" class="list-title">Printed Features</li>
+            <li id="printed_features">
 
+            </li>
 
+        </ul>
+    -->
 
     </div>
 
@@ -98,51 +101,96 @@
 
     </div>
 </br>
- <div id="zoom">
-<a id="min-date" style="white-space: nowrap; align:right; float : center; font-size:small"></a>
-</br>
-</br>
-<input id="slider" type="text" class="span3" value="" data-slider-orientation="vertical" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="[0,100]" />
-</br>
-</br>
-<a id="max-date" style="white-space: nowrap; align:right;  float : center; font-size:small"></a>
-</br>
-<input id "slider-button-submit" style = "min-width : inherit; font-size : small ;padding : 2px;" class="btn btn-default" type="button" value="Filtering" onclick="zoom()"></input>
-
-</div>
 <div id="featureName"></div>
+<div id="layerBound" class="input-group">
+    <li class="list-group-item">
+        <a class="list-group-item-text layerBound" >Begin</a>
+        <h4 class="list-group-item-heading" id="layerBound_start">  </h4>
+    </li>
+    <li class="list-group-item">
+        <a class="list-group-item-text layerBound" >End</a>
+        <h4 class="list-group-item-heading" id="layerBound_end">  </h4>
+    </li>
+</div>
 <div id="context">
 </div>
 <div id="serverState">
 </div>
-
+<div id="radar_comment" class="input-group" style="visibility: hidden">
+    <div class="radar-item list-group-item">
+        <h4 class="list-group-item-heading"> Distance </h4>
+        <a class="radar-item list-group-item-text"> Thickness of Arrow </a>
+    </div>
+    <div class="radar-item list-group-item">
+        <h4 class="list-group-item-heading"> Lifetime </h4>
+        <a class="radar-item list-group-item-text"> Size of Circle </a>
+    </div>
+    <div class="radar-item list-group-item">
+        <h4 class="list-group-item-heading"> Speed </h4>
+        <a class="radar-item list-group-item-text"> Length of Arrow </a>
+    </div>
+</div>
 
 <script>
-var properties = new Array();
-var checked_property = new Array();
-var features = new Array();
-var feature = new Array();
+var isHTMLDebug = false;
 var viewer;
 var stinuum;
-var labelEntity;
+//var labelEntity;
 var handler;
-var labelEntity;
 var slider;
 var label_timeout;
+var current_layer;
 var toolbar_show = true;
+var div_id = {
+    'graph' : 'graph',
+    "radar" : 'radar',
+    "option" : "option",
+    "upper_toolbar" : "upper_toolbar",
+    "left_toolbar" : "left_toolbar",
+    "left_upper_list" : "featureLayer",
+    "menu_mode" : "printMenuState",
+    "printed_features" :"printed_features",
+    "chk_unchk_li" :"chk_unchk_li",
+    "properties" : "property",
+    "properties_panel" : "property_panel",
+    "menu_list" : "menu_list",
+    "radar_comment" : "radar_comment",
+    "server_state" : "serverState",
+    "radar_parent" : "radar_parent"
+};
+
+var MENU_STATE = {
+    "features" : "FEATURE",
+    "layers" : "LAYER",
+    "one_feature" : "one_feature"
+}
+
+var connector = new ServerConnector();
+var buffer = new FeatureBuffer(connector);
+var list_maker = new DivListMaker(connector);
 
 (function() {
     viewer = new Cesium.Viewer('cesiumContainer', {
         orderIndependentTranslucency: false,
-        baseLayerPicker: true
+        baseLayerPicker: true,
+        geocoder : false,
+        homeButton : true,
+        infoBox : false,
+        sceneModePicker : true,
+        navigationHelpButton : false,
+        navigationInstructionsInitiallyVisible : false,
+        fullscreenButton : false
     });
 
+    if (isHTMLDebug) viewer.resolutionScale = 0.5; //for Debug..
     viewer.scene.fxaa = false;
 
     stinuum = new Stinuum(viewer);
     viewer.scene.mode = Cesium.SceneMode.SCENE2D;
 
     viewer.scene.morphComplete.addEventListener(function() {
+        refresh();
+        clearAnalysis();
         if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
             stinuum.changeMode('SPACETIME');
         } else if (viewer.scene.mode == Cesium.SceneMode.SCENE2D){
@@ -152,19 +200,11 @@ var toolbar_show = true;
         } else {
             alert('error');
         }
-
-        setAnalysisDIV('graph');
+        
     });
-    slider = new Slider("#slider", {
-        reversed: true
-    });
-
-    slider.on("slide", function(sliderValue) {
-        zoom_time = sliderValue;
-    });
-
 
     scene = viewer.scene;
+
     viewer.clock.shouldAnimate = false;
 
     handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
@@ -184,7 +224,7 @@ var toolbar_show = true;
 
                 showContextMenu(pick.primitive.id, movement.position);
                 label_timeout = window.setTimeout(function() {
-                    featureName.innerHTML = "";
+                    featureName.innerText = "";
                     featureName.style.visibility = "hidden";
                     context.innerHTML = "";
                     context.style.visibility = "hidden";
@@ -205,23 +245,26 @@ var toolbar_show = true;
         context.style.visibility = "hidden";
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
-    setAnalysisDIV('graph');
-    getLayers();
+    clearAnalysis();
+    printFileUploadButton();
+    if (connector.start() == -1) getLocalFile();
 
-    var printedLayerListMenu = document.getElementById('printedLayerListMenu');
-    var layer_list = document.getElementById('layer_list');
-    var uploadButton = document.getElementById('uploadButton');
+    connectHomeButton();
 
-    uploadButton.style.padding = "10px";
+    var left_toolbar_btn = document.getElementById('left_toolbar_btn');
+    left_toolbar_btn.className = 'btn btn-default';
+    left_toolbar_btn.style.left = '14.5%';
+    left_toolbar_btn.style.top = '45%';
+    left_toolbar_btn.style.width = '15px';
 
-    var graph = document.getElementById('graph');
-    graph.style.visibility = "visible";
-
-    var toolbar_btn = document.getElementById('toolbar_btn');
-    toolbar_btn.className = 'btn btn-default';
-    toolbar_btn.style.left = '14.5%';
-    toolbar_btn.style.top = '45%';
-    toolbar_btn.style.width = '15px';
+    if (document.getElementById('left_toolbar').offsetWidth < 250){
+        document.getElementById('left_toolbar').style.fontSize = '12px';
+        document.getElementById('radar_stat').style.fontSize = '10px';
+        document.getElementById('radar_stat').style.width = '280px';
+    }
+    if (document.body.offsetWidth < 1000){
+        alert("The browser width is too small.."); 
+    }
 })()
 String.prototype.replaceAll = function(org, dest) {
     return this.split(org).join(dest);

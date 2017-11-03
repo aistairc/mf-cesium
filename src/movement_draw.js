@@ -1,3 +1,4 @@
+
 Stinuum.MovementDrawing.prototype.moveMovingPoint = function(options){
   var czml = [];
 
@@ -9,8 +10,8 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function(options){
   start = new Date(geometry.datetimes[0]).toISOString();
   stop = new Date(geometry.datetimes[length - 1]).toISOString();
 
-  var availability = start + "/" + stop;
 
+  this.supersuper.mfCollection.findMinMaxGeometry();
   if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear"){
     var interpolations;
     if (geometry.interpolations[0] == "Spline"){
@@ -43,10 +44,11 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function(options){
         carto.push(normalize);
       }
       else{
-        carto.push(1000);
+        carto.push(10000);
       }
 
     }
+    var availability = start + "/" + stop;
     v.availability = availability;
     v.position = {
       "interpolationAlgorithm": interpolations,
@@ -62,20 +64,21 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function(options){
     v.id = 'movingPoint_'+number;
     v.point = {
       "color" : {
-        "rgba" : [255, 0, 0, 255]
+        "rgba" : [0, 255, 255, 255]
       },
-      "outlineColor" : {
-        "rgba" : [255, 255, 255, 255]
-      },
-      "outlineWidth" : 2,
+      // "outlineColor" : {
+      //   "rgba" : [255, 255, 255, 255]
+      // },
+      // "outlineWidth" : 2,
       "pixelSize" : 10
     };
 
     var carto = [];
     var point = geometry.coordinates;
-    for (var i = 0 ; i < geometry.coordinates.length - 1 ; i++){
+    for (var i = 0 ; i < geometry.coordinates.length; i++){
       var obj ={};
       if (geometry.interpolations[0] == "Stepwise"){
+        if ( i == geometry.coordinates.length - 1) break;
         var start_interval = new Date(geometry.datetimes[i]).toISOString();
         var finish_interval = new Date(geometry.datetimes[i+1]).toISOString();
         obj.interval = start_interval+"/"+finish_interval;
@@ -91,15 +94,21 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function(options){
       obj.cartographicDegrees.push(point[i][0]);
       obj.cartographicDegrees.push(point[i][1]);
 
-      var normalize = Stinuum.normalizeTime(new Date(geometry.datetimes[i]), this.supersuper.mfCollection.min_max.date);
+      var normalize = Stinuum.normalizeTime(new Date(geometry.datetimes[i]), this.supersuper.mfCollection.min_max.date, this.supersuper.maxHeight);
       if (this.supersuper.mode == 'SPACETIME'){
         obj.cartographicDegrees.push(normalize);
       }
       else{
-        obj.cartographicDegrees.push(1000);
+        obj.cartographicDegrees.push(10000);
       }
       carto.push(obj);
     }
+    if (geometry.interpolations[0] == "Discrete") {
+      stop = new Date(new Date(geometry.datetimes[length - 1])
+        .setHours(new Date(geometry.datetimes[length - 1]).getHours() + multiplier/10000))
+        .toISOString();
+    }
+    var availability = start + "/" + stop;
     v.availability = availability;
     v.position = carto;
     czml.push(v);
@@ -141,6 +150,8 @@ Stinuum.MovementDrawing.prototype.moveMovingPolygon =function(options){
       }
     }
   };
+
+  if (this.supersuper.s_query_on) ref_obj.polygon.material.solidColor.color.rgbaf = [1, 0.2, 0.2, 0.4];
 
   var length = geometry.datetimes.length;
 
@@ -185,7 +196,7 @@ Stinuum.MovementDrawing.prototype.moveMovingPolygon =function(options){
         carto.push(polygon[i][1]);
         if (this.supersuper.mode == 'STATICMAP' || this.supersuper.mode == 'ANIMATEDMAP')
         {
-          carto.push(10000);
+          carto.push(1000);
         }
         else{
           carto.push(normalize);
@@ -225,7 +236,7 @@ Stinuum.MovementDrawing.prototype.moveMovingPolygon =function(options){
       for (var j = 0 ; j < polygon.length-1 ; j++){
         carto.push(polygon[j][0]);
         carto.push(polygon[j][1]);
-        if (this.supersuper.mode == 'STATICMAP')
+        if (this.supersuper.mode == 'SPACETIME')
         carto.push(normalize);
         else {
           carto.push(0);
