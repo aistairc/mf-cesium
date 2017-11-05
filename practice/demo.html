@@ -132,7 +132,7 @@
 </div>
 
 <script>
-var isHTMLDebug = false;
+var lowResoultion = false;
 var viewer;
 var stinuum;
 //var labelEntity;
@@ -182,7 +182,7 @@ var list_maker = new DivListMaker(connector);
         fullscreenButton : false
     });
 
-    if (isHTMLDebug) viewer.resolutionScale = 0.5; //for Debug..
+    if (lowResoultion) viewer.resolutionScale = 0.5; //for Debug..
     viewer.scene.fxaa = false;
 
     stinuum = new Stinuum(viewer);
@@ -259,8 +259,8 @@ var list_maker = new DivListMaker(connector);
 
     if (document.getElementById('left_toolbar').offsetWidth < 250){
         document.getElementById('left_toolbar').style.fontSize = '12px';
-        document.getElementById('radar_stat').style.fontSize = '10px';
-        document.getElementById('radar_stat').style.width = '280px';
+        //document.getElementById('radar_stat').style.fontSize = '10px';
+        //document.getElementById('radar_stat').style.width = '280px';
     }
     if (document.body.offsetWidth < 1000){
         alert("The browser width is too small.."); 
