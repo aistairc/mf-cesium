@@ -9,6 +9,7 @@ function Stinuum(viewer){
     this.mode = 'STATICMAP'; //'STATICMAP' : 2d, 'SPACETIME' : perspective view, and 'ANIMATEDMAP' : 3d globe
     this.maxHeight = 30000000;
     this.s_query_on = false;
+    this.bounding = undefined;
 
     this.geometryViewer = new Stinuum.GeometryViewer(this);
     this.mfCollection = new Stinuum.MFCollection(this);

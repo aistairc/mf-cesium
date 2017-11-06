@@ -9,6 +9,7 @@ function Stinuum(viewer){
     this.mode = 'STATICMAP'; //'STATICMAP' : 2d, 'SPACETIME' : perspective view, and 'ANIMATEDMAP' : 3d globe
     this.maxHeight = 30000000;
     this.s_query_on = false;
+    this.bounding = undefined;
 
     this.geometryViewer = new Stinuum.GeometryViewer(this);
     this.mfCollection = new Stinuum.MFCollection(this);
@@ -476,734 +477,6 @@ Stinuum.DirectionInfo.prototype.updateAvgVelocity = function(){
     total += this.velocity[i];
   }
   this.avg_velocity = total / this.velocity.length;
-}
-
-Stinuum.GeometryViewer.prototype.update = function(options){
-  this.clear();
-  this.super.mfCollection.findMinMaxGeometry();
-  this.draw();
-  this.animate(options);
-  //this.adjustCameraView();
-}
-
-Stinuum.GeometryViewer.prototype.clear = function(){
-  this.super.cesiumViewer.clock.multiplier = 10;
-  this.super.cesiumViewer.dataSources.removeAll();
-  var temp = this.super.cesiumViewer.scene.primitives.get(0);
-  this.super.cesiumViewer.entities.removeAll();
-  this.super.cesiumViewer.scene.primitives.removeAll();
-  this.super.cesiumViewer.scene.primitives.add(temp);
-
-  this.primitives = {};
-}
-
-Stinuum.GeometryViewer.prototype.draw = function(){
-  var mf_arr = this.super.mfCollection.features;
-
-  if (mf_arr.length == 0){
-    console.log("mf_arr is 0. something wrong");
-    return -1;
-  }
-
-  var minmax = this.super.mfCollection.min_max;
-
-  if (this.super.mode == 'SPACETIME'){
-    this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0,this.super.maxHeight] );
-    this.super.cesiumViewer.scene.primitives.add(this.drawZaxis());
-    var entities = this.drawZaxisLabel();
-    this.super.cesiumViewer.entities.add(entities.values[0]);
-  }
-  else if  (this.super.mode == 'ANIMATEDMAP'){
-    return -1;
-  }
-  else{
-    this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0,0] );
-
-  }
-  for (var index = 0 ; index < mf_arr.length ; index++){
-    var mf = mf_arr[index];
-    var path_prim, primitive;
-
-    if (mf.feature.temporalGeometry.type == "MovingPoint"){
-      if (this.super.mode != 'SPACETIME' && this.super.s_query_on) continue;
-      primitive = this.drawing.drawPathMovingPoint({
-        temporalGeometry : mf.feature.temporalGeometry,
-        id : mf.id
-      });
-    }
-    else if(mf.feature.temporalGeometry.type == "MovingPolygon"){
-      primitive =this.drawing.drawPathMovingPolygon({
-        temporalGeometry : mf.feature.temporalGeometry,
-        id : mf.id
-      });
-    }
-    else if(mf.feature.temporalGeometry.type == "MovingLineString"){
-      primitive = this.drawing.drawPathMovingLineString({
-        temporalGeometry : mf.feature.temporalGeometry,
-        id : mf.id
-      });
-    }
-    else{
-      console.log("this type cannot be drawn", feature);
-    }
-
-    if (primitive != -1)
-    {
-        path_prim = this.super.cesiumViewer.scene.primitives.add(primitive);
-        this.primitives[mf.id] = path_prim;
-    }
-  }
-  
-}
-
-Stinuum.GeometryViewer.prototype.animate = function(options){
-  var mf_arr;
-  var current_time;
-
-  var min_max = this.super.mfCollection.min_max;
-  if (options != undefined){
-    if (options.id == undefined){
-      mf_arr = this.super.mfCollection.features;
-    }
-    else{
-      mf_arr = [];
-      var id_arr = [];
-      if (!Array.isArray(options.id) ){
-        id_arr.push(options.id);
-      }
-      else{
-        id_arr = options.id;
-      }
-
-      for (var i = 0 ; i < id_arr.length ; i++){
-        mf_arr.push(this.super.mfCollection.getMFPairById(id_arr[i]));
-      }
-      min_max = this.super.mfCollection.findMinMaxGeometry(mf_arr);
-    }
-  }
-  else{
-    mf_arr = this.super.mfCollection.features;
-  }
-
-
-  if (mf_arr.length == 0){
-    return -1;
-  }
-
-
-
-  if (options != undefined){
-    if (options.change != undefined && options.change){ //dont change current animation time.
-      current_time = Cesium.JulianDate.toIso8601(this.super.cesiumViewer.clock.currentTime) ;
-    }
-    else{
-      current_time = min_max.date[0].toISOString();
-    }
-  }
-  else{
-    current_time = min_max.date[0].toISOString();
-  }
-
-
-  var multiplier = 10000;
-  var czml = [{
-    "id" : "document",
-    "name" : "animationOfMovingFeature",
-    "version" : "1.0"
-  }];
-
-  czml[0].clock = {
-    "interval" : min_max.date[0].toISOString() +"/" + min_max.date[1].toISOString(),
-    "currentTime" : current_time,
-    "multiplier" : multiplier
-  }
-
-  for (var index = 0 ; index < mf_arr.length ; index++){
-    var feature = mf_arr[index].feature;
-    if (feature.temporalGeometry.type == "MovingPoint"){
-      czml = czml.concat(this.moving.moveMovingPoint({
-        temporalGeometry : feature.temporalGeometry,
-        number : index
-      }));
-    }
-    else if(feature.temporalGeometry.type == "MovingPolygon"){
-      czml = czml.concat(this.moving.moveMovingPolygon({
-        temporalGeometry : feature.temporalGeometry,
-        number : index
-      }));
-    }
-    else if(feature.temporalGeometry.type == "MovingLineString"){
-      czml = czml.concat(this.moving.moveMovingLineString({
-        temporalGeometry : feature.temporalGeometry,
-        number : index
-      }));
-    }
-    else{
-      console.log("this type cannot be animated", feature);
-    }
-  }
-
-  var load_czml = Cesium.CzmlDataSource.load(czml);
-  var promise = this.super.cesiumViewer.dataSources.add(load_czml);
-  return min_max;
-}
-
-Stinuum.GeometryViewer.prototype.drawZaxis = function(){
-  var polylineCollection = new Cesium.PolylineCollection();
-  var positions = [179,89,0,179,89,this.super.maxHeight];
-
-  polylineCollection.add(Stinuum.drawOneLine(positions,Cesium.Color.WHITE , 5));
-  polylineCollection.add(Stinuum.drawOneLine([178,88,this.super.maxHeight*0.95,179,89,this.super.maxHeight,179.9,89.9,this.super.maxHeight*0.95],Cesium.Color.WHITE , 5));
-
-  for (var height = 10 ; height < 100 ; height += 20){
-    for (var long = -179 ; long < 179 ; long += 10){
-      polylineCollection.add(Stinuum.drawOneLine([long,88,this.super.maxHeight * height / 100,long+5,89,this.super.maxHeight/100 * height],Cesium.Color.WHITE, 1));
-    }
-    for (var lat = -89 ; lat < 89 ; lat += 10){
-      polylineCollection.add(Stinuum.drawOneLine([179,lat,this.super.maxHeight * height / 100,179,lat+5,this.super.maxHeight/100 * height],Cesium.Color.WHITE, 1));
-    }
-  }
-
-
-  return polylineCollection;
-}
-
-Stinuum.GeometryViewer.prototype.drawZaxisLabel = function(){
-  var min_max = this.super.mfCollection.min_max;
-  var entities = new Cesium.EntityCollection();
-  var label = {
-    position : Cesium.Cartesian3.fromDegrees(170, 88, this.super.maxHeight + 50000),
-    label : {
-      text : 'TIME',
-      font : '18pt sans-serif',
-      verticalOrigin : Cesium.VerticalOrigin.TOP,
-      pixelOffsetScaleByDistance : new Cesium.NearFarScalar(1.5e2, 1.5, 1.5e7, 0.1)
-    }
-  };
-  entities.add(label);
-
-  for (var height = 10 ; height < 100 ; height += 20){
-    var time_label = new Date(min_max.date[0].getTime() + (min_max.date[1].getTime() - min_max.date[0].getTime()) * height/100).toISOString().split('T')[0];
-    var label = {
-      position : Cesium.Cartesian3.fromDegrees(155, 88, this.super.maxHeight * height / 100),
-      label : {
-        text : time_label,
-        font : '12pt sans-serif',
-        verticalOrigin : Cesium.VerticalOrigin.TOP,
-        pixelOffsetScaleByDistance : new Cesium.NearFarScalar(1.5e2, 1.5, 1.5e7, 0.1)
-      }
-    };
-    entities.add(label);
-  }
-
-  return entities;
-
-}
-
-Stinuum.GeometryViewer.prototype.showProjection = function(id){
-
-  var mf = this.super.mfCollection.getMFPairById(id).feature;
-  var color = this.super.mfCollection.getColor(id);
-
-  var geometry = mf.temporalGeometry;
-  var instances = [];
-  var time_label = [];
-  //upper
-  var upper_pos = [];
-  var right_pos = [];
-
-  var heights = this.super.getListOfHeight(geometry.datetimes);
-
-  for (var index = 0 ; index < geometry.coordinates.length ; index++){
-    var xy;
-    if (geometry.type != 'MovingPoint'){
-      xy = Stinuum.getCenter(geometry.coordinates[index], geometry.type);
-    }
-    else{
-      xy = geometry.coordinates[index];
-    }
-    upper_pos = upper_pos.concat([xy[0], 89, heights[index]]);
-    right_pos = right_pos.concat([179, xy[1], heights[index]]);
-  }
-
-  instances.push(Stinuum.drawInstanceOneLine(upper_pos, color.withAlpha(1.0)));
-  instances.push(Stinuum.drawInstanceOneLine(right_pos, color.withAlpha(1.0)));
-
-  for (var index = 0 ; index < 2 ; index++){
-    var i = index * (geometry.coordinates.length-1);
-    var xy;
-    if (geometry.type != 'MovingPoint'){
-      xy = Stinuum.getCenter(geometry.coordinates[i], geometry.type);
-    }
-    else{
-      xy = geometry.coordinates[i];
-    }
-    var h = heights[i];
-    for (var j = xy[1] ; j < 87.4 ; j += 2.5){
-      instances.push(Stinuum.drawInstanceOneLine([xy[0], j, h, xy[0], j+1.25, h], Cesium.Color.WHITE.withAlpha(0.5)));
-    }
-    for (var j = xy[0] ; j < 177.4 ; j += 2.5){
-      instances.push(Stinuum.drawInstanceOneLine([j, xy[1], h, j+1.25, xy[1], h], Cesium.Color.WHITE.withAlpha(0.5)));
-    }
-
-  }
-  //right
-
-  var prim = new Cesium.Primitive({
-    geometryInstances: instances,
-    appearance: new Cesium.PolylineColorAppearance(),
-    allowPicking : false
-  });
-  return prim;
-}
-
-Stinuum.GeometryViewer.prototype.showHeightBar = function(id){
-  var mf = this.super.mfCollection.getMFPairById(id).feature;
-  var color = this.super.mfCollection.getColor(id);
-
-  var geometry = mf.temporalGeometry;
-  var instances = [];
-  var time_label = [];
-  //upper
-  var pole = [];
-  var upper_pos = [];
-  var right_pos = [];
-
-  var heights = this.super.getListOfHeight(geometry.datetimes);
-  pole = [179,89,heights[0],179,89,heights[geometry.datetimes.length-1]];
-  instances.push(Stinuum.drawInstanceOneLine(pole, Cesium.Color.RED.withAlpha(1.0), 10));
-
-  time_label.push({
-    position : Cesium.Cartesian3.fromDegrees(160, 78, heights[0]),
-    label : {
-      text : geometry.datetimes[0],
-      font : '12pt sans-serif',
-      verticalOrigin : Cesium.VerticalOrigin.TOP
-    }
-  });
-  time_label.push({
-    position : Cesium.Cartesian3.fromDegrees(178, 60, heights[geometry.datetimes.length-1]),
-    label : {
-      text : geometry.datetimes[geometry.datetimes.length-1],
-      font : '12pt sans-serif',
-      verticalOrigin : Cesium.VerticalOrigin.TOP
-    }
-  });
-
-
-  var prim = new Cesium.Primitive({
-    geometryInstances: instances,
-    appearance: new Cesium.PolylineColorAppearance(),
-    allowPicking : false
-  });
-
-  return [prim,time_label];
-}
-
-Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
-  //TODO
-  LOG("adjustCameraView");
-
-  var bounding = this.bounding_sphere;
-  var viewer = this.viewer;
-  var geomview = this;
-  if (bounding == undefined || bounding == -1){
-    return;
-  }
-  if (geomview.super.mode == "SPACETIME"){
-    geomview.super.cesiumViewer.camera.flyTo({
-      duration : 0.5,
-      destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
-      orientation : {
-        direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
-        up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
-      }});
-  }
-  else{
-    geomview.super.cesiumViewer.camera.flyToBoundingSphere(bounding, {
-      duration : 0.5
-    });
-  }
-
-  // setTimeout(function(){
-  //   if (geomview.super.mode == "SPACETIME"){
-  //   geomview.super.cesiumViewer.camera.flyTo({
-  //     duration : 0.5,
-  //     destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
-  //     orientation : {
-  //       direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
-  //       up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
-  //     }});
-  //   }
-  //   else{
-  //     geomview.super.cesiumViewer.camera.flyToBoundingSphere(bounding, {
-  //       duration : 0.5
-  //     });
-  //   }
-  // }, 300);
-
-}
-
-
-
-Stinuum.GeometryViewer.prototype.clickMovingFeature = function(id){
-  var geo_viewer = this;
-
-  if (id == undefined){
-     return;
-  }
-
-  if (geo_viewer.projection != null){
-    if (!geo_viewer.projection.isDestroyed()){
-      geo_viewer.super.cesiumViewer.scene.primitives.remove(this.projection);
-    }
-    geo_viewer.projection = null;
-  }
-  if (geo_viewer.time_label.length != 0){
-    for (var i = 0 ; i < geo_viewer.time_label.length ; i++){
-      if (geo_viewer.time_label[i] != null && geo_viewer.time_label[i] != undefined)
-        geo_viewer.super.cesiumViewer.entities.remove(geo_viewer.time_label[i]);
-    }
-  }
-  if (geo_viewer.label_timeout != undefined){
-      window.clearTimeout(geo_viewer.label_timeout);
-  }
-
-  geo_viewer.time_label = [];
-
-  if (geo_viewer.super.mode == 'SPACETIME'){
-    var ret = this.showHeightBar(id);
-    geo_viewer.projection = geo_viewer.super.cesiumViewer.scene.primitives.add(ret[0]);
-
-    var time_label = ret[1];
-    for (var i  = 0 ; i < time_label.length ; i++){
-      geo_viewer.time_label.push(geo_viewer.super.cesiumViewer.entities.add(time_label[i]));
-    }
-  }
-
-  //TODO click highlight => blinking
-
-  geo_viewer.label_timeout = setTimeout(function(){
-    if (geo_viewer.projection != null){
-      if (!geo_viewer.projection.isDestroyed()){
-        geo_viewer.super.cesiumViewer.scene.primitives.remove(geo_viewer.projection);
-      }
-      geo_viewer.projection = null;
-    }
-    if (geo_viewer.time_label.length != 0){
-      for (var i = 0 ; i < geo_viewer.time_label.length ; i++){
-        if (geo_viewer.time_label[i] != null && geo_viewer.time_label[i] != undefined)
-        geo_viewer.super.cesiumViewer.entities.remove(geo_viewer.time_label[i]);
-      }
-    }
-
-},10000);
-
-
-  return 1;
-
-}
-
-Stinuum.GeometryViewer.prototype.drawBoundingBox = function(bounding_box, layer_id){
-  // if (bounding_box.bbox[1] < -90 || bounding_box.bbox[3] > 90 || bounding_box.bbox[0] < -180 || bounding_box.bbox[1] > 180){
-  //   return;
-  // }
-  var coords = Cesium.Rectangle.fromDegrees(bounding_box.bbox[0],bounding_box.bbox[1], bounding_box.bbox[2], bounding_box.bbox[3]);
-  var box_entity = this.super.cesiumViewer.entities.add({
-    id : layer_id,
-    rectangle :{
-      coordinates : coords,
-      height :0,
-      material : Cesium.Color.YELLOW.withAlpha(0.1),
-      outline:true,
-      outlineColor: Cesium.Color.RED,
-      outlineWidth : 5.0
-    }
-  });
-  if (this.super.mode == 'STATIC_MAP') this.super.cesiumViewer.zoomTo(box_entity, new Cesium.HeadingPitchRange(0,0,20000000));
-  else this.super.cesiumViewer.zoomTo(box_entity);
-}
-
-Stinuum.GeometryViewer.prototype.removeBoundingBox = function(layer_id){
-  var ret = this.super.cesiumViewer.entities.removeById(layer_id);
-}
-
-Stinuum.MFCollection.prototype.add= function(mf, id){
-  if (Array.isArray(mf)){
-    for (var i = 0 ; i < mf.length ; i++){
-      this.add(mf[i]);
-    }
-  }
-  else{
-    if (mf.type != 'MovingFeature'){
-      console.log("it is not MovingFeature!!@!@!");
-      return -1;
-    }
-    if (this.inFeaturesIndexOf(mf) != -1 || this.inWholeIndexOf(mf) != -1){
-      console.log("this mf already exist.");
-      return -2;
-    }
-    if (id != undefined && (this.inFeaturesIndexOfById(id) != -1 || this.inWholeIndexOfById(id) != -1 ) ){
-      console.log("this id already exist.");
-      return -2;
-    }
-
-    if (id == undefined && mf.properties.name == undefined){
-      alert("feature has no name!");
-      return -1;
-    }
-    if (id != undefined){
-      this.features.push(new Stinuum.MFPair(id, mf));
-      this.wholeFeatures.push(new Stinuum.MFPair(id, mf));
-    }
-    else{
-      this.features.push(new Stinuum.MFPair(mf.properties.name, mf));
-      this.wholeFeatures.push(new Stinuum.MFPair(mf.properties.name, mf));
-    }
-  }
-}
-
-
-Stinuum.MFCollection.prototype.remove= function(mf){
-  var index = this.inFeaturesIndexOfById(mf.properties.name);
-  if (index != -1) this.removeByIndexInFeatures(index);
-  index = this.inWholeIndexOfById(mf.properties.name);
-
-  var ret;
-  if (index != -1) ret = this.removeByIndexInWhole(index);
-
-  if (this.inFeaturesIndexOfById(mf.properties.name) != -1 || this.inWholeIndexOfById(mf.properties.name) != -1){
-    throw new Stinuum.Excetion("after removing but exist", [this, mf]);
-  }
-  if (ret != undefined) return ret;
-  console.log("this mf is not exist in array", mf);
-  return 0;
-}
-
-Stinuum.MFCollection.prototype.removeById= function(id){
-  var index = this.inFeaturesIndexOfById(id);
-  if (index != -1) this.removeByIndexInFeatures(index);
-  index = this.inWholeIndexOfById(id);
-  if (index != -1) return this.removeByIndexInWhole(index);
-  console.log("this mf is not exist in array", mf);
-  return 0;
-}
-
-Stinuum.MFCollection.prototype.removeByIndexInFeatures= function(index){
-  var remove_pair = this.features.splice(index, 1)[0];
-  return remove_pair;
-}
-
-Stinuum.MFCollection.prototype.removeByIndexInWhole= function(index){
-  var remove_pair = this.wholeFeatures.splice(index, 1)[0];
-  return remove_pair;
-}
-
-
-Stinuum.MFCollection.prototype.inFeaturesIndexOfById= function(id){
-  for (var i = 0 ; i < this.features.length ; i++){
-    if (this.features[i].id == id){
-      return i;
-    }
-  }
-  return -1;
-}
-
-Stinuum.MFCollection.prototype.inWholeIndexOfById= function(id){
-  for (var i = 0 ; i < this.wholeFeatures.length ; i++){
-    if (this.wholeFeatures[i].id == id){
-      return i;
-    }
-  }
-  return -1;
-}
-
-Stinuum.MFCollection.prototype.inFeaturesIndexOf= function(mf){
-  for (var i = 0 ; i < this.features.length ; i++){
-    if (this.features[i].feature == mf){
-      return i;
-    }
-  }
-  return -1;
-}
-
-Stinuum.MFCollection.prototype.inWholeIndexOf= function(mf){
-  for (var i = 0 ; i < this.wholeFeatures.length ; i++){
-    if (this.wholeFeatures[i].feature == mf){
-      return i;
-    }
-  }
-  return -1;
-}
-
-//move whole features to features
-Stinuum.MFCollection.prototype.refresh = function(){ 
-  this.super.s_query_on = false;
-  this.features = [];
-  for (var i = 0 ; i < this.wholeFeatures.length ; i++){
-    this.features.push(this.wholeFeatures[i]);  
-  }
-}
-
-Stinuum.MFCollection.prototype.findMinMaxGeometry = function(p_mf_arr){
-  var mf_arr;
-  if (p_mf_arr == undefined){
-    mf_arr = this.features;
-  }
-  else{
-    mf_arr = p_mf_arr;
-  }
-
-  if (mf_arr.length == 0){
-    return -1;
-  }
-
-  var min_max = {};
-  min_max.x = [];
-  min_max.y = [];
-  min_max.z = [];
-
-  min_max.date = [];
-
-  var first_date = new Date(mf_arr[0].feature.temporalGeometry.datetimes[0]);
-  min_max.date = [first_date,first_date];
-
-  for (var i = 0 ; i < mf_arr.length ; i++){
-    var mf_min_max_coord = {};
-    if (mf_arr[i].feature.temporalGeometry.type == "MovingPoint"){
-      mf_min_max_coord = Stinuum.findMinMaxCoord(mf_arr[i].feature.temporalGeometry.coordinates);
-    }
-    else{
-      var coord_arr = mf_arr[i].feature.temporalGeometry.coordinates;
-      mf_min_max_coord = Stinuum.findMinMaxCoord(coord_arr[0][0]);
-      for (var j = 1 ; j < coord_arr.length ; j++){
-        mf_min_max_coord = Stinuum.findBiggerCoord(mf_min_max_coord, Stinuum.findMinMaxCoord(coord_arr[j][0]) );
-      }
-    }
-
-    if (min_max.x.length == 0){
-      min_max.x = mf_min_max_coord.x;
-      min_max.y = mf_min_max_coord.y;
-      min_max.z = mf_min_max_coord.z;
-    }
-    else{
-      var xyz = Stinuum.findBiggerCoord(min_max, mf_min_max_coord);
-      min_max.x = xyz.x;
-      min_max.y = xyz.y;
-      min_max.z = xyz.z;
-    }
-
-    var temp_max_min = Stinuum.findMinMaxTime(mf_arr[i].feature.temporalGeometry.datetimes);
-
-    if (temp_max_min[0].getTime() < min_max.date[0].getTime()){
-      min_max.date[0] = temp_max_min[0];
-    }
-    if (temp_max_min[1].getTime() > min_max.date[1].getTime()){
-      min_max.date[1] = temp_max_min[1];
-    }
-  }
-
-  if (p_mf_arr == undefined){
-    this.min_max = min_max;
-  }
-
-  this.super.maxHeight = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(min_max.x[0],min_max.y[0]),Cesium.Cartesian3.fromDegrees(min_max.x[1],min_max.y[1])) * 4;
-  return min_max;
-}
-
-Stinuum.MFCollection.prototype.getWholeMinMax = function() {
-  this.whole_min_max = this.findMinMaxGeometry(this.wholeFeatures);
-  return this.whole_min_max;
-}
-
-Stinuum.MFCollection.prototype.getColor = function(id){
-  if (this.colorCollection[id] != undefined){
-    return this.colorCollection[id];
-  }
-  var color = Cesium.Color.fromRandom({
-    minimumRed : 0.2,
-    minimumBlue : 0.2,
-    minimumGreen : 0.2,
-    alpha : 1.0
-  });
-  this.colorCollection[id] = color;
-  return color;
-}
-
-Stinuum.MFCollection.prototype.setColor = function(id, color){
-  this.colorCollection[id] = color;
-}
-
-Stinuum.MFCollection.prototype.getAllPropertyType = function(){
-  var array = [];
-  for (var i = 0 ; i < this.features.length ; i++){
-    if (this.features[i].feature.temporalProperties == undefined) continue;
-
-    if (Array.isArray(this.features[i].feature.temporalProperties)){
-      for (var j = 0 ; j < this.features[i].feature.temporalProperties.length ; j++){
-        Stinuum.pushPropertyNamesToArrayExceptTime(array, this.features[i].feature.temporalProperties[j]);
-      }
-    }
-    else{
-      //Stinuum.pushPropertyNamesToArrayExceptTime(array, this.features[i].feature.temporalProperties);
-      LOG(this.features[i].feature.temporalProperties);
-      throw new Error("temporalProperties should be array");
-    }
-    
-  }
-  return array;
-}
-
-
-Stinuum.MFCollection.prototype.getMFPairById = function(id){
-  var inWhole = this.getMFPairByIdinWhole(id);
-  if (inWhole != -1){
-    return inWhole;
-  }
-  return -1;
-}
-
-Stinuum.MFCollection.prototype.getMFPairByIdInFeatures = function(id){
-  var index = this.inFeaturesIndexOfById(id);
-  if (index != -1) return this.features[index];
-
-  return -1;
-}
-
-Stinuum.MFCollection.prototype.getMFPairByIdinWhole = function(id){
-  var index = this.inWholeIndexOfById(id);
-  if (index != -1) return this.wholeFeatures[index];
-  
-  return -1;
-}
-
-Stinuum.MFCollection.prototype.getLength = function(){
-  return this.features.length;
-}
-
-Stinuum.MFCollection.prototype.reset = function(){
-  this.features = [];
-  this.wholeFeatures = [];
-  this.colorCollection = [];
-
-}
-
-Stinuum.MFCollection.prototype.hide = function(mf_id){
-  if (this.inFeaturesIndexOfById(mf_id) != -1){
-    var index = this.inFeaturesIndexOfById(mf_id);
-    var hidden_pair = this.features.splice(index, 1)[0];
-  }
-}
-
-Stinuum.MFCollection.prototype.hideAll = function(mf_id){ //hide All except one mf
-  this.features = [];
-  if (mf_id != undefined){
-    var index = this.inWholeIndexOfById(mf_id);
-    var pair = this.wholeFeatures[index];
-    this.features.push(pair);
-  }
-  
-
 }
 
 Stinuum.MovementDrawing.prototype.moveMovingPoint = function(options){
@@ -1680,6 +953,465 @@ Stinuum.findMapping = function(line_1, line_2){
   return array;
 }
 
+Stinuum.GeometryViewer.prototype.update = function(options){
+  this.clear();
+  this.super.mfCollection.findMinMaxGeometry();
+  this.draw();
+  this.animate(options);
+  //this.adjustCameraView();
+}
+
+Stinuum.GeometryViewer.prototype.clear = function(){
+  this.super.cesiumViewer.clock.multiplier = 10;
+  this.super.cesiumViewer.dataSources.removeAll();
+  var temp = this.super.cesiumViewer.scene.primitives.get(0);
+  this.super.cesiumViewer.entities.removeAll();
+  this.super.cesiumViewer.scene.primitives.removeAll();
+  this.super.cesiumViewer.scene.primitives.add(temp);
+
+  this.primitives = {};
+}
+
+Stinuum.GeometryViewer.prototype.draw = function(){
+  var mf_arr = this.super.mfCollection.features;
+
+  if (mf_arr.length == 0){
+    console.log("mf_arr is 0. something wrong");
+    return -1;
+  }
+
+  var minmax = this.super.mfCollection.min_max;
+
+  if (this.super.mode == 'SPACETIME'){
+    this.super.setBounding(minmax, [0,this.super.maxHeight] );
+    this.super.cesiumViewer.scene.primitives.add(this.drawZaxis());
+    var entities = this.drawZaxisLabel();
+    this.super.cesiumViewer.entities.add(entities.values[0]);
+  }
+  else if  (this.super.mode == 'ANIMATEDMAP'){
+    return -1;
+  }
+  else{
+    this.super.setBounding(minmax, [0,0] );
+
+  }
+  for (var index = 0 ; index < mf_arr.length ; index++){
+    var mf = mf_arr[index];
+    var path_prim, primitive;
+
+    if (mf.feature.temporalGeometry.type == "MovingPoint"){
+      if (this.super.mode != 'SPACETIME' && this.super.s_query_on) continue;
+      primitive = this.drawing.drawPathMovingPoint({
+        temporalGeometry : mf.feature.temporalGeometry,
+        id : mf.id
+      });
+    }
+    else if(mf.feature.temporalGeometry.type == "MovingPolygon"){
+      primitive =this.drawing.drawPathMovingPolygon({
+        temporalGeometry : mf.feature.temporalGeometry,
+        id : mf.id
+      });
+    }
+    else if(mf.feature.temporalGeometry.type == "MovingLineString"){
+      primitive = this.drawing.drawPathMovingLineString({
+        temporalGeometry : mf.feature.temporalGeometry,
+        id : mf.id
+      });
+    }
+    else{
+      console.log("this type cannot be drawn", feature);
+    }
+
+    if (primitive != -1)
+    {
+        path_prim = this.super.cesiumViewer.scene.primitives.add(primitive);
+        this.primitives[mf.id] = path_prim;
+    }
+  }
+  
+}
+
+Stinuum.GeometryViewer.prototype.animate = function(options){
+  var mf_arr;
+  var current_time;
+
+  var min_max = this.super.mfCollection.min_max;
+  if (options != undefined){
+    if (options.id == undefined){
+      mf_arr = this.super.mfCollection.features;
+    }
+    else{
+      mf_arr = [];
+      var id_arr = [];
+      if (!Array.isArray(options.id) ){
+        id_arr.push(options.id);
+      }
+      else{
+        id_arr = options.id;
+      }
+
+      for (var i = 0 ; i < id_arr.length ; i++){
+        mf_arr.push(this.super.mfCollection.getMFPairById(id_arr[i]));
+      }
+      min_max = this.super.mfCollection.findMinMaxGeometry(mf_arr);
+    }
+  }
+  else{
+    mf_arr = this.super.mfCollection.features;
+  }
+
+
+  if (mf_arr.length == 0){
+    return -1;
+  }
+
+
+
+  if (options != undefined){
+    if (options.change != undefined && options.change){ //dont change current animation time.
+      current_time = Cesium.JulianDate.toIso8601(this.super.cesiumViewer.clock.currentTime) ;
+    }
+    else{
+      current_time = min_max.date[0].toISOString();
+    }
+  }
+  else{
+    current_time = min_max.date[0].toISOString();
+  }
+
+
+  var multiplier = 10000;
+  var czml = [{
+    "id" : "document",
+    "name" : "animationOfMovingFeature",
+    "version" : "1.0"
+  }];
+
+  czml[0].clock = {
+    "interval" : min_max.date[0].toISOString() +"/" + min_max.date[1].toISOString(),
+    "currentTime" : current_time,
+    "multiplier" : multiplier
+  }
+
+  for (var index = 0 ; index < mf_arr.length ; index++){
+    var feature = mf_arr[index].feature;
+    if (feature.temporalGeometry.type == "MovingPoint"){
+      czml = czml.concat(this.moving.moveMovingPoint({
+        temporalGeometry : feature.temporalGeometry,
+        number : index
+      }));
+    }
+    else if(feature.temporalGeometry.type == "MovingPolygon"){
+      czml = czml.concat(this.moving.moveMovingPolygon({
+        temporalGeometry : feature.temporalGeometry,
+        number : index
+      }));
+    }
+    else if(feature.temporalGeometry.type == "MovingLineString"){
+      czml = czml.concat(this.moving.moveMovingLineString({
+        temporalGeometry : feature.temporalGeometry,
+        number : index
+      }));
+    }
+    else{
+      console.log("this type cannot be animated", feature);
+    }
+  }
+
+  var load_czml = Cesium.CzmlDataSource.load(czml);
+  var promise = this.super.cesiumViewer.dataSources.add(load_czml);
+  return min_max;
+}
+
+Stinuum.GeometryViewer.prototype.drawZaxis = function(){
+  var polylineCollection = new Cesium.PolylineCollection();
+  var positions = [179,89,0,179,89,this.super.maxHeight];
+
+  polylineCollection.add(Stinuum.drawOneLine(positions,Cesium.Color.WHITE , 5));
+  polylineCollection.add(Stinuum.drawOneLine([178,88,this.super.maxHeight*0.95,179,89,this.super.maxHeight,179.9,89.9,this.super.maxHeight*0.95],Cesium.Color.WHITE , 5));
+
+  for (var height = 10 ; height < 100 ; height += 20){
+    for (var long = -179 ; long < 179 ; long += 10){
+      polylineCollection.add(Stinuum.drawOneLine([long,88,this.super.maxHeight * height / 100,long+5,89,this.super.maxHeight/100 * height],Cesium.Color.WHITE, 1));
+    }
+    for (var lat = -89 ; lat < 89 ; lat += 10){
+      polylineCollection.add(Stinuum.drawOneLine([179,lat,this.super.maxHeight * height / 100,179,lat+5,this.super.maxHeight/100 * height],Cesium.Color.WHITE, 1));
+    }
+  }
+
+
+  return polylineCollection;
+}
+
+Stinuum.GeometryViewer.prototype.drawZaxisLabel = function(){
+  var min_max = this.super.mfCollection.min_max;
+  var entities = new Cesium.EntityCollection();
+  var label = {
+    position : Cesium.Cartesian3.fromDegrees(170, 88, this.super.maxHeight + 50000),
+    label : {
+      text : 'TIME',
+      font : '18pt sans-serif',
+      verticalOrigin : Cesium.VerticalOrigin.TOP,
+      pixelOffsetScaleByDistance : new Cesium.NearFarScalar(1.5e2, 1.5, 1.5e7, 0.1)
+    }
+  };
+  entities.add(label);
+
+  for (var height = 10 ; height < 100 ; height += 20){
+    var time_label = new Date(min_max.date[0].getTime() + (min_max.date[1].getTime() - min_max.date[0].getTime()) * height/100).toISOString().split('T')[0];
+    var label = {
+      position : Cesium.Cartesian3.fromDegrees(155, 88, this.super.maxHeight * height / 100),
+      label : {
+        text : time_label,
+        font : '12pt sans-serif',
+        verticalOrigin : Cesium.VerticalOrigin.TOP,
+        pixelOffsetScaleByDistance : new Cesium.NearFarScalar(1.5e2, 1.5, 1.5e7, 0.1)
+      }
+    };
+    entities.add(label);
+  }
+
+  return entities;
+
+}
+
+Stinuum.GeometryViewer.prototype.showProjection = function(id){
+
+  var mf = this.super.mfCollection.getMFPairById(id).feature;
+  var color = this.super.mfCollection.getColor(id);
+
+  var geometry = mf.temporalGeometry;
+  var instances = [];
+  var time_label = [];
+  //upper
+  var upper_pos = [];
+  var right_pos = [];
+
+  var heights = this.super.getListOfHeight(geometry.datetimes);
+
+  for (var index = 0 ; index < geometry.coordinates.length ; index++){
+    var xy;
+    if (geometry.type != 'MovingPoint'){
+      xy = Stinuum.getCenter(geometry.coordinates[index], geometry.type);
+    }
+    else{
+      xy = geometry.coordinates[index];
+    }
+    upper_pos = upper_pos.concat([xy[0], 89, heights[index]]);
+    right_pos = right_pos.concat([179, xy[1], heights[index]]);
+  }
+
+  instances.push(Stinuum.drawInstanceOneLine(upper_pos, color.withAlpha(1.0)));
+  instances.push(Stinuum.drawInstanceOneLine(right_pos, color.withAlpha(1.0)));
+
+  for (var index = 0 ; index < 2 ; index++){
+    var i = index * (geometry.coordinates.length-1);
+    var xy;
+    if (geometry.type != 'MovingPoint'){
+      xy = Stinuum.getCenter(geometry.coordinates[i], geometry.type);
+    }
+    else{
+      xy = geometry.coordinates[i];
+    }
+    var h = heights[i];
+    for (var j = xy[1] ; j < 87.4 ; j += 2.5){
+      instances.push(Stinuum.drawInstanceOneLine([xy[0], j, h, xy[0], j+1.25, h], Cesium.Color.WHITE.withAlpha(0.5)));
+    }
+    for (var j = xy[0] ; j < 177.4 ; j += 2.5){
+      instances.push(Stinuum.drawInstanceOneLine([j, xy[1], h, j+1.25, xy[1], h], Cesium.Color.WHITE.withAlpha(0.5)));
+    }
+
+  }
+  //right
+
+  var prim = new Cesium.Primitive({
+    geometryInstances: instances,
+    appearance: new Cesium.PolylineColorAppearance(),
+    allowPicking : false
+  });
+  return prim;
+}
+
+Stinuum.GeometryViewer.prototype.showHeightBar = function(id){
+  var mf = this.super.mfCollection.getMFPairById(id).feature;
+  var color = this.super.mfCollection.getColor(id);
+
+  var geometry = mf.temporalGeometry;
+  var instances = [];
+  var time_label = [];
+  //upper
+  var pole = [];
+  var upper_pos = [];
+  var right_pos = [];
+
+  var heights = this.super.getListOfHeight(geometry.datetimes);
+  pole = [179,89,heights[0],179,89,heights[geometry.datetimes.length-1]];
+  instances.push(Stinuum.drawInstanceOneLine(pole, Cesium.Color.RED.withAlpha(1.0), 10));
+
+  time_label.push({
+    position : Cesium.Cartesian3.fromDegrees(160, 78, heights[0]),
+    label : {
+      text : geometry.datetimes[0],
+      font : '12pt sans-serif',
+      verticalOrigin : Cesium.VerticalOrigin.TOP
+    }
+  });
+  time_label.push({
+    position : Cesium.Cartesian3.fromDegrees(178, 60, heights[geometry.datetimes.length-1]),
+    label : {
+      text : geometry.datetimes[geometry.datetimes.length-1],
+      font : '12pt sans-serif',
+      verticalOrigin : Cesium.VerticalOrigin.TOP
+    }
+  });
+
+
+  var prim = new Cesium.Primitive({
+    geometryInstances: instances,
+    appearance: new Cesium.PolylineColorAppearance(),
+    allowPicking : false
+  });
+
+  return [prim,time_label];
+}
+
+Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
+  LOG("adjustCameraView");
+
+  var bounding = this.super.bounding;
+  var geomview = this;
+
+  if (geomview.super.mode == "SPACETIME"){
+    if (bounding == undefined || bounding == -1){
+      LOG("bounding is undefined");
+      return;
+    }
+    LOG(bounding);
+    var heading = Cesium.Math.toRadians(45.0);
+    var pitch = Cesium.Math.toRadians(-15.0);
+    var range = bounding.z * 2;
+    geomview.super.cesiumViewer.camera.lookAt(bounding,
+      new Cesium.HeadingPitchRange(heading, pitch, range) );
+    
+    // {
+    //   duration : 0.5,
+    //   destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
+    //   orientation : {
+    //     direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
+    //     up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
+    //   }}
+     
+  }
+  else{
+    geomview.super.cesiumViewer.camera.flyTo({
+      destination : Cesium.Rectangle.fromDegrees(this.super.mfCollection.min_max.x[0],this.super.mfCollection.min_max.y[0],
+                  this.super.mfCollection.min_max.x[1],this.super.mfCollection.min_max.y[1]),
+      duration : 0.5
+    });
+  }
+
+  // setTimeout(function(){
+  //   if (geomview.super.mode == "SPACETIME"){
+  //   geomview.super.cesiumViewer.camera.flyTo({
+  //     duration : 0.5,
+  //     destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
+  //     orientation : {
+  //       direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
+  //       up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
+  //     }});
+  //   }
+  //   else{
+  //     geomview.super.cesiumViewer.camera.flyToBoundingSphere(bounding, {
+  //       duration : 0.5
+  //     });
+  //   }
+  // }, 300);
+
+}
+
+
+
+Stinuum.GeometryViewer.prototype.clickMovingFeature = function(id){
+  var geo_viewer = this;
+
+  if (id == undefined){
+     return;
+  }
+
+  if (geo_viewer.projection != null){
+    if (!geo_viewer.projection.isDestroyed()){
+      geo_viewer.super.cesiumViewer.scene.primitives.remove(this.projection);
+    }
+    geo_viewer.projection = null;
+  }
+  if (geo_viewer.time_label.length != 0){
+    for (var i = 0 ; i < geo_viewer.time_label.length ; i++){
+      if (geo_viewer.time_label[i] != null && geo_viewer.time_label[i] != undefined)
+        geo_viewer.super.cesiumViewer.entities.remove(geo_viewer.time_label[i]);
+    }
+  }
+  if (geo_viewer.label_timeout != undefined){
+      window.clearTimeout(geo_viewer.label_timeout);
+  }
+
+  geo_viewer.time_label = [];
+
+  if (geo_viewer.super.mode == 'SPACETIME'){
+    var ret = this.showHeightBar(id);
+    geo_viewer.projection = geo_viewer.super.cesiumViewer.scene.primitives.add(ret[0]);
+
+    var time_label = ret[1];
+    for (var i  = 0 ; i < time_label.length ; i++){
+      geo_viewer.time_label.push(geo_viewer.super.cesiumViewer.entities.add(time_label[i]));
+    }
+  }
+
+  //TODO click highlight => blinking
+
+  geo_viewer.label_timeout = setTimeout(function(){
+    if (geo_viewer.projection != null){
+      if (!geo_viewer.projection.isDestroyed()){
+        geo_viewer.super.cesiumViewer.scene.primitives.remove(geo_viewer.projection);
+      }
+      geo_viewer.projection = null;
+    }
+    if (geo_viewer.time_label.length != 0){
+      for (var i = 0 ; i < geo_viewer.time_label.length ; i++){
+        if (geo_viewer.time_label[i] != null && geo_viewer.time_label[i] != undefined)
+        geo_viewer.super.cesiumViewer.entities.remove(geo_viewer.time_label[i]);
+      }
+    }
+
+},10000);
+
+
+  return 1;
+
+}
+
+Stinuum.GeometryViewer.prototype.drawBoundingBox = function(bounding_box, layer_id){
+  // if (bounding_box.bbox[1] < -90 || bounding_box.bbox[3] > 90 || bounding_box.bbox[0] < -180 || bounding_box.bbox[1] > 180){
+  //   return;
+  // }
+  var coords = Cesium.Rectangle.fromDegrees(bounding_box.bbox[0],bounding_box.bbox[1], bounding_box.bbox[2], bounding_box.bbox[3]);
+  var box_entity = this.super.cesiumViewer.entities.add({
+    id : layer_id,
+    rectangle :{
+      coordinates : coords,
+      height :0,
+      material : Cesium.Color.YELLOW.withAlpha(0.1),
+      outline:true,
+      outlineColor: Cesium.Color.RED,
+      outlineWidth : 5.0
+    }
+  });
+  if (this.super.mode == 'STATIC_MAP') this.super.cesiumViewer.zoomTo(box_entity, new Cesium.HeadingPitchRange(0,0,20000000));
+  else this.super.cesiumViewer.zoomTo(box_entity);
+}
+
+Stinuum.GeometryViewer.prototype.removeBoundingBox = function(layer_id){
+  var ret = this.super.cesiumViewer.entities.removeById(layer_id);
+}
 Stinuum.OccurrenceMap.prototype.show = function(degree){
   var min_max = this.super.mfCollection.min_max;
   if (degree == undefined){
@@ -2352,6 +2084,91 @@ var SampledProperty = function(){
     }
     return undefined;
   };
+}
+/**
+* change mode of stinuum. It is one-to-one correspondence with cesium mode.
+* @param {string} [mode]
+* ` ``js
+* stinuum.changmeMode("SPACETIME");
+* ` ``
+*/
+
+Stinuum.prototype.changeMode = function(mode){
+    if (mode == undefined){
+      if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP'){
+        this.mode = 'SPACETIME';
+      }
+      else{
+        this.mode = 'STATICMAP';
+      }
+    }
+    else{
+      this.mode = mode;
+    }
+    
+    this.geometryViewer.update({
+        change : true
+    });
+
+}
+
+Stinuum.prototype.getListOfHeight = function(datetimes, min_max_date){
+  if (min_max_date == undefined){
+    min_max_date = this.mfCollection.min_max.date;
+  }
+  var heights = [];
+  for(var i = 0 ; i < datetimes.length ; i++){
+    heights.push(Stinuum.normalizeTime(new Date(datetimes[i]), min_max_date, this.maxHeight));
+  }
+  return heights;
+}
+
+
+Stinuum.getCenter = function(coordinates, type){
+  var x=0,y=0;
+  var length = coordinates.length;
+  if (type == 'MovingPolygon'){
+    length -= 1;
+  }
+  for (var i = 0 ; i < length ; i++){
+    x += coordinates[i][0];
+    y += coordinates[i][1];
+
+  }
+  x /= length;
+  y /= length;
+
+  return [x,y];
+}
+
+
+Stinuum.prototype.setBounding = function(min_max, height){
+  LOG("setBounding")
+  //if (this.bounding != undefined) this.cesiumViewer.entities.remove(this.bounding);
+  var bs;
+  if (height[0] == 0 && height[1] == 0){
+    bs = undefined;
+  }
+  else{
+    // var width = Stinuum.calculateCarteDist([min_max.x[0], min_max.y[0]],[min_max.x[1], min_max.y[0]]);
+    // var length = Stinuum.calculateCarteDist([min_max.x[0], min_max.y[0]],[min_max.x[0], min_max.y[1]]);;
+    // var pos1 = Cesium.Cartesian3.fromDegrees((min_max.x[0] + min_max.x[1]) / 2, (min_max.y[1] + min_max.y[0])/2, height[1] / 2);
+    // var pos2 = Cesium.Cartesian3.fromDegrees(min_max.x[1], min_max.y[1], height[1]);
+    // bs = new Cesium.Entity({
+    //   position : pos1,
+    //   box : {
+    //     dimensions : new Cesium.Cartesian3(width, length, height[1]),
+    //     material :Cesium.Color.RED.withAlpha(0.8)
+    //   }
+    // });
+
+    LOG(height[1] / 2); 
+    var center = Cesium.Cartesian3.fromDegrees((min_max.x[0] + min_max.x[1]) / 2, (min_max.y[1] + min_max.y[0])/2, height[1] / 2);
+    bs = center;//new Cesium.BoundingSphere(center, height[1] / 2);
+
+  }
+  this.bounding = bs;
+  LOG(this.bounding);
 }
 
 Stinuum.PathDrawing.prototype.drawMovingPoint = function(options){
@@ -3048,6 +2865,358 @@ Stinuum.calcSidesBoxCoord = function(box_coord){
 
 */
 
+Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
+  var pro_name = propertyName;
+
+  var mf = this.super.mfCollection.getMFPairById(mf_id);
+  if (mf == -1){
+    console.log("please add mf first.");
+    return;
+  }
+
+  //Only this feature is viewed in graph.
+  this.super.mfCollection.hideAll(mf_id);
+
+  var property = Stinuum.getPropertyByName(mf.feature, pro_name, mf_id)[0];
+  if (property == -1){
+    console.log("that property is not in this moving feature");
+    return;
+  }
+
+  if (this.super.geometryViewer.primitives[mf_id] != undefined){
+    this.super.cesiumViewer.scene.primitives.remove(this.super.geometryViewer.primitives[mf_id]);
+    this.super.geometryViewer.primitives[mf_id] = undefined;
+  }
+
+  this.super.mfCollection.findMinMaxGeometry();
+  var type = mf.feature.temporalGeometry.type;
+  this.super.geometryViewer.clear();
+
+  if (this.super.mode == 'SPACETIME'){
+    this.super.setBounding(this.min_max, [0, this.max_height]  );
+    this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawZaxis());
+    var entities = this.super.geometryViewer.drawZaxisLabel();
+    for (var i = 0 ; i < entities.values.length ; i ++ ){
+      this.super.cesiumViewer.entities.add(entities.values[i]);
+    }
+  }
+  else{
+    this.super.setBounding(this.min_max, [0,0] );
+  }
+
+  var highlight_prim;
+  if (type == 'MovingPolygon'){
+    highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingPolygon({
+      temporalGeometry : mf.feature.temporalGeometry,
+      temporalProperty : property,
+      id : mf_id
+    }));
+  }
+  else if (type == 'MovingPoint'){
+    highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingPoint({
+      temporalGeometry : mf.feature.temporalGeometry,
+      temporalProperty : property,
+      id : mf_id
+    }));
+  }
+  else if (type == 'MovingLineString'){
+    highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingLineString({
+      temporalGeometry : mf.feature.temporalGeometry,
+      temporalProperty : property,
+      id : mf_id
+    }));
+  }
+  else{
+    LOG('this type is not implemented.');
+  }
+
+  this.super.geometryViewer.primitives[mf_id] = highlight_prim;
+  this.super.geometryViewer.animate({
+    id : mf_id
+  });
+
+  return 0;
+}
+
+
+Stinuum.MFCollection.prototype.add= function(mf, id){
+  if (Array.isArray(mf)){
+    for (var i = 0 ; i < mf.length ; i++){
+      this.add(mf[i]);
+    }
+  }
+  else{
+    if (mf.type != 'MovingFeature'){
+      console.log("it is not MovingFeature!!@!@!");
+      return -1;
+    }
+    if (this.inFeaturesIndexOf(mf) != -1 || this.inWholeIndexOf(mf) != -1){
+      console.log("this mf already exist.");
+      return -2;
+    }
+    if (id != undefined && (this.inFeaturesIndexOfById(id) != -1 || this.inWholeIndexOfById(id) != -1 ) ){
+      console.log("this id already exist.");
+      return -2;
+    }
+
+    if (id == undefined && mf.properties.name == undefined){
+      alert("feature has no name!");
+      return -1;
+    }
+    if (id != undefined){
+      this.features.push(new Stinuum.MFPair(id, mf));
+      this.wholeFeatures.push(new Stinuum.MFPair(id, mf));
+    }
+    else{
+      this.features.push(new Stinuum.MFPair(mf.properties.name, mf));
+      this.wholeFeatures.push(new Stinuum.MFPair(mf.properties.name, mf));
+    }
+  }
+}
+
+
+Stinuum.MFCollection.prototype.remove= function(mf){
+  var index = this.inFeaturesIndexOfById(mf.properties.name);
+  if (index != -1) this.removeByIndexInFeatures(index);
+  index = this.inWholeIndexOfById(mf.properties.name);
+
+  var ret;
+  if (index != -1) ret = this.removeByIndexInWhole(index);
+
+  if (this.inFeaturesIndexOfById(mf.properties.name) != -1 || this.inWholeIndexOfById(mf.properties.name) != -1){
+    throw new Stinuum.Excetion("after removing but exist", [this, mf]);
+  }
+  if (ret != undefined) return ret;
+  console.log("this mf is not exist in array", mf);
+  return 0;
+}
+
+Stinuum.MFCollection.prototype.removeById= function(id){
+  var index = this.inFeaturesIndexOfById(id);
+  if (index != -1) this.removeByIndexInFeatures(index);
+  index = this.inWholeIndexOfById(id);
+  if (index != -1) return this.removeByIndexInWhole(index);
+  console.log("this mf is not exist in array", mf);
+  return 0;
+}
+
+Stinuum.MFCollection.prototype.removeByIndexInFeatures= function(index){
+  var remove_pair = this.features.splice(index, 1)[0];
+  return remove_pair;
+}
+
+Stinuum.MFCollection.prototype.removeByIndexInWhole= function(index){
+  var remove_pair = this.wholeFeatures.splice(index, 1)[0];
+  return remove_pair;
+}
+
+
+Stinuum.MFCollection.prototype.inFeaturesIndexOfById= function(id){
+  for (var i = 0 ; i < this.features.length ; i++){
+    if (this.features[i].id == id){
+      return i;
+    }
+  }
+  return -1;
+}
+
+Stinuum.MFCollection.prototype.inWholeIndexOfById= function(id){
+  for (var i = 0 ; i < this.wholeFeatures.length ; i++){
+    if (this.wholeFeatures[i].id == id){
+      return i;
+    }
+  }
+  return -1;
+}
+
+Stinuum.MFCollection.prototype.inFeaturesIndexOf= function(mf){
+  for (var i = 0 ; i < this.features.length ; i++){
+    if (this.features[i].feature == mf){
+      return i;
+    }
+  }
+  return -1;
+}
+
+Stinuum.MFCollection.prototype.inWholeIndexOf= function(mf){
+  for (var i = 0 ; i < this.wholeFeatures.length ; i++){
+    if (this.wholeFeatures[i].feature == mf){
+      return i;
+    }
+  }
+  return -1;
+}
+
+//move whole features to features
+Stinuum.MFCollection.prototype.refresh = function(){ 
+  this.super.s_query_on = false;
+  this.features = [];
+  for (var i = 0 ; i < this.wholeFeatures.length ; i++){
+    this.features.push(this.wholeFeatures[i]);  
+  }
+}
+
+Stinuum.MFCollection.prototype.findMinMaxGeometry = function(p_mf_arr){
+  var mf_arr;
+  if (p_mf_arr == undefined){
+    mf_arr = this.features;
+  }
+  else{
+    mf_arr = p_mf_arr;
+  }
+
+  if (mf_arr.length == 0){
+    return -1;
+  }
+
+  var min_max = {};
+  min_max.x = [];
+  min_max.y = [];
+  min_max.z = [];
+
+  min_max.date = [];
+
+  var first_date = new Date(mf_arr[0].feature.temporalGeometry.datetimes[0]);
+  min_max.date = [first_date,first_date];
+
+  for (var i = 0 ; i < mf_arr.length ; i++){
+    var mf_min_max_coord = {};
+    if (mf_arr[i].feature.temporalGeometry.type == "MovingPoint"){
+      mf_min_max_coord = Stinuum.findMinMaxCoord(mf_arr[i].feature.temporalGeometry.coordinates);
+    }
+    else{
+      var coord_arr = mf_arr[i].feature.temporalGeometry.coordinates;
+      mf_min_max_coord = Stinuum.findMinMaxCoord(coord_arr[0][0]);
+      for (var j = 1 ; j < coord_arr.length ; j++){
+        mf_min_max_coord = Stinuum.findBiggerCoord(mf_min_max_coord, Stinuum.findMinMaxCoord(coord_arr[j][0]) );
+      }
+    }
+
+    if (min_max.x.length == 0){
+      min_max.x = mf_min_max_coord.x;
+      min_max.y = mf_min_max_coord.y;
+      min_max.z = mf_min_max_coord.z;
+    }
+    else{
+      var xyz = Stinuum.findBiggerCoord(min_max, mf_min_max_coord);
+      min_max.x = xyz.x;
+      min_max.y = xyz.y;
+      min_max.z = xyz.z;
+    }
+
+    var temp_max_min = Stinuum.findMinMaxTime(mf_arr[i].feature.temporalGeometry.datetimes);
+
+    if (temp_max_min[0].getTime() < min_max.date[0].getTime()){
+      min_max.date[0] = temp_max_min[0];
+    }
+    if (temp_max_min[1].getTime() > min_max.date[1].getTime()){
+      min_max.date[1] = temp_max_min[1];
+    }
+  }
+
+  if (p_mf_arr == undefined){
+    this.min_max = min_max;
+  }
+
+  this.super.maxHeight = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(min_max.x[0],min_max.y[0]),Cesium.Cartesian3.fromDegrees(min_max.x[1],min_max.y[1])) * 4;
+  return min_max;
+}
+
+Stinuum.MFCollection.prototype.getWholeMinMax = function() {
+  this.whole_min_max = this.findMinMaxGeometry(this.wholeFeatures);
+  return this.whole_min_max;
+}
+
+Stinuum.MFCollection.prototype.getColor = function(id){
+  if (this.colorCollection[id] != undefined){
+    return this.colorCollection[id];
+  }
+  var color = Cesium.Color.fromRandom({
+    minimumRed : 0.2,
+    minimumBlue : 0.2,
+    minimumGreen : 0.2,
+    alpha : 1.0
+  });
+  this.colorCollection[id] = color;
+  return color;
+}
+
+Stinuum.MFCollection.prototype.setColor = function(id, color){
+  this.colorCollection[id] = color;
+}
+
+Stinuum.MFCollection.prototype.getAllPropertyType = function(){
+  var array = [];
+  for (var i = 0 ; i < this.features.length ; i++){
+    if (this.features[i].feature.temporalProperties == undefined) continue;
+
+    if (Array.isArray(this.features[i].feature.temporalProperties)){
+      for (var j = 0 ; j < this.features[i].feature.temporalProperties.length ; j++){
+        Stinuum.pushPropertyNamesToArrayExceptTime(array, this.features[i].feature.temporalProperties[j]);
+      }
+    }
+    else{
+      //Stinuum.pushPropertyNamesToArrayExceptTime(array, this.features[i].feature.temporalProperties);
+      LOG(this.features[i].feature.temporalProperties);
+      throw new Error("temporalProperties should be array");
+    }
+    
+  }
+  return array;
+}
+
+
+Stinuum.MFCollection.prototype.getMFPairById = function(id){
+  var inWhole = this.getMFPairByIdinWhole(id);
+  if (inWhole != -1){
+    return inWhole;
+  }
+  return -1;
+}
+
+Stinuum.MFCollection.prototype.getMFPairByIdInFeatures = function(id){
+  var index = this.inFeaturesIndexOfById(id);
+  if (index != -1) return this.features[index];
+
+  return -1;
+}
+
+Stinuum.MFCollection.prototype.getMFPairByIdinWhole = function(id){
+  var index = this.inWholeIndexOfById(id);
+  if (index != -1) return this.wholeFeatures[index];
+  
+  return -1;
+}
+
+Stinuum.MFCollection.prototype.getLength = function(){
+  return this.features.length;
+}
+
+Stinuum.MFCollection.prototype.reset = function(){
+  this.features = [];
+  this.wholeFeatures = [];
+  this.colorCollection = [];
+
+}
+
+Stinuum.MFCollection.prototype.hide = function(mf_id){
+  if (this.inFeaturesIndexOfById(mf_id) != -1){
+    var index = this.inFeaturesIndexOfById(mf_id);
+    var hidden_pair = this.features.splice(index, 1)[0];
+  }
+}
+
+Stinuum.MFCollection.prototype.hideAll = function(mf_id){ //hide All except one mf
+  this.features = [];
+  if (mf_id != undefined){
+    var index = this.inWholeIndexOfById(mf_id);
+    var pair = this.wholeFeatures[index];
+    this.features.push(pair);
+  }
+  
+
+}
+
 Stinuum.PropertyGraph.prototype.show = function(propertyName, divID){
   var pro_arr = [];
   for (var i = 0 ; i < this.super.mfCollection.features.length ; i ++){
@@ -3297,6 +3466,290 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array
 
 }
 
+Stinuum.findMinMaxTime = function(datetimes){
+  var min_max_date = [];
+  min_max_date[0] = new Date(datetimes[0]);
+  min_max_date[1] = new Date(datetimes[0]);
+  if (isNaN(min_max_date[0].getTime())) throw new Error("cannot be date type, utility.js, findMinMaxTime");
+  for (var j = 1 ; j < datetimes.length ; j++){
+    var time = new Date(datetimes[j]);
+
+    if (min_max_date[0].getTime() > time.getTime()){
+      min_max_date[0] = time;
+    }
+    if (min_max_date[1].getTime() < time.getTime()){
+      min_max_date[1] = time;
+    }
+  }
+  return min_max_date;
+}
+
+Stinuum.findMinMaxCoordArray = function(coordinates_arr){
+  var mf_min_max_coord = Stinuum.findMinMaxCoord(coordinates_arr[0]);
+  for (var j = 1 ; j < coordinates_arr.length ; j++){
+    mf_min_max_coord = Stinuum.findBiggerCoord(mf_min_max_coord, Stinuum.findMinMaxCoord(coordinates_arr[j]) );
+  }
+  return mf_min_max_coord;
+}
+
+Stinuum.findMinMaxCoord = function(coordinates){
+  var min_max = {};
+  min_max.x = [];
+  min_max.y = [];
+  min_max.z = [];
+
+  var start = coordinates[0];
+  min_max.x[0] = start[0];
+  min_max.x[1] = start[0];
+  min_max.y[0] = start[1];
+  min_max.y[1] = start[1];
+  min_max.z = [];
+  if (coordinates[0][2] != undefined){
+    min_max.z[0] = start[2];
+    min_max.z[1] = start[2];
+  }
+
+  for (var i = 0 ; i < coordinates.length ; i++){
+    var coord = coordinates[i];
+    if (min_max.x[0] > coord[0]){
+      min_max.x[0] = coord[0];
+    }
+    if (min_max.x[1] < coord[0]){
+      min_max.x[1] = coord[0];
+    }
+    if (min_max.y[0] > coord[1]){
+      min_max.y[0] = coord[1];
+    }
+    if (min_max.y[1] < coord[1]){
+      min_max.y[1] = coord[1];
+    }
+    if (coord[2] != undefined){
+      if (min_max.z[0] > coord[2]){
+        min_max.z[0] = coord[2];
+      }
+      if (min_max.z[1] < coord[2]){
+        min_max.z[1] = coord[2];
+      }
+    }
+  }
+
+  //maybe pass international Date line
+  if (Math.abs(min_max.x[0] - min_max.x[1]) > 180){
+    LOG("it pass IDL");
+    var temp = min_max.x[0];
+    min_max.x[0] = min_max.x[1];
+    min_max.x[1] = temp;
+  }
+
+  return min_max;
+
+}
+
+
+Stinuum.findBiggerCoord = function(min_max_1, min_max_2){
+  var ret = {};
+  ret.x = [];
+  ret.y = [];
+  ret.z = [];
+  ret.x[0] = Math.min(min_max_1.x[0],min_max_2.x[0]);
+  ret.y[0] = Math.min(min_max_1.y[0],min_max_2.y[0]);
+  ret.x[1] = Math.max(min_max_1.x[1],min_max_2.x[1]);
+  ret.y[1] = Math.max(min_max_1.y[1],min_max_2.y[1]);
+
+  if (min_max_1.z.length != 0 && min_max_2.z.length != 0){
+    ret.z[0] = Math.min(min_max_1.z[0],min_max_2.z[0]);
+    ret.z[1] = Math.max(min_max_1.z[1],min_max_2.z[1]);
+  }
+  return ret;
+}
+
+Stinuum.normalizeTime = function(date, min_max_date, value = 15000000){
+  var separation = min_max_date[1].getTime() - min_max_date[0].getTime()
+  return (date.getTime() - min_max_date[0].getTime())/separation * value;
+}
+
+Stinuum.findMinMaxProperties = function(properties){
+  if (!Array.isArray(properties)){
+    properties = [properties];
+  }
+
+  var first_date = new Date(properties[0].datetimes[0]);
+  var first_value = properties[0].values[0];
+  var min_max = {};
+  min_max.date = [first_date,first_date];
+  min_max.value = [first_value,first_value];
+  for (var i = 0 ; i < properties.length ; i++){
+    var temp_max_min = Stinuum.findMinMaxTime(properties[i].datetimes);
+    if (temp_max_min[0].getTime() < min_max.date[0].getTime()){
+      min_max.date[0] = temp_max_min[0];
+    }
+    if (temp_max_min[1].getTime() > min_max.date[1].getTime()){
+      min_max.date[1] = temp_max_min[1];
+    }
+    for (var j = 0 ; j < properties[i].values.length ; j++){
+      if (min_max.value[0] > properties[i].values[j]){
+        min_max.value[0] = properties[i].values[j];
+      }
+      if (min_max.value[1] < properties[i].values[j]){
+        min_max.value[1] = properties[i].values[j];
+      }
+    }
+
+  }
+  return min_max;
+}
+
+Stinuum.getMBRFromPolygon = function(coordinates){
+  var mbr = Stinuum.findMinMaxCoord(coordinates);
+  return mbr;
+}
+
+Stinuum.getPropertyByName = function(mf, name, id){
+  if (mf.temporalProperties == undefined) return -1;
+
+  if (Array.isArray(mf.temporalProperties)){
+    for (var i = 0 ; i < mf.temporalProperties.length ; i++){
+      var property = mf.temporalProperties[i][name];
+      if (property != undefined){
+        property.datetimes = mf.temporalProperties[i].datetimes;
+        return [property, id];
+      }
+    }
+  }
+  else{
+    var property = mf.temporalProperties[name];
+      if (property != undefined){
+        property.datetimes = mf.temporalProperties[i].datetimes;
+        return [property, id];
+      }
+  }
+  return -1;
+}
+
+Stinuum.pushPropertyNamesToArrayExceptTime = function(array, properties){
+  var keys = Object.keys(properties);
+  for (var k = 0 ; k < keys.length ; k++){
+    if (keys[k] == 'datetimes') continue;
+    var isExist = false;
+    for (var arr_i = 0 ; arr_i < array.length ; arr_i++){
+      if (array[arr_i] == keys[k]){
+        isExist = true;
+        break;
+      }
+    }
+    if (!isExist) array.push(keys[k]);
+  }
+}
+
+Stinuum.calculateDist = function(point_1, point_2){
+  return Math.sqrt(Math.pow(point_1[0] - point_2[0],2) + Math.pow(point_1[1] - point_2[1],2));
+}
+
+Stinuum.calculateCarteDist = function(point1, point2){
+  if (point1.length == 2 && point1.length == point2.length)
+  {
+    var carte3_1 = Cesium.Cartesian3.fromDegrees(point1[0], point1[1]),
+    carte3_2 =  Cesium.Cartesian3.fromDegrees(point2[0], point2[1]);
+  }
+  else if (point1.length == 3 && point1.length == point2.length){
+    var carte3_1 = Cesium.Cartesian3.fromDegrees(point1[0], point1[1], point1[2]),
+    carte3_2 =  Cesium.Cartesian3.fromDegrees(point2[0], point2[1], point2[2]);
+  }
+  else{
+    alert("dist error");
+    return;
+  }
+  return Cesium.Cartesian3.distance(carte3_1, carte3_2);
+}
+
+Stinuum.findMaxCoordinatesLine = function(geometry){
+  var max_length = 0;
+  for (var i = 0 ; i < geometry.coordinates.length ; i++){
+    if (max_length < geometry.coordinates[i].length){
+      max_length = geometry.coordinates[i].length;
+    }
+  }
+  return max_length;
+}
+
+Stinuum.addPolygonSample = function(geometry, index, property){
+  var datetimes = geometry.datetimes;
+  for (var time = 0 ; time < geometry.coordinates.length ; time++){
+    var coords = geometry.coordinates[time][0];
+    var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
+    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(coords[index][0],coords[index][1]));
+  }
+}
+
+Stinuum.getSampleProperties_Polygon = function(polygon){
+  if (polygon.type != "MovingPolygon") throw new Stinuum.Exception("It should be MovingPolygon temporalGeometry", polygon);
+  var polygon_size = polygon.coordinates[0][0].length;
+  if (polygon_size < 4) new ERR("polygon_size is less than 3", polygon_size);
+  var isSpline = polygon.interpolations == "Spline";
+  var sample_list = [];
+
+  for (var i = 0 ; i < polygon_size ; i++){
+    var property = new Cesium.SampledProperty(Cesium.Cartesian3);
+    // if (isSpline){
+    //   property.setInterpolationOptions({
+    //   interpolationDegree : 2,
+    //   interpolationAlgorithm : Cesium.HermitePolynomialApproximation
+    // });
+    // }
+    Stinuum.addPolygonSample(polygon, i, property);
+    sample_list.push(property);
+  }
+  return sample_list;
+}
+
+Stinuum.getSampleProperty_Point = function(geometry){
+  if (geometry.type != "MovingPoint") throw new Stinuum.Exception("It should be MovingPoint", geometry);
+  var isSpline = geometry.interpolations == "Spline";
+  var datetimes = geometry.datetimes;
+  var property = new Cesium.SampledProperty(Cesium.Cartesian3);
+  if (isSpline){
+    property.setInterpolationOptions({
+      interpolationDegree : 2,
+      interpolationAlgorithm : Cesium.HermitePolynomialApproximation
+    });
+  }
+  for (var i = 0 ; i < geometry.coordinates.length ; i++){
+    var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[i]));
+    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(eometry.coordinates[i][0],eometry.coordinates[i][1]));
+  }
+  return property;
+}
+
+Stinuum.copyObj = function(obj) {
+  var copy = jQuery.extend(true, {}, obj);
+  return copy;
+}
+
+Stinuum.spliceElementInMovingPointByIndex = function(point_feature, remove_index){
+  var geometry = point_feature.temporalGeometry;
+  var properties = point_feature.temporalProperties;
+
+  geometry.coordinates.splice(remove_index, 1);
+  geometry.datetimes.splice(remove_index, 1);
+  Stinuum.spliceElementInPropertiesByIndex(properties, remove_index);
+}
+
+Stinuum.spliceElementInPropertiesByIndex = function(properties, remove_index){
+  for (var pro_i = 0 ; pro_i < properties.length ; pro_i++){
+    var property = properties[pro_i];
+    for (var key in property){
+      if (!property.hasOwnProperty(key)) continue;
+      var array;
+      if (Array.isArray(property[key])){
+        array = property[key];
+      }
+      else{
+        array = property[key].values;
+      }
+      array.splice(remove_index, 1);
+    }
+  }
+}
 //TODO : support multiple query. 
 Stinuum.QueryProcessor.prototype.queryBySpatioTime = function(source_id_arr, target_id){
   if (!this.super.s_query_on){
@@ -3557,426 +4010,4 @@ Stinuum.QueryProcessor.prototype.sliceFeatureByTime = function(feature, start, e
   //make Sample and append start and end
 
   return new_feature;
-}
-/**
-* change mode of stinuum. It is one-to-one correspondence with cesium mode.
-* @param {string} [mode]
-* ` ``js
-* stinuum.changmeMode("SPACETIME");
-* ` ``
-*/
-
-Stinuum.prototype.changeMode = function(mode){
-    if (mode == undefined){
-      if (this.mode == 'STATICMAP' || this.mode == 'ANIMATEDMAP'){
-        this.mode = 'SPACETIME';
-      }
-      else{
-        this.mode = 'STATICMAP';
-      }
-    }
-    else{
-      this.mode = mode;
-    }
-    
-    this.geometryViewer.update({
-        change : true
-    });
-
-}
-
-Stinuum.prototype.getListOfHeight = function(datetimes, min_max_date){
-  if (min_max_date == undefined){
-    min_max_date = this.mfCollection.min_max.date;
-  }
-  var heights = [];
-  for(var i = 0 ; i < datetimes.length ; i++){
-    heights.push(Stinuum.normalizeTime(new Date(datetimes[i]), min_max_date, this.maxHeight));
-  }
-  return heights;
-}
-
-
-Stinuum.getCenter = function(coordinates, type){
-  var x=0,y=0;
-  var length = coordinates.length;
-  if (type == 'MovingPolygon'){
-    length -= 1;
-  }
-  for (var i = 0 ; i < length ; i++){
-    x += coordinates[i][0];
-    y += coordinates[i][1];
-
-  }
-  x /= length;
-  y /= length;
-
-  return [x,y];
-}
-
-Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
-  var pro_name = propertyName;
-
-  var mf = this.super.mfCollection.getMFPairById(mf_id);
-  if (mf == -1){
-    console.log("please add mf first.");
-    return;
-  }
-
-  //Only this feature is viewed in graph.
-  this.super.mfCollection.hideAll(mf_id);
-
-  var property = Stinuum.getPropertyByName(mf.feature, pro_name, mf_id)[0];
-  if (property == -1){
-    console.log("that property is not in this moving feature");
-    return;
-  }
-
-  if (this.super.geometryViewer.primitives[mf_id] != undefined){
-    this.super.cesiumViewer.scene.primitives.remove(this.super.geometryViewer.primitives[mf_id]);
-    this.super.geometryViewer.primitives[mf_id] = undefined;
-  }
-
-  this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry([mf]);
-  var type = mf.feature.temporalGeometry.type;
-  this.super.geometryViewer.clear();
-
-  if (this.super.mode == 'SPACETIME'){
-    //this.bounding_sphere = Stinuum.getBoundingSphere(this.min_max, [0, this.max_height]  );
-    this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawZaxis());
-    var entities = this.super.geometryViewer.drawZaxisLabel();
-    for (var i = 0 ; i < entities.values.length ; i ++ ){
-      this.super.cesiumViewer.entities.add(entities.values[i]);
-    }
-  }
-  else{
-  //  this.bounding_sphere = Stinuum.getBoundingSphere(this.min_max, [0,0] );
-  }
-
-  var highlight_prim;
-  if (type == 'MovingPolygon'){
-    highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingPolygon({
-      temporalGeometry : mf.feature.temporalGeometry,
-      temporalProperty : property,
-      id : mf_id
-    }));
-  }
-  else if (type == 'MovingPoint'){
-    highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingPoint({
-      temporalGeometry : mf.feature.temporalGeometry,
-      temporalProperty : property,
-      id : mf_id
-    }));
-  }
-  else if (type == 'MovingLineString'){
-    highlight_prim = this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawing.drawPathMovingLineString({
-      temporalGeometry : mf.feature.temporalGeometry,
-      temporalProperty : property,
-      id : mf_id
-    }));
-  }
-  else{
-    LOG('this type is not implemented.');
-  }
-
-  this.super.geometryViewer.primitives[mf_id] = highlight_prim;
-  this.super.geometryViewer.animate({
-    id : mf_id
-  });
-
-  return 0;
-}
-
-Stinuum.findMinMaxTime = function(datetimes){
-  var min_max_date = [];
-  min_max_date[0] = new Date(datetimes[0]);
-  min_max_date[1] = new Date(datetimes[0]);
-  if (isNaN(min_max_date[0].getTime())) throw new Error("cannot be date type, utility.js, findMinMaxTime");
-  for (var j = 1 ; j < datetimes.length ; j++){
-    var time = new Date(datetimes[j]);
-
-    if (min_max_date[0].getTime() > time.getTime()){
-      min_max_date[0] = time;
-    }
-    if (min_max_date[1].getTime() < time.getTime()){
-      min_max_date[1] = time;
-    }
-  }
-  return min_max_date;
-}
-
-Stinuum.findMinMaxCoordArray = function(coordinates_arr){
-  var mf_min_max_coord = Stinuum.findMinMaxCoord(coordinates_arr[0]);
-  for (var j = 1 ; j < coordinates_arr.length ; j++){
-    mf_min_max_coord = Stinuum.findBiggerCoord(mf_min_max_coord, Stinuum.findMinMaxCoord(coordinates_arr[j]) );
-  }
-  return mf_min_max_coord;
-}
-
-Stinuum.findMinMaxCoord = function(coordinates){
-  var min_max = {};
-  min_max.x = [];
-  min_max.y = [];
-  min_max.z = [];
-
-  var start = coordinates[0];
-  min_max.x[0] = start[0];
-  min_max.x[1] = start[0];
-  min_max.y[0] = start[1];
-  min_max.y[1] = start[1];
-  min_max.z = [];
-  if (coordinates[0][2] != undefined){
-    min_max.z[0] = start[2];
-    min_max.z[1] = start[2];
-  }
-
-  for (var i = 0 ; i < coordinates.length ; i++){
-    var coord = coordinates[i];
-    if (min_max.x[0] > coord[0]){
-      min_max.x[0] = coord[0];
-    }
-    if (min_max.x[1] < coord[0]){
-      min_max.x[1] = coord[0];
-    }
-    if (min_max.y[0] > coord[1]){
-      min_max.y[0] = coord[1];
-    }
-    if (min_max.y[1] < coord[1]){
-      min_max.y[1] = coord[1];
-    }
-    if (coord[2] != undefined){
-      if (min_max.z[0] > coord[2]){
-        min_max.z[0] = coord[2];
-      }
-      if (min_max.z[1] < coord[2]){
-        min_max.z[1] = coord[2];
-      }
-    }
-  }
-
-  //maybe pass international Date line
-  if (Math.abs(min_max.x[0] - min_max.x[1]) > 180){
-    LOG("it pass IDL");
-    var temp = min_max.x[0];
-    min_max.x[0] = min_max.x[1];
-    min_max.x[1] = temp;
-  }
-
-  return min_max;
-
-}
-
-
-Stinuum.findBiggerCoord = function(min_max_1, min_max_2){
-  var ret = {};
-  ret.x = [];
-  ret.y = [];
-  ret.z = [];
-  ret.x[0] = Math.min(min_max_1.x[0],min_max_2.x[0]);
-  ret.y[0] = Math.min(min_max_1.y[0],min_max_2.y[0]);
-  ret.x[1] = Math.max(min_max_1.x[1],min_max_2.x[1]);
-  ret.y[1] = Math.max(min_max_1.y[1],min_max_2.y[1]);
-
-  if (min_max_1.z.length != 0 && min_max_2.z.length != 0){
-    ret.z[0] = Math.min(min_max_1.z[0],min_max_2.z[0]);
-    ret.z[1] = Math.max(min_max_1.z[1],min_max_2.z[1]);
-  }
-  return ret;
-}
-
-Stinuum.normalizeTime = function(date, min_max_date, value = 15000000){
-  var separation = min_max_date[1].getTime() - min_max_date[0].getTime()
-  return (date.getTime() - min_max_date[0].getTime())/separation * value;
-}
-
-Stinuum.findMinMaxProperties = function(properties){
-  if (!Array.isArray(properties)){
-    properties = [properties];
-  }
-
-  var first_date = new Date(properties[0].datetimes[0]);
-  var first_value = properties[0].values[0];
-  var min_max = {};
-  min_max.date = [first_date,first_date];
-  min_max.value = [first_value,first_value];
-  for (var i = 0 ; i < properties.length ; i++){
-    var temp_max_min = Stinuum.findMinMaxTime(properties[i].datetimes);
-    if (temp_max_min[0].getTime() < min_max.date[0].getTime()){
-      min_max.date[0] = temp_max_min[0];
-    }
-    if (temp_max_min[1].getTime() > min_max.date[1].getTime()){
-      min_max.date[1] = temp_max_min[1];
-    }
-    for (var j = 0 ; j < properties[i].values.length ; j++){
-      if (min_max.value[0] > properties[i].values[j]){
-        min_max.value[0] = properties[i].values[j];
-      }
-      if (min_max.value[1] < properties[i].values[j]){
-        min_max.value[1] = properties[i].values[j];
-      }
-    }
-
-  }
-  return min_max;
-}
-
-Stinuum.getMBRFromPolygon = function(coordinates){
-  var mbr = Stinuum.findMinMaxCoord(coordinates);
-  return mbr;
-}
-
-Stinuum.getPropertyByName = function(mf, name, id){
-  if (mf.temporalProperties == undefined) return -1;
-
-  if (Array.isArray(mf.temporalProperties)){
-    for (var i = 0 ; i < mf.temporalProperties.length ; i++){
-      var property = mf.temporalProperties[i][name];
-      if (property != undefined){
-        property.datetimes = mf.temporalProperties[i].datetimes;
-        return [property, id];
-      }
-    }
-  }
-  else{
-    var property = mf.temporalProperties[name];
-      if (property != undefined){
-        property.datetimes = mf.temporalProperties[i].datetimes;
-        return [property, id];
-      }
-  }
-  return -1;
-}
-
-Stinuum.pushPropertyNamesToArrayExceptTime = function(array, properties){
-  var keys = Object.keys(properties);
-  for (var k = 0 ; k < keys.length ; k++){
-    if (keys[k] == 'datetimes') continue;
-    var isExist = false;
-    for (var arr_i = 0 ; arr_i < array.length ; arr_i++){
-      if (array[arr_i] == keys[k]){
-        isExist = true;
-        break;
-      }
-    }
-    if (!isExist) array.push(keys[k]);
-  }
-}
-
-Stinuum.calculateDist = function(point_1, point_2){
-  return Math.sqrt(Math.pow(point_1[0] - point_2[0],2) + Math.pow(point_1[1] - point_2[1],2));
-}
-
-Stinuum.calculateCarteDist = function(point1, point2){
-  if (point1.length == 2 && point1.length == point2.length)
-  {
-    var carte3_1 = Cesium.Cartesian3.fromDegrees(point1[0], point1[1]),
-    carte3_2 =  Cesium.Cartesian3.fromDegrees(point2[0], point2[1]);
-  }
-  else if (point1.length == 3 && point1.length == point2.length){
-    var carte3_1 = Cesium.Cartesian3.fromDegrees(point1[0], point1[1], point1[2]),
-    carte3_2 =  Cesium.Cartesian3.fromDegrees(point2[0], point2[1], point2[2]);
-  }
-  else{
-    alert("dist error");
-    return;
-  }
-  return Cesium.Cartesian3.distance(carte3_1, carte3_2);
-}
-
-Stinuum.getBoundingSphere = function(min_max, height){
-  var middle_x = ( min_max.x[0] + min_max.x[1] ) / 2;
-  var middle_y = ( min_max.y[0] + min_max.y[1] ) / 2;
-  var middle_height = (height[0] + height[1]) / 2;
-
-  var radius = Stinuum.calculateCarteDist([middle_x,middle_y,middle_height], [min_max.x[0],min_max.y[0],height[0]]);
-  return new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(middle_x,middle_y,middle_height), radius * 3);
-}
-
-Stinuum.findMaxCoordinatesLine = function(geometry){
-  var max_length = 0;
-  for (var i = 0 ; i < geometry.coordinates.length ; i++){
-    if (max_length < geometry.coordinates[i].length){
-      max_length = geometry.coordinates[i].length;
-    }
-  }
-  return max_length;
-}
-
-Stinuum.addPolygonSample = function(geometry, index, property){
-  var datetimes = geometry.datetimes;
-  for (var time = 0 ; time < geometry.coordinates.length ; time++){
-    var coords = geometry.coordinates[time][0];
-    var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[time]));
-    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(coords[index][0],coords[index][1]));
-  }
-}
-
-Stinuum.getSampleProperties_Polygon = function(polygon){
-  if (polygon.type != "MovingPolygon") throw new Stinuum.Exception("It should be MovingPolygon temporalGeometry", polygon);
-  var polygon_size = polygon.coordinates[0][0].length;
-  if (polygon_size < 4) new ERR("polygon_size is less than 3", polygon_size);
-  var isSpline = polygon.interpolations == "Spline";
-  var sample_list = [];
-
-  for (var i = 0 ; i < polygon_size ; i++){
-    var property = new Cesium.SampledProperty(Cesium.Cartesian3);
-    // if (isSpline){
-    //   property.setInterpolationOptions({
-    //   interpolationDegree : 2,
-    //   interpolationAlgorithm : Cesium.HermitePolynomialApproximation
-    // });
-    // }
-    Stinuum.addPolygonSample(polygon, i, property);
-    sample_list.push(property);
-  }
-  return sample_list;
-}
-
-Stinuum.getSampleProperty_Point = function(geometry){
-  if (geometry.type != "MovingPoint") throw new Stinuum.Exception("It should be MovingPoint", geometry);
-  var isSpline = geometry.interpolations == "Spline";
-  var datetimes = geometry.datetimes;
-  var property = new Cesium.SampledProperty(Cesium.Cartesian3);
-  if (isSpline){
-    property.setInterpolationOptions({
-      interpolationDegree : 2,
-      interpolationAlgorithm : Cesium.HermitePolynomialApproximation
-    });
-  }
-  for (var i = 0 ; i < geometry.coordinates.length ; i++){
-    var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[i]));
-    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(eometry.coordinates[i][0],eometry.coordinates[i][1]));
-  }
-  return property;
-}
-
-Stinuum.copyObj = function(obj) {
-  var copy = jQuery.extend(true, {}, obj);
-  return copy;
-}
-
-Stinuum.spliceElementInMovingPointByIndex = function(point_feature, remove_index){
-  var geometry = point_feature.temporalGeometry;
-  var properties = point_feature.temporalProperties;
-
-  geometry.coordinates.splice(remove_index, 1);
-  geometry.datetimes.splice(remove_index, 1);
-  Stinuum.spliceElementInPropertiesByIndex(properties, remove_index);
-}
-
-Stinuum.spliceElementInPropertiesByIndex = function(properties, remove_index){
-  for (var pro_i = 0 ; pro_i < properties.length ; pro_i++){
-    var property = properties[pro_i];
-    for (var key in property){
-      if (!property.hasOwnProperty(key)) continue;
-      var array;
-      if (Array.isArray(property[key])){
-        array = property[key];
-      }
-      else{
-        array = property[key].values;
-      }
-      array.splice(remove_index, 1);
-    }
-  }
 }

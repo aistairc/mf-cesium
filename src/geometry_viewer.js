@@ -29,7 +29,7 @@ Stinuum.GeometryViewer.prototype.draw = function(){
   var minmax = this.super.mfCollection.min_max;
 
   if (this.super.mode == 'SPACETIME'){
-    this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0,this.super.maxHeight] );
+    this.super.setBounding(minmax, [0,this.super.maxHeight] );
     this.super.cesiumViewer.scene.primitives.add(this.drawZaxis());
     var entities = this.drawZaxisLabel();
     this.super.cesiumViewer.entities.add(entities.values[0]);
@@ -38,7 +38,7 @@ Stinuum.GeometryViewer.prototype.draw = function(){
     return -1;
   }
   else{
-    this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0,0] );
+    this.super.setBounding(minmax, [0,0] );
 
   }
   for (var index = 0 ; index < mf_arr.length ; index++){
@@ -322,26 +322,36 @@ Stinuum.GeometryViewer.prototype.showHeightBar = function(id){
 }
 
 Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
-  //TODO
   LOG("adjustCameraView");
 
-  var bounding = this.bounding_sphere;
-  var viewer = this.viewer;
+  var bounding = this.super.bounding;
   var geomview = this;
-  if (bounding == undefined || bounding == -1){
-    return;
-  }
+
   if (geomview.super.mode == "SPACETIME"){
-    geomview.super.cesiumViewer.camera.flyTo({
-      duration : 0.5,
-      destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
-      orientation : {
-        direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
-        up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
-      }});
+    if (bounding == undefined || bounding == -1){
+      LOG("bounding is undefined");
+      return;
+    }
+    LOG(bounding);
+    var heading = Cesium.Math.toRadians(45.0);
+    var pitch = Cesium.Math.toRadians(-15.0);
+    var range = bounding.z * 2;
+    geomview.super.cesiumViewer.camera.lookAt(bounding,
+      new Cesium.HeadingPitchRange(heading, pitch, range) );
+    
+    // {
+    //   duration : 0.5,
+    //   destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
+    //   orientation : {
+    //     direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
+    //     up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
+    //   }}
+     
   }
   else{
-    geomview.super.cesiumViewer.camera.flyToBoundingSphere(bounding, {
+    geomview.super.cesiumViewer.camera.flyTo({
+      destination : Cesium.Rectangle.fromDegrees(this.super.mfCollection.min_max.x[0],this.super.mfCollection.min_max.y[0],
+                  this.super.mfCollection.min_max.x[1],this.super.mfCollection.min_max.y[1]),
       duration : 0.5
     });
   }
