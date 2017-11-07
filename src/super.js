@@ -74,12 +74,9 @@ Stinuum.prototype.setBounding = function(min_max, height){
     //     material :Cesium.Color.RED.withAlpha(0.8)
     //   }
     // });
-
-    LOG(height[1] / 2); 
     var center = Cesium.Cartesian3.fromDegrees((min_max.x[0] + min_max.x[1]) / 2, (min_max.y[1] + min_max.y[0])/2, height[1] / 2);
     bs = center;//new Cesium.BoundingSphere(center, height[1] / 2);
 
   }
   this.bounding = bs;
-  LOG(this.bounding);
 }
