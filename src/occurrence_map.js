@@ -23,7 +23,7 @@ Stinuum.OccurrenceMap.prototype.show = function(degree){
     this.max_num = 0;
     let cube_data = this.makeBasicCube(degree);
     if (cube_data == -1){
-      console.log("time degree 너무 큼");
+      alert("too large degree");
       return;
     }
 
@@ -65,7 +65,7 @@ Stinuum.OccurrenceMap.prototype.show = function(degree){
     this.max_num = 0;
     var map_data = this.makeBasicMap(degree);
     if (map_data == -1){
-      console.log("degree 너무 큼");
+      alert("too large degree");
       return;
     }
     for (var index = 0 ; index < mf_arr.length ; index++){
@@ -227,24 +227,8 @@ Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPoint = function(geometry, de
 
   var max_num = this.max_num;
 
-  if (geometry.interpolations == "Lienar" || geometry.interpolations == "Spline"){
-    var value_property = new Cesium.SampledProperty(Number);
-    for (var index = 0 ; index < geometry.coordinates.length ; index++){
-      var coord = geometry.coordinates[index];
-      value_property.addSample(coord[0], coord[1]);
-    }
-    for (var x_index = 0 ; x_index < x_length ; x_index++){
-        var x_value = min_max.x[0] + x_deg * x_index;
-        var y_value = value_property.getValue(x_value);
+  if (geometry.interpolations == "Discrete"){
 
-        if (y_value != undefined){
-          var y_index = Stinuum.getCubeIndexFromSample(y_value, y_deg, min_max.y[0]);
-          map_data[x_index][y_index] += 1;
-          max_num = Math.max(map_data[x_index][y_index],max_num);
-        }
-    }
-  }
-  else{
     for (var i = 0 ; i < geometry.coordinates.length ; i++){
       var coord = geometry.coordinates[i];
       var x_index = Stinuum.getCubeIndexFromSample(coord[0] , x_deg, min_max.x[0]);
@@ -252,8 +236,34 @@ Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPoint = function(geometry, de
       map_data[x_index][y_index] += 1;
       max_num = Math.max(map_data[x_index][y_index],max_num);
     }
-  }
 
+  }
+  else{
+    var temp_map = [];
+    for (var x = 0 ; x < x_length ; x++){
+      temp_map[x] = [];
+      for (var y = 0 ; y < y_length ; y++){
+        temp_map[x][y] = 0;
+      }
+    }
+
+    for (var i = 0 ; i < geometry.coordinates.length ; i++){
+      var coords = geometry.coordinates[i];
+      var x = coords[0];
+      var y = coords[1];
+      var x_index = Stinuum.getCubeIndexFromSample(x, x_deg, min_max.x[0]);
+      var y_index = Stinuum.getCubeIndexFromSample(y, y_deg, min_max.y[0]);
+      if (temp_map[x_index][y_index] == 0) temp_map[x_index][y_index] = 1;
+    }
+
+    for (var i = 0 ; i < x_length ; i++){
+      for (var j = 0 ; j < y_length; j++){
+        if (temp_map[i][j] == 1) map_data[i][j] += 1;
+        max_num = Math.max(map_data[i][j],max_num);
+      }
+    }
+
+  }
   this.max_num = Math.max(max_num,this.max_num);
 
 }
@@ -273,22 +283,35 @@ Stinuum.OccurrenceMap.prototype.makeMap = function(degree, map_data){
   for (var x = 0 ; x < data.length - 1 ; x++){
     for (var y = 0 ; y < data[x].length ; y++){
       var count = data[x][y];
+      if (count == 0 ) continue;
       var rating = count/max_count;
-      if (rating < 0.1){
-        continue;
+      if (rating < 0.05){
+        let blue = -20 * rating + 1.0;
+        var color = new Cesium.Color(0, 0, blue, blue);
+        instances.push(new Cesium.GeometryInstance({
+          geometry : new Cesium.RectangleGeometry({
+            rectangle : Cesium.Rectangle.fromDegrees(min_max.x[0] + x_deg * x, min_max.y[0] + y_deg * y , min_max.x[0] + x_deg * (x+1), min_max.y[0] + y_deg * (y+1)),
+            height : 50000
+          }),
+          attributes : {
+            color : Cesium.ColorGeometryInstanceAttribute.fromColor(color)
+          }
+        }));
       }
-      var green_rate = 2.0 - 2.0 * rating;
-      if (green_rate > 1.0) green_rate = 1.0;
-      var color = new Cesium.Color(1.0, green_rate, 0.0, rating);
-      instances.push(new Cesium.GeometryInstance({
-        geometry : new Cesium.RectangleGeometry({
-          rectangle : Cesium.Rectangle.fromDegrees(min_max.x[0] + x_deg * x, min_max.y[0] + y_deg * y , min_max.x[0] + x_deg * (x+1), min_max.y[0] + y_deg * (y+1)),
-          height : 50000
-        }),
-        attributes : {
-          color : Cesium.ColorGeometryInstanceAttribute.fromColor(color)
-        }
-      }));
+      else if (rating > 0.1){
+        var green_rate = 2.0 - 2.0 * rating;
+        if (green_rate > 1.0) green_rate = 1.0;
+        var color = new Cesium.Color(1.0, green_rate, 0.0, rating);
+        instances.push(new Cesium.GeometryInstance({
+          geometry : new Cesium.RectangleGeometry({
+            rectangle : Cesium.Rectangle.fromDegrees(min_max.x[0] + x_deg * x, min_max.y[0] + y_deg * y , min_max.x[0] + x_deg * (x+1), min_max.y[0] + y_deg * (y+1)),
+            height : 50000
+          }),
+          attributes : {
+            color : Cesium.ColorGeometryInstanceAttribute.fromColor(color)
+          }
+        }));
+      }
 
     }
 

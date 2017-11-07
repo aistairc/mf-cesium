@@ -1,4 +1,5 @@
 var clearAnalysis = function(){
+    document.getElementById(option_id).innerText = 'Clearing...';
     var graph_id = div_id.graph;
     var radar_id = div_id.radar;
     var option_id = div_id.option;

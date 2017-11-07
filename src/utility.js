@@ -248,7 +248,7 @@ Stinuum.getSampleProperty_Point = function(geometry){
   }
   for (var i = 0 ; i < geometry.coordinates.length ; i++){
     var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[i]));
-    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(eometry.coordinates[i][0],eometry.coordinates[i][1]));
+    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(geometry.coordinates[i][0],geometry.coordinates[i][1]));
   }
   return property;
 }
