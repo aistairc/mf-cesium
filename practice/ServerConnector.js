@@ -194,7 +194,12 @@ ServerConnector.prototype.getFeaturesByLayerID = function(layer_id, layer_buffer
         var json_object = JSON.parse(text);
         let promises = [];
         for(var i = 0 ; i < json_object.url.length ; i++){
-            var feature_url = connector.server_url + "/FeatureLayers(\'" + layer_id + "\')/" + json_object.url[i] + "?token=" + connector.token;
+            let feature_url;
+            if (connector.token == "local_server"){
+                feature_url = connector.server_url + "/FeatureLayers(\'" + layer_id + "\')/" + json_object.url[i] + ".json";
+            }
+            else
+                feature_url = connector.server_url + "/FeatureLayers(\'" + layer_id + "\')/" + json_object.url[i] + "?token=" + connector.token;
             LOG("request feature : ", feature_url);
             var feature_promise = connector.promiseTimeout(json_object.url[i], 5000, connector.requestFeatureObject(feature_url));//connector.requestFeatureObject(feature_url);
             promises.push(feature_promise);
@@ -291,3 +296,12 @@ function createCORSRequest(method, url) {
 
 
 
+/*
+function download(text, name, type) {
+    var a = document.createElement("a");
+    var file = new Blob([text], {type: type});
+    a.href = URL.createObjectURL(file);
+    a.download = name;
+    a.click();
+}
+*/

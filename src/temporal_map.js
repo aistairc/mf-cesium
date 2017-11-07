@@ -22,12 +22,12 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
     this.super.geometryViewer.primitives[mf_id] = undefined;
   }
 
-  this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry([mf]);
+  this.super.mfCollection.findMinMaxGeometry();
   var type = mf.feature.temporalGeometry.type;
   this.super.geometryViewer.clear();
 
   if (this.super.mode == 'SPACETIME'){
-    //this.bounding_sphere = Stinuum.getBoundingSphere(this.min_max, [0, this.max_height]  );
+    this.super.setBounding(this.min_max, [0, this.max_height]  );
     this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawZaxis());
     var entities = this.super.geometryViewer.drawZaxisLabel();
     for (var i = 0 ; i < entities.values.length ; i ++ ){
@@ -35,7 +35,7 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
     }
   }
   else{
-  //  this.bounding_sphere = Stinuum.getBoundingSphere(this.min_max, [0,0] );
+    this.super.setBounding(this.min_max, [0,0] );
   }
 
   var highlight_prim;
