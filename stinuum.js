@@ -1289,7 +1289,8 @@ Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
     LOG(bounding);
     var heading = Cesium.Math.toRadians(45.0);
     var pitch = Cesium.Math.toRadians(-15.0);
-    var range = bounding.z * 2;
+    var range = bounding.z * bounding.z / 3000000;
+    LOG(bounding.z , range);
     geomview.super.cesiumViewer.camera.lookAt(bounding,
       new Cesium.HeadingPitchRange(heading, pitch, range) );
     

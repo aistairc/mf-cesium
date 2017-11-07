@@ -322,8 +322,6 @@ Stinuum.GeometryViewer.prototype.showHeightBar = function(id){
 }
 
 Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
-  LOG("adjustCameraView");
-
   var bounding = this.super.bounding;
   var geomview = this;
 
@@ -332,21 +330,12 @@ Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
       LOG("bounding is undefined");
       return;
     }
-    LOG(bounding);
     var heading = Cesium.Math.toRadians(45.0);
     var pitch = Cesium.Math.toRadians(-15.0);
-    var range = bounding.z * 2;
+    var range = bounding.z * bounding.z / 3000000;
+    LOG(bounding.z , range);
     geomview.super.cesiumViewer.camera.lookAt(bounding,
       new Cesium.HeadingPitchRange(heading, pitch, range) );
-    
-    // {
-    //   duration : 0.5,
-    //   destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
-    //   orientation : {
-    //     direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
-    //     up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
-    //   }}
-     
   }
   else{
     geomview.super.cesiumViewer.camera.flyTo({
