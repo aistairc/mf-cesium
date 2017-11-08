@@ -185,7 +185,6 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
   for (var index = 0 ; index < this.super.mfCollection.features.length ; index++){
     var mf = this.super.mfCollection.features[index];
     var cl = Stinuum.addDirectionInfo(cumulative, mf.feature.temporalGeometry);
-    LOG(cl);
     if (cl != -1)
       this.super.mfCollection.setColor(mf.id, cl);
   }
@@ -297,18 +296,17 @@ Stinuum.addDirectionInfo = function(cumulative, geometry){
   var life = Stinuum.calculateLife(geometry) / (1000 * 60 * 60); // hours, ms * sec * min)
   var length = Stinuum.calculateLength(geometry) / 1000; // kilo-meter
   var velocity = Stinuum.calculateVelocity(geometry); // km/h;
-  //LOG(life, length, velocity);
 
-  var start_point = geometry.coordinates[0][0];
-  var end_point = geometry.coordinates[geometry.coordinates.length-1][0];
+  var start_point = geometry.coordinates[0];
+  var end_point = geometry.coordinates[geometry.coordinates.length-1];
 
   if (geometry.type != "MovingPoint" ){ // Polygon, LineString
-    start_point = Stinuum.getCenter(start_point, geometry.type);
-    end_point = Stinuum.getCenter(end_point, geometry.type);
+    start_point = Stinuum.getCenter(start_point[0], geometry.type);
+    end_point = Stinuum.getCenter(end_point[0], geometry.type);
   }
 
   var dist_x, dist_y;
-
+  LOG(start_point,end_point);
   dist_x = end_point[0] - start_point[0];
   dist_y = end_point[1] - start_point[1];
 
@@ -1279,6 +1277,7 @@ Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
   var bounding = this.super.bounding;
   var geomview = this;
 
+  LOG(bounding);
   if (geomview.super.mode == "SPACETIME"){
     if (bounding == undefined || bounding == -1){
       LOG("bounding is undefined");
@@ -1629,7 +1628,7 @@ Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPoint = function(geometry, de
 
   var max_num = this.max_num;
 
-  if (geometry.interpolations == "Discrete"){
+  if (geometry.interpolations[0] == "Discrete"){
 
     for (var i = 0 ; i < geometry.coordinates.length ; i++){
       var coord = geometry.coordinates[i];
@@ -1811,7 +1810,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
   var max_num = this.max_num;
   var datetimes = geometry.datetimes;
 
-  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+  if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear"){
     var sample_list = Stinuum.getSampleProperties_Polygon(geometry);
     
     var polygon_size = geometry.coordinates[0][0].length;
@@ -1895,7 +1894,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPoint = function(geometry, de
   var datetimes = geometry.datetimes;
 
 
-  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+  if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear"){
     var property;
     property = Stinuum.getSampleProperty_Point(geometry);
     for (var i = 0 ; i < time_length - 1 ; i++){
@@ -1957,7 +1956,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingLineString = function(geometr
     y_property[i] = new Cesium.SampledProperty(Number);
   }
 
-  if (geometry.interpolations == "Spline"){
+  if (geometry.interpolations[0] == "Spline"){
     for (var i = 0 ; i < max_coordinates_length ; i++){
       x_property[i].setInterpolationOptions({
         interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
@@ -2155,13 +2154,13 @@ Stinuum.getCenter = function(coordinates, type){
 Stinuum.prototype.setBounding = function(min_max, height){
   //if (this.bounding != undefined) this.cesiumViewer.entities.remove(this.bounding);
   var bs;
+  LOG(min_max, height);
   if (height[0] == 0 && height[1] == 0){
     bs = undefined;
   }
   else{
     var center = Cesium.Cartesian3.fromDegrees((min_max.x[0] + min_max.x[1]) / 2, (min_max.y[1] + min_max.y[0])/2, height[1] / 2);
     bs = center;//new Cesium.BoundingSphere(center, height[1] / 2);
-
   }
   this.bounding = bs;
 }
@@ -2888,7 +2887,7 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
   this.super.geometryViewer.clear();
 
   if (this.super.mode == 'SPACETIME'){
-    this.super.setBounding(this.min_max, [0, this.max_height]  );
+    this.super.setBounding(this.super.mfCollection.min_max, [0, this.super.maxHeight]  );
     this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawZaxis());
     var entities = this.super.geometryViewer.drawZaxisLabel();
     for (var i = 0 ; i < entities.values.length ; i ++ ){
@@ -2896,7 +2895,7 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
     }
   }
   else{
-    this.super.setBounding(this.min_max, [0,0] );
+    this.super.setBounding(this.super.mfCollection.min_max, [0,0] );
   }
 
   var highlight_prim;

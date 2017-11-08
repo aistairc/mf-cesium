@@ -27,7 +27,7 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
   this.super.geometryViewer.clear();
 
   if (this.super.mode == 'SPACETIME'){
-    this.super.setBounding(this.min_max, [0, this.max_height]  );
+    this.super.setBounding(this.super.mfCollection.min_max, [0, this.super.maxHeight]  );
     this.super.cesiumViewer.scene.primitives.add(this.super.geometryViewer.drawZaxis());
     var entities = this.super.geometryViewer.drawZaxisLabel();
     for (var i = 0 ; i < entities.values.length ; i ++ ){
@@ -35,7 +35,7 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
     }
   }
   else{
-    this.super.setBounding(this.min_max, [0,0] );
+    this.super.setBounding(this.super.mfCollection.min_max, [0,0] );
   }
 
   var highlight_prim;

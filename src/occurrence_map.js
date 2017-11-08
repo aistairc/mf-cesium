@@ -227,7 +227,7 @@ Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPoint = function(geometry, de
 
   var max_num = this.max_num;
 
-  if (geometry.interpolations == "Discrete"){
+  if (geometry.interpolations[0] == "Discrete"){
 
     for (var i = 0 ; i < geometry.coordinates.length ; i++){
       var coord = geometry.coordinates[i];
@@ -409,7 +409,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
   var max_num = this.max_num;
   var datetimes = geometry.datetimes;
 
-  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+  if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear"){
     var sample_list = Stinuum.getSampleProperties_Polygon(geometry);
     
     var polygon_size = geometry.coordinates[0][0].length;
@@ -493,7 +493,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPoint = function(geometry, de
   var datetimes = geometry.datetimes;
 
 
-  if (geometry.interpolations == "Spline" || geometry.interpolations == "Linear"){
+  if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear"){
     var property;
     property = Stinuum.getSampleProperty_Point(geometry);
     for (var i = 0 ; i < time_length - 1 ; i++){
@@ -555,7 +555,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingLineString = function(geometr
     y_property[i] = new Cesium.SampledProperty(Number);
   }
 
-  if (geometry.interpolations == "Spline"){
+  if (geometry.interpolations[0] == "Spline"){
     for (var i = 0 ; i < max_coordinates_length ; i++){
       x_property[i].setInterpolationOptions({
         interpolationAlgorithm : Cesium.HermitePolynomialApproximation,
