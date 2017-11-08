@@ -328,7 +328,9 @@ function time_query(){
         value : [0,100],
         formatter: function(value){
             if (!Array.isArray(value)) return;
-            var time_min_max = stinuum.mfCollection.whole_min_max.date;
+            var time_min_max;
+            if (stinuum.s_query_on) time_min_max = stinuum.queryProcessor.getTimeMinMax();
+            else time_min_max = stinuum.mfCollection.getWholeMinMax().date;
             if (time_min_max == undefined) return;
             var fastest = new Date(time_min_max[0]);
             var latest = new Date(time_min_max[1]);
@@ -360,7 +362,9 @@ function zoom() {
     var zoom_time = slider.getValue();
     LOG("zoom time : " , zoom_time);
 
-    var time_min_max = stinuum.mfCollection.getWholeMinMax().date;
+    var time_min_max;
+    if (stinuum.s_query_on) time_min_max = stinuum.queryProcessor.getTimeMinMax();
+    else time_min_max = stinuum.mfCollection.getWholeMinMax().date;
     
     var fastest = new Date(time_min_max[0]);
     var latest = new Date(time_min_max[1]);
