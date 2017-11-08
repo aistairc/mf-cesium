@@ -32,6 +32,7 @@ $ clone http://github.com/aistairc/mf-cesium
 4. Run the following command to install the dependencies:
 
   ```
+  $ cd .. //go to Cesium Directory.
   $ npm install
   ```
 5. Start Cesium server
