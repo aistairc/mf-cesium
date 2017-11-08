@@ -19,7 +19,7 @@ Stinuum.OccurrenceMap.prototype.show = function(degree){
       this.primitive == null;
     }
     degree.time = degree.time * 86400;
-    this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry(mf_arr);
+    this.super.mfCollection.findMinMaxGeometry();
     this.max_num = 0;
     let cube_data = this.makeBasicCube(degree);
     if (cube_data == -1){
@@ -61,7 +61,7 @@ Stinuum.OccurrenceMap.prototype.show = function(degree){
       this.primitive == null;
     }
 
-    this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry(mf_arr);
+    this.super.mfCollection.findMinMaxGeometry();
     this.max_num = 0;
     var map_data = this.makeBasicMap(degree);
     if (map_data == -1){

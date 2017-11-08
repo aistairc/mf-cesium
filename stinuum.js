@@ -1421,7 +1421,7 @@ Stinuum.OccurrenceMap.prototype.show = function(degree){
       this.primitive == null;
     }
     degree.time = degree.time * 86400;
-    this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry(mf_arr);
+    this.super.mfCollection.findMinMaxGeometry();
     this.max_num = 0;
     let cube_data = this.makeBasicCube(degree);
     if (cube_data == -1){
@@ -1463,7 +1463,7 @@ Stinuum.OccurrenceMap.prototype.show = function(degree){
       this.primitive == null;
     }
 
-    this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry(mf_arr);
+    this.super.mfCollection.findMinMaxGeometry();
     this.max_num = 0;
     var map_data = this.makeBasicMap(degree);
     if (map_data == -1){
@@ -2926,9 +2926,7 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
   }
 
   this.super.geometryViewer.primitives[mf_id] = highlight_prim;
-  this.super.geometryViewer.animate({
-    id : mf_id
-  });
+  this.super.geometryViewer.animate();
 
   return 0;
 }
@@ -3111,9 +3109,10 @@ Stinuum.MFCollection.prototype.findMinMaxGeometry = function(p_mf_arr){
 
   if (p_mf_arr == undefined){
     this.min_max = min_max;
+    this.super.maxHeight = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(min_max.x[0],min_max.y[0]),Cesium.Cartesian3.fromDegrees(min_max.x[1],min_max.y[1])) * 4;
   }
 
-  this.super.maxHeight = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(min_max.x[0],min_max.y[0]),Cesium.Cartesian3.fromDegrees(min_max.x[1],min_max.y[1])) * 4;
+  
   return min_max;
 }
 

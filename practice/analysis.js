@@ -1,13 +1,11 @@
 var clearAnalysis = function(){
-    document.getElementById(option_id).innerText = 'Clearing...';
     var graph_id = div_id.graph;
     var radar_id = div_id.radar;
     var option_id = div_id.option;
     var upper_toolbar_id = div_id.upper_toolbar;
 
+    document.getElementById(option_id).innerHTML = 'Clearing...';
     cleanGraphDIV();
-
-    document.getElementById(option_id).innerHTML = '';
     document.getElementById(option_id).style.display = "none";
     document.getElementById(upper_toolbar_id).style.display = "flex";
 
@@ -22,8 +20,6 @@ var clearAnalysis = function(){
     }
     stinuum.s_query_on = false;
     turnon_toolbar();
-
-
 }
 
 var turnOnOptionDIV = function(){

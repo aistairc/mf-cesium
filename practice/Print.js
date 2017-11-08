@@ -113,10 +113,7 @@ function refresh() {
 }
 
 function drawFeatures() { //아이디로 찾을까
-    LOG("drawFeatures");
-
     stinuum.geometryViewer.update();
-
 }
 
 function connectHomeButton(){
@@ -134,7 +131,6 @@ function connectHomeButton(){
 function drawBoundingBox(layer_id){
     LOG("drawBoundingBox");
     var boundedBy = buffer.getBoundedBy(layer_id);
-    LOG(boundedBy, layer_id);
     if (boundedBy == undefined) {
         return;
     }

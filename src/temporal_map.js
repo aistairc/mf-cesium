@@ -65,9 +65,7 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
   }
 
   this.super.geometryViewer.primitives[mf_id] = highlight_prim;
-  this.super.geometryViewer.animate({
-    id : mf_id
-  });
+  this.super.geometryViewer.animate();
 
   return 0;
 }
