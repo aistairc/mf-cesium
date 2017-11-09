@@ -24,7 +24,7 @@ https://ksookim.github.io/mf-json/.
 
 ```
 $ cd Cesium-[Version ...]
-$ clone http://github.com/aistairc/mf-cesium
+$ git clone http://github.com/aistairc/mf-cesium
 ```
 
 3. Install Node.js

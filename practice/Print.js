@@ -13,10 +13,6 @@ function backButton() {
         //nothing
     }
     else if (printMenuState == MENU_STATE.features) { //go to LAYER
-    // if(isServer == false){
-    //     uploadButton.style.visibility = "visible";
-    //     uploadButton.style.padding = "10px";
-    // }
         removeCheckAllandUnCheckBtn();
         changeMenuMode(MENU_STATE.layers);
         printArea.innerHTML = "";
@@ -30,13 +26,14 @@ function backButton() {
 
         printArea.innerHTML = "";
         printArea.appendChild(list_maker.getFeaturesDivList(current_layer));
-        clearAnalysis();
+        
         afterChangingCheck();
+        refresh();
+        drawFeatures();
     }else {
         throw "BACK BUTTON, STATE ERROR"
     }
     clearAnalysis();
-    console.log(printMenuState);
 }
 
 function toggle_toolbar(){
@@ -113,10 +110,7 @@ function refresh() {
 }
 
 function drawFeatures() { //아이디로 찾을까
-    LOG("drawFeatures");
-
     stinuum.geometryViewer.update();
-
 }
 
 function connectHomeButton(){
@@ -134,7 +128,6 @@ function connectHomeButton(){
 function drawBoundingBox(layer_id){
     LOG("drawBoundingBox");
     var boundedBy = buffer.getBoundedBy(layer_id);
-    LOG(boundedBy, layer_id);
     if (boundedBy == undefined) {
         return;
     }

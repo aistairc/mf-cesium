@@ -254,7 +254,7 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
     div_temp.role = "presentation";
 
     a_temp.innerText = temporalProperties_name[i];
-    a_temp.onclick = (function(feature_id, temporalProperty) {
+    div_temp.onclick = (function(feature_id, temporalProperty) {
       return function() {
         getHighlight(feature_id, temporalProperty);
       }

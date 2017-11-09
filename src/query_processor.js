@@ -219,12 +219,6 @@ Stinuum.QueryProcessor.prototype.sliceFeatureByTime = function(feature, start, e
       break;
     } 
   }
-  
-  // if (geometry.datetimes.length != properties[0].datetimes.length){
-  //   LOG(feature, geometry.datetimes, properties[0].datetimes);
-  //   throw new Error("TODO");
-  // }
-
   if (end_i != -1){
     geometry.datetimes.splice(end_i, Number.MAX_VALUE);
     geometry.coordinates.splice(end_i, Number.MAX_VALUE);
@@ -260,3 +254,9 @@ Stinuum.QueryProcessor.prototype.sliceFeatureByTime = function(feature, start, e
 
   return new_feature;
 }
+
+Stinuum.QueryProcessor.prototype.getTimeMinMax = function(){
+  return this.super.mfCollection.findMinMaxGeometry(this.result_pairs).date;
+}
+
+

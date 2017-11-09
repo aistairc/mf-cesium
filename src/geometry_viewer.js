@@ -325,6 +325,7 @@ Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
   var bounding = this.super.bounding;
   var geomview = this;
 
+  LOG(bounding);
   if (geomview.super.mode == "SPACETIME"){
     if (bounding == undefined || bounding == -1){
       LOG("bounding is undefined");

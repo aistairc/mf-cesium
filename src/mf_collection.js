@@ -177,9 +177,10 @@ Stinuum.MFCollection.prototype.findMinMaxGeometry = function(p_mf_arr){
 
   if (p_mf_arr == undefined){
     this.min_max = min_max;
+    this.super.maxHeight = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(min_max.x[0],min_max.y[0]),Cesium.Cartesian3.fromDegrees(min_max.x[1],min_max.y[1])) * 4;
   }
 
-  this.super.maxHeight = Cesium.Cartesian3.distance(Cesium.Cartesian3.fromDegrees(min_max.x[0],min_max.y[0]),Cesium.Cartesian3.fromDegrees(min_max.x[1],min_max.y[1])) * 4;
+  
   return min_max;
 }
 
