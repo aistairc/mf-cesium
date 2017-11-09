@@ -27,7 +27,7 @@ $ cd Cesium-[Version ...]
 $ git clone http://github.com/aistairc/mf-cesium
 ```
 
-3. Install Node.js and Run the following command to install the dependencies at the previous folder :
+3. Install Node.js and run the following command to install the dependencies at the previous folder :
 
   ```
   $ npm install
