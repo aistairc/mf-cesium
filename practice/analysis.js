@@ -282,6 +282,8 @@ function setOptionDIVforSlider(){
     
     var fastest = new Date(time_min_max[0]);
     var latest = new Date(time_min_max[1]);
+    fastest.setTime(fastest.getTime() - 3600000 );
+    latest.setTime(latest.getTime() + 3600000);
 
     var min_date_div = document.createElement('div');
     min_date_div.className = 'time-query-date';
@@ -292,12 +294,12 @@ function setOptionDIVforSlider(){
     max_date_div.id = "max-date";
 
     var slider_bar_div = document.getElementById("slider_bar");
-    slider_bar_div.style.width = '70%';
+    slider_bar_div.style.width = '66%';
     slider_bar_div.style.float = "left";
     slider_bar_div.style.margin = '10px';
     
-    min_date_div.innerText = fastest.getFullYear() + " / " + (fastest.getMonth() + 1) + " / " + (fastest.getDate());
-    max_date_div.innerText = latest.getFullYear() + " / " + (latest.getMonth() + 1) + " / " + (latest.getDate());
+    min_date_div.innerText = fastest.getFullYear() + " / " + (fastest.getMonth() + 1) + " / " + (fastest.getDate()) +" " + fastest.getHours() +"h";
+    max_date_div.innerText = latest.getFullYear() + " / " + (latest.getMonth() + 1) + " / " + (latest.getDate()) + " "+ latest.getHours()+"h";
 
     var close_btn = makeAnalysisCloseBtn();
 
@@ -334,6 +336,8 @@ function time_query(){
             if (time_min_max == undefined) return;
             var fastest = new Date(time_min_max[0]);
             var latest = new Date(time_min_max[1]);
+            fastest.setTime(fastest.getTime() - 3600000 );
+            latest.setTime(latest.getTime() + 3600000);
             var diff = (latest.getTime() - fastest.getTime()) / 100;
 
             var new_fastest = new Date();
@@ -345,7 +349,7 @@ function time_query(){
             var start = new_fastest.getFullYear() + " / " + (new_fastest.getMonth() + 1) + " / " + (new_fastest.getDate()) 
                 + " " + (new_fastest.getHours()) + ":00";
             var end = new_latest.getFullYear() + " / " + (new_latest.getMonth() + 1) + " / " + (new_latest.getDate()) 
-                + " " + (new_fastest.getHours()) + ":00";
+                + " " + (new_latest.getHours()) + ":00";
             return start + " - " + end;
         }
     });
@@ -368,12 +372,17 @@ function zoom() {
     
     var fastest = new Date(time_min_max[0]);
     var latest = new Date(time_min_max[1]);
+    fastest.setTime(fastest.getTime() - 3600000 );
+    latest.setTime(latest.getTime() + 3600000);
 
-    var diff = (latest.getTime() - fastest.getTime()) / 100;
-    latest.setTime(fastest.getTime() + diff * zoom_time[1]);
-    fastest.setTime(fastest.getTime() + diff * zoom_time[0]);
+    var diff = (latest.getTime() - fastest.getTime()) / 100;            
+    var new_fastest = new Date();
+    var new_latest = new Date(); 
+    new_fastest.setTime(fastest.getTime() + diff * value[0]);
+    if (value[1] == 100) new_latest = latest;
+    else new_latest.setTime(fastest.getTime() + diff * value[1]);
 
-    stinuum.queryProcessor.queryByTime(fastest, latest);
+    stinuum.queryProcessor.queryByTime(new_fastest, new_latest);
     stinuum.geometryViewer.update();
 }
 

@@ -7,12 +7,10 @@ Stinuum.DirectionRadar.prototype.remove = function(canvasID){
   this.super.mfCollection.colorCollection = {};
 }
 
-/**
-@color : [west : yellow, east : green, north : cyan, south : red]
+/*
+color : [west : yellow, east : green, north : cyan, south : red]
 */
 Stinuum.DirectionRadar.prototype.show = function(canvasID){
-
-
   var drawWest = function(ctx, h_width, h_height, length, max_len, velocity, max_velo, color){
     ctx.beginPath();
     ctx.moveTo(h_width,h_height);
