@@ -4,7 +4,7 @@ Stinuum.DirectionRadar.prototype.remove = function(canvasID){
   radar_canvas.innerHTML = '';
   radar_canvas.getContext('2d').clearRect(0, 0, radar_canvas.width, radar_canvas.height);
 
-  this.super.mfCollection.colorCollection = {};
+  this.super.mfCollection.colorCollection = this.pre_colorCollection;
 }
 
 /*
@@ -61,7 +61,7 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
   
   var cnvs = document.getElementById(canvasID);
   var cumulative = new Stinuum.SpatialInfo();
-
+  this.pre_colorCollection = Stinuum.copyObj(this.super.mfCollection.colorCollection);
   for (var index = 0 ; index < this.super.mfCollection.features.length ; index++){
     var mf = this.super.mfCollection.features[index];
     var cl = Stinuum.addDirectionInfo(cumulative, mf.feature.temporalGeometry);

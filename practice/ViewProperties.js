@@ -23,10 +23,11 @@ function turnOffProperties(){
   document.getElementById(div_id.menu_list).style.height = '100%';
 }
 
-function getHighlight(feature, temporalProperty) {
+function getHighlight(featureID, temporalPropertyName) {
   changeOptionToolbarToCloseDIV();
-  showOneFeatureGraph(feature, temporalProperty);
-  stinuum.temporalMap.show(feature, temporalProperty);
+  LOG(featureID, temporalPropertyName);
+ // showOneFeatureGraph(featureID, temporalPropertyName);
+  stinuum.temporalMap.show(featureID, temporalPropertyName);
 }
 
 
