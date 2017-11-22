@@ -56,7 +56,7 @@ var selectDegree = function() {
 
     var table = document.createElement('table');
     var row = table.insertRow(table.rows.length);
-    var degree_string = ['long(°) : ', 'lat(°) : ', 'time(days) : '];
+    var degree_string = ['The number of Divider. longitude : ', 'latitude : ', 'Time : '];
     var length = 3;
     if (viewer.scene.mode != Cesium.SceneMode.COLUMBUS_VIEW) length = 2;
     for (var i = 0; i < length; i++) {

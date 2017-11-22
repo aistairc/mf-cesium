@@ -499,7 +499,7 @@ Stinuum.drawOneCube = function(positions, rating = 1.0){
     red_rate,
     green_rate,
     blue_rate,
-    alpha
+    alpha * 0.9
   );
 
   var size = Stinuum.calcSidesBoxCoord(positions);

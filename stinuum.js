@@ -1686,8 +1686,12 @@ Stinuum.OccurrenceMap.prototype.show = function(degree){
     degree.y = 5;
   }
 
+  degree.x = ((min_max.x[1] - min_max.x[0]) / degree.x).toFixed(5);
+  degree.y = ((min_max.y[1] - min_max.y[0]) / degree.y).toFixed(5);
+
   if (this.super.mode == 'SPACETIME'){
-    if (degree.time == undefined) degree.time = (min_max.date[1].getTime() - min_max.date[0].getTime()) / (1000 * 10 * 86400);
+    if (degree.time == undefined) degree.time = 5;
+    degree.time = Math.ceil((min_max.date[1].getTime() - min_max.date[0].getTime()) / degree.time) / 1000; //degree.time is second
 
     var mf_arr = this.super.mfCollection.features;
     if (mf_arr.length == 0){
@@ -1697,7 +1701,6 @@ Stinuum.OccurrenceMap.prototype.show = function(degree){
       this.super.cesiumViewer.scene.primitives.remove(this.primitive);
       this.primitive == null;
     }
-    degree.time = degree.time * 86400;
     this.super.mfCollection.findMinMaxGeometry();
     this.max_num = 0;
     let cube_data = this.makeBasicCube(degree);
@@ -1943,6 +1946,7 @@ Stinuum.OccurrenceMap.prototype.draw2DHeatMapMovingPoint = function(geometry, de
     }
 
   }
+  LOG(map_data);
   this.max_num = Math.max(max_num,this.max_num);
 
 }
@@ -1966,7 +1970,7 @@ Stinuum.OccurrenceMap.prototype.makeMap = function(degree, map_data){
       var rating = count/max_count;
       if (rating < 0.05){
         let blue = -20 * rating + 1.0;
-        var color = new Cesium.Color(0, 0, blue, blue);
+        var color = new Cesium.Color(0, 0, blue, blue * 0.9);
         instances.push(new Cesium.GeometryInstance({
           geometry : new Cesium.RectangleGeometry({
             rectangle : Cesium.Rectangle.fromDegrees(min_max.x[0] + x_deg * x, min_max.y[0] + y_deg * y , min_max.x[0] + x_deg * (x+1), min_max.y[0] + y_deg * (y+1)),
@@ -1980,7 +1984,7 @@ Stinuum.OccurrenceMap.prototype.makeMap = function(degree, map_data){
       else if (rating > 0.1){
         var green_rate = 2.0 - 2.0 * rating;
         if (green_rate > 1.0) green_rate = 1.0;
-        var color = new Cesium.Color(1.0, green_rate, 0.0, rating);
+        var color = new Cesium.Color(1.0, green_rate, 0.0, rating* 0.9);
         instances.push(new Cesium.GeometryInstance({
           geometry : new Cesium.RectangleGeometry({
             rectangle : Cesium.Rectangle.fromDegrees(min_max.x[0] + x_deg * x, min_max.y[0] + y_deg * y , min_max.x[0] + x_deg * (x+1), min_max.y[0] + y_deg * (y+1)),
@@ -2093,7 +2097,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPolygon = function(geometry, 
     
     var polygon_size = geometry.coordinates[0][0].length;
 
-    for (var i = 0 ; i < time_length - 1 ; i++){
+    for (var i = 0 ; i < cube_data.length - 1  ; i++){
       var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time, time_deg/2, new Cesium.JulianDate());
       var time = [cube_data[i].time, middle_time, cube_data[i+1].time];
 
@@ -2175,7 +2179,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPoint = function(geometry, de
   if (geometry.interpolations[0] == "Spline" || geometry.interpolations[0] == "Linear"){
     var property;
     property = Stinuum.getSampleProperty_Point(geometry);
-    for (var i = 0 ; i < time_length - 1 ; i++){
+    for (var i = 0 ; i < cube_data.length - 1   ; i++){
       var middle_time = Cesium.JulianDate.addSeconds(cube_data[i].time, time_deg/2 ,new Cesium.JulianDate());
       var time = [cube_data[i].time, middle_time, cube_data[i+1].time];
 
@@ -2201,6 +2205,7 @@ Stinuum.OccurrenceMap.prototype.draw3DHeatMapMovingPoint = function(geometry, de
       max_num = Math.max(cube_data[time_index].count[x_index][y_index],max_num);
     }
   }
+  LOG(cube_data);
   this.max_num = Math.max(max_num,this.max_num);
 
 }
@@ -2873,7 +2878,7 @@ Stinuum.drawOneCube = function(positions, rating = 1.0){
     red_rate,
     green_rate,
     blue_rate,
-    alpha
+    alpha * 0.9
   );
 
   var size = Stinuum.calcSidesBoxCoord(positions);
