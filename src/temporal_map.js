@@ -76,7 +76,6 @@ Stinuum.TemporalMap.drawPathMovingPoint = function(data, property, heights){
 
   //if array is too long, pick sample.
   if (data.coordinates.length > 100){
-    LOG(heights)
     let one_line_length = data.coordinates.length / 100;
     let start_i = 0;
     let end_i = one_line_length;
@@ -124,7 +123,6 @@ Stinuum.TemporalMap.drawPathMovingPoint = function(data, property, heights){
       instances.push(Stinuum.drawInstanceOneLine(positions, color));
     }
   }
-  LOG(instances);
   return instances;
 }
 

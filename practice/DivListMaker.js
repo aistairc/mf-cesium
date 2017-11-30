@@ -256,7 +256,7 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
     a_temp.innerText = temporalProperties_name[i];
     div_temp.onclick = (function(feature_id, temporalProperty) {
       return function() {
-        getHighlight(feature_id, temporalProperty);
+        showTemporalMap(feature_id, temporalProperty);
       }
     })(name, temporalProperties_name[i]);
     div_temp.appendChild(a_temp);
