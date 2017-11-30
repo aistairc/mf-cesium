@@ -69,3 +69,46 @@ Stinuum.TemporalMap.prototype.show = function(mf_id,propertyName){
 
   return 0;
 }
+
+Stinuum.TemporalMap.drawPathMovingPoint = function(data, property, heights){
+  let instances = [];
+  var pro_min_max = pro_min_max = Stinuum.findMinMaxProperties(property);
+  for (let index = 0 ; index < data.coordinates.length - 1; index++){
+    //if array is too long, pick sample.
+    if (data.coordinates.length > 1000){
+      if (index % (Math.floor(data.coordinates.length / 1000)) != 0) continue;
+    }
+    let middle_value = (property.values[index] + property.values[index+1]) / 2;
+    let blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+    if (blue_rate < 0.2){
+      blue_rate = 0.2;
+    }
+    if (blue_rate > 0.9){
+      blue_rate = 0.9;
+    }
+    let color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , 0.8);
+
+    let positions;
+    if (heights == 0){
+      positions =
+      (data.coordinates[index].concat([0]))
+      .concat(data.coordinates[index+1].concat([0]));
+    }
+    else {
+      if (data.interpolations[0] == 'Stepwise'){
+        positions = (data.coordinates[index].concat(heights[index]))
+        .concat(data.coordinates[index].concat(heights[index+1]));
+      }
+      else{
+        positions =
+        (data.coordinates[index].concat(heights[index]))
+        .concat(data.coordinates[index+1].concat(heights[index+1]));
+      }
+
+    }
+
+    instances.push(Stinuum.drawInstanceOneLine(positions, color));
+  }
+  return instances;
+}
+

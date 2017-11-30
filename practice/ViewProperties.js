@@ -25,8 +25,6 @@ function turnOffProperties(){
 
 function getHighlight(featureID, temporalPropertyName) {
   changeOptionToolbarToCloseDIV();
-  LOG(featureID, temporalPropertyName);
- // showOneFeatureGraph(featureID, temporalPropertyName);
   stinuum.temporalMap.show(featureID, temporalPropertyName);
 }
 

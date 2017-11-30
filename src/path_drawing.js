@@ -128,21 +128,15 @@ Stinuum.PathDrawing.prototype.drawPathMovingPoint = function(options){
   if (this.supersuper.mode == 'SPACETIME'){
     heights = this.supersuper.getListOfHeight(data.datetimes, this.supersuper.mfCollection.min_max.date);
   }
-  var pro_min_max = null;
-  if (property != undefined){
-    pro_min_max = Stinuum.findMinMaxProperties(property);
-  }
-
   if (data.interpolations[0] == 'Discrete'){
     return this.drawMovingPoint(options);
   }
-
   if (data.interpolations[0] == 'Stepwise' && this.supersuper.mode == 'STATICMAP'){
     return this.drawMovingPoint(options);
   }
 
   if (data.coordinates.length == 1){
-    console.log("one");
+    console.log("Coordinates array has only one element");
   }
   else{
     if (property == undefined){
@@ -150,39 +144,7 @@ Stinuum.PathDrawing.prototype.drawPathMovingPoint = function(options){
       instances.push(Stinuum.drawInstanceOneLine(positions, color));
     }
     else{
-      for (var index = 0 ; index < data.coordinates.length - 1; index++){
-        var middle_value = (property.values[index] + property.values[index+1]) / 2;
-        var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
-        if (blue_rate < 0.2){
-          blue_rate = 0.2;
-        }
-        if (blue_rate > 0.9){
-          blue_rate = 0.9;
-        }
-        color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , 0.8);
-
-        var positions;
-        if (this.supersuper.mode == 'STATICMAP' || this.supersuper.mode == 'ANIMATEDMAP'){
-          positions =
-          (data.coordinates[index].concat([0]))
-          .concat(data.coordinates[index+1].concat([0]));
-        }
-        else {
-          if (geometry.interpolations[0] == 'Stepwise'){
-            positions = (data.coordinates[index].concat(heights[index]))
-            .concat(data.coordinates[index].concat(heights[index+1]));
-          }
-          else{
-            positions =
-            (data.coordinates[index].concat(heights[index]))
-            .concat(data.coordinates[index+1].concat(heights[index+1]));
-          }
-
-        }
-
-        instances.push(Stinuum.drawInstanceOneLine(positions, color));
-      }
-
+      instances = Stinuum.TemporalMap.drawPathMovingPoint(data, property, heights);
     }
   }
 
