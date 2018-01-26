@@ -195,6 +195,15 @@ Stinuum.calculateCarteDist = function(point1, point2){
   return Cesium.Cartesian3.distance(carte3_1, carte3_2);
 }
 
+Stinuum.getBoundingSphere = function(min_max, height){
+  var middle_x = ( min_max.x[0] + min_max.x[1] ) / 2;
+  var middle_y = ( min_max.y[0] + min_max.y[1] ) / 2;
+  var middle_height = (height[0] + height[1]) / 2;
+
+  var radius = Stinuum.calculateCarteDist([middle_x,middle_y,middle_height], [min_max.x[0],min_max.y[0],height[0]]);
+  return new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(middle_x,middle_y,middle_height), radius * 3);
+}
+
 Stinuum.findMaxCoordinatesLine = function(geometry){
   var max_length = 0;
   for (var i = 0 ; i < geometry.coordinates.length ; i++){
@@ -248,7 +257,7 @@ Stinuum.getSampleProperty_Point = function(geometry){
   }
   for (var i = 0 ; i < geometry.coordinates.length ; i++){
     var juldate = Cesium.JulianDate.fromDate(new Date(datetimes[i]));
-    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(geometry.coordinates[i][0],geometry.coordinates[i][1]));
+    property.addSample(juldate, Cesium.Cartesian3.fromDegrees(eometry.coordinates[i][0],eometry.coordinates[i][1]));
   }
   return property;
 }

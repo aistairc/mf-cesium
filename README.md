@@ -1,4 +1,7 @@
 
+
+
+
 # Stinuum
 
 Stinuum is a JavaScript library to visualize and analyze moving objects on [Cesium](https://cesiumjs.org).
@@ -17,27 +20,29 @@ https://ksookim.github.io/mf-json/.
 
 1. Download Cesium. (http://cesiumjs.org/downloads.html)
 
-2. Move to the downloaded Cesium folder and clone this project.
+2. clone this project after enter Cesium Folder.
 
 ```
 $ cd Cesium-[Version ...]
-$ git clone http://github.com/aistairc/mf-cesium
+$ clone http://github.com/aistairc/mf-cesium
 ```
 
-3. Install Node.js and run the following command to install the dependencies at the previous folder :
+3. Install Node.js
+
+4. Run the following command to install the dependencies:
 
   ```
   $ npm install
   ```
-4. Start Cesium server
+5. Start Cesium server
 
   ```
   $ node server.js
   ```
-5. Enter http://localhost:8080/mf-cesium/practice/demo.html on your browser (Recommend Chrome).
+6. Enter http://localhost:8080/mf-cesium/practice/demo.html on your browser (Chrome Recommended).
 
-6. If you want to access a data server which provides RESTful API as descrbied in [OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/), please append "?url=data_server_url&token=your_token" with the url and token of the server.
-Otherwise you can drag and drop json files to explore the data locally.
+7. If you have the information of url and token to access a data server that provides RESTful API as descrbied in [OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/), please append "?url=data_server_url&token=your_token"
+Otherwise, you can drag and drop json files to explore the data.
 
 
 - - -

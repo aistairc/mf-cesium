@@ -90,7 +90,7 @@ function uncheckAllandUpdate(layer_id) {
   for (var feature_id in features){
     list_maker.turnOffFeature(layer_id, feature_id);
     var ft = buffer.getFeature(layer_id, feature_id);
-    if (!ft.empty) stinuum.mfCollection.remove(ft);
+    stinuum.mfCollection.remove(ft);
   }
 
   printFeaturesList(layer_id);
@@ -98,12 +98,73 @@ function uncheckAllandUpdate(layer_id) {
 }
 
 function update_printed_features(){
-  //Dont use in Demo
-  /*
   var layer_features = list_maker.getDivAllFeaturesAreTurnedOn();
   var list_div = document.getElementById(div_id.printed_features);
   list_div.innerHTML = "";
 
   if (layer_features) list_div.appendChild(layer_features);
-  */
 }
+
+/*
+function checkAll(name) {
+    var layerID;
+    var checked = document.getElementsByName(name);
+    for (var i = 0; i < checked.length; i++) {
+        var temp = checked[i].id;
+        temp = temp.split("##");
+        var feature_layer = temp[1];
+        layerID = feature_layer;
+        var feature_name = temp[0];
+        console.log(feature_layer, feature_name);
+        var data = getBuffer([feature_layer, feature_name]);
+        if (checked[i].checked == true) {
+            stinuum.mfCollection.add(data);
+        } else {
+            checked[i].checked = true;
+            stinuum.mfCollection.add(data);
+        }
+    }
+
+    if (printedLayerList.contains(layerID)) {
+
+        var layer_checked = document.getElementById(layerID);
+        var index = printedLayerList.indexOf(layerID);
+        bool_printedLayerList[index] = 1;
+        layer_checked.checked = true;
+
+    }
+
+    cleanGraphDIV();
+
+    drawFeatures();
+}
+
+
+
+function uncheckAll(name) {
+    var layerID;
+    var checked = document.getElementsByName(name);
+    for (var i = 0; i < checked.length; i++) {
+        var temp = checked[i].id;
+        temp = temp.split("##");
+        var feature_layer = temp[1];
+        layerID = feature_layer;
+        var feature_name = temp[0];
+        var data = getBuffer([feature_layer, feature_name]);
+        if (checked[i].checked == true) {
+            checked[i].checked = false;
+            stinuum.mfCollection.remove(data);
+        } else {
+            stinuum.mfCollection.remove(data);
+        }
+    }
+    if (printedLayerList.contains(layerID)) {
+        var layer_checked = document.getElementById(layerID);
+        layer_checked.checked = false;
+        var index = printedLayerList.indexOf(layerID);
+        bool_printedLayerList[index] = 0;
+    }
+    cleanGraphDIV();
+    drawFeatures();
+}
+*/

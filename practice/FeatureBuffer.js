@@ -1,7 +1,6 @@
-function FeatureBuffer(_connector){
-  this.connector = _connector;
+function FeatureBuffer(p_connection){
+  this.connector = p_connection;
   this.data = {};
-  this.stBoundedBy = {};
   this.fromServer = {};
 }
 
@@ -66,10 +65,6 @@ FeatureBuffer.prototype.setBuffer_feature = function(layer_id, feature_id, featu
   }
 }
 
-FeatureBuffer.prototype.updateOneFeatureFromServer = function(layer_id, feature_id, callback){
-  delete this.data[layer_id][feature_id];
-  connector.getOneFeature(layer_id, feature_id, this.data[layer_id], callback);
-}
 
 FeatureBuffer.prototype.getLayerNameList = function(){
   var list = [];
@@ -81,16 +76,14 @@ FeatureBuffer.prototype.getLayerNameList = function(){
   return list;
 }
 
-FeatureBuffer.prototype.getBoundedBy = function(layer){
-  return this.stBoundedBy[layer];
-}
+
 
 
 
 
 
 //TODO remove
-/*
+
 FeatureBuffer.prototype.getBuffer = function(id) {
     if (id.length == 1) {
         if (this.data.hasOwnProperty(id[0])) {
@@ -120,7 +113,6 @@ FeatureBuffer.prototype.removeBuffer = function(id){
              delete this.data[id[0]][id[1]];
          }
      }
-    LOG("TODO remove");
 }
 
 
@@ -158,4 +150,3 @@ FeatureBuffer.prototype.updateBuffer = function(id, feature) {
     }
   }
 }
-*/

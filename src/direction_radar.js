@@ -4,13 +4,15 @@ Stinuum.DirectionRadar.prototype.remove = function(canvasID){
   radar_canvas.innerHTML = '';
   radar_canvas.getContext('2d').clearRect(0, 0, radar_canvas.width, radar_canvas.height);
 
-  this.super.mfCollection.colorCollection = this.pre_colorCollection;
+  this.super.mfCollection.colorCollection = {};
 }
 
-/*
-color : [west : yellow, east : green, north : cyan, south : red]
+/**
+@color : [west : yellow, east : green, north : cyan, south : red]
 */
 Stinuum.DirectionRadar.prototype.show = function(canvasID){
+
+
   var drawWest = function(ctx, h_width, h_height, length, max_len, velocity, max_velo, color){
     ctx.beginPath();
     ctx.moveTo(h_width,h_height);
@@ -61,10 +63,11 @@ Stinuum.DirectionRadar.prototype.show = function(canvasID){
   
   var cnvs = document.getElementById(canvasID);
   var cumulative = new Stinuum.SpatialInfo();
-  this.pre_colorCollection = Stinuum.copyObj(this.super.mfCollection.colorCollection);
+
   for (var index = 0 ; index < this.super.mfCollection.features.length ; index++){
     var mf = this.super.mfCollection.features[index];
     var cl = Stinuum.addDirectionInfo(cumulative, mf.feature.temporalGeometry);
+    LOG(cl);
     if (cl != -1)
       this.super.mfCollection.setColor(mf.id, cl);
   }
@@ -176,17 +179,18 @@ Stinuum.addDirectionInfo = function(cumulative, geometry){
   var life = Stinuum.calculateLife(geometry) / (1000 * 60 * 60); // hours, ms * sec * min)
   var length = Stinuum.calculateLength(geometry) / 1000; // kilo-meter
   var velocity = Stinuum.calculateVelocity(geometry); // km/h;
+  //LOG(life, length, velocity);
 
-  var start_point = geometry.coordinates[0];
-  var end_point = geometry.coordinates[geometry.coordinates.length-1];
+  var start_point = geometry.coordinates[0][0];
+  var end_point = geometry.coordinates[geometry.coordinates.length-1][0];
 
   if (geometry.type != "MovingPoint" ){ // Polygon, LineString
-    start_point = Stinuum.getCenter(start_point[0], geometry.type);
-    end_point = Stinuum.getCenter(end_point[0], geometry.type);
+    start_point = Stinuum.getCenter(start_point, geometry.type);
+    end_point = Stinuum.getCenter(end_point, geometry.type);
   }
 
   var dist_x, dist_y;
-  LOG(start_point,end_point);
+
   dist_x = end_point[0] - start_point[0];
   dist_y = end_point[1] - start_point[1];
 

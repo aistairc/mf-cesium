@@ -18,8 +18,6 @@ DivListMaker.prototype.getLayerDivList = function(){
     li.id = layer_name_list[i];
     li.onclick = (function(id) {
       return function() {
-        removeBoundingTime(id);
-        removeBoundingBox(id);
         changeMenuMode(MENU_STATE.features);
         var features = buffer.getFeatureIDsByLayerID(id);
         var features_is_empty = Object.keys(features).length === 0 && features.constructor === Object;
@@ -27,6 +25,7 @@ DivListMaker.prototype.getLayerDivList = function(){
             printFeaturesList(id);
             afterChangingCheck();
             printCheckAllandUnCheck(id);  
+            stinuum.geometryViewer.adjustCameraView();  
         };
 
         if (features_is_empty && buffer.fromServer[id]){
@@ -39,20 +38,6 @@ DivListMaker.prototype.getLayerDivList = function(){
         }
       };
     })(layer_id);
-
-    li.onmouseenter = (function(id){
-      return function(event){
-        drawBoundingBox(id);
-        printBoundingTime(id, event);
-      }
-    })(layer_id);
-    li.onmouseleave = (function(id){
-      return function(){
-        removeBoundingBox(id);
-        removeBoundingTime(id);
-      }
-    })(layer_id);
-
     li.style = "width:inherit";
     li.className = "list-group-item left-toolbar-item";
     li.appendChild(a);
@@ -77,7 +62,7 @@ DivListMaker.prototype.turnOffFeature= function(layer_id, feature_id){
   this.isFeatureChecked[layer_id][feature_id] = false;
 }
 
-DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, isTurnOn){
+DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, is_printed_features=false){
   var li = document.createElement("li");
   var a = document.createElement("a");
   var ul = document.createElement("ul");
@@ -91,56 +76,29 @@ DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, isTurn
   
   a.style.width = "90%";
   a.innerText = feature_id;
-
-  //IF this feature is not loaded yet.
-  if (buffer.getFeature(layer_id, feature_id).empty == true){
-      a.onclick = (function(layer, feature) {
-        return function() {
-          var callback = function(){
-            printFeaturesList(layer);
-            afterChangingCheck();
-          };
-          buffer.updateOneFeatureFromServer(layer, feature, callback);
-        }
-      })(layer_id, feature_id);  
-      chk.type = "checkbox";
-      chk.style.float = "left";
-      chk.checked = false;
-      chk.addEventListener('click', function(){
-          var callback = function(){
-            printFeaturesList(layer_id);
-            afterChangingCheck();
-          };
-          buffer.updateOneFeatureFromServer(layer_id, feature_id, callback);
-      });
-      isTurnOn = false;
-  }
-  else{
-    if (!isTurnOn){
-      a.onclick = (function(layer, feature) {
-        return function() {
-          changeMenuMode(MENU_STATE.one_feature);
-          removeCheckAllandUnCheckBtn();
-          printFeatureProperties(layer, feature);
+  if (!is_printed_features){
+    a.onclick = (function(layer, feature) {
+      return function() {
+        //LOG("dra");
+        changeMenuMode(MENU_STATE.one_feature);
+        removeCheckAllandUnCheckBtn();
+        printFeatureProperties(layer, feature);
         //getFeature(layer, feature);
-        }
-      })(layer_id, feature_id);  
-    }
-    
-    chk.type = "checkbox";
-    chk.name = layer_id + "##" + feature_id;
-    chk.style.float = "left";
-
-    if (this.isFeatureChecked[layer_id][feature_id] == undefined){
-      showFeature(layer_id, feature_id);
-    }
-    chk.checked = this.isFeatureChecked[layer_id][feature_id];
-    chk.addEventListener('click', function(){
-      toggleFeature(layer_id,feature_id);
-    });
-    if (chk.checked) isTurnOn = true;
+      }
+    })(layer_id, feature_id);  
   }
+  
+  chk.type = "checkbox";
+  chk.name = layer_id + "##" + feature_id;
+  chk.style.float = "left";
 
+  if (this.isFeatureChecked[layer_id][feature_id] == undefined){
+    showFeature(layer_id, feature_id);
+  }
+  chk.checked = this.isFeatureChecked[layer_id][feature_id];
+  chk.addEventListener('click', function(){
+      toggleFeature(layer_id,feature_id);
+  });
 
   div.appendChild(chk);
   div.appendChild(a);
@@ -153,18 +111,11 @@ DivListMaker.prototype.getFeaturesDivList = function(layer_id){
   var target = document.createElement('ul');
   var features_list = buffer.getFeatureIDsByLayerID(layer_id);
   target.className = "input-group";
-
-  let feature_li_arr = [];
   for (var feature_id in features_list) {
-    let isTurnOn;
-    let li = this.createLIforFeature(layer_id, feature_id, isTurnOn);
-    if (isTurnOn) feature_li_arr.unshift(li);
-    else feature_li_arr.unshift(li);
-
-  }
-  // FOR Reverse object
-  for (var i = feature_li_arr.length - 1; i >= 0 ; i--){
-    let li = feature_li_arr[i];
+    //var data = buffer.getFeature(layer_id, feature_id);
+    //buffer.getBuffer([layer_id, features_list[i]]);
+    var li = this.createLIforFeature(layer_id, feature_id);
+    
     target.appendChild(li);
   }
   return target;
@@ -198,7 +149,7 @@ DivListMaker.prototype.getDivAllFeaturesAreTurnedOn = function(){
   for (var layer_id in object){
     for (var i = 0 ; i < object[layer_id].length ; i++){
       var feature_id = object[layer_id][i];
-      target.appendChild(this.createLIforFeature(layer_id, feature_id, false, true));
+      target.appendChild(this.createLIforFeature(layer_id, feature_id, true));
     }
   }
   if (target.childNodes.length == 0) return 0;
@@ -254,9 +205,9 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
     div_temp.role = "presentation";
 
     a_temp.innerText = temporalProperties_name[i];
-    div_temp.onclick = (function(feature_id, temporalProperty) {
+    a_temp.onclick = (function(feature_id, temporalProperty) {
       return function() {
-        showTemporalMap(feature_id, temporalProperty);
+        getHighlight(feature_id, temporalProperty);
       }
     })(name, temporalProperties_name[i]);
     div_temp.appendChild(a_temp);

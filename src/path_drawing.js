@@ -128,15 +128,21 @@ Stinuum.PathDrawing.prototype.drawPathMovingPoint = function(options){
   if (this.supersuper.mode == 'SPACETIME'){
     heights = this.supersuper.getListOfHeight(data.datetimes, this.supersuper.mfCollection.min_max.date);
   }
+  var pro_min_max = null;
+  if (property != undefined){
+    pro_min_max = Stinuum.findMinMaxProperties(property);
+  }
+
   if (data.interpolations[0] == 'Discrete'){
     return this.drawMovingPoint(options);
   }
+
   if (data.interpolations[0] == 'Stepwise' && this.supersuper.mode == 'STATICMAP'){
     return this.drawMovingPoint(options);
   }
 
   if (data.coordinates.length == 1){
-    console.log("Coordinates array has only one element");
+    console.log("one");
   }
   else{
     if (property == undefined){
@@ -144,7 +150,39 @@ Stinuum.PathDrawing.prototype.drawPathMovingPoint = function(options){
       instances.push(Stinuum.drawInstanceOneLine(positions, color));
     }
     else{
-      instances = Stinuum.TemporalMap.drawPathMovingPoint(data, property, heights);
+      for (var index = 0 ; index < data.coordinates.length - 1; index++){
+        var middle_value = (property.values[index] + property.values[index+1]) / 2;
+        var blue_rate = (middle_value - pro_min_max.value[0]) / (pro_min_max.value[1] - pro_min_max.value[0]);
+        if (blue_rate < 0.2){
+          blue_rate = 0.2;
+        }
+        if (blue_rate > 0.9){
+          blue_rate = 0.9;
+        }
+        color = new Cesium.Color(1.0 , 1.0 - blue_rate , 0 , 0.8);
+
+        var positions;
+        if (this.supersuper.mode == 'STATICMAP' || this.supersuper.mode == 'ANIMATEDMAP'){
+          positions =
+          (data.coordinates[index].concat([0]))
+          .concat(data.coordinates[index+1].concat([0]));
+        }
+        else {
+          if (geometry.interpolations[0] == 'Stepwise'){
+            positions = (data.coordinates[index].concat(heights[index]))
+            .concat(data.coordinates[index].concat(heights[index+1]));
+          }
+          else{
+            positions =
+            (data.coordinates[index].concat(heights[index]))
+            .concat(data.coordinates[index+1].concat(heights[index+1]));
+          }
+
+        }
+
+        instances.push(Stinuum.drawInstanceOneLine(positions, color));
+      }
+
     }
   }
 
@@ -340,7 +378,7 @@ Stinuum.makeDegreesArray = function(pos_2d, height){
   return points;
 }
 
-Stinuum.drawInstanceOneLine = function(positions, r_color, width = 1){
+Stinuum.drawInstanceOneLine = function(positions, r_color, width = 5){
   var carte = Cesium.Cartesian3.fromDegreesArrayHeights(positions);
   var polyline =  new Cesium.PolylineGeometry({
     positions : carte,
@@ -357,7 +395,7 @@ Stinuum.drawInstanceOneLine = function(positions, r_color, width = 1){
   return geoInstance;
 }
 
-Stinuum.drawOneLine = function(positions, r_color, width = 1){
+Stinuum.drawOneLine = function(positions, r_color, width = 5){
   var material = new Cesium.Material.fromType('Color');
   material.uniforms.color = r_color;
 
@@ -448,7 +486,7 @@ Stinuum.euclidianDistance3D = function(a, b) {
   return Math.sqrt(pow1 + pow2 + pow3);
 }
 
-Stinuum.drawOneCube = function(positions, rating = 1.0){
+Stinuum.drawOnbe = function(positions, rating = 1.0){
   var red_rate = 1.0, green_rate = 1.9 - rating * 1.9;
   var blue_rate = 0.0;
 
@@ -461,7 +499,7 @@ Stinuum.drawOneCube = function(positions, rating = 1.0){
     red_rate,
     green_rate,
     blue_rate,
-    alpha * 0.9
+    alpha
   );
 
   var size = Stinuum.calcSidesBoxCoord(positions);

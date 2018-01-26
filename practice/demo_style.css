@@ -63,8 +63,8 @@ body,
   visibility: hidden;
   z-index : 10;
   position: absolute;
-  font-size: 15px;
-  width : 350px;
+  font-size: 10px;
+  width : 280px;
   background-color : rgba(10,10,10,1);
   border-radius: 5px;
   border: 1px solid white;
@@ -318,7 +318,7 @@ button[title^=Bing]{
 }
 
 #menu_list {
-  height: 100%;
+  height: 70%;
   z-index:3;
   display : -webkit-flex;
   display : flex;
@@ -340,7 +340,7 @@ button[title^=Bing]{
     position: absolute;
     min-height: 30%;
     height: 30%;
-    bottom: 0%;
+    bottom: 30%;
     z-index: 3;
     float: left;
     overflow: auto;
@@ -403,36 +403,50 @@ button[title^=Bing]{
   overflow: auto;
 }
 
-#layerBound{
+/* image */
+#image {
+  z-index: 5;
+  position : absolute;
+  background-color:rgba(0,0,0,0);
+  top : 17%;
+  right: 5px;
+}
+
+#image_comment{
+  background-color: rgba(0,0,0,0);
+  position: absolute;
+  top : 18%;
+  z-index : 5;
+}
+
+#image_stat{
   visibility: hidden;
+  z-index : 10;
   position: absolute;
   font-size: 10px;
   width : 280px;
-  background-color : rgba(150,150,150,0.99);
-  border: 2px solid black;
-  z-index: 4;
-  color : black;
-  font-size: 15px;
-  border-radius : 5px;
-  left: 15%;
+  background-color : rgba(10,10,10,1);
+  border-radius: 5px;
+  border: 1px solid white;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
-#layerBound>.list-group-item{
-  background-color: transparent;
-  border :0;
-  border-radius: 0px;
+#image_stat>.row.title{
+  margin: 0;
+  margin-left: 10px;
 }
 
-#layerBound>.list-group-item:first-child{
-  border-bottom: 1px solid white;
+#image_stat>.row{
+  margin-top : 5px;
+  margin-bottom: 5px;
+  margin-left: 5px;
 }
 
-#layerBound_start, #layerBound_end{
-  color : black;
-  font-size:17px;
+.image-item.list-group-item{
+  background-color: rgba(100,100,100,0.5);
+}
+.image-item.list-group-item-text{
+  font-size : 11px;
 }
 
-.layerBound.list-group-item-text{
-  color : black;
-
-}

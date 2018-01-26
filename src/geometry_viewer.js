@@ -29,7 +29,7 @@ Stinuum.GeometryViewer.prototype.draw = function(){
   var minmax = this.super.mfCollection.min_max;
 
   if (this.super.mode == 'SPACETIME'){
-    this.super.setBounding(minmax, [0,this.super.maxHeight] );
+    this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0,this.super.maxHeight] );
     this.super.cesiumViewer.scene.primitives.add(this.drawZaxis());
     var entities = this.drawZaxisLabel();
     this.super.cesiumViewer.entities.add(entities.values[0]);
@@ -38,7 +38,7 @@ Stinuum.GeometryViewer.prototype.draw = function(){
     return -1;
   }
   else{
-    this.super.setBounding(minmax, [0,0] );
+    this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0,0] );
 
   }
   for (var index = 0 ; index < mf_arr.length ; index++){
@@ -173,8 +173,8 @@ Stinuum.GeometryViewer.prototype.drawZaxis = function(){
   var polylineCollection = new Cesium.PolylineCollection();
   var positions = [179,89,0,179,89,this.super.maxHeight];
 
-  polylineCollection.add(Stinuum.drawOneLine(positions,Cesium.Color.WHITE , 5));
-  polylineCollection.add(Stinuum.drawOneLine([178,88,this.super.maxHeight*0.95,179,89,this.super.maxHeight,179.9,89.9,this.super.maxHeight*0.95],Cesium.Color.WHITE , 5));
+  polylineCollection.add(Stinuum.drawOneLine(positions,Cesium.Color.WHITE));
+  polylineCollection.add(Stinuum.drawOneLine([178,88,this.super.maxHeight*0.95,179,89,this.super.maxHeight,179.9,89.9,this.super.maxHeight*0.95],Cesium.Color.WHITE));
 
   for (var height = 10 ; height < 100 ; height += 20){
     for (var long = -179 ; long < 179 ; long += 10){
@@ -279,7 +279,7 @@ Stinuum.GeometryViewer.prototype.showProjection = function(id){
 }
 
 Stinuum.GeometryViewer.prototype.showHeightBar = function(id){
-  var mf = this.super.mfCollection.getMFPairByIdInFeatures(id).feature;
+  var mf = this.super.mfCollection.getMFPairById(id).feature;
   var color = this.super.mfCollection.getColor(id);
 
   var geometry = mf.temporalGeometry;
@@ -322,26 +322,26 @@ Stinuum.GeometryViewer.prototype.showHeightBar = function(id){
 }
 
 Stinuum.GeometryViewer.prototype.adjustCameraView = function(){
-  var bounding = this.super.bounding;
-  var geomview = this;
+  //TODO
+  LOG("adjustCameraView");
 
-  LOG(bounding);
+  var bounding = this.bounding_sphere;
+  var viewer = this.viewer;
+  var geomview = this;
+  if (bounding == undefined || bounding == -1){
+    return;
+  }
   if (geomview.super.mode == "SPACETIME"){
-    if (bounding == undefined || bounding == -1){
-      LOG("bounding is undefined");
-      return;
-    }
-    var heading = Cesium.Math.toRadians(45.0);
-    var pitch = Cesium.Math.toRadians(-15.0);
-    var range = bounding.z * bounding.z / 3000000;
-    LOG(bounding.z , range);
-    geomview.super.cesiumViewer.camera.lookAt(bounding,
-      new Cesium.HeadingPitchRange(heading, pitch, range) );
+    geomview.super.cesiumViewer.camera.flyTo({
+      duration : 0.5,
+      destination : Cesium.Cartesian3.fromDegrees(-50,-89,28000000),
+      orientation : {
+        direction : new Cesium.Cartesian3( 0.6886542487458516, 0.6475816335752261, -0.32617994043216153),
+        up : new Cesium.Cartesian3(0.23760297490246338, 0.22346852237869355, 0.9453076990183581)
+      }});
   }
   else{
-    geomview.super.cesiumViewer.camera.flyTo({
-      destination : Cesium.Rectangle.fromDegrees(this.super.mfCollection.min_max.x[0],this.super.mfCollection.min_max.y[0],
-                  this.super.mfCollection.min_max.x[1],this.super.mfCollection.min_max.y[1]),
+    geomview.super.cesiumViewer.camera.flyToBoundingSphere(bounding, {
       duration : 0.5
     });
   }
@@ -423,28 +423,4 @@ Stinuum.GeometryViewer.prototype.clickMovingFeature = function(id){
 
   return 1;
 
-}
-
-Stinuum.GeometryViewer.prototype.drawBoundingBox = function(bounding_box, layer_id){
-  // if (bounding_box.bbox[1] < -90 || bounding_box.bbox[3] > 90 || bounding_box.bbox[0] < -180 || bounding_box.bbox[1] > 180){
-  //   return;
-  // }
-  var coords = Cesium.Rectangle.fromDegrees(bounding_box.bbox[0],bounding_box.bbox[1], bounding_box.bbox[2], bounding_box.bbox[3]);
-  var box_entity = this.super.cesiumViewer.entities.add({
-    id : layer_id,
-    rectangle :{
-      coordinates : coords,
-      height :0,
-      material : Cesium.Color.YELLOW.withAlpha(0.1),
-      outline:true,
-      outlineColor: Cesium.Color.RED,
-      outlineWidth : 5.0
-    }
-  });
-  if (this.super.mode == 'STATIC_MAP') this.super.cesiumViewer.zoomTo(box_entity, new Cesium.HeadingPitchRange(0,0,20000000));
-  else this.super.cesiumViewer.zoomTo(box_entity);
-}
-
-Stinuum.GeometryViewer.prototype.removeBoundingBox = function(layer_id){
-  var ret = this.super.cesiumViewer.entities.removeById(layer_id);
 }
