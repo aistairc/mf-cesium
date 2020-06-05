@@ -213,6 +213,7 @@
             viewer.scene.morphComplete.addEventListener(function () {
                 refresh();
                 clearAnalysis();
+             
                 if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
                     stinuum.changeMode('SPACETIME');
                 } else if (viewer.scene.mode == Cesium.SceneMode.SCENE2D) {
@@ -222,33 +223,26 @@
                 } else {
                     alert('error');
                 }
+                Cesium.requestAnimationFrame(function() {   // This is the workaround.
+                    console.log('Morph completed...');
+                    stinuum.geometryViewer.adjustCameraView();
+                    console.log('Camera view rectangle updated...');
+                });
              
             });
-            // viewer.scene.morphComplete.addEventListener(function () {
-            //     if (viewer.scene.mode != Cesium.SceneMode.COLUMBUS_VIEW){
-            //         stinuum.geometryViewer.adjustCameraView()
-            //     }
-            // });
-            var camera = viewer.camera;
-            camera.moveEnd.addEventListener(function() {
-                if (viewer.scene.mode != Cesium.SceneMode.COLUMBUS_VIEW){
-                    stinuum.geometryViewer.adjustCameraView()
-                }
-            });
-            // camera.moveEnd.addEventListener(function() {
-            //     console.log('end');
-            // });
+            
             scene = viewer.scene;
             if (isHTMLDebug) scene.destroy();
             viewer.clock.shouldAnimate = false;
             handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
             this.handler.setInputAction(function (movement) {
+              
+
                 var featureName = document.getElementById('featureName');
                 if (label_timeout !== undefined) {
                     window.clearTimeout(label_timeout);
                 }
-                console.log("here")
-                console.log(movement.position)
+     
                 var pick = scene.pick(movement.position);
                 if (Cesium.defined(pick)) {
                     featureName.innerText = "";
@@ -294,6 +288,7 @@
             }
         })()
         String.prototype.replaceAll = function (org, dest) {
+           
             return this.split(org).join(dest);
         }
     </script>
