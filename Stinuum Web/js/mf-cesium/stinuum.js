@@ -499,14 +499,6 @@ Stinuum.GeometryViewer.prototype.update = function (options) {
     this.super.mfCollection.findMinMaxGeometry();
     this.draw();
     this.animate(options);
-    if (stinuum.mode != 'SPACETIME'){
-        
-        this.adjustCameraView();
-        
-    }
-    // if (stinuum.mode == 'STATICMAP'){
-    //     this.adjustCameraView();
-    // }
 }
 
 Stinuum.GeometryViewer.prototype.clear = function () {
