@@ -1,44 +1,44 @@
+# STINUUM (Spatio-Temporal continua on Cesium)
 
-# Stinuum
-
-Stinuum is a JavaScript library to visualize and analyze moving objects on [Cesium](https://cesiumjs.org).
-Stinuum imports OGC Moving Features JSON data and supports animated maps as well as static maps and a space-time cube for navigating the trajectory of moving objects over space and time. The main characteristics of Stinuum are as follows:
+STINUUM is a JavaScript library to visualize and analyze moving objects on [Cesium](https://cesiumjs.org).
+STINUUM imports OGC Moving Features JSON data and supports animated maps as well as static maps and a space-time cube for navigating the trajectory of moving objects over space and time. The main characteristics of STINUUM are as follows:
 - Diverse geometry types to represent movements
 - Multiscale data analysis in space and time
 - Highly accessibility and lightweight deployment
 
 ## OGC Moving Features Encoding Extension - JSON
-The current version of Stinuum allows only the OGC Moving Features JSON format. About the data format, please refer to:
-https://ksookim.github.io/mf-json/.
+The current version of STINUUM allows only the OGC Moving Features JSON format. About the data format, please refer to:
+https://docs.opengeospatial.org/is/19-045r3/19-045r3.html
 
 - - -
 
 ## Getting Started by Example
 
-1. Download Cesium. (http://cesiumjs.org/downloads.html)
-
-2. Move to the downloaded Cesium folder and clone this project.
+1. Clone this project.
 
 ```
-$ cd Cesium-[Version ...]
 $ git clone http://github.com/aistairc/mf-cesium
 ```
 
-3. Install Node.js and run the following command to install the dependencies at the previous folder :
+2. Install Node.js and run the following command to install the dependencies at the previous folder :
 
   ```
+  $ cd Stinuum Web
   $ npm install
+  ```
+3. If you have BingMapsApi Key, add it to __/Stinuum Web/views/demo.ejs__ file. 
+  ```js
+  /* line 183 */
+  defaultKey = "your_BingMapsApi Key"
   ```
 4. Start Cesium server
 
   ```
-  $ node server.js
+  $ node app.js
   ```
-5. Enter http://localhost:8080/mf-cesium/practice/demo.html on your browser (Recommend Chrome).
+5. Enter http://localhost:8080 on your browser (Recommend [Chrome](https://www.google.com/intl/ko/chrome/)).
 
-6. If you want to access a data server which provides RESTful API as descrbied in [OGC Moving Features Encoding Extension - JSON](https://ksookim.github.io/mf-json/), please append "?url=data_server_url&token=your_token" with the url and token of the server.
-Otherwise you can drag and drop json files to explore the data locally.
-
+6. Usage of [Stinuum Web](https://github.com/aistairc/geograsp/wiki/Stinuum-Web-Manual)
 
 - - -
 
@@ -50,11 +50,11 @@ Download stinuum.js and add ``` <script src="stinuum.js"></script>``` to your a 
 
 ## License
 
-Stinuum licensed under the [MIT](https://opensource.org/licenses/MIT)
+STINUUM licensed under the [MIT](https://opensource.org/licenses/MIT)
 
 ## Reference
 
-### Stinuum
+### STINUUM
 
 ```js
 var viewer = new Cesium.Viewer;
@@ -79,42 +79,49 @@ There are three modes: '__STATICMAP__', '__SPACETIME__', and '__ANIMATEDMAP__'.
 Default Value :`"STATICMAP"`
 
 
-
-* __geometryViewer__ : [Stinuum.GeometryViewer](https://github.com/aistairc/mf-cesium/blob/master/reference/GeometryViewer.md)
+* __geometryViewer__ : [Stinuum.GeometryViewer](https://github.com/aistairc/geograsp/tree/stinuum-web/Stinuum%20Web/js/mf-cesium/documentation/GeometryViewer.md)
 
 To Get the GeometryViewer. It used to visualize MovingFeatures.
 
 
-* __mfCollection__ : [Stinuum.MFCollection](https://github.com/aistairc/mf-cesium/blob/master/reference/MFCollection.md)
+* __mfCollection__ : [Stinuum.MFCollection](https://github.com/aistairc/geograsp/tree/stinuum-web/Stinuum%20Web/js/mf-cesium/documentation/MFCollection.md)
 
 To Get the mfCollection. It store MovingFeatures data and manage.
 
 
-
-* __directionRadar__ : [Stinuum.DirectionRadar](https://github.com/aistairc/mf-cesium/blob/master/reference/DirectionRadar.md)
+* __directionRadar__ : [Stinuum.DirectionRadar](https://github.com/aistairc/geograsp/tree/stinuum-web/Stinuum%20Web/js/mf-cesium/documentation/DirectionRadar.md)
 
 To Get the DirectionRadar. It used to determine Whether radar turns on or not.
 
 If you want to see direction radar, make `<div>` tag for radar visualization then access this memeber.
 
-* __temporalMap__ : [Stinuum.TemporalMap](https://github.com/aistairc/mf-cesium/blob/master/reference/TemporalMap.md)
+
+* __temporalMap__ : [Stinuum.TemporalMap](https://github.com/aistairc/geograsp/tree/stinuum-web/Stinuum%20Web/js/mf-cesium/documentation/TemporalMap.md)
 
 To Get the TemporalMap. It can draw temporal thematic map.
 
 
-
-
-* __occurrenceMap__ : [Stinuum.OccurrenceMap](https://github.com/aistairc/mf-cesium/blob/master/reference/OccurrenceMap.md)
-
-To Get the OccurrenceMap. It analyzes occurrence and visualize result.
-
-
-
-* __propertyGraph__ : [Stinuum.PropertyGraph](https://github.com/aistairc/mf-cesium/blob/master/reference/PropertyGraph.md)
+* __propertyGraph__ : [Stinuum.PropertyGraph](https://github.com/aistairc/geograsp/tree/stinuum-web/Stinuum%20Web/js/mf-cesium/documentation/PropertyGraph.md)
 
 To Get the PropertyGraph.
 
 If you want to see graph about property, make `<div>` tag for graph visualization then access this memeber.
+
+* __imageMarking__ : [Stinuum.Imagemarking](https://github.com/aistairc/geograsp/tree/stinuum-web/Stinuum%20Web/js/mf-cesium/documentation/Imagemarking.md)
+
+To Get the Imagemarking.
+
+If you want to see image about property, make `<div>` tag for image visualization then access this memeber.
+
+* __pathDrawing__ : [Stinuum.PathDrawing](https://github.com/aistairc/geograsp/tree/stinuum-web/Stinuum%20Web/js/mf-cesium/documentation/PathDrawing.md)
+
+To Get the path of MovingFeatures. It is made using the temporalGeometry and czml format.
+
+
+* __movementDrawing__ : [Stinuum.MovementDrawing](https://github.com/aistairc/geograsp/tree/stinuum-web/Stinuum%20Web/js/mf-cesium/documentation/MovementDrawing.md)
+
+To Get the movement data from the MovingFeature. It is made using the temporalGeometry and [czml](https://github.com/AnalyticalGraphicsInc/czml-writer) format.
+
 
 
 #### Methods
@@ -126,12 +133,8 @@ If you want to see graph about property, make `<div>` tag for graph visualizatio
 |   mode  |  String   |        |  (optional) It SHOULD be one of 'STATICMAP', 'SPACETIME', and 'ANIMATEDMAP'.  |
 
 
-
-
 ## Building
 
     Don't need to build
-
-
 
 - - -
