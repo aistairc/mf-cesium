@@ -1,5 +1,5 @@
 
-# Stinuum
+# Stinuum (`Best Practice MF-JSON Version`)
 
 Stinuum is a JavaScript library to visualize and analyze moving objects on [Cesium](https://cesiumjs.org).
 Stinuum imports OGC Moving Features JSON data and supports animated maps as well as static maps and a space-time cube for navigating the trajectory of moving objects over space and time. The main characteristics of Stinuum are as follows:
