@@ -63,6 +63,6 @@ Usage of Stinuum Web is [here](https://github.com/aistairc/mf-cesium/wiki/Stinuu
 
 ## License
 
-STINUUM licensed under the [MIT](https://opensource.org/licenses/MIT)
+STINUUM licensed under the [MIT](https://github.com/aistairc/mf-cesium/blob/master/LICENSE)
 
 - - -  
