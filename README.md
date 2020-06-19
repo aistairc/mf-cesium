@@ -7,7 +7,9 @@ STINUUM imports OGC Moving Features JSON data and supports animated maps as well
 - Highly accessibility and lightweight deployment
 
 ## OGC Moving Features Encoding Extension - JSON
-The current version of STINUUM allows only the [OGC Moving Features JSON format](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html). About the data format, please refer to it:
+The current version of STINUUM allows only the [OGC Moving Features JSON format](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html). 
+
+About the data format, please refer to [it](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#_moving_features_json_encodings).
 - - -
 
 ## Tech/Framework used
