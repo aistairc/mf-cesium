@@ -26,7 +26,8 @@ GraphGenerator.prototype.readMapFile = function (){
     var centerPointList = {}
     //read graph result
     $.ajax({
-        url: '/data/testData/OUTPUT_version_1m/map.csv',
+        // url: '/data/testData/OUTPUT_version_1m/map.csv',
+        url: '/data/testData/map.csv',
         async: false,
         dataType: 'text',
         success: function successFunction(data) {
@@ -107,7 +108,7 @@ GraphGenerator.prototype.readMapFile = function (){
         window.alert(error);
     });
     var graph = new Graph(testGraph);
-    return {graph, centerPointList, centerPointGeoJson, maxCellcount}
+    return {graph, centerPointList, centerPointGeoJson, maxCellcount, StartUTMCoordi}
 }
 
 GraphGenerator.prototype.readShelfFile = function (maxCellcount){
@@ -227,29 +228,32 @@ GraphGenerator.prototype.a = function(){
 
 GraphGenerator.prototype.testMakeMovingFeature = function(){
     var mapinfo = this.readMapFile()
-    var shelfInfo = this.readShelfFile(mapinfo.maxCellcount)
-    var historyInfo = this.readHistoryFile()
     
-    var historyKeys = Object.keys(historyInfo)
-    var graph = mapinfo.graph
-    for (var i = 0; i < historyKeys.length; i++){
-        var eachFeatureCollection = historyInfo[historyKeys[i]]
-        var eachKeyValues = Object.keys(historyInfo[historyKeys[i]])
-        
-        for (var j = 0; j < eachKeyValues.length - 1; j++){
-            var eachFeature = eachFeatureCollection[eachKeyValues[j]]
-            for (var k = 0; k < eachFeature.location.length-1; k++){
-                var startName = eachFeature.location[k]
-                var endName = eachFeature.location[k+1]
-                var a = GraphGenerator.getStartEndNodes(startName, endName, shelfInfo, graph)
-                console.log(a)
-            }
+    this.createShelf3DModel(mapinfo.maxCellcount, mapinfo.StartUTMCoordi)
+    // var shelfInfo = this.readShelfFile(mapinfo.maxCellcount)
+    // var historyInfo = this.readHistoryFile()
 
-            // var a = GraphGenerator.getStartEndNodes(startName, endName, shelfInfo)
-            // console.log(a)
-        }
-        break
-    }
+
+    // var historyKeys = Object.keys(historyInfo)
+    // var graph = mapinfo.graph
+    // for (var i = 0; i < historyKeys.length; i++){
+    //     var eachFeatureCollection = historyInfo[historyKeys[i]]
+    //     var eachKeyValues = Object.keys(historyInfo[historyKeys[i]])
+        
+    //     for (var j = 0; j < eachKeyValues.length - 1; j++){
+    //         var eachFeature = eachFeatureCollection[eachKeyValues[j]]
+    //         for (var k = 0; k < eachFeature.location.length-1; k++){
+    //             var startName = eachFeature.location[k]
+    //             var endName = eachFeature.location[k+1]
+    //             var a = GraphGenerator.getStartEndNodes(startName, endName, shelfInfo, graph)
+    //             console.log(a)
+    //         }
+
+    //         // var a = GraphGenerator.getStartEndNodes(startName, endName, shelfInfo)
+    //         // console.log(a)
+    //     }
+    //     break
+    // }
 }
 
 
@@ -298,6 +302,84 @@ GraphGenerator.getStartEndNodes = function(startName, endName, shelfInfo, graph)
             return result
         }
     }
+}
+
+
+GraphGenerator.prototype.createShelf3DModel = function(maxCellcount, StartUTMCoordi){
+    var shelfList = []
+    $.ajax({
+        url: '/data/testData/output_memmap.csv',
+        async: false,
+        dataType: 'text',
+        success: function successFunction(data) {
+            
+            var allRows = data.split(/\r?\n|\r/);
+            for (var i = 1; i < allRows.length; i++){
+                if (allRows.length > 1){
+                    var indexID = allRows[i].split(',');
+                    for (var j = 1; j < indexID.length; j++){
+                        if (indexID[j] === "9" || indexID[j] == "11"){
+                            
+                            shelfList.push([j-1, i-1])
+                        }
+                    }
+                }
+            }
+        }
+    });
+    var PolygonGeoJson = {    
+        "type": "FeatureCollection",
+        "features": []
+    }
+    var startX = StartUTMCoordi[0]
+    var startY = StartUTMCoordi[1]
+
+    for (var i = 0; i < shelfList.length; i++){
+        var x = shelfList[i][0]
+        var y = shelfList[i][1]
+        var a = [startX + (1 * x), startY + (1 * y)]
+        a
+        var b = [startX + (1 * (x+1)), startY + (1 * y)]
+        var c = [startX + (1 * (x+1)), startY + (1 * (y + 1))]
+        var d = [startX + (1 * (x)), startY + (1 * (y + 1))]
+        var polygon = []
+        var NodeID = x * maxCellcount + y
+        polygon.push(SRSTranslator.forward2(a, "EPSG:6677", "WGS84"))
+        polygon.push(SRSTranslator.forward2(b, "EPSG:6677", "WGS84"))
+        polygon.push(SRSTranslator.forward2(c, "EPSG:6677", "WGS84"))
+        polygon.push(SRSTranslator.forward2(d, "EPSG:6677", "WGS84"))
+        polygon.push(SRSTranslator.forward2(a, "EPSG:6677", "WGS84"))
+        var eachFeature = {
+            "type": "Feature",
+            "properties": {
+                "name": NodeID
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [polygon]
+            }
+        }
+        PolygonGeoJson.features.push(eachFeature)
+    }
+    var promise = Cesium.GeoJsonDataSource.load(PolygonGeoJson);
+
+    promise.then(function(dataSource){
+        this.viewer.dataSources.add(dataSource)          
+        var entities = dataSource.entities.values;
+        for (var i = 0; i < entities.length; i++) {
+       
+            var entity = entities[i];
+            var name = entity.name;
+            entity.label = {
+                text: name
+            };
+            entity.polygon.material = Cesium.Color.RED;
+            entity.polygon.outline = false;  
+            entity.polygon.extrudedHeight = 5;
+          
+        }
+    });
+        
 }
 // //read shelf result
 
