@@ -13,7 +13,7 @@ GraphGenerator.prototype.readMapFile = function (){
         StartUTMCoordi = SRSTranslator.forward2(StartPoint, "WGS84", utmCode)
     }
     var maxCellcount
-    var cellSize = 1 //m
+    var cellSize = 0.5 //m
     var testGraph = {}
     var gridMapGeoJson = {
             "type": "FeatureCollection",
@@ -27,7 +27,7 @@ GraphGenerator.prototype.readMapFile = function (){
     //read graph result
     $.ajax({
         // url: '/data/testData/OUTPUT_version_1m/map.csv',
-        url: '/data/testData/map.csv',
+        url: '/data/testData/map_50cm.csv',
         async: false,
         dataType: 'text',
         success: function successFunction(data) {
@@ -307,8 +307,9 @@ GraphGenerator.getStartEndNodes = function(startName, endName, shelfInfo, graph)
 
 GraphGenerator.prototype.createShelf3DModel = function(maxCellcount, StartUTMCoordi){
     var shelfList = []
+    var cellLength = 0.5
     $.ajax({
-        url: '/data/testData/output_memmap.csv',
+        url: '/data/testData/output_memmap_50cm.csv',
         async: false,
         dataType: 'text',
         success: function successFunction(data) {
@@ -337,11 +338,10 @@ GraphGenerator.prototype.createShelf3DModel = function(maxCellcount, StartUTMCoo
     for (var i = 0; i < shelfList.length; i++){
         var x = shelfList[i][0]
         var y = shelfList[i][1]
-        var a = [startX + (1 * x), startY + (1 * y)]
-        a
-        var b = [startX + (1 * (x+1)), startY + (1 * y)]
-        var c = [startX + (1 * (x+1)), startY + (1 * (y + 1))]
-        var d = [startX + (1 * (x)), startY + (1 * (y + 1))]
+        var a = [startX + (cellLength * x), startY + (cellLength * y)]
+        var b = [startX + (cellLength * (x+1)), startY + (cellLength * y)]
+        var c = [startX + (cellLength * (x+1)), startY + (cellLength * (y + 1))]
+        var d = [startX + (cellLength * (x)), startY + (cellLength * (y + 1))]
         var polygon = []
         var NodeID = x * maxCellcount + y
         polygon.push(SRSTranslator.forward2(a, "EPSG:6677", "WGS84"))
@@ -375,7 +375,7 @@ GraphGenerator.prototype.createShelf3DModel = function(maxCellcount, StartUTMCoo
             };
             entity.polygon.material = Cesium.Color.RED;
             entity.polygon.outline = false;  
-            entity.polygon.extrudedHeight = 5;
+            entity.polygon.extrudedHeight = cellLength;
           
         }
     });

@@ -46,6 +46,7 @@ function handleFileSelect(evt) {
 
 }
 function handleEditorData(filename, data){
+  LOG("handleEditorData");
   updateBuffer_local(filename, data);
   var list = list_maker.getLayerDivList(); //printFeatureLayerList_local(layer_list_local);
   var list_div = div_id.left_upper_list;
