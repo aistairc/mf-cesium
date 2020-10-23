@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Adjusts the hue of a color.\n\
  * \n\
  * @name czm_hue\n\
@@ -32,4 +30,3 @@ vec3 czm_hue(vec3 rgb, float adjustment)\n\
     return toRGB * color;\n\
 }\n\
 ";
-});

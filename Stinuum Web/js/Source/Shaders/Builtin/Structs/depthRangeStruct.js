@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * @name czm_depthRangeStruct\n\
  * @glslStruct\n\
  */\n\
@@ -11,4 +9,3 @@ struct czm_depthRangeStruct\n\
     float far;\n\
 };\n\
 ";
-});

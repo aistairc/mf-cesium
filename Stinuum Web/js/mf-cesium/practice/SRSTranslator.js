@@ -16,12 +16,12 @@ SRSTranslator.prototype.addProjection = function (name, projection){
 }
 
 SRSTranslator.prototype.forward = function (coords, projectionFrom, projectionTo){
-    console.log(coords)
+    
     let height = undefined
     if (coords.length === 3){
         height = coords.pop()
     }
-    console.log(height)
+    // 
     let transformation = this.getTransformation(projectionFrom, projectionTo)
     coords = transformation.forward(coords)
     
@@ -59,7 +59,7 @@ SRSTranslator.prototype.getProjection = function (name) {
     return this.projections[name]
 }
 SRSTranslator.prototype.searchProjecion = function(name){
-    console.log(this.projections[name])
+    
     if (this.projections[name] == undefined){
         return false
     }else{
@@ -79,7 +79,7 @@ SRSTranslator.prototype.crsCheck = function(crs){
                 type: 'GET',
                 
                 success: function(data){
-                    console.log(typeof(data))
+                    
                     
                     crsValue = data
                 },
@@ -105,7 +105,7 @@ SRSTranslator.prototype.crsCheck = function(crs){
             type: 'GET',
             
             success: function(data){
-                console.log(typeof(data))
+                
                 
                 crsValue = data
             },
@@ -114,11 +114,70 @@ SRSTranslator.prototype.crsCheck = function(crs){
             }
         });
         if (crsValue != undefined){
-         
+            LOG(crsValue)
             return ["LINK", crsValue]
         }
     }
 }
+
+SRSTranslator.prototype.forward2 = function (coords, projectionFrom, projectionTo){
+    
+    let height = undefined
+    if (coords.length === 3){
+        height = coords.pop()
+    }
+    // 
+    let transformation = this.getTransformation2(projectionFrom, projectionTo)
+    coords = transformation.forward(coords)
+    
+    if (typeof(height) !== 'undefined') {
+      coords[2] = height
+    }
+
+    return coords
+}
+
+SRSTranslator.prototype.getTransformation2 = function (projectionFrom, projectionTo) {
+    
+    let cacheKey = `${projectionFrom}:::${projectionTo}`
+    if (!this.transformations[cacheKey]) {
+        let from = this.getProjection(projectionFrom)
+        let to = this.getProjection(projectionTo)
+        
+        this.transformations[cacheKey] = proj4(from, to)
+    }
+    return this.transformations[cacheKey]
+}
+
+SRSTranslator.prototype.crsCheck2 = function(crs){
+
+    if (!this.searchProjecion(crs)){
+        var lastValue = (crs).split(':').pop();
+        var crsValue
+        $.ajax({
+            url: 'http://epsg.io/'+lastValue+".proj4",
+            async: false,
+            type: 'GET',
+            
+            success: function(data){
+                
+                
+                crsValue = data
+            },
+            error: function(err){
+                alert("failed send data" + err);
+            }
+        });
+        if (crsValue != undefined){
+            this.addProjection(crs, crsValue)
+        }
+        return true
+    }else{
+        return true
+    }
+        
+}
+
 SRSTranslator.prototype.getDefaultDefinitions = function() {
     return {
       'WGS84': '+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees',
@@ -134,7 +193,7 @@ SRSTranslator.prototype.getDefaultDefinitions = function() {
       'urn:ogc:def:crs,crs:EPSG::3414,crs:EPSG::6916': '+proj=tmerc +lat_0=1.366666666666667 +lon_0=103.8333333333333 +k=1 +x_0=28001.642 +y_0=38744.572 +ellps=WGS84 +units=m +no_defs',
       'EPSG:4269': '+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs',
       'NAD83': 'PROJCS["NAD83 / Massachusetts Mainland",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.01745329251994328,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]],UNIT["metre",1,AUTHORITY["EPSG","9001"]],PROJECTION["Lambert_Conformal_Conic_2SP"],PARAMETER["standard_parallel_1",42.68333333333333],PARAMETER["standard_parallel_2",41.71666666666667],PARAMETER["latitude_of_origin",41],PARAMETER["central_meridian",-71.5],PARAMETER["false_easting",200000],PARAMETER["false_northing",750000],AUTHORITY["EPSG","26986"],AXIS["X",EAST],AXIS["Y",NORTH]]',
-
+      'EPSG:6677': '+proj=tmerc +lat_0=36 +lon_0=139.8333333333333 +k=0.9999 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs',
     }
 }
 

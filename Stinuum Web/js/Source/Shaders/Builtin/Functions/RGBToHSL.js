@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Converts an RGB color to HSL (hue, saturation, lightness)\n\
  * HSL <-> RGB conversion: {@link http://www.chilliant.com/rgb2hsv.html}\n\
  *\n\
@@ -36,4 +34,3 @@ vec3 czm_RGBToHSL(vec3 rgb)\n\
     return vec3(hcv.x, s, l);\n\
 }\n\
 ";
-});

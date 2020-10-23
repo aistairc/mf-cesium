@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * DOC_TBA\n\
  *\n\
  * @name czm_columbusViewMorph\n\
@@ -14,4 +12,3 @@ vec4 czm_columbusViewMorph(vec4 position2D, vec4 position3D, float time)\n\
     return vec4(p, 1.0);\n\
 }\n\
 ";
-});

@@ -27,9 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * @license\n\
  * Copyright (c) 2014-2015, NVIDIA CORPORATION. All rights reserved.\n\
  *\n\
@@ -678,4 +676,3 @@ FxaaFloat4 FxaaPixelShader(\n\
     return FxaaFloat4(FxaaTexTop(tex, posM).xyz, lumaM);\n\
 }\n\
 ";
-});

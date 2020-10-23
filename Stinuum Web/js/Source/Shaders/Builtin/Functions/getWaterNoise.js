@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * @private\n\
  */\n\
 vec4 czm_getWaterNoise(sampler2D normalMap, vec2 uv, float time, float angleInRadians)\n\
@@ -39,4 +37,3 @@ vec4 czm_getWaterNoise(sampler2D normalMap, vec2 uv, float time, float angleInRa
     return ((noise / 4.0) - 0.5) * 2.0;\n\
 }\n\
 ";
-});

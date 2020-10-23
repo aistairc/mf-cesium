@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "#ifdef QUANTIZATION_BITS12\n\
+export default "#ifdef QUANTIZATION_BITS12\n\
 attribute vec4 compressed0;\n\
 attribute float compressed1;\n\
 #else\n\
@@ -25,10 +23,19 @@ varying vec3 v_textureCoordinates;\n\
 varying vec3 v_normalMC;\n\
 varying vec3 v_normalEC;\n\
 \n\
-#ifdef FOG\n\
+#ifdef APPLY_MATERIAL\n\
+varying float v_slope;\n\
+varying float v_aspect;\n\
+varying float v_height;\n\
+#endif\n\
+\n\
+#if defined(FOG) || defined(GROUND_ATMOSPHERE) || defined(UNDERGROUND_COLOR) || defined(TRANSLUCENT)\n\
 varying float v_distance;\n\
-varying vec3 v_mieColor;\n\
-varying vec3 v_rayleighColor;\n\
+#endif\n\
+\n\
+#if defined(FOG) || defined(GROUND_ATMOSPHERE)\n\
+varying vec3 v_fogMieColor;\n\
+varying vec3 v_fogRayleighColor;\n\
 #endif\n\
 \n\
 // These functions are generated at runtime.\n\
@@ -133,10 +140,10 @@ void main()\n\
     float height = position3DAndHeight.w;\n\
     vec2 textureCoordinates = textureCoordAndEncodedNormals.xy;\n\
 \n\
-#if (defined(ENABLE_VERTEX_LIGHTING) || defined(GENERATE_POSITION_AND_NORMAL)) && defined(INCLUDE_WEB_MERCATOR_Y)\n\
+#if (defined(ENABLE_VERTEX_LIGHTING) || defined(GENERATE_POSITION_AND_NORMAL) || defined(APPLY_MATERIAL)) && defined(INCLUDE_WEB_MERCATOR_Y)\n\
     float webMercatorT = textureCoordAndEncodedNormals.z;\n\
     float encodedNormal = textureCoordAndEncodedNormals.w;\n\
-#elif defined(ENABLE_VERTEX_LIGHTING) || defined(GENERATE_POSITION_AND_NORMAL)\n\
+#elif defined(ENABLE_VERTEX_LIGHTING) || defined(GENERATE_POSITION_AND_NORMAL) || defined(APPLY_MATERIAL)\n\
     float webMercatorT = textureCoordinates.y;\n\
     float encodedNormal = textureCoordAndEncodedNormals.z;\n\
 #elif defined(INCLUDE_WEB_MERCATOR_Y)\n\
@@ -154,22 +161,41 @@ void main()\n\
 \n\
     v_textureCoordinates = vec3(textureCoordinates, webMercatorT);\n\
 \n\
-#if defined(ENABLE_VERTEX_LIGHTING) || defined(GENERATE_POSITION_AND_NORMAL)\n\
+#if defined(ENABLE_VERTEX_LIGHTING) || defined(GENERATE_POSITION_AND_NORMAL) || defined(APPLY_MATERIAL)\n\
     v_positionEC = (u_modifiedModelView * vec4(position, 1.0)).xyz;\n\
-    v_positionMC = position3DWC;                                 // position in model coordinates\n\
-    v_normalMC = czm_octDecode(encodedNormal);\n\
+    v_positionMC = position3DWC;  // position in model coordinates\n\
+    vec3 normalMC = czm_octDecode(encodedNormal);\n\
+    v_normalMC = normalMC;\n\
     v_normalEC = czm_normal3D * v_normalMC;\n\
-#elif defined(SHOW_REFLECTIVE_OCEAN) || defined(ENABLE_DAYNIGHT_SHADING) || defined(GENERATE_POSITION)\n\
+#elif defined(SHOW_REFLECTIVE_OCEAN) || defined(ENABLE_DAYNIGHT_SHADING) || defined(GENERATE_POSITION) || defined(HDR)\n\
     v_positionEC = (u_modifiedModelView * vec4(position, 1.0)).xyz;\n\
-    v_positionMC = position3DWC;                                 // position in model coordinates\n\
+    v_positionMC = position3DWC;  // position in model coordinates\n\
 #endif\n\
 \n\
-#ifdef FOG\n\
-    AtmosphereColor atmosColor = computeGroundAtmosphereFromSpace(position3DWC);\n\
-    v_mieColor = atmosColor.mie;\n\
-    v_rayleighColor = atmosColor.rayleigh;\n\
+#if defined(FOG) || defined(GROUND_ATMOSPHERE)\n\
+    AtmosphereColor atmosFogColor = computeGroundAtmosphereFromSpace(position3DWC, false, vec3(0.0));\n\
+    v_fogMieColor = atmosFogColor.mie;\n\
+    v_fogRayleighColor = atmosFogColor.rayleigh;\n\
+#endif\n\
+\n\
+#if defined(FOG) || defined(GROUND_ATMOSPHERE) || defined(UNDERGROUND_COLOR) || defined(TRANSLUCENT)\n\
     v_distance = length((czm_modelView3D * vec4(position3DWC, 1.0)).xyz);\n\
+#endif\n\
+\n\
+#ifdef APPLY_MATERIAL\n\
+    float northPoleZ = czm_ellipsoidRadii.z;\n\
+    vec3 northPolePositionMC = vec3(0.0, 0.0, northPoleZ);\n\
+    vec3 ellipsoidNormal = normalize(v_positionMC); // For a sphere this is correct, but not generally for an ellipsoid.\n\
+    vec3 vectorEastMC = normalize(cross(northPolePositionMC - v_positionMC, ellipsoidNormal));\n\
+    float dotProd = abs(dot(ellipsoidNormal, v_normalMC));\n\
+    v_slope = acos(dotProd);\n\
+    vec3 normalRejected = ellipsoidNormal * dotProd;\n\
+    vec3 normalProjected = v_normalMC - normalRejected;\n\
+    vec3 aspectVector = normalize(normalProjected);\n\
+    v_aspect = acos(dot(aspectVector, vectorEastMC));\n\
+    float determ = dot(cross(vectorEastMC, aspectVector), ellipsoidNormal);\n\
+    v_aspect = czm_branchFreeTernary(determ < 0.0, 2.0 * czm_pi - v_aspect, v_aspect);\n\
+    v_height = height;\n\
 #endif\n\
 }\n\
 ";
-});

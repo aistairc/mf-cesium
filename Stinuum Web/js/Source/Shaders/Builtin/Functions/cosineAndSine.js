@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * @private\n\
  */\n\
 vec2 cordic(float angle)\n\
@@ -213,4 +211,3 @@ vec2 czm_cosineAndSine(float angle)\n\
     }\n\
 }\n\
 ";
-});

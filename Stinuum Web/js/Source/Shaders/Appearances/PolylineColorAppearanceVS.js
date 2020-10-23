@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "attribute vec3 position3DHigh;\n\
+export default "attribute vec3 position3DHigh;\n\
 attribute vec3 position3DLow;\n\
 attribute vec3 prevPosition3DHigh;\n\
 attribute vec3 prevPosition3DLow;\n\
@@ -23,11 +21,10 @@ void main()\n\
     vec4 prev = czm_computePrevPosition();\n\
     vec4 next = czm_computeNextPosition();\n\
 \n\
-    v_color = color;\n\
-\n\
     float angle;\n\
     vec4 positionWC = getPolylineWindowCoordinates(p, prev, next, expandDir, width, usePrev, angle);\n\
     gl_Position = czm_viewportOrthographic * positionWC;\n\
+\n\
+    v_color = color;\n\
 }\n\
 ";
-});

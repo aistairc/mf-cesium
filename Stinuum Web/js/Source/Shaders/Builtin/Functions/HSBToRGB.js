@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Converts an HSB color (hue, saturation, brightness) to RGB\n\
  * HSB <-> RGB conversion with minimal branching: {@link http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl}\n\
  *\n\
@@ -26,4 +24,3 @@ vec3 czm_HSBToRGB(vec3 hsb)\n\
     return hsb.z * mix(K_HSB2RGB.xxx, clamp(p - K_HSB2RGB.xxx, 0.0, 1.0), hsb.y);\n\
 }\n\
 ";
-});

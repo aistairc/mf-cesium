@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Decompresses texture coordinates that were packed into a single float.\n\
  *\n\
  * @name czm_decompressTextureCoordinates\n\
@@ -19,4 +17,3 @@ define(function() {
     return vec2(stx, sty);\n\
  }\n\
 ";
-});

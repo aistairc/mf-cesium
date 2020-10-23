@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Returns the transpose of the matrix.  The input <code>matrix</code> can be\n\
  * a <code>mat2</code>, <code>mat3</code>, or <code>mat4</code>.\n\
  *\n\
@@ -47,4 +45,3 @@ mat4 czm_transpose(mat4 matrix)\n\
         matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3]);\n\
 }\n\
 ";
-});

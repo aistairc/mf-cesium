@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * 0.0000001\n\
  *\n\
  * @name czm_epsilon7\n\
@@ -9,4 +7,3 @@ define(function() {
  */\n\
 const float czm_epsilon7 = 0.0000001;\n\
 ";
-});

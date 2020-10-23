@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * A built-in GLSL floating-point constant for <code>Math.PI</code>.\n\
  *\n\
  * @alias czm_pi\n\
@@ -18,4 +16,3 @@ define(function() {
  */\n\
 const float czm_pi = 3.141592653589793;\n\
 ";
-});

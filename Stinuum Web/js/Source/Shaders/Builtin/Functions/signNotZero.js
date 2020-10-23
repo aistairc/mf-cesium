@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Returns 1.0 if the given value is positive or zero, and -1.0 if it is negative.  This is similar to the GLSL\n\
  * built-in function <code>sign</code> except that returns 1.0 instead of 0.0 when the input value is 0.0.\n\
  * \n\
@@ -31,4 +29,3 @@ vec4 czm_signNotZero(vec4 value)\n\
     return vec4(czm_signNotZero(value.x), czm_signNotZero(value.y), czm_signNotZero(value.z), czm_signNotZero(value.w));\n\
 }\n\
 ";
-});

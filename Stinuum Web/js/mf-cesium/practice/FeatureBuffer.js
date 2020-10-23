@@ -1,11 +1,11 @@
-function FeatureBuffer() {
-  // this.connector = p_connection;
+function FeatureBuffer(p_connection) {
+  this.connector = p_connection;
   this.data = {};
   this.fromServer = {};
 }
 
 FeatureBuffer.prototype.getFeatureIDsByLayerID = function (layer_id) {
-
+  LOG("getFeatureIDsByLayerID", layer_id)
   if (this.data[layer_id] != undefined) {
     console.log(this.data[layer_id])
     return this.data[layer_id];
@@ -13,7 +13,7 @@ FeatureBuffer.prototype.getFeatureIDsByLayerID = function (layer_id) {
     console.log(this.fromServer[layer_id])
     return this.fromServer[layer_id];
   }else{
-   
+    LOG("no layer", layer_id);
     throw "this layer_id is not in buffer" + layer_id;
   }
   
@@ -36,12 +36,12 @@ FeatureBuffer.prototype.getFeature = function (layer_id, feature_id) {
       return this.data[layer_id][feature_id];  
     } 
   }else if(this.fromServer.hasOwnProperty(layer_id)){
-    
+    LOG(this.fromServer[layer_id][feature_id])
     if(this.fromServer[layer_id][feature_id] != undefined){
       return this.fromServer[layer_id][feature_id];
     }
   }
-  
+  LOG("no feature", layer_id, feature_id);
   throw "this layer_id, feature_id is not in buffer";
 }
 
@@ -64,8 +64,9 @@ FeatureBuffer.prototype.deleteBuffer = function (layer_id, feature_id) {
 }
 
 FeatureBuffer.prototype.setBuffer_layer = function (layer, feature_data) {
-
-
+  LOG("TODO setBuffer_layer");
+  LOG(feature_data)
+  LOG(feature_data.properties)
   if (feature_data.properties.trackerId != undefined) {
     var feature_id = feature_data.properties.trackerId
   } else {
@@ -76,7 +77,8 @@ FeatureBuffer.prototype.setBuffer_layer = function (layer, feature_data) {
 }
 
 FeatureBuffer.prototype.setBuffer_feature = function (layer_id, feature_id, feature_data) {
-
+  LOG("TODO setBuffer_feature");
+  LOG(layer_id)
   if (!this.data.hasOwnProperty(layer_id) && !this.fromServer.hasOwnProperty(layer_id)) {
     throw layer_id + " is not created layer";
   }
@@ -98,11 +100,11 @@ FeatureBuffer.prototype.setBuffer_feature = function (layer_id, feature_id, feat
   }else{
     console.log("defined")
     this.data[layer_id][feature_id] = {};
-   
+    LOG(feature_data)
     if (feature_data.temporalGeometry.type == 'MovingGeometryCollection'){
       for (var prism_i = 0; prism_i < feature_data.temporalGeometry.prisms.length; prism_i++){
         var eachFeature = feature_data.temporalGeometry.prisms[prism_i];
-       
+        LOG(eachFeature)
         if (!Array.isArray(eachFeature.coordinates[0][0][0]) &&  (eachFeature.type == 'MovingPolygon' || eachFeature.type == 'MovingLineString' || eachFeature.type == 'MovingPointCloud')) { //old mf-json format for polygon
           var coord = eachFeature.coordinates;
           var new_arr = [];
@@ -127,11 +129,11 @@ FeatureBuffer.prototype.setBuffer_feature = function (layer_id, feature_id, feat
     }
 
     try {
-      
+      LOG("translateValue")
       feature_data = this.translateValue(feature_data)
-      
+      LOG("translateTime")
       feature_data = this.translateTime(feature_data)
-      
+      LOG(feature_data)
       this.data[layer_id][feature_id] = JSON.parse(feature_data);
     } catch (e) {
       // throw new Stinuum.Exception("it is not json format", feature_data);
@@ -182,7 +184,7 @@ FeatureBuffer.prototype.checkServerData = function (layer_id) {
   }
 }
 FeatureBuffer.prototype.translateValue = function (feature_data){
- 
+  LOG("translateValue")
   var new_featrue_data = feature_data
   var new_coordinates;
   
@@ -209,11 +211,12 @@ FeatureBuffer.prototype.translateValue = function (feature_data){
 }
 
 FeatureBuffer.prototype.changeCoordinates = function(crs, type, coordinates){
-
+  LOG("changeCoordinates")
+  LOG(crs, type,coordinates)
   
   if (type == "MovingPoint"){
     var new_coord = new Array()
-   
+    console.log(coordinates)
     for(var i in coordinates){
       if(typeof(coordinates[i]) == "object" || typeof(coordinates[i]) == "array"){
         
@@ -228,17 +231,17 @@ FeatureBuffer.prototype.changeCoordinates = function(crs, type, coordinates){
     for(var i in coordinates){
       if(typeof(coordinates[i]) == "object" || typeof(coordinates[i]) == "array") {
         var new_coord = new Array()
-      
+        console.log(coordinates[i], typeof(coordinates[i]))
         for(var j in coordinates[i][0]){
           
           if(typeof(coordinates[i][0][j]) == "object" || typeof(coordinates[i][0][j]) == "array"){
-
+            console.log(coordinates[i][0][j])
             // new_coord.push(proj4(firstProjection).forward(coordinates[i][0][j]));
             new_coord.push(SRSTranslator.forward(coordinates[i][0][j], crs, "WGS84"))
             // new_coord.push(SRSTranslator.forward(coordinates[i][0][j], "WGS84", crs))
           }
         }
-     
+        console.log(new_coord)
         new_arr.push([new_coord])
       }
     }
@@ -248,17 +251,17 @@ FeatureBuffer.prototype.changeCoordinates = function(crs, type, coordinates){
     for(var i in coordinates){
       if(typeof(coordinates[i]) == "object" || typeof(coordinates[i]) == "array") {
         var new_coord = new Array()
-    
+        console.log(coordinates[i], typeof(coordinates[i]))
         for(var j in coordinates[i][0]){
           
           if(typeof(coordinates[i][0][j]) == "object" || typeof(coordinates[i][0][j]) == "array"){
-            
+            console.log(coordinates[i][0][j])
             // new_coord.push(proj4(firstProjection).forward(coordinates[i][0][j]));
             new_coord.push(SRSTranslator.forward(coordinates[i][0][j], crs, "WGS84"))
             // new_coord.push(SRSTranslator.forward(coordinates[i][0][j], "WGS84", crs))
           }
         }
-   
+        console.log(new_coord)
         new_arr.push([new_coord])
       }
     }
@@ -267,23 +270,23 @@ FeatureBuffer.prototype.changeCoordinates = function(crs, type, coordinates){
 }
 
 FeatureBuffer.prototype.translateTime = function(feature_data){
-
+  LOG("translateTime")
   var new_featrue_data = feature_data
   
-  var f_type = new_featrue_data.temporalGeometry.type
+  var f_type = feature_data.type
   if (feature_data.trs != undefined){
     var f_trs = this.checkTrs(feature_data.trs)
   }else{
     var f_trs = "GREGORIAN"
   }
-
+  
   if(f_type == "MovingGeometryCollection"){
     var prisms = new_featrue_data.prisms
     for(var prism_i in prisms){
       var datetimes = prisms[prism_i].datetimes
       new_datetimes = this.changeDatetimes(f_trs, datetimes)
       new_featrue_data.prisms[prism_i].datetimes = new_datetimes
-      
+
     }
   }else{
     var datetimes = new_featrue_data.temporalGeometry.datetimes
@@ -291,6 +294,7 @@ FeatureBuffer.prototype.translateTime = function(feature_data){
     new_datetimes = this.changeDatetimes(f_trs, datetimes)
     new_featrue_data.temporalGeometry.datetimes = new_datetimes
   }
+  LOG(Array.isArray(feature_data.temporalProperties), feature_data.temporalProperties)
   if (Array.isArray(feature_data.temporalProperties)){
     for(var property_i in feature_data.temporalProperties){
       var datetimes = feature_data.temporalProperties[property_i]['datetimes']
@@ -317,13 +321,12 @@ FeatureBuffer.prototype.checkTrs = function(f_trs){
   }else{
     trs_value = f_trs.properties.name
   }
- 
+  LOG(trs_value)
   return trs_value
 } 
 
 FeatureBuffer.prototype.changeDatetimes = function(trs, datetimes){
-
-
+  LOG("convertDate")
   var new_datetimes = new Array()
   if (trs.toUpperCase() == "GREGORIAN"){
     for(var i in datetimes){
@@ -332,7 +335,7 @@ FeatureBuffer.prototype.changeDatetimes = function(trs, datetimes){
         new_datetimes.push(tempTime.toISOString())
       }
     }
-   
+    LOG(new_datetimes)
     return new_datetimes
   }else{
     for(var i in datetimes){
@@ -354,7 +357,7 @@ FeatureBuffer.prototype.changeDatetimes = function(trs, datetimes){
         }
       }
     }
-
+    console.log(new_datetimes)
     return new_datetimes
   }
 

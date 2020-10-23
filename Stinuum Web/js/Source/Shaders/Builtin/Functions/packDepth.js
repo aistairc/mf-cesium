@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Packs a depth value into a vec3 that can be represented by unsigned bytes.\n\
  *\n\
  * @name czm_packDepth\n\
@@ -20,4 +18,3 @@ vec4 czm_packDepth(float depth)\n\
     return enc;\n\
 }\n\
 ";
-});

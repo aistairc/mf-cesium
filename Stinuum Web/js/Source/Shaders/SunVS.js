@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "attribute vec2 direction;\n\
+export default "attribute vec2 direction;\n\
 \n\
 uniform float u_size;\n\
 \n\
@@ -30,4 +28,3 @@ void main() \n\
     v_textureCoordinates = direction;\n\
 }\n\
 ";
-});

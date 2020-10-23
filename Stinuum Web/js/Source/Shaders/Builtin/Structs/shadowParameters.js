@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "struct czm_shadowParameters\n\
+export default "struct czm_shadowParameters\n\
 {\n\
 #ifdef USE_CUBE_MAP_SHADOW\n\
     vec3 texCoords;\n\
@@ -17,4 +15,3 @@ define(function() {
     float darkness;\n\
 };\n\
 ";
-});

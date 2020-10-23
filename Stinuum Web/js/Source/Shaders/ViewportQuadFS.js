@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "\n\
+export default "\n\
 varying vec2 v_textureCoordinates;\n\
 \n\
 void main()\n\
@@ -18,4 +16,3 @@ void main()\n\
     gl_FragColor = vec4(material.diffuse + material.emission, material.alpha);\n\
 }\n\
 ";
-});

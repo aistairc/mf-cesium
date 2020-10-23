@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * A built-in GLSL floating-point constant for converting degrees to radians.\n\
  *\n\
  * @alias czm_radiansPerDegree\n\
@@ -18,4 +16,3 @@ define(function() {
  */\n\
 const float czm_radiansPerDegree = 0.017453292519943295;\n\
 ";
-});

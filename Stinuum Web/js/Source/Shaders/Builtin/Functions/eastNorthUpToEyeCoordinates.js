@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Computes a 3x3 rotation matrix that transforms vectors from an ellipsoid's east-north-up coordinate system \n\
  * to eye coordinates.  In east-north-up coordinates, x points east, y points north, and z points along the \n\
  * surface normal.  East-north-up can be used as an ellipsoid's tangent space for operations such as bump mapping.\n\
@@ -35,4 +33,3 @@ mat3 czm_eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)\n\
         normalEC.x,    normalEC.y,    normalEC.z);\n\
 }\n\
 ";
-});

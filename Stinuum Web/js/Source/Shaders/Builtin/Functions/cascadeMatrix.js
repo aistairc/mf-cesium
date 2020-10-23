@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "\n\
+export default "\n\
 uniform mat4 shadowMap_cascadeMatrices[4];\n\
 \n\
 mat4 czm_cascadeMatrix(vec4 weights)\n\
@@ -12,4 +10,3 @@ mat4 czm_cascadeMatrix(vec4 weights)\n\
            shadowMap_cascadeMatrices[3] * weights.w;\n\
 }\n\
 ";
-});

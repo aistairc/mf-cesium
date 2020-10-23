@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "\n\
+export default "\n\
 uniform vec4 shadowMap_cascadeSplits[2];\n\
 \n\
 vec4 czm_cascadeWeights(float depthEye)\n\
@@ -12,4 +10,3 @@ vec4 czm_cascadeWeights(float depthEye)\n\
     return near * far;\n\
 }\n\
 ";
-});

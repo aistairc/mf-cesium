@@ -174,7 +174,7 @@ function showGraphItems(graph_id, pro_type_arr) {
 
 function showSelectItemsDialog(graph_id, pro_type_arr) {
     
-
+    LOG(pro_type_arr);
     // Create and set Overlay
     let dialogOverlay = document.createElement("div");
     dialogOverlay.classList.add("dialog-overlay");
@@ -461,12 +461,12 @@ var selectProperty = function (graph_id) {
     }
 
     let pro_type_arr = stinuum.mfCollection.getAllPropertyType();
-
+    LOG("here selectProperty", pro_type_arr)
     let show_list = [];
     for (let i = 0; i < pro_type_arr.length; i++) {
         console.log(hide_items.indexOf((pro_type_arr[i].type).toUpperCase()))
         if (hide_items.indexOf((pro_type_arr[i].type).toUpperCase()) == -1) {
-       
+            LOG("here selectProperty : ",pro_type_arr[i])
             if(show_list.indexOf(pro_type_arr[i].key) == -1){
                 show_list.push(pro_type_arr[i].key);
             }
@@ -813,6 +813,7 @@ function time_query() {
 }
 
 function zoom() {
+    LOG("timeQuery")
     var zoom_time = slider.getValue();
     var time_min_max = stinuum.mfCollection.getWholeMinMax(true).date;
 
@@ -856,7 +857,7 @@ function zoom() {
     //     stinuum.queryProcessor.queryByTime(fastest, latest);
     //     stinuum.geometryViewer.update();
     // }
-    console.log(fastest, latest)
+    // console.log(fastest, latest)
     stinuum.queryProcessor.queryByTime(fastest, latest);
     stinuum.geometryViewer.update();
 }

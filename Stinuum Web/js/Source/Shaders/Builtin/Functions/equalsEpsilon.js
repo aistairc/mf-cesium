@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Compares <code>left</code> and <code>right</code> componentwise. Returns <code>true</code>\n\
  * if they are within <code>epsilon</code> and <code>false</code> otherwise. The inputs\n\
  * <code>left</code> and <code>right</code> can be <code>float</code>s, <code>vec2</code>s,\n\
@@ -38,4 +36,3 @@ bool czm_equalsEpsilon(float left, float right, float epsilon) {\n\
     return (abs(left - right) <= epsilon);\n\
 }\n\
 ";
-});

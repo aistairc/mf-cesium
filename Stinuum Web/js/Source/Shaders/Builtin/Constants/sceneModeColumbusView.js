@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * The constant identifier for the Columbus View {@link SceneMode}\n\
  *\n\
  * @name czm_sceneModeColumbusView\n\
@@ -13,4 +11,3 @@ define(function() {
  */\n\
 const float czm_sceneModeColumbusView = 1.0;\n\
 ";
-});

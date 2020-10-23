@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * The automatic GLSL constant for {@link Pass#ENVIRONMENT}\n\
  *\n\
  * @name czm_passEnvironment\n\
@@ -11,4 +9,3 @@ define(function() {
  */\n\
 const float czm_passEnvironment = 0.0;\n\
 ";
-});

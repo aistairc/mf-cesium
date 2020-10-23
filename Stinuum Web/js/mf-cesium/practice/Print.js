@@ -165,8 +165,7 @@ function refresh() {
 }
 
 function drawFeatures() { //아이디로 찾을까
-
-
+    LOG("drawFeatures");
     stinuum.geometryViewer.update();
 
 }
@@ -174,7 +173,7 @@ function drawFeatures() { //아이디로 찾을까
 function connectHomeButton(){
     $('.cesium-button.cesium-toolbar-button.cesium-home-button').each(function(){
         $this = $(this);
-       
+        LOG($this);
         $this.unbind(); 
         $this.click(function(){
             stinuum.geometryViewer.adjustCameraView();
@@ -195,7 +194,7 @@ function checkTemporalGeometry(layer_id, feature_id)  {
     if (feature_data.temporalGeometry.type == 'MovingGeometryCollection'){
         for (var prism_i = 0; prism_i < feature_data.temporalGeometry.prisms.length; prism_i++){
           var eachFeature = feature_data.temporalGeometry.prisms[prism_i];
-        
+          LOG(eachFeature)
           if (!Array.isArray(eachFeature.coordinates[0][0][0]) &&  (eachFeature.type == 'MovingPolygon' || eachFeature.type == 'MovingLineString' || eachFeature.type == 'MovingPointCloud')) { //old mf-json format for polygon
             var coord = eachFeature.coordinates;
             var new_arr = [];

@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Translates a position (or any <code>vec3</code>) that was encoded with {@link EncodedCartesian3},\n\
  * and then provided to the shader as separate <code>high</code> and <code>low</code> bits to\n\
  * be relative to the eye.  As shown in the example, the position can then be transformed in eye\n\
@@ -9,7 +7,7 @@ define(function() {
  * respectively.\n\
  * <p>\n\
  * This technique, called GPU RTE, eliminates jittering artifacts when using large coordinates as\n\
- * described in {@link http://blogs.agi.com/insight3d/index.php/2008/09/03/precisions-precisions/|Precisions, Precisions}.\n\
+ * described in {@link http://help.agi.com/AGIComponents/html/BlogPrecisionsPrecisions.htm|Precisions, Precisions}.\n\
  * </p>\n\
  *\n\
  * @name czm_translateRelativeToEye\n\
@@ -22,8 +20,8 @@ define(function() {
  * @example\n\
  * attribute vec3 positionHigh;\n\
  * attribute vec3 positionLow;\n\
- * \n\
- * void main() \n\
+ *\n\
+ * void main()\n\
  * {\n\
  *   vec4 p = czm_translateRelativeToEye(positionHigh, positionLow);\n\
  *   gl_Position = czm_modelViewProjectionRelativeToEye * p;\n\
@@ -42,4 +40,3 @@ vec4 czm_translateRelativeToEye(vec3 high, vec3 low)\n\
     return vec4(highDifference + lowDifference, 1.0);\n\
 }\n\
 ";
-});

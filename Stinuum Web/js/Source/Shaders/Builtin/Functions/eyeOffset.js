@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * DOC_TBA\n\
  *\n\
  * @name czm_eyeOffset\n\
@@ -22,4 +20,3 @@ vec4 czm_eyeOffset(vec4 positionEC, vec3 eyeOffset)\n\
     return p;\n\
 }\n\
 ";
-});

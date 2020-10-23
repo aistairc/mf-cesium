@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * A built-in GLSL floating-point constant for <code>1/2pi</code>.\n\
  *\n\
  * @alias czm_oneOverTwoPi\n\
@@ -18,4 +16,3 @@ define(function() {
  */\n\
 const float czm_oneOverTwoPi = 0.15915494309189535;\n\
 ";
-});

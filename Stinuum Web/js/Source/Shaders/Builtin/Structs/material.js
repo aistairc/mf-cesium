@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Holds material information that can be used for lighting. Returned by all czm_getMaterial functions.\n\
  *\n\
  * @name czm_material\n\
@@ -24,4 +22,3 @@ struct czm_material\n\
     float alpha;\n\
 };\n\
 ";
-});

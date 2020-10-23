@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Transforms a position from model to window coordinates.  The transformation\n\
  * from model to clip coordinates is done using {@link czm_modelViewProjection}.\n\
  * The transform from normalized device coordinates to window coordinates is\n\
@@ -39,4 +37,3 @@ vec4 czm_modelToWindowCoordinates(vec4 position)\n\
     return q;\n\
 }\n\
 ";
-});

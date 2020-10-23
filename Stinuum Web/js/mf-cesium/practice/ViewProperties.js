@@ -28,7 +28,9 @@ function getHighlight(feature, temporalProperty) {
 
     changeOptionToolbarToCloseDIV();
     showOneFeatureGraph(feature, temporalProperty);
-
+    LOG("getHighlight")
+    LOG(feature)
+    LOG(temporalProperty)
     stinuum.temporalMap.show(feature, temporalProperty);
 }
 
@@ -79,19 +81,19 @@ function showContextMenu(id, pos) {
     let hide_items = ["DATETIMES", "IMAGE" ,"DETECTION"];
     let exist_items = []
     var feature = stinuum.mfCollection.getMFPairByIdInFeatures(id);
-
+    LOG("showContextMenu", feature, id)
     for (var i = 0; i < feature.feature.temporalProperties.length; i++) {
         var keys = Object.keys(feature.feature.temporalProperties[i]);
         for (var k = 0; k < keys.length; k++) {
             if (keys[k].toUpperCase() == 'DATETIMES') continue;
-            
+            LOG(feature.feature.temporalProperties[i][keys[k]].type)
             if(hide_items.indexOf(feature.feature.temporalProperties[i][keys[k]].type.toUpperCase())>=0){
                 continue;
             }
             if(exist_items.indexOf(keys[k])>=0){
                 continue;
             }
-           
+            LOG(keys[k])
             exist_items.push(keys[k])
             var div = document.createElement("div");
             div.className = "context-menu";

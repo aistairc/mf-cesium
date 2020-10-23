@@ -15,14 +15,14 @@ function changeMenuMode(mode, feature_id){
 
 
 function removeCheckAllandUnCheckBtn(){
-
+  LOG("removeCheckAllandUnCheckBtn")
   if (document.getElementById(div_id.chk_unchk_li)) {
     document.getElementById(div_id.chk_unchk_li).remove();
   }
 }
 
 function printCheckAllandUnCheck(layer_id){
-
+  LOG("printCheckAllandUnCheck", layer_id);
   removeCheckAllandUnCheckBtn();
 
   var menu = document.getElementById('menu_list');
@@ -75,7 +75,7 @@ function printCheckAllandUnCheck(layer_id){
 }
 
 function afterChangingCheck(){
-
+  LOG("afterChangingCheck");
   update_printed_features();
   clearAnalysis();
   // refresh(); //All whole -> features And remove Anlaysis mf.
@@ -83,7 +83,7 @@ function afterChangingCheck(){
 }
 
 function checkAllandUpdate(layer_id) {
-
+  LOG("checkAllandUpdate", layer_id);
   var features = buffer.getFeatureIDsByLayerID(layer_id);
   for (var feature_id in features){
     list_maker.turnOnFeature(layer_id, feature_id);
@@ -96,7 +96,7 @@ function checkAllandUpdate(layer_id) {
 }
 
 function uncheckAllandUpdate(layer_id) {
-
+  LOG("uncheckAllandUpdate", layer_id);
   var features = buffer.getFeatureIDsByLayerID(layer_id);
   for (var feature_id in features){
     list_maker.turnOffFeature(layer_id, feature_id);

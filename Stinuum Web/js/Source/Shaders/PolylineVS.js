@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "attribute vec3 position3DHigh;\n\
+export default "attribute vec3 position3DHigh;\n\
 attribute vec3 position3DLow;\n\
 attribute vec3 position2DHigh;\n\
 attribute vec3 position2DLow;\n\
@@ -17,7 +15,7 @@ attribute vec4 texCoordExpandAndBatchIndex;\n\
 \n\
 varying vec2  v_st;\n\
 varying float v_width;\n\
-varying vec4  czm_pickColor;\n\
+varying vec4 v_pickColor;\n\
 varying float v_polylineAngle;\n\
 \n\
 void main()\n\
@@ -93,12 +91,15 @@ void main()\n\
         }\n\
     #endif\n\
 \n\
-    vec4 positionWC = getPolylineWindowCoordinates(p, prev, next, expandDir, width, usePrev, v_polylineAngle);\n\
+    float polylineAngle;\n\
+    vec4 positionWC = getPolylineWindowCoordinates(p, prev, next, expandDir, width, usePrev, polylineAngle);\n\
     gl_Position = czm_viewportOrthographic * positionWC * show;\n\
 \n\
-    v_st = vec2(texCoord, clamp(expandDir, 0.0, 1.0));\n\
+    v_st.s = texCoord;\n\
+    v_st.t = czm_writeNonPerspective(clamp(expandDir, 0.0, 1.0), gl_Position.w);\n\
+\n\
     v_width = width;\n\
-    czm_pickColor = pickColor;\n\
+    v_pickColor = pickColor;\n\
+    v_polylineAngle = polylineAngle;\n\
 }\n\
 ";
-});

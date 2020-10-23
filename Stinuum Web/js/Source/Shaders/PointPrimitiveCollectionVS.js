@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "uniform float u_maxTotalPointSize;\n\
+export default "uniform float u_maxTotalPointSize;\n\
 \n\
 attribute vec4 positionHighAndSize;\n\
 attribute vec4 positionLowAndOutline;\n\
@@ -14,10 +12,7 @@ varying vec4 v_color;\n\
 varying vec4 v_outlineColor;\n\
 varying float v_innerPercent;\n\
 varying float v_pixelDistance;\n\
-\n\
-#ifdef RENDER_FOR_PICK\n\
 varying vec4 v_pickColor;\n\
-#endif\n\
 \n\
 const float SHIFT_LEFT8 = 256.0;\n\
 const float SHIFT_RIGHT8 = 1.0 / 256.0;\n\
@@ -33,7 +28,7 @@ void main()\n\
     float totalSize = positionHighAndSize.w + outlineWidthBothSides;\n\
     float outlinePercent = outlineWidthBothSides / totalSize;\n\
     // Scale in response to browser-zoom.\n\
-    totalSize *= czm_resolutionScale;\n\
+    totalSize *= czm_pixelRatio;\n\
     // Add padding for anti-aliasing on both sides.\n\
     totalSize += 3.0;\n\
 \n\
@@ -55,18 +50,16 @@ void main()\n\
 \n\
     vec4 color;\n\
     vec4 outlineColor;\n\
-#ifdef RENDER_FOR_PICK\n\
+    vec4 pickColor;\n\
+\n\
     // compressedAttribute0.z => pickColor.rgb\n\
 \n\
-    color = vec4(0.0);\n\
-    outlineColor = vec4(0.0);\n\
-    vec4 pickColor;\n\
     temp = compressedAttribute0.z * SHIFT_RIGHT8;\n\
     pickColor.b = (temp - floor(temp)) * SHIFT_LEFT8;\n\
     temp = floor(temp) * SHIFT_RIGHT8;\n\
     pickColor.g = (temp - floor(temp)) * SHIFT_LEFT8;\n\
     pickColor.r = floor(temp);\n\
-#else\n\
+\n\
     // compressedAttribute0.x => color.rgb\n\
 \n\
     temp = compressedAttribute0.x * SHIFT_RIGHT8;\n\
@@ -82,15 +75,13 @@ void main()\n\
     temp = floor(temp) * SHIFT_RIGHT8;\n\
     outlineColor.g = (temp - floor(temp)) * SHIFT_LEFT8;\n\
     outlineColor.r = floor(temp);\n\
-#endif\n\
 \n\
     // compressedAttribute0.w => color.a, outlineColor.a, pickColor.a\n\
 \n\
     temp = compressedAttribute0.w * SHIFT_RIGHT8;\n\
-#ifdef RENDER_FOR_PICK\n\
     pickColor.a = (temp - floor(temp)) * SHIFT_LEFT8;\n\
     pickColor = pickColor / 255.0;\n\
-#endif\n\
+\n\
     temp = floor(temp) * SHIFT_RIGHT8;\n\
     outlineColor.a = (temp - floor(temp)) * SHIFT_LEFT8;\n\
     outlineColor /= 255.0;\n\
@@ -101,7 +92,6 @@ void main()\n\
 \n\
     vec4 p = czm_translateRelativeToEye(positionHigh, positionLow);\n\
     vec4 positionEC = czm_modelViewRelativeToEye * p;\n\
-    positionEC.xyz *= show;\n\
 \n\
     ///////////////////////////////////////////////////////////////////////////\n\
 \n\
@@ -146,13 +136,13 @@ void main()\n\
     float nearSq = distanceDisplayConditionAndDisableDepth.x;\n\
     float farSq = distanceDisplayConditionAndDisableDepth.y;\n\
     if (lengthSq < nearSq || lengthSq > farSq) {\n\
-        positionEC.xyz = vec3(0.0);\n\
+        // push vertex behind camera to force it to be clipped\n\
+        positionEC.xyz = vec3(0.0, 0.0, 1.0);\n\
     }\n\
 #endif\n\
 \n\
-    vec4 positionWC = czm_eyeToWindowCoordinates(positionEC);\n\
-\n\
-    gl_Position = czm_viewportOrthographic * vec4(positionWC.xy, -positionWC.z, 1.0);\n\
+    gl_Position = czm_projection * positionEC;\n\
+    czm_vertexLogDepth();\n\
 \n\
 #ifdef DISABLE_DEPTH_DISTANCE\n\
     float disableDepthTestDistance = distanceDisplayConditionAndDisableDepth.z;\n\
@@ -170,22 +160,23 @@ void main()\n\
         {\n\
             // Position z on the near plane.\n\
             gl_Position.z = -gl_Position.w;\n\
+#ifdef LOG_DEPTH\n\
+            czm_vertexLogDepth(vec4(czm_currentFrustum.x));\n\
+#endif\n\
         }\n\
     }\n\
 #endif\n\
 \n\
     v_color = color;\n\
-    v_color.a *= translucency;\n\
+    v_color.a *= translucency * show;\n\
     v_outlineColor = outlineColor;\n\
-    v_outlineColor.a *= translucency;\n\
+    v_outlineColor.a *= translucency * show;\n\
 \n\
     v_innerPercent = 1.0 - outlinePercent;\n\
     v_pixelDistance = 2.0 / totalSize;\n\
-    gl_PointSize = totalSize;\n\
+    gl_PointSize = totalSize * show;\n\
+    gl_Position *= show;\n\
 \n\
-#ifdef RENDER_FOR_PICK\n\
     v_pickColor = pickColor;\n\
-#endif\n\
 }\n\
 ";
-});

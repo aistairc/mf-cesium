@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * The automatic GLSL constant for {@link Pass#TERRAIN_CLASSIFICATION}\n\
  *\n\
  * @name czm_passTerrainClassification\n\
@@ -11,4 +9,3 @@ define(function() {
  */\n\
 const float czm_passTerrainClassification = 3.0;\n\
 ";
-});

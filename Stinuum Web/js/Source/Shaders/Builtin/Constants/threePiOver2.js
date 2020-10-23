@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * A built-in GLSL floating-point constant for <code>3pi/2</code>.\n\
  *\n\
  * @alias czm_threePiOver2\n\
@@ -18,4 +16,3 @@ define(function() {
  */\n\
 const float czm_threePiOver2 = 4.71238898038469;\n\
 ";
-});

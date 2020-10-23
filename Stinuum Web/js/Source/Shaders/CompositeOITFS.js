@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Compositing for Weighted Blended Order-Independent Transparency. See:\n\
  * - http://jcgt.org/published/0002/02/09/\n\
  * - http://casual-effects.blogspot.com/2014/03/weighted-blended-order-independent.html\n\
@@ -33,4 +31,3 @@ void main()\n\
     }\n\
 }\n\
 ";
-});

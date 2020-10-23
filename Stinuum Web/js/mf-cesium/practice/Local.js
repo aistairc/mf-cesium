@@ -26,7 +26,7 @@ function handleFileSelect(evt) {
     document.getElementById('drop_zone_bg').style.visibility = 'hidden';
     for (var i = 0; i < arr.length; i++) {
       var json_object = JSON.parse(arr[i]);
-   
+      LOG("handleFileSelect", json_object);
 
       if (json_object.name != undefined) {
         updateBuffer_local(json_object.name, json_object);
@@ -56,7 +56,7 @@ function handleEditorData(filename, data){
   changeMenuMode(MENU_STATE.layers);
 }
 function readFile(file) {
-
+  LOG("readFile")
   var reader = new FileReader();
   var deferred = $.Deferred();
 
@@ -73,7 +73,7 @@ function readFile(file) {
 }
 
 function updateBuffer_local(filename, data) {
-
+  LOG("updateBuffer_local")
   // need convert mf_trajectory to mf_prism
   if (data.type == "FeatureCollection"){
     if (data.features[0].temporalGeometry == undefined){
@@ -97,20 +97,20 @@ function updateBuffer_local(filename, data) {
     buffer.createLayer(layer);
 
     if (data.features != undefined) {
-  
+      LOG('if')
       var count = 0
       for (var feature_i = 0; feature_i < data.features.length; feature_i++) {
         if (data.features[feature_i].properties.name == undefined) {
           data.features[feature_i].properties.name = layer + "_" + count
-     
+          LOG(data.features[feature_i].properties.name)
           count += 1;
         }
         buffer.setBuffer_layer(layer, data.features[feature_i]);
       }
-     
+      LOG(data)
       // buffer.setBuffer_layer(data.features[feature_i]);
     } else { // file is not layer
-    
+      LOG('else')
 
       buffer.setBuffer_feature(layer, data.properties.name, data);
     }
@@ -131,12 +131,12 @@ function leadingZeros(n, digits) {
 
 
 function convertTtoP(filename, data) {
-
+  LOG("convertTtoP")
  
   var interpolation = "Linear"
 
   if(data.type == "Feature"){
-   
+    LOG("Feature")
     var newFeatures = []
     var NewPrism = {
       type: "Feature",
@@ -195,7 +195,7 @@ function convertTtoP(filename, data) {
     NewPrism.temporalGeometry.datetimes = datetimes;
     NewPrism.temporalGeometry.coordinates = NewCoordinates;
     NewPrism.temporalGeometry.interpolation = interpolation;
-  
+    LOG(JSON.stringify(NewPrism))
   
     return NewPrism;    
   }
@@ -223,12 +223,13 @@ function convertTtoP(filename, data) {
       var temporalProperties = []
       if (propertiesKey.length > 1){
         for(var p_i = 0; p_i < propertiesKey.length; p_i++){
-          
+          // LOG(p_i, propertiesKey[p_i])
           if (propertiesKey[p_i] == "datetimes"){
             tempData[propertiesKey[p_i]] = propertiesValue[p_i]
           }
           else{
-            
+            // LOG(propertiesKey[p_i])
+            // LOG(p_i, propertiesKey.length)
             if (typeof(propertiesValue[p_i][0]) == 'string'){
               propertyType = "Text"
             }else{
@@ -245,7 +246,7 @@ function convertTtoP(filename, data) {
       }
 
       for (var j = 0; j < coordinates.length; j++){
-  
+        // LOG(coordinates[j])
         NewCoordinates.push(coordinates[j])
       }
       var newFeaturesData = {
@@ -267,7 +268,7 @@ function convertTtoP(filename, data) {
       newFeatures.push(newFeaturesData);
     }
   
- 
+    // LOG(JSON.stringify(NewPrism))
     return NewPrism;
   }
 }

@@ -22,7 +22,6 @@ var sandcastleJsHintOptions = {
     "boss": false,
     "debug": false,
     "eqnull": false,
-    "esnext": false,
     "moz": false,
     "evil": false,
     "expr": false,
@@ -66,5 +65,6 @@ var sandcastleJsHintOptions = {
         "console",
         "Sandcastle",
         "Cesium"
-    ]
+    ],
+    "esversion": 10
 };

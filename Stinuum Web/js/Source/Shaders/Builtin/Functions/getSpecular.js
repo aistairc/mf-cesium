@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Calculates the specular intensity of reflected light.\n\
  *\n\
  * @name czm_getSpecular\n\
@@ -31,4 +29,3 @@ float czm_getSpecular(vec3 lightDirectionEC, vec3 toEyeEC, vec3 normalEC, float 
     return pow(specular, max(shininess, czm_epsilon2));\n\
 }\n\
 ";
-});

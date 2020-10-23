@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * A built-in GLSL floating-point constant for <code>pi/4</code>.\n\
  *\n\
  * @alias czm_piOverFour\n\
@@ -18,4 +16,3 @@ define(function() {
  */\n\
 const float czm_piOverFour = 0.7853981633974483;\n\
 ";
-});

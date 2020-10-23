@@ -1,13 +1,11 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "\n\
-float czm_sampleShadowMap(samplerCube shadowMap, vec3 d)\n\
+export default "\n\
+float czm_sampleShadowMap(highp samplerCube shadowMap, vec3 d)\n\
 {\n\
     return czm_unpackDepth(textureCube(shadowMap, d));\n\
 }\n\
 \n\
-float czm_sampleShadowMap(sampler2D shadowMap, vec2 uv)\n\
+float czm_sampleShadowMap(highp sampler2D shadowMap, vec2 uv)\n\
 {\n\
 #ifdef USE_SHADOW_DEPTH_TEXTURE\n\
     return texture2D(shadowMap, uv).r;\n\
@@ -26,4 +24,3 @@ float czm_shadowDepthCompare(sampler2D shadowMap, vec2 uv, float depth)\n\
     return step(depth, czm_sampleShadowMap(shadowMap, uv));\n\
 }\n\
 ";
-});

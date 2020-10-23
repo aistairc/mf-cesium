@@ -1,407 +1,653 @@
 // This file is automatically rebuilt by the Cesium build process.
-var hello_world_index = 64;
+var hello_world_index = 96;
+var VERSION = '1.74';
 var gallery_demos = [{
   "name": "3D Models",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Models.jpg"
 }, {
   "name": "3D Models Coloring",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Models Coloring.jpg"
 }, {
   "name": "3D Tiles Adjust Height",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles Adjust Height.jpg"
 }, {
   "name": "3D Tiles BIM",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles BIM.jpg"
 }, {
   "name": "3D Tiles Batch Table Hierarchy",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles Batch Table Hierarchy.jpg"
 }, {
+  "name": "3D Tiles Clipping Planes",
+  "isNew": false,
+  "img": "3D Tiles Clipping Planes.jpg"
+}, {
   "name": "3D Tiles Feature Picking",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles Feature Picking.jpg"
 }, {
   "name": "3D Tiles Feature Styling",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles Feature Styling.jpg"
 }, {
   "name": "3D Tiles Formats",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles Formats.jpg"
 }, {
   "name": "3D Tiles Inspector",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles Inspector.jpg"
 }, {
   "name": "3D Tiles Interactivity",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles Interactivity.jpg"
 }, {
   "name": "3D Tiles Interior",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles Interior.jpg"
 }, {
   "name": "3D Tiles Photogrammetry",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles Photogrammetry.jpg"
 }, {
+  "name": "3D Tiles Photogrammetry Classification",
+  "isNew": false,
+  "img": "3D Tiles Photogrammetry Classification.jpg"
+}, {
   "name": "3D Tiles Point Cloud",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles Point Cloud.jpg"
 }, {
+  "name": "3D Tiles Point Cloud Classification",
+  "isNew": false,
+  "img": "3D Tiles Point Cloud Classification.jpg"
+}, {
+  "name": "3D Tiles Point Cloud Shading",
+  "isNew": false,
+  "img": "3D Tiles Point Cloud Shading.jpg"
+}, {
   "name": "3D Tiles Point Cloud Styling",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "3D Tiles Point Cloud Styling.jpg"
 }, {
+  "name": "3D Tiles Terrain Classification",
+  "isNew": false,
+  "img": "3D Tiles Terrain Classification.jpg"
+}, {
+  "name": "Ambient Occlusion",
+  "isNew": false,
+  "img": "Ambient Occlusion.jpg"
+}, {
   "name": "ArcGIS MapServer",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "ArcGIS MapServer.jpg"
 }, {
+  "name": "ArcGIS Tiled Elevation Terrain",
+  "isNew": false,
+  "img": "ArcGIS Tiled Elevation Terrain.jpg"
+}, {
   "name": "ArcticDEM",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "ArcticDEM.jpg"
 }, {
-  "name": "Atmosphere Color",
-  "date": 1509557365000,
-  "img": "Atmosphere Color.jpg"
-}, {
   "name": "Billboards",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Billboards.jpg"
 }, {
+  "name": "Bloom",
+  "isNew": false,
+  "img": "Bloom.jpg"
+}, {
+  "name": "Blue Marble",
+  "isNew": false,
+  "img": "Blue Marble.jpg"
+}, {
   "name": "Box",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Box.jpg"
 }, {
   "name": "CZML",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML.jpg"
 }, {
+  "name": "CZML 3D Tiles",
+  "isNew": false,
+  "img": "CZML 3D Tiles.jpg"
+}, {
   "name": "CZML Billboard and Label",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Billboard and Label.jpg"
 }, {
   "name": "CZML Box",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Box.jpg"
 }, {
   "name": "CZML Circles and Ellipses",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Circles and Ellipses.jpg"
 }, {
   "name": "CZML Colors",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Colors.jpg"
 }, {
   "name": "CZML Cones and Cylinders",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Cones and Cylinders.jpg"
 }, {
   "name": "CZML Corridor",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Corridor.jpg"
 }, {
   "name": "CZML Custom Properties",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Custom Properties.jpg"
 }, {
   "name": "CZML Model",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Model.jpg"
 }, {
   "name": "CZML Model - Node Transformations",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Model - Node Transformations.jpg"
 }, {
+  "name": "CZML Model Articulations",
+  "isNew": false,
+  "img": "CZML Model Articulations.jpg"
+}, {
+  "name": "CZML Model Data URL",
+  "isNew": false,
+  "img": "CZML Model Data URL.jpg"
+}, {
   "name": "CZML Path",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Path.jpg"
 }, {
   "name": "CZML Point",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Point.jpg"
 }, {
   "name": "CZML Point - Time Dynamic",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Point - Time Dynamic.jpg"
 }, {
   "name": "CZML Polygon",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Polygon.jpg"
 }, {
   "name": "CZML Polygon - Interpolating References",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Polygon - Interpolating References.jpg"
 }, {
   "name": "CZML Polygon - Intervals, Availability",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Polygon - Intervals, Availability.jpg"
 }, {
   "name": "CZML Polyline",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Polyline.jpg"
 }, {
+  "name": "CZML Polyline Volume",
+  "isNew": false,
+  "img": "CZML Polyline Volume.jpg"
+}, {
   "name": "CZML Position Definitions",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Position Definitions.jpg"
 }, {
   "name": "CZML Rectangle",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Rectangle.jpg"
 }, {
   "name": "CZML Reference Properties",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Reference Properties.jpg"
 }, {
   "name": "CZML Spheres and Ellipsoids",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Spheres and Ellipsoids.jpg"
 }, {
   "name": "CZML Wall",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "CZML Wall.jpg"
 }, {
+  "name": "CZML ZIndex",
+  "isNew": false,
+  "img": "CZML ZIndex.jpg"
+}, {
   "name": "Callback Property",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Callback Property.jpg"
 }, {
   "name": "Camera",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Camera.jpg"
 }, {
   "name": "Camera Tutorial",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Camera Tutorial.jpg"
 }, {
   "name": "Cardboard",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Cardboard.jpg"
 }, {
+  "name": "Cartographic Limit Rectangle",
+  "isNew": false,
+  "img": "Cartographic Limit Rectangle.jpg"
+}, {
   "name": "Cesium Inspector",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Cesium Inspector.jpg"
 }, {
+  "name": "Cesium OSM Buildings",
+  "isNew": false,
+  "img": "Cesium OSM Buildings.jpg"
+}, {
   "name": "Cesium Widget",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Cesium Widget.jpg"
 }, {
+  "name": "Cesium World Terrain",
+  "isNew": false,
+  "img": "Cesium World Terrain.jpg"
+}, {
   "name": "Circles and Ellipses",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Circles and Ellipses.jpg"
 }, {
+  "name": "Clamp to 3D Model",
+  "isNew": false,
+  "img": "Clamp to 3D Model.jpg"
+}, {
+  "name": "Clamp to 3D Tiles",
+  "isNew": false,
+  "img": "Clamp to 3D Tiles.jpg"
+}, {
+  "name": "Clamp to Terrain",
+  "isNew": false,
+  "img": "Clamp to Terrain.jpg"
+}, {
   "name": "Classification",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Classification.jpg"
 }, {
   "name": "Classification Types",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Classification Types.jpg"
 }, {
   "name": "Clock",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Clock.jpg"
 }, {
   "name": "Clustering",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Clustering.jpg"
 }, {
   "name": "Corridor",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Corridor.jpg"
 }, {
   "name": "Custom DataSource",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Custom DataSource.jpg"
 }, {
   "name": "Custom Geocoder",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Custom Geocoder.jpg"
 }, {
+  "name": "Custom Per-Feature Post Process",
+  "isNew": false,
+  "img": "Custom Per-Feature Post Process.jpg"
+}, {
+  "name": "Custom Post Process",
+  "isNew": false,
+  "img": "Custom Post Process.jpg"
+}, {
   "name": "Cylinders and Cones",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Cylinders and Cones.jpg"
 }, {
+  "name": "DataSource Ordering",
+  "isNew": false,
+  "img": "DataSource Ordering.jpg"
+}, {
+  "name": "Depth of Field",
+  "isNew": false,
+  "img": "Depth of Field.jpg"
+}, {
   "name": "Distance Display Conditions",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Distance Display Conditions.jpg"
 }, {
+  "name": "Drawing on Terrain",
+  "isNew": false,
+  "img": "Drawing on Terrain.jpg"
+}, {
+  "name": "Earth at Night",
+  "isNew": false,
+  "img": "Earth at Night.jpg"
+}, {
+  "name": "Export KML",
+  "isNew": false,
+  "img": "Export KML.jpg"
+}, {
+  "name": "FXAA",
+  "isNew": false,
+  "img": "FXAA.jpg"
+}, {
+  "name": "Fog Post Process",
+  "isNew": false,
+  "img": "Fog Post Process.jpg"
+}, {
   "name": "GeoJSON and TopoJSON",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "GeoJSON and TopoJSON.jpg"
 }, {
   "name": "GeoJSON simplestyle",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "GeoJSON simplestyle.jpg"
 }, {
+  "name": "Geometry Height Reference",
+  "isNew": false,
+  "img": "Geometry Height Reference.jpg"
+}, {
   "name": "Geometry and Appearances",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Geometry and Appearances.jpg"
 }, {
+  "name": "Globe Interior",
+  "isNew": false,
+  "img": "Globe Interior.jpg"
+}, {
+  "name": "Globe Materials",
+  "isNew": false,
+  "img": "Globe Materials.jpg"
+}, {
+  "name": "Globe Translucency",
+  "isNew": false,
+  "img": "Globe Translucency.jpg"
+}, {
   "name": "Google Earth Enterprise",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Google Earth Enterprise.jpg"
 }, {
-  "name": "Ground Clamping",
-  "date": 1509557365000,
-  "img": "Ground Clamping.jpg"
+  "name": "Ground Atmosphere",
+  "isNew": false,
+  "img": "Ground Atmosphere.jpg"
 }, {
   "name": "HTML Overlays",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "HTML Overlays.jpg"
 }, {
   "name": "HeadingPitchRoll",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "HeadingPitchRoll.jpg"
 }, {
   "name": "Hello World",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Hello World.jpg"
 }, {
+  "name": "High Dynamic Range",
+  "isNew": false,
+  "img": "High Dynamic Range.jpg"
+}, {
+  "name": "Image-Based Lighting",
+  "isNew": false,
+  "img": "Image-Based Lighting.jpg"
+}, {
   "name": "Imagery Adjustment",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Imagery Adjustment.jpg"
 }, {
+  "name": "Imagery Color To Alpha",
+  "isNew": false,
+  "img": "Imagery Color To Alpha.jpg"
+}, {
+  "name": "Imagery Cutout",
+  "isNew": false,
+  "img": "Imagery Cutout.jpg"
+}, {
   "name": "Imagery Layers",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Imagery Layers.jpg"
 }, {
   "name": "Imagery Layers Manipulation",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Imagery Layers Manipulation.jpg"
 }, {
   "name": "Imagery Layers Split",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Imagery Layers Split.jpg"
 }, {
   "name": "Imagery Layers Texture Filters",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Imagery Layers Texture Filters.jpg"
 }, {
   "name": "Interpolation",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Interpolation.jpg"
 }, {
   "name": "KML",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "KML.jpg"
 }, {
   "name": "KML Tours",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "KML Tours.jpg"
 }, {
   "name": "Labels",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Labels.jpg"
 }, {
+  "name": "LensFlare",
+  "isNew": false,
+  "img": "LensFlare.jpg"
+}, {
+  "name": "Lighting",
+  "isNew": false,
+  "img": "Lighting.jpg"
+}, {
   "name": "LocalToFixedFrame",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "LocalToFixedFrame.jpg"
 }, {
   "name": "Map Pins",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Map Pins.jpg"
 }, {
   "name": "Materials",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Materials.jpg"
 }, {
+  "name": "Montreal Point Cloud",
+  "isNew": false,
+  "img": "Montreal Point Cloud.jpg"
+}, {
+  "name": "Multi-part CZML",
+  "isNew": false,
+  "img": "Multi-part CZML.jpg"
+}, {
+  "name": "Multiple Synced Views",
+  "isNew": false,
+  "img": "Multiple Synced Views.jpg"
+}, {
+  "name": "Natural Earth II",
+  "isNew": false,
+  "img": "Natural Earth II.jpg"
+}, {
   "name": "Offline",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Offline.jpg"
 }, {
-  "name": "PATerrain",
-  "date": 1509557365000,
-  "img": "PATerrain.jpg"
+  "name": "PAMAP Terrain",
+  "isNew": false,
+  "img": "PAMAP Terrain.jpg"
+}, {
+  "name": "Parallels and Meridians",
+  "isNew": false,
+  "img": "Parallels and Meridians.jpg"
+}, {
+  "name": "Partial Ellipsoids",
+  "isNew": false,
+  "img": "Partial Ellipsoids.jpg"
 }, {
   "name": "Particle System",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Particle System.jpg"
 }, {
   "name": "Particle System Fireworks",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Particle System Fireworks.jpg"
 }, {
+  "name": "Particle System Tails",
+  "isNew": false,
+  "img": "Particle System Tails.jpg"
+}, {
+  "name": "Particle System Weather",
+  "isNew": false,
+  "img": "Particle System Weather.jpg"
+}, {
+  "name": "Per-Feature Post Processing",
+  "isNew": false,
+  "img": "Per-Feature Post Processing.jpg"
+}, {
   "name": "Physically-Based Materials",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Physically-Based Materials.jpg"
 }, {
   "name": "Picking",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Picking.jpg"
 }, {
+  "name": "Plane",
+  "isNew": false,
+  "img": "Plane.jpg"
+}, {
   "name": "Points",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Points.jpg"
 }, {
   "name": "Polygon",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Polygon.jpg"
 }, {
   "name": "Polyline",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Polyline.jpg"
 }, {
   "name": "Polyline Dash",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Polyline Dash.jpg"
 }, {
   "name": "Polyline Volume",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Polyline Volume.jpg"
 }, {
+  "name": "Polylines on 3D Tiles",
+  "isNew": false,
+  "img": "Polylines on 3D Tiles.jpg"
+}, {
+  "name": "Post Processing",
+  "isNew": false,
+  "img": "Post Processing.jpg"
+}, {
   "name": "Projection",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Projection.jpg"
 }, {
   "name": "Rectangle",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Rectangle.jpg"
 }, {
+  "name": "Resolution Scaling",
+  "isNew": false,
+  "img": "Resolution Scaling.jpg"
+}, {
   "name": "Rotatable 2D Map",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Rotatable 2D Map.jpg"
 }, {
+  "name": "Sample Height from 3D Tiles",
+  "isNew": false,
+  "img": "Sample Height from 3D Tiles.jpg"
+}, {
+  "name": "Scene Rendering Performance",
+  "isNew": false,
+  "img": "Scene Rendering Performance.jpg"
+}, {
+  "name": "Sentinel-2",
+  "isNew": false,
+  "img": "Sentinel-2.jpg"
+}, {
   "name": "Shadows",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Shadows.jpg"
 }, {
   "name": "Show or Hide Entities",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Show or Hide Entities.jpg"
 }, {
+  "name": "Sky Atmosphere",
+  "isNew": false,
+  "img": "Sky Atmosphere.jpg"
+}, {
   "name": "Spheres and Ellipsoids",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Spheres and Ellipsoids.jpg"
 }, {
   "name": "Star Burst",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Star Burst.jpg"
 }, {
   "name": "Terrain",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Terrain.jpg"
 }, {
+  "name": "Terrain Clipping Planes",
+  "isNew": false,
+  "img": "Terrain Clipping Planes.jpg"
+}, {
   "name": "Terrain Exaggeration",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Terrain Exaggeration.jpg"
 }, {
+  "name": "Time Dynamic Point Cloud",
+  "isNew": false,
+  "img": "Time Dynamic Point Cloud.jpg"
+}, {
+  "name": "Time Dynamic Wheels",
+  "isNew": false,
+  "img": "Time Dynamic Wheels.jpg"
+}, {
+  "name": "Underground Color",
+  "isNew": false,
+  "img": "Underground Color.jpg"
+}, {
   "name": "Video",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Video.jpg"
 }, {
   "name": "Wall",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Wall.jpg"
 }, {
+  "name": "Washington DC 2017",
+  "isNew": false,
+  "img": "Washington DC 2017.jpg"
+}, {
   "name": "Web Map Service (WMS)",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Web Map Service (WMS).jpg"
 }, {
   "name": "Web Map Tile Service with Time",
-  "date": 1509557365000,
+  "isNew": false,
   "img": "Web Map Tile Service with Time.jpg"
+}, {
+  "name": "Z-Indexing Geometry",
+  "isNew": false,
+  "img": "Z-Indexing Geometry.jpg"
 }];
+var has_new_gallery_demos = true;

@@ -1,23 +1,21 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * DOC_TBA\n\
  *\n\
  * @name czm_rayEllipsoidIntersectionInterval\n\
  * @glslFunction\n\
  */\n\
-czm_raySegment czm_rayEllipsoidIntersectionInterval(czm_ray ray, czm_ellipsoid ellipsoid)\n\
+czm_raySegment czm_rayEllipsoidIntersectionInterval(czm_ray ray, vec3 ellipsoid_center, vec3 ellipsoid_inverseRadii)\n\
 {\n\
    // ray and ellipsoid center in eye coordinates.  radii in model coordinates.\n\
-    vec3 q = ellipsoid.inverseRadii * (czm_inverseModelView * vec4(ray.origin, 1.0)).xyz;\n\
-    vec3 w = ellipsoid.inverseRadii * (czm_inverseModelView * vec4(ray.direction, 0.0)).xyz;\n\
-   \n\
-    q = q - ellipsoid.inverseRadii * (czm_inverseModelView * vec4(ellipsoid.center, 1.0)).xyz;\n\
-    \n\
+    vec3 q = ellipsoid_inverseRadii * (czm_inverseModelView * vec4(ray.origin, 1.0)).xyz;\n\
+    vec3 w = ellipsoid_inverseRadii * (czm_inverseModelView * vec4(ray.direction, 0.0)).xyz;\n\
+\n\
+    q = q - ellipsoid_inverseRadii * (czm_inverseModelView * vec4(ellipsoid_center, 1.0)).xyz;\n\
+\n\
     float q2 = dot(q, q);\n\
     float qw = dot(q, w);\n\
-    \n\
+\n\
     if (q2 > 1.0) // Outside ellipsoid.\n\
     {\n\
         if (qw >= 0.0) // Looking outward or tangent (0 intersections).\n\
@@ -30,11 +28,11 @@ czm_raySegment czm_rayEllipsoidIntersectionInterval(czm_ray ray, czm_ellipsoid e
             float difference = q2 - 1.0; // Positively valued.\n\
             float w2 = dot(w, w);\n\
             float product = w2 * difference;\n\
-            \n\
+\n\
             if (qw2 < product) // Imaginary roots (0 intersections).\n\
             {\n\
-                return czm_emptyRaySegment;     \n\
-            }   \n\
+                return czm_emptyRaySegment;\n\
+            }\n\
             else if (qw2 > product) // Distinct roots (2 intersections).\n\
             {\n\
                 float discriminant = qw * qw - product;\n\
@@ -85,4 +83,3 @@ czm_raySegment czm_rayEllipsoidIntersectionInterval(czm_ray ray, czm_ellipsoid e
     }\n\
 }\n\
 ";
-});

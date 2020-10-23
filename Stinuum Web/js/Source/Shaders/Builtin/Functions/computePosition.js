@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Returns a position in model coordinates relative to eye taking into\n\
  * account the current scene mode: 3D, 2D, or Columbus view.\n\
  * <p>\n\
@@ -24,4 +22,3 @@ define(function() {
  */\n\
 vec4 czm_computePosition();\n\
 ";
-});

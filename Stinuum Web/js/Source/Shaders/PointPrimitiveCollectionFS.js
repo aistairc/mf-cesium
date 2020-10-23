@@ -1,14 +1,9 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "varying vec4 v_color;\n\
+export default "varying vec4 v_color;\n\
 varying vec4 v_outlineColor;\n\
 varying float v_innerPercent;\n\
 varying float v_pixelDistance;\n\
-\n\
-#ifdef RENDER_FOR_PICK\n\
 varying vec4 v_pickColor;\n\
-#endif\n\
 \n\
 void main()\n\
 {\n\
@@ -23,7 +18,7 @@ void main()\n\
     color.a *= wholeAlpha;\n\
 \n\
 // Fully transparent parts of the billboard are not pickable.\n\
-#if defined(RENDER_FOR_PICK) || (!defined(OPAQUE) && !defined(TRANSLUCENT))\n\
+#if !defined(OPAQUE) && !defined(TRANSLUCENT)\n\
     if (color.a < 0.005)   // matches 0/255 and 1/255\n\
     {\n\
         discard;\n\
@@ -44,11 +39,7 @@ void main()\n\
 #endif\n\
 #endif\n\
 \n\
-#ifdef RENDER_FOR_PICK\n\
-    gl_FragColor = v_pickColor;\n\
-#else\n\
-    gl_FragColor = color;\n\
-#endif\n\
+    gl_FragColor = czm_gammaCorrect(color);\n\
+    czm_writeLogDepth();\n\
 }\n\
 ";
-});

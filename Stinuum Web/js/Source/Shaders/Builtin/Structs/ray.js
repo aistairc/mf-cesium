@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * DOC_TBA\n\
  *\n\
  * @name czm_ray\n\
@@ -13,4 +11,3 @@ struct czm_ray\n\
     vec3 direction;\n\
 };\n\
 ";
-});

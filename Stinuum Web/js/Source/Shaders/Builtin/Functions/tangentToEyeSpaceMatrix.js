@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Creates a matrix that transforms vectors from tangent space to eye space.\n\
  *\n\
  * @name czm_tangentToEyeSpaceMatrix\n\
@@ -27,4 +25,3 @@ mat3 czm_tangentToEyeSpaceMatrix(vec3 normalEC, vec3 tangentEC, vec3 bitangentEC
                 normal.x   , normal.y   , normal.z);\n\
 }\n\
 ";
-});

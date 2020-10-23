@@ -1,7 +1,5 @@
 //This file is automatically rebuilt by the Cesium build process.
-define(function() {
-    'use strict';
-    return "/**\n\
+export default "/**\n\
  * Procedural anti-aliasing by blurring two colors that meet at a sharp edge.\n\
  *\n\
  * @name czm_antialias\n\
@@ -41,4 +39,3 @@ vec4 czm_antialias(vec4 color1, vec4 color2, vec4 currentColor, float dist)\n\
     return czm_antialias(color1, color2, currentColor, dist, 0.1);\n\
 }\n\
 ";
-});
