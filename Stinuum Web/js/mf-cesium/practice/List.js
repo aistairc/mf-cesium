@@ -78,7 +78,7 @@ function afterChangingCheck(){
   LOG("afterChangingCheck");
   update_printed_features();
   clearAnalysis();
-  // refresh(); //All whole -> features And remove Anlaysis mf.
+  refresh(); //All whole -> features And remove Anlaysis mf.
   drawFeatures();
 }
 

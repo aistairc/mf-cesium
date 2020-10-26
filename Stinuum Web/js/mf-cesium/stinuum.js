@@ -504,8 +504,10 @@ Stinuum.GeometryViewer.prototype.update = function (options) {
     this.clear();
     this.super.mfCollection.findMinMaxGeometry();
     // this.clear();
+    graphGenerator.loading3DModel()
     this.draw();
     this.animate(options);
+
 
 }
 

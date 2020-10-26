@@ -1,6 +1,8 @@
 function GraphGenerator(viewer){
     this.viewer = viewer
+    this.graph;
     this.maxCellcount;
+    this.cellSize =0.5
     this.testMakeMovingFeature()
 }
 
@@ -13,7 +15,7 @@ GraphGenerator.prototype.readMapFile = function (){
         StartUTMCoordi = SRSTranslator.forward2(StartPoint, "WGS84", utmCode)
     }
     var maxCellcount
-    var cellSize = 0.5 //m
+    var cellSize = this.cellSize //m
     var testGraph = {}
     var gridMapGeoJson = {
             "type": "FeatureCollection",
@@ -27,7 +29,7 @@ GraphGenerator.prototype.readMapFile = function (){
     //read graph result
     $.ajax({
         // url: '/data/testData/OUTPUT_version_1m/map.csv',
-        url: '/data/testData/map_50cm.csv',
+        url: '/data/testData/partsCenter_181912.csv',
         async: false,
         dataType: 'text',
         success: function successFunction(data) {
@@ -108,7 +110,10 @@ GraphGenerator.prototype.readMapFile = function (){
         window.alert(error);
     });
     var graph = new Graph(testGraph);
-    return {graph, centerPointList, centerPointGeoJson, maxCellcount, StartUTMCoordi}
+    this.setGraphInfo(testGraph)
+    this.setGraph(graph)
+    this.setCenterPointList(centerPointList)
+    return {maxCellcount, StartUTMCoordi}
 }
 
 GraphGenerator.prototype.readShelfFile = function (maxCellcount){
@@ -116,7 +121,7 @@ GraphGenerator.prototype.readShelfFile = function (maxCellcount){
     var shelf = {}
     $.ajax({
         // url: '/data/TestShelfIndexCollection.csv',
-        url: '/data/testData/OUTPUT_version_1m/shelfinfo.csv',
+        url: '/data/testData/partsCenter_s_info_181912.csv',
         async: false,
         dataType: 'text',
         success: function successFunction(data) {
@@ -145,6 +150,7 @@ GraphGenerator.prototype.readShelfFile = function (maxCellcount){
             }
         }
     });
+    this.setShelfInfo(shelf)
     return shelf
 }
 
@@ -166,7 +172,7 @@ GraphGenerator.prototype.readHistoryFile = function (){
                 if (allRows[singleRow].length !== 0){
                     var WorkerInfo = allRows[singleRow].split(',');
                     var worker = WorkerInfo[0]
-                    var datetime = GraphGenerator.changeDateTime(WorkerInfo[1])
+                    var datetime = GraphGenerator.changeDateTime(WorkerInfo[1], false)
                     var groupName = WorkerInfo[2].substring(1, WorkerInfo[2].length-1)
                     var location = WorkerInfo[4].substring(1, WorkerInfo[4].length-1)
                     if (workerName === undefined){
@@ -221,44 +227,100 @@ GraphGenerator.prototype.readHistoryFile = function (){
     });
     return FeatureCollections
 }
-GraphGenerator.prototype.a = function(){
-
+GraphGenerator.prototype.createMovingPoint = function(option){
+    var Feature = {
+        name: option.name,
+        type: "Feature",
+        properties: {
+            name: option.name
+        },
+        temporalGeometry: {
+            type: "MovingPoint",
+            datetimes: option.datetimes,
+            coordinates: option.coordinates,
+            interpolation: "Linear"
+        },
+        temporalProperties:[{}]
+    }
+    
+    return Feature
 }
-
-
 GraphGenerator.prototype.testMakeMovingFeature = function(){
+    var ProgramStartTime = new Date().toISOString()
+    console.log(ProgramStartTime)
     var mapinfo = this.readMapFile()
     
     this.createShelf3DModel(mapinfo.maxCellcount, mapinfo.StartUTMCoordi)
-    // var shelfInfo = this.readShelfFile(mapinfo.maxCellcount)
-    // var historyInfo = this.readHistoryFile()
+    this.readShelfFile(mapinfo.maxCellcount)
+    var historyInfo = this.readHistoryFile()
+    
 
-
-    // var historyKeys = Object.keys(historyInfo)
-    // var graph = mapinfo.graph
-    // for (var i = 0; i < historyKeys.length; i++){
-    //     var eachFeatureCollection = historyInfo[historyKeys[i]]
-    //     var eachKeyValues = Object.keys(historyInfo[historyKeys[i]])
+    var historyKeys = Object.keys(historyInfo)
+    var graph = mapinfo.graph
+    var FeatureCollectionList = []
+    for (var i = 0; i < historyKeys.length; i++){
+        var eachMovingFeatureCollection = {
+            name: historyKeys[i],
+            type: "FeatureCollection",
+            features: []
+        }
+        var eachFeatureCollection = historyInfo[historyKeys[i]]
+        var eachKeyValues = Object.keys(historyInfo[historyKeys[i]])
         
-    //     for (var j = 0; j < eachKeyValues.length - 1; j++){
-    //         var eachFeature = eachFeatureCollection[eachKeyValues[j]]
-    //         for (var k = 0; k < eachFeature.location.length-1; k++){
-    //             var startName = eachFeature.location[k]
-    //             var endName = eachFeature.location[k+1]
-    //             var a = GraphGenerator.getStartEndNodes(startName, endName, shelfInfo, graph)
-    //             console.log(a)
-    //         }
-
-    //         // var a = GraphGenerator.getStartEndNodes(startName, endName, shelfInfo)
-    //         // console.log(a)
-    //     }
-    //     break
-    // }
+        if (eachKeyValues.length > 1){
+            for (var j = 0; j < eachKeyValues.length - 1; j++){
+                var eachFeature = eachFeatureCollection[eachKeyValues[j]]
+                
+                if(eachFeature.location.length > 1){
+                    var MovingFeatureInfo = this.getMovingFeature(eachFeature)    
+                    MovingFeatureInfo["name"] = eachKeyValues[j]
+                    var eachMovingFeature = this.createMovingPoint(MovingFeatureInfo)
+                    
+                    eachMovingFeatureCollection.features.push(eachMovingFeature)
+                }
+                
+            
+            }
+            handleEditorData(historyKeys[i], eachMovingFeatureCollection)  
+            
+        
+        }
+        break
+        
+        // FeatureCollectionList.push(eachMovingFeatureCollection)
+    }
+    var ProgramEndTime = new Date().toISOString()
+    console.log(ProgramEndTime)
+    console.log(ProgramStartTime, ProgramEndTime)
+    
 }
 
+GraphGenerator.checkingDupleValue = function(startNodeList, endNodeList){
 
-GraphGenerator.changeDateTime = function (workingTime){
-    var datetime = new Date(workingTime.substring(1, workingTime.length-1))
+    if (startNodeList.length == endNodeList.length){
+        var checkCount = 0
+        for (var i = 0; i < startNodeList.length; i++){
+            if (endNodeList.indexOf(startNodeList[i])){
+                checkCount++
+            }
+        }
+        if (checkCount == endNodeList.length){
+            
+            return true
+        }
+    }
+    return false
+}
+
+GraphGenerator.changeDateTime = function (workingTime, checkMode){
+    var datetime
+    if (checkMode){
+        datetime = new Date(workingTime)
+        return datetime.toISOString()
+
+    }else{
+        datetime = new Date(workingTime.substring(1, workingTime.length-1))
+    }
     
     var changedTime = `${datetime.getFullYear().toString().padStart(4, '0')}-${
                         (datetime.getMonth()+1).toString().padStart(2, '0')}-${
@@ -270,38 +332,202 @@ GraphGenerator.changeDateTime = function (workingTime){
     
     return changedTime
 }
+// GraphGenerator.prototype.getStartNode = function(startNodeList){
+//     console.log("check")
+//     for(var i = 0; i < startNodeList.length; i++){
+//         while (true){
 
-GraphGenerator.getStartEndNodes = function(startName, endName, shelfInfo, graph){
-    var startNodeList, endNodeList;
-    console.log(startName, endName)
-    var shelfKeys = Object.keys(shelfInfo)
-    for (var shelf_i = 0; shelf_i < shelfKeys.length; shelf_i++){
-        var checkKeyValue = shelfKeys[shelf_i]
-        
-        if (startNodeList === undefined && startName.indexOf(checkKeyValue) !== -1){
-            startNodeList = shelfInfo[checkKeyValue]
-        }
-        if (endNodeList === undefined && endName.indexOf(checkKeyValue) !== -1){
-            endNodeList = shelfInfo[checkKeyValue]
-        }
-        if (startNodeList !== undefined && endNodeList !== undefined){
-            console.log(startNodeList, endNodeList)
-            var result;
-            var checkZero = Infinity
-            for (var start_i = 0; start_i < startNodeList.length; start_i++){
-                for (var end_i = 0; end_i < endNodeList.length; end_i++){
-                    var resultT = graph.findShortestPath(startNodeList[start_i], endNodeList[end_i])
-                    console.log(resultT)
-                    // if (checkZero > resultT.length){
-                    // checkZero = resultT.length
-                    // result = resultT
-                    // }
+//         }
+//     }
+// }   
+GraphGenerator.prototype.getPath = function(startNodeList, endNodeList, sameCheck, endNode){
+    var result;
+    var checkInfMax = Infinity
+    var checkInfMin = -Infinity
+    
+    if (endNode === undefined){
+        // var startNode = this.getStartNode(startNodeList)
+        for (var start_i = 0; start_i < startNodeList.length; start_i++){
+            for (var end_i = 0; end_i < endNodeList.length; end_i++){
+                var resultT = this.graph.findShortestPath(startNodeList[start_i], endNodeList[end_i])
+                if (resultT !== null){
+                    if (sameCheck){
+                        if (checkInfMin < resultT.length){
+                            checkInfMin = resultT.length
+                            result = resultT
+                        }
+                    }else{
+                        if (checkInfMax > resultT.length){
+                            checkInfMax = resultT.length
+                            result = resultT
+                        }
+                    }
                 }
             }
-            console.log(result)
-            return result
+        }
+    }else{
+        if (startNodeList.indexOf(endNode) !== -1){
+            for (var end_i = 0; end_i < endNodeList.length; end_i++){
+                var resultT = this.graph.findShortestPath(endNode, endNodeList[end_i])
+                if (resultT !== null){
+                    if (sameCheck){
+                        if (checkInfMin < resultT.length){
+                            checkInfMin = resultT.length
+                            result = resultT
+                        }
+                    }else{
+                        if (checkInfMax > resultT.length){
+                            checkInfMax = resultT.length
+                            result = resultT
+                        }
+                    }
+                }
+            }
         }
     }
+    
+    return result
+}
+
+GraphGenerator.prototype.makeDatetimes = function(startTime, endTime, nodeSize, checkFirst){
+    var ST = new Date(startTime).getTime();
+    var ET = new Date(endTime).getTime();
+
+    var timeRange = (ET - ST) / (nodeSize - 1)
+    var dateTimeList = []
+    if (checkFirst){
+        dateTimeList.push(startTime)
+    }
+    for (var i = 1; i < nodeSize - 1; i++){
+        var eachTime = GraphGenerator.changeDateTime(ST + (timeRange * i), true)
+        dateTimeList.push(eachTime)
+    }
+    dateTimeList.push(endTime)
+    
+    return dateTimeList
+}
+
+GraphGenerator.prototype.setGraph = function(graph){
+    this.graph = graph
+}
+GraphGenerator.prototype.setGraphInfo = function(testGraph){
+    this.graphInfo = testGraph
+}
+GraphGenerator.prototype.setShelfInfo = function(shelfInfo){
+    this.shelfInfo = shelfInfo
+}
+GraphGenerator.prototype.setCenterPointList = function(centerPointList){
+    this.centerPointList = centerPointList
+}
+
+GraphGenerator.prototype.getMovingFeature = function(eachFeature){
+    var endNode;
+    var pathNodeList = []
+    var datetimes = []
+    
+    for (var k = 0; k < eachFeature.location.length-1; k++){
+        var startName = eachFeature.location[k]
+        var startTime = eachFeature.datetimes[k]
+        var endName = eachFeature.location[k+1]
+        var endTime = eachFeature.datetimes[k+1]
+        
+        var tempNodeList = this.getStartEndNodes(startName, endName, endNode)
+        
+        if (tempNodeList !== undefined){
+           
+            if (endNode !== undefined){
+                datetimes.push(...this.makeDatetimes(startTime, endTime, tempNodeList.length, false))
+                var temp = tempNodeList.slice(1, tempNodeList.length)
+                
+                if (temp.length == 0){
+                    temp.push(tempNodeList[0])
+                }
+                pathNodeList.push(...(temp))
+            }else{
+                datetimes.push(...this.makeDatetimes(startTime, endTime, tempNodeList.length, true))
+                var temp = tempNodeList
+                if (temp.length == 1 || temp.length == 0){
+                    temp.push(tempNodeList[0])
+                }
+                pathNodeList.push(...tempNodeList)
+            }
+            
+            console.log(pathNodeList)
+            endNode = tempNodeList[tempNodeList.length - 1]
+          
+        }
+    }
+    var coordinates = []
+    
+    for (var i = 0; i < pathNodeList.length; i++){
+        var coordinate = this.centerPointList[pathNodeList[i]]
+        if (coordinate.length == 2){
+            coordinate.push(0.0)
+        }
+        coordinates.push(coordinate)
+    }
+    console.log(coordinates.length, datetimes.length)
+    return {coordinates, datetimes}
+}
+GraphGenerator.prototype.getStartEndNodes = function(startName, endName, endNode){
+    var startNodeList, endNodeList;
+    var shelfKeys = Object.keys(this.shelfInfo)
+    var startNodeValue, endNodeValue
+    var pathResult;
+    for (var shelf_i = 0; shelf_i < shelfKeys.length; shelf_i++){
+        var checkKeyValue = shelfKeys[shelf_i]
+        if (startNodeList === undefined && startName.indexOf(checkKeyValue) !== -1){
+            startNodeList = this.shelfInfo[checkKeyValue]
+            startNodeValue = checkKeyValue
+        }
+        if (endNodeList === undefined && endName.indexOf(checkKeyValue) !== -1){
+            endNodeList = this.shelfInfo[checkKeyValue]
+            endNodeValue = checkKeyValue
+        }
+        if (startNodeList !== undefined && endNodeList !== undefined){
+            console.log(startName, endName)
+            console.log(startNodeList, endNodeList)
+            if (endNode !== undefined){
+                
+                if (startNodeValue === endNodeValue){
+                    
+                    pathResult = (this.getPath(startNodeList, endNodeList, false, endNode))
+                }else if (startNodeList.length === endNodeList.length){
+                    
+                    if (GraphGenerator.checkingDupleValue(startNodeList, endNodeList)){
+                        
+                        pathResult = (this.getPath(startNodeList, endNodeList, false, endNode))
+                    }else{    
+                        
+                        pathResult = (this.getPath(startNodeList, endNodeList, false, endNode))
+                    }
+                }else{
+                    pathResult = (this.getPath(startNodeList, endNodeList, false, endNode))
+                }
+            }else{            
+                
+                if (startNodeValue === endNodeValue){
+                    
+                    pathResult = this.getPath(startNodeList, endNodeList, false)
+                
+                }else if (startNodeList.length === endNodeList.length){
+                    
+                    if (GraphGenerator.checkingDupleValue(startNodeList, endNodeList)){
+                        pathResult = this.getPath(startNodeList, endNodeList, false)
+                    }else{    
+                        pathResult = this.getPath(startNodeList, endNodeList, false)
+                    }
+                }else{
+                    pathResult = this.getPath(startNodeList, endNodeList, false)
+                }   
+            }
+            break
+        } 
+    }
+    
+    
+    
+    return pathResult
 }
 
 
@@ -361,6 +587,7 @@ GraphGenerator.prototype.createShelf3DModel = function(maxCellcount, StartUTMCoo
         }
         PolygonGeoJson.features.push(eachFeature)
     }
+    this.set3DModelInfo(PolygonGeoJson)
     var promise = Cesium.GeoJsonDataSource.load(PolygonGeoJson);
 
     promise.then(function(dataSource){
@@ -375,11 +602,37 @@ GraphGenerator.prototype.createShelf3DModel = function(maxCellcount, StartUTMCoo
             };
             entity.polygon.material = Cesium.Color.RED;
             entity.polygon.outline = false;  
-            entity.polygon.extrudedHeight = cellLength;
+            entity.polygon.extrudedHeight = this.cellSize;
           
         }
     });
         
+}
+GraphGenerator.prototype.set3DModelInfo = function(PolygonGeoJson){
+    this.PolygonGeoJson = PolygonGeoJson
+}
+GraphGenerator.prototype.get3DModelInfo = function(){
+    return this.PolygonGeoJson
+}
+GraphGenerator.prototype.loading3DModel = function(){
+    var promise = Cesium.GeoJsonDataSource.load(this.PolygonGeoJson);
+
+    promise.then(function(dataSource){
+        this.viewer.dataSources.add(dataSource)          
+        var entities = dataSource.entities.values;
+        for (var i = 0; i < entities.length; i++) {
+       
+            var entity = entities[i];
+            var name = entity.name;
+            entity.label = {
+                text: name
+            };
+            entity.polygon.material = Cesium.Color.RED;
+            entity.polygon.outline = false;  
+            entity.polygon.extrudedHeight = this.cellSize;
+          
+        }
+    });
 }
 // //read shelf result
 
