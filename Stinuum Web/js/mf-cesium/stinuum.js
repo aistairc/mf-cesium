@@ -505,7 +505,7 @@ Stinuum.GeometryViewer.prototype.update = function (options) {
     this.super.mfCollection.findMinMaxGeometry();
     // this.clear();
     graphGenerator.loading3DModel()
-    this.draw();
+    // this.draw();
     this.animate(options);
 
 
@@ -513,15 +513,15 @@ Stinuum.GeometryViewer.prototype.update = function (options) {
 
 Stinuum.GeometryViewer.prototype.clear = function () {
     this.super.cesiumViewer.clock.multiplier = 10;
-    LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
+    // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
     // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0].constructor)
 
     if (Object.keys(this.primitives).length !== 0){
         this.super.cesiumViewer.dataSources.removeAll();
         this.super.cesiumViewer.entities.removeAll();   
-        LOG(Object.values(this.primitives))
+        // LOG(Object.values(this.primitives))
         var IDCount = 0
-        LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
+        // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
         // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0].constructor.name === "Primitive")
         // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0] instanceof PrimitiveCollection)
         var primitivesInfo = Object.values(this.super.cesiumViewer.scene.primitives._primitives)
@@ -753,36 +753,26 @@ Stinuum.GeometryViewer.prototype.animate = function (options) {
 
         var feature = mf_arr[index].feature;
         if (feature.temporalGeometry.type == "MovingGeometryCollection") {
+            var pointColor = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), 255]
+            console.log("MovingGeometryCollection", feature.properties.name)
+            
             for (var prism_i = 0; prism_i < feature.temporalGeometry.prisms.length; prism_i++) {
                 var eachFeatures = feature.temporalGeometry.prisms[prism_i];
+                countNumber += 1
+                var MGCoptions = {
+                    temporalGeometry: eachFeatures,
+                    number: countNumber,
+                    id: index,
+                    pointColor: pointColor
+                }
                 if (eachFeatures.type == "MovingPoint") {
-                    countNumber += 1
-                    czml = czml.concat(this.moving.moveMovingPoint({
-                        temporalGeometry: eachFeatures,
-                        number: countNumber,
-                        id: index
-                    }));
+                    czml = czml.concat(this.moving.moveMovingPoint(MGCoptions));
                 } else if (eachFeatures.type == "MovingPolygon") {
-                    countNumber += 1
-                    czml = czml.concat(this.moving.moveMovingPolygon({
-                        temporalGeometry: eachFeatures,
-                        number: countNumber,
-                        id: index
-                    }));
+                    czml = czml.concat(this.moving.moveMovingPolygon(MGCoptions));
                 } else if (eachFeatures.type == "MovingLineString") {
-                    countNumber += 1
-                    czml = czml.concat(this.moving.moveMovingLineString({
-                        temporalGeometry: eachFeatures,
-                        number: countNumber,
-                        id: index
-                    }));
+                    czml = czml.concat(this.moving.moveMovingLineString(MGCoptions));
                 } else if (eachFeatures.type == "MovingPointCloud") {
-                    countNumber += 1
-                    czml = czml.concat(this.moving.moveMovingPointCloud({
-                        temporalGeometry: eachFeatures,
-                        number: countNumber,
-                        id: index
-                    }));
+                    czml = czml.concat(this.moving.moveMovingPointCloud(MGCoptions));
                 } else {
 
                 }
@@ -829,6 +819,7 @@ Stinuum.GeometryViewer.prototype.animate = function (options) {
     }
 
     obj = JSON.stringify(czml)
+    console.log(obj)
 
 
 
@@ -1522,9 +1513,11 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function (options) {
     start = new Date(geometry.datetimes[0]).toISOString();
     stop = new Date(geometry.datetimes[length - 1]).toISOString();
 
-
+    console.log("here check", geometry)
     this.supersuper.mfCollection.findMinMaxGeometry();
-
+    var pointColor = this.supersuper.mfCollection.getColor(feature_id)
+    console.log(pointColor)
+    var pointRGB = [Math.floor(pointColor.red * 255), Math.floor(pointColor.green * 255), Math.floor(pointColor.red * 255), 255]
 
 
     var check = true
@@ -1618,7 +1611,7 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function (options) {
         } else {
             v.point = {
                 "color": {
-                    "rgba": [0, 0, 0, 255]
+                    "rgba": pointRGB
                 },
                 "outlineColor": {
                     "rgba": [255, 255, 255, 255]
@@ -1626,6 +1619,24 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function (options) {
                 "outlineWidth": 4,
                 "pixelSize": 20
             };
+        }
+        if (geometry.properties !== undefined){
+            if (geometry.properties.name !== undefined){
+                v.label = {
+                    scale: 1.5,
+                    fillColor: {
+                      rgba: [0, 0, 0, 255],
+                    },
+                    font: "13pt Lucida Console",
+                    horizontalOrigin: "LEFT",
+                    pixelOffset: {
+                      cartesian2: [20, 0],
+                    },
+
+                    // style: "FILL_AND_OUTLINE",
+                    text: geometry.properties.name.split("_")[0]
+                }
+            }
         }
 
         if (geometry.orientations != undefined && geometry.orientations.length != 0) {

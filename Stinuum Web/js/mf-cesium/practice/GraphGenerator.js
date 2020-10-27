@@ -3,6 +3,12 @@ function GraphGenerator(viewer){
     this.graph;
     this.maxCellcount;
     this.cellSize =0.5
+    this.boxSize = 100
+    this.workingStopTime = 2000
+    this.workerName = "Worker"
+    this.MapFileName = '/data/testData/partsCenter_221952.csv'
+    this.ShelfFileName = '/data/testData/partsCenter_s_info_221952.csv'
+    this.HistoryFileName = '/data/testData/PickingHistory_SampleData.csv'
     this.testMakeMovingFeature()
 }
 
@@ -26,10 +32,11 @@ GraphGenerator.prototype.readMapFile = function (){
             "features": []
         }
     var centerPointList = {}
+    
     //read graph result
     $.ajax({
         // url: '/data/testData/OUTPUT_version_1m/map.csv',
-        url: '/data/testData/partsCenter_181912.csv',
+        url: this.MapFileName,
         async: false,
         dataType: 'text',
         success: function successFunction(data) {
@@ -87,28 +94,28 @@ GraphGenerator.prototype.readMapFile = function (){
             }
         }
     });
-    var pointinfo = Cesium.GeoJsonDataSource.load(centerPointGeoJson);
-    pointinfo.then(function(dataSource){
-        viewer.dataSources.add(dataSource)          
-        var entities = dataSource.entities.values;
+    // var pointinfo = Cesium.GeoJsonDataSource.load(centerPointGeoJson);
+    // pointinfo.then(function(dataSource){
+    //     viewer.dataSources.add(dataSource)          
+    //     var entities = dataSource.entities.values;
     
-        var colorHash = {};
-        for (var i = 0; i < entities.length; i++) {
-        //For each entity, create a random color based on the state name.
-        //Some states have multiple entities, so we store the color in a
-        //hash so that we use the same color for the entire state.
-            var entity = entities[i];
-            var name = entity.name;
-            entity.label = {
-                text: name
-            };
+    //     var colorHash = {};
+    //     for (var i = 0; i < entities.length; i++) {
+    //     //For each entity, create a random color based on the state name.
+    //     //Some states have multiple entities, so we store the color in a
+    //     //hash so that we use the same color for the entire state.
+    //         var entity = entities[i];
+    //         var name = entity.name;
+    //         entity.label = {
+    //             text: name
+    //         };
             
-        }
-    // this.viewer.dataSources.add(pointinfo)
-    }).otherwise(function(error){
-        //Display any errrors encountered while loading.
-        window.alert(error);
-    });
+    //     }
+    // // this.viewer.dataSources.add(pointinfo)
+    // }).otherwise(function(error){
+    //     //Display any errrors encountered while loading.
+    //     window.alert(error);
+    // });
     var graph = new Graph(testGraph);
     this.setGraphInfo(testGraph)
     this.setGraph(graph)
@@ -121,7 +128,7 @@ GraphGenerator.prototype.readShelfFile = function (maxCellcount){
     var shelf = {}
     $.ajax({
         // url: '/data/TestShelfIndexCollection.csv',
-        url: '/data/testData/partsCenter_s_info_181912.csv',
+        url: this.ShelfFileName,
         async: false,
         dataType: 'text',
         success: function successFunction(data) {
@@ -159,7 +166,7 @@ GraphGenerator.prototype.readHistoryFile = function (){
     
     
     $.ajax({
-        url: '/data/testData/PickingHistory_SampleData.csv',
+        url: this.HistoryFileName,
         async: false,
         dataType: 'text',
         success: function successFunction(data) {
@@ -228,26 +235,36 @@ GraphGenerator.prototype.readHistoryFile = function (){
     return FeatureCollections
 }
 GraphGenerator.prototype.createMovingPoint = function(option){
+    // var Feature = {
+    //     name: option.name,
+    //     type: "Feature",
+    //     properties: {
+    //         name: option.name
+    //     },
+    //     temporalGeometry: {
+    //         type: "MovingPoint",
+    //         datetimes: option.datetimes,
+    //         coordinates: option.coordinates,
+    //         interpolation: "Linear"
+    //     },
+    //     temporalProperties:[{}]
+    // }
     var Feature = {
         name: option.name,
-        type: "Feature",
         properties: {
             name: option.name
         },
-        temporalGeometry: {
-            type: "MovingPoint",
-            datetimes: option.datetimes,
-            coordinates: option.coordinates,
-            interpolation: "Linear"
-        },
-        temporalProperties:[{}]
+        type:"MovingPoint",
+        datetimes: option.datetimes,
+        coordinates: option.coordinates,
+        interpolation: "Linear"        
     }
     
     return Feature
 }
 GraphGenerator.prototype.testMakeMovingFeature = function(){
     var ProgramStartTime = new Date().toISOString()
-    console.log(ProgramStartTime)
+    
     var mapinfo = this.readMapFile()
     
     this.createShelf3DModel(mapinfo.maxCellcount, mapinfo.StartUTMCoordi)
@@ -257,41 +274,65 @@ GraphGenerator.prototype.testMakeMovingFeature = function(){
 
     var historyKeys = Object.keys(historyInfo)
     var graph = mapinfo.graph
-    var FeatureCollectionList = []
+    var FeatureCollectionList = {
+        name: "20201027_GraphResult",
+        properties: {
+            name: "20201027_GraphResult"
+        },
+        type: "FeatureCollection",
+        features: []
+    }
     for (var i = 0; i < historyKeys.length; i++){
+        // var eachMovingFeatureCollection = {
+        //     name: historyKeys[i],
+        //     type: "FeatureCollection",
+        //     features: []
+        // }
         var eachMovingFeatureCollection = {
-            name: historyKeys[i],
-            type: "FeatureCollection",
-            features: []
+            properties:{
+                name:historyKeys[i],
+            },
+            name: this.workerName + "-" + historyKeys[i],
+            type: "Feature",
+            temporalGeometry: {
+                type: "MovingGeometryCollection",
+                prisms: []
+            }
         }
         var eachFeatureCollection = historyInfo[historyKeys[i]]
         var eachKeyValues = Object.keys(historyInfo[historyKeys[i]])
-        
+        var workerName = historyKeys[i]
         if (eachKeyValues.length > 1){
             for (var j = 0; j < eachKeyValues.length - 1; j++){
                 var eachFeature = eachFeatureCollection[eachKeyValues[j]]
                 
                 if(eachFeature.location.length > 1){
                     var MovingFeatureInfo = this.getMovingFeature(eachFeature)    
-                    MovingFeatureInfo["name"] = eachKeyValues[j]
+                    MovingFeatureInfo["name"] = this.workerName + "-" + historyKeys[i]+"_"+eachKeyValues[j]
                     var eachMovingFeature = this.createMovingPoint(MovingFeatureInfo)
                     
-                    eachMovingFeatureCollection.features.push(eachMovingFeature)
+                    eachMovingFeatureCollection.temporalGeometry.prisms.push(eachMovingFeature)
                 }
                 
-            
+                break
             }
-            handleEditorData(historyKeys[i], eachMovingFeatureCollection)  
+            FeatureCollectionList.features.push(eachMovingFeatureCollection)
+            // handleEditorData(historyKeys[i], eachMovingFeatureCollection)  
             
         
         }
-        break
+        if (i == 4){
+            
+            handleEditorData("20201027_GraphResult", FeatureCollectionList)  
+            break
+        }
+        // break
         
         // FeatureCollectionList.push(eachMovingFeatureCollection)
     }
     var ProgramEndTime = new Date().toISOString()
-    console.log(ProgramEndTime)
-    console.log(ProgramStartTime, ProgramEndTime)
+    
+    
     
 }
 
@@ -333,7 +374,7 @@ GraphGenerator.changeDateTime = function (workingTime, checkMode){
     return changedTime
 }
 // GraphGenerator.prototype.getStartNode = function(startNodeList){
-//     console.log("check")
+
 //     for(var i = 0; i < startNodeList.length; i++){
 //         while (true){
 
@@ -390,19 +431,20 @@ GraphGenerator.prototype.getPath = function(startNodeList, endNodeList, sameChec
 }
 
 GraphGenerator.prototype.makeDatetimes = function(startTime, endTime, nodeSize, checkFirst){
-    var ST = new Date(startTime).getTime();
-    var ET = new Date(endTime).getTime();
-
-    var timeRange = (ET - ST) / (nodeSize - 1)
+    
     var dateTimeList = []
-    if (checkFirst){
-        dateTimeList.push(startTime)
-    }
+    
+    var ST = new Date(startTime).getTime() + 2000;
+    var ET = new Date(endTime).getTime() - 2000;
+    var timeRange = (ET - ST) / (nodeSize - 1)
+    var startTime2 = GraphGenerator.changeDateTime(ST, true)
+    dateTimeList.push(startTime2)
     for (var i = 1; i < nodeSize - 1; i++){
         var eachTime = GraphGenerator.changeDateTime(ST + (timeRange * i), true)
         dateTimeList.push(eachTime)
     }
-    dateTimeList.push(endTime)
+    var endTime2 = GraphGenerator.changeDateTime(ET, true)
+    dateTimeList.push(endTime2)
     
     return dateTimeList
 }
@@ -423,7 +465,7 @@ GraphGenerator.prototype.setCenterPointList = function(centerPointList){
 GraphGenerator.prototype.getMovingFeature = function(eachFeature){
     var endNode;
     var pathNodeList = []
-    var datetimes = []
+    var tempDatetimes = []
     
     for (var k = 0; k < eachFeature.location.length-1; k++){
         var startName = eachFeature.location[k]
@@ -436,37 +478,40 @@ GraphGenerator.prototype.getMovingFeature = function(eachFeature){
         if (tempNodeList !== undefined){
            
             if (endNode !== undefined){
-                datetimes.push(...this.makeDatetimes(startTime, endTime, tempNodeList.length, false))
-                var temp = tempNodeList.slice(1, tempNodeList.length)
-                
-                if (temp.length == 0){
-                    temp.push(tempNodeList[0])
+                tempDatetimes.push(...this.makeDatetimes(startTime, endTime, tempNodeList.length, false))
+                if (tempNodeList.length == 1){
+                    
+                    tempNodeList.push(tempNodeList[0])
                 }
-                pathNodeList.push(...(temp))
+                pathNodeList.push(...tempNodeList)
+                
             }else{
-                datetimes.push(...this.makeDatetimes(startTime, endTime, tempNodeList.length, true))
-                var temp = tempNodeList
-                if (temp.length == 1 || temp.length == 0){
-                    temp.push(tempNodeList[0])
+                tempDatetimes.push(...this.makeDatetimes(startTime, endTime, tempNodeList.length, false))
+                if (tempNodeList.length == 1){
+                    tempNodeList.push(tempNodeList[0])
                 }
                 pathNodeList.push(...tempNodeList)
             }
-            
-            console.log(pathNodeList)
-            endNode = tempNodeList[tempNodeList.length - 1]
-          
+                        
+            endNode = tempNodeList[tempNodeList.length - 1]      
         }
     }
+    
     var coordinates = []
     
     for (var i = 0; i < pathNodeList.length; i++){
         var coordinate = this.centerPointList[pathNodeList[i]]
-        if (coordinate.length == 2){
-            coordinate.push(0.0)
+        if (i == 0 || i == pathNodeList.length - 1){
+            coordinates.push(coordinate)
         }
         coordinates.push(coordinate)
     }
-    console.log(coordinates.length, datetimes.length)
+    var addStartTime = this.addTimeValue(tempDatetimes[0], false) 
+    var addEndTime = this.addTimeValue(tempDatetimes[tempDatetimes.length - 1], true) 
+    var datetimes = [addStartTime].concat(tempDatetimes)
+
+    datetimes.push(addEndTime)
+    
     return {coordinates, datetimes}
 }
 GraphGenerator.prototype.getStartEndNodes = function(startName, endName, endNode){
@@ -485,8 +530,8 @@ GraphGenerator.prototype.getStartEndNodes = function(startName, endName, endNode
             endNodeValue = checkKeyValue
         }
         if (startNodeList !== undefined && endNodeList !== undefined){
-            console.log(startName, endName)
-            console.log(startNodeList, endNodeList)
+            
+            
             if (endNode !== undefined){
                 
                 if (startNodeValue === endNodeValue){
@@ -523,9 +568,7 @@ GraphGenerator.prototype.getStartEndNodes = function(startName, endName, endNode
             }
             break
         } 
-    }
-    
-    
+    }    
     
     return pathResult
 }
@@ -535,7 +578,7 @@ GraphGenerator.prototype.createShelf3DModel = function(maxCellcount, StartUTMCoo
     var shelfList = []
     var cellLength = 0.5
     $.ajax({
-        url: '/data/testData/output_memmap_50cm.csv',
+        url: '/data/testData/output_memmap50cm.csv',
         async: false,
         dataType: 'text',
         success: function successFunction(data) {
@@ -589,7 +632,7 @@ GraphGenerator.prototype.createShelf3DModel = function(maxCellcount, StartUTMCoo
     }
     this.set3DModelInfo(PolygonGeoJson)
     var promise = Cesium.GeoJsonDataSource.load(PolygonGeoJson);
-
+    
     promise.then(function(dataSource){
         this.viewer.dataSources.add(dataSource)          
         var entities = dataSource.entities.values;
@@ -597,14 +640,16 @@ GraphGenerator.prototype.createShelf3DModel = function(maxCellcount, StartUTMCoo
        
             var entity = entities[i];
             var name = entity.name;
-            entity.label = {
-                text: name
-            };
+            
             entity.polygon.material = Cesium.Color.RED;
             entity.polygon.outline = false;  
-            entity.polygon.extrudedHeight = this.cellSize;
+            
+          
           
         }
+    }).otherwise(function(error){
+        //Display any errrors encountered while loading.
+        window.alert(error);
     });
         
 }
@@ -624,198 +669,34 @@ GraphGenerator.prototype.loading3DModel = function(){
        
             var entity = entities[i];
             var name = entity.name;
-            entity.label = {
-                text: name
-            };
-            entity.polygon.material = Cesium.Color.RED;
+            // entity.label = {
+            //     text: name
+            // };
+            // entity.polygon.material = Cesium.Color.RED;
+            entity.polygon.material = [1, 1, 1, 0.5];
             entity.polygon.outline = false;  
-            entity.polygon.extrudedHeight = this.cellSize;
+            
+            entity.polygon.extrudedHeight = 1;
+            
+            
           
         }
+    }).otherwise(function(error){
+        //Display any errrors encountered while loading.
+        window.alert(error);
     });
 }
-// //read shelf result
 
-
-// var graph = new Graph(testGraph);
-
-
-// // Making MovingFeature
-
-// var MFCollectionList = []
-// var czml;
-// $.ajax({
-//     url: '/data/HistorySampleData.csv',
-//     async: false,
-//     dataType: 'text',
-//     success: function successFunction(data) {
-
-//         var allRows = data.split(/\r?\n|\r/);
-//         var firstCheck = true
-//         var checkName;
-//         var eachMFC = {
-//             "type": "FeatureCollection",
-//             "features": []
-//         }
-//         var shelfKeys = Object.keys(shelf)
+GraphGenerator.prototype.addTimeValue = function(timeValue, checkValue){
+    var addedTime;
+    
+    if (checkValue){
         
-//         for (var singleRow = 1; singleRow < allRows.length; singleRow+=2) {
-            
-//             var startInfo = allRows[singleRow].split(',');
-//             var endInfo = allRows[singleRow+1].split(',');                
-//             if (firstCheck){
-//                 firstCheck = false;
-//                 checkName = allRows[0]
-//                 eachMFC["name"] = checkName
-//             }
-//             if (checkName !== allRows[0]){
-//                 checkName = allRows[0]
-//                 eachMFC = {
-//                     "type": "FeatureCollection",
-//                     "name": checkName,
-//                     "features": []
-//                 }
-//             }
-                
-//             if (startInfo[2] === endInfo[2]){
-//                 var startT = new Date(startInfo[1].substring(1, startInfo[1].length-1))
-//                 var endT = new Date(endInfo[1].substring(1, startInfo[1].length-1))
-//                 var featureName = startInfo[2]
-//                 var StartID = startInfo[4]
-//                 var EndID = endInfo[4]
-//                 var StartDatetime = `${startT.getFullYear().toString().padStart(4, '0')}-${
-//                     (startT.getMonth()+1).toString().padStart(2, '0')}-${
-//                     startT.getDate().toString().padStart(2, '0')}T${
-//                     startT.getHours().toString().padStart(2, '0')}:${
-//                     startT.getMinutes().toString().padStart(2, '0')}:${
-//                     startT.getSeconds().toString().padStart(2, '0')}.${
-//                     startT.getMilliseconds().toString().padStart(3,'0')}Z`                 
-//                 var EndDatetime = `${endT.getFullYear().toString().padStart(4, '0')}-${
-//                     (endT.getMonth()+1).toString().padStart(2, '0')}-${
-//                     endT.getDate().toString().padStart(2, '0')}T${
-//                     endT.getHours().toString().padStart(2, '0')}:${
-//                     endT.getMinutes().toString().padStart(2, '0')}:${
-//                     endT.getSeconds().toString().padStart(2, '0')}.${
-//                     endT.getMilliseconds().toString().padStart(3,'0')}Z`      
-
-//                 var startNodeList;
-//                 var endNodeList;
-//                 var coordinates = []
-//                 for (var shelf_i = 0; shelf_i < shelfKeys.length; shelf_i++){
-//                     var checkKeyValue = shelfKeys[shelf_i]
-                    
-//                     if (startNodeList === undefined && StartID.indexOf(checkKeyValue) !== -1){
-//                         startNodeList = shelf[checkKeyValue]
-//                     }
-//                     if (endNodeList === undefined && EndID.indexOf(checkKeyValue) !== -1){
-//                         endNodeList = shelf[checkKeyValue]
-//                     }
-//                     if (startNodeList !== undefined && endNodeList !== undefined){
-
-//                         var result;
-//                         var checkZero = Infinity
-//                         for (var start_i = 0; start_i < startNodeList.length; start_i++){
-//                             for (var end_i = 0; end_i < endNodeList.length; end_i++){
-//                                 var resultT = graph.findShortestPath(startNodeList[start_i], endNodeList[end_i])
-                                
-//                                 if (checkZero > resultT.length){
-//                                 checkZero = resultT.length
-//                                 result = resultT
-//                                 }
-//                             }
-//                         }
-//                         for (var k = 0; k < result.length; k++) {
-
-
-//                             coordinates.push(centerPointList[result[k]])
-//                         }
-                        
-//                         break    
-//                     }
-
-//                 }
-                
-//                 var eachFeature = MFGenerator.makeMovingPoint(featureName, StartDatetime, EndDatetime, coordinates) 
-
-//                 czml = MFGenerator.moveMovingPoint({
-//                     temporalGeometry: eachFeature.temporalGeometry,
-//                     number: 1,
-//                     id: 1
-//                 })
-
-                
-//             }
-                  
-//         }
-//     }
-// });
-// var load_czml = Cesium.CzmlDataSource.load(czml);
-// viewer.dataSources.add(load_czml);
-// var pointinfo = Cesium.GeoJsonDataSource.load(centerPointGeoJson);
-// viewer.dataSources.add(pointinfo)
-// var promise = Cesium.GeoJsonDataSource.load("gridmapTest01.json");
-// var positionList = []
-// promise.then(function(dataSource){
-//     viewer.dataSources.add(dataSource)          
-//     var entities = dataSource.entities.values;
-
+        addedTime = new Date(timeValue).getTime() + this.workingStopTime
+        
+    }else{
+        addedTime = new Date(timeValue).getTime() - this.workingStopTime
+    }
     
-//     var colorHash = {};
-//     for (var i = 0; i < entities.length; i++) {
-//     //For each entity, create a random color based on the state name.
-//     //Some states have multiple entities, so we store the color in a
-//     //hash so that we use the same color for the entire state.
-//         var entity = entities[i];
-//         var name = entity.name;
-    
-//         // var color = colorHash[name];
-//         // if (!color) {
-//         //   color = Cesium.Color.fromRandom({
-//         //     alpha: 1.0,
-//         //   });
-//         //   colorHash[name] = color;
-//         // }
-//         if (entity.polygon !== undefined){
-//             //Set the polygon material to our random color.
-            
-//             if (entity.name !== undefined){ 
-//             var findingString1 = "shelf"
-                
-//                 if (name.indexOf(findingString1)!== -1){
-//                     var findingString2 = "Enter"
-//                     if (name.indexOf(findingString2)!== -1){
-//                         entity.polygon.material = Cesium.Color.AQUAMARINE;
-//                         entity.polygon.outline = false;  
-//                         entity.polygon.extrudedHeight = 0;
-//                     }else{
-//                         entity.polygon.material = Cesium.Color.RED;
-//                         entity.polygon.outline = false;  
-//                         entity.polygon.extrudedHeight = 0;
-//                     }
-//                 }
-//             }
-//             else{
-                                  
-//                 entity.polygon.material = Cesium.Color.BLACK.withAlpha(0);
-//                 entity.polygon.outline = true;
-//                 // if (result2.indexOf(i)!== -1){
-//                 //     entity.polygon.material = Cesium.Color.RED.withAlpha(0.5);
-//                 // //Remove the outlines.
-//                 //     entity.polygon.outline = true;
-//                 // }else{
-//                 //     entity.polygon.material = Cesium.Color.BLACK.withAlpha(0);
-//                 // //Remove the outlines.
-//                 //     entity.polygon.outline = true;
-//                 // }
-//             }
-//         // if (entity.polygon.hierarchy.getValue().positions.length > 5){
-            
-//         // }
-      
-//         }else{
-            
-//             entity.polyline.width = 5
-//             entity.polyline.material = Cesium.Color.BLUE.withAlpha(0.5);
-//         }
-
-//     }
+    return new Date(addedTime).toISOString()
+}
