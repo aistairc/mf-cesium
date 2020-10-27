@@ -2,14 +2,16 @@ function GraphGenerator(viewer){
     this.viewer = viewer
     this.graph;
     this.maxCellcount;
-    this.cellSize =0.5
+    this.cellSize = 5
     this.boxSize = 100
     this.workingStopTime = 2000
     this.workerName = "Worker"
-    this.MapFileName = '/data/testData/partsCenter_221952.csv'
-    this.ShelfFileName = '/data/testData/partsCenter_s_info_221952.csv'
+    this.MapFileName = '/data/testData/partsCenter_153721.csv'
+    this.ShelfFileName = '/data/testData/partsCenter_s_info_153721.csv'
     this.HistoryFileName = '/data/testData/PickingHistory_SampleData.csv'
+    this.ModelPath = '/data/testData/1027_output_memmap.csv'
     this.testMakeMovingFeature()
+    
 }
 
 GraphGenerator.prototype.readMapFile = function (){
@@ -32,6 +34,7 @@ GraphGenerator.prototype.readMapFile = function (){
             "features": []
         }
     var centerPointList = {}
+    var centerPointList2 = {}
     
     //read graph result
     $.ajax({
@@ -67,6 +70,8 @@ GraphGenerator.prototype.readMapFile = function (){
                     var centerY = StartUTMCoordi[1] + y * cellSize + cellSize / 2
                     var centerPoint = SRSTranslator.forward2([centerX, centerY], utmCode, "WGS84")
                     centerPointList[NodeID.toString()] = centerPoint
+                    centerPointList2[NodeID.toString()] = [centerX, centerY]
+
                     
                     var eachFeature = {
                         "type": "Feature",
@@ -94,32 +99,34 @@ GraphGenerator.prototype.readMapFile = function (){
             }
         }
     });
-    // var pointinfo = Cesium.GeoJsonDataSource.load(centerPointGeoJson);
-    // pointinfo.then(function(dataSource){
-    //     viewer.dataSources.add(dataSource)          
-    //     var entities = dataSource.entities.values;
+    var pointinfo = Cesium.GeoJsonDataSource.load(centerPointGeoJson);
+    pointinfo.then(function(dataSource){
+        viewer.dataSources.add(dataSource)          
+        var entities = dataSource.entities.values;
     
-    //     var colorHash = {};
-    //     for (var i = 0; i < entities.length; i++) {
-    //     //For each entity, create a random color based on the state name.
-    //     //Some states have multiple entities, so we store the color in a
-    //     //hash so that we use the same color for the entire state.
-    //         var entity = entities[i];
-    //         var name = entity.name;
-    //         entity.label = {
-    //             text: name
-    //         };
+        var colorHash = {};
+        for (var i = 0; i < entities.length; i++) {
+        //For each entity, create a random color based on the state name.
+        //Some states have multiple entities, so we store the color in a
+        //hash so that we use the same color for the entire state.
+            var entity = entities[i];
+            var name = entity.name;
+            entity.label = {
+                text: name
+            };
             
-    //     }
-    // // this.viewer.dataSources.add(pointinfo)
-    // }).otherwise(function(error){
-    //     //Display any errrors encountered while loading.
-    //     window.alert(error);
-    // });
+        }
+    // this.viewer.dataSources.add(pointinfo)
+    }).otherwise(function(error){
+        //Display any errrors encountered while loading.
+        window.alert(error);
+    });
     var graph = new Graph(testGraph);
     this.setGraphInfo(testGraph)
     this.setGraph(graph)
     this.setCenterPointList(centerPointList)
+    this.setCenterPointList2(centerPointList2)
+
     return {maxCellcount, StartUTMCoordi}
 }
 
@@ -288,6 +295,9 @@ GraphGenerator.prototype.testMakeMovingFeature = function(){
         //     type: "FeatureCollection",
         //     features: []
         // }
+        if( i !== 13){
+            continue
+        }
         var eachMovingFeatureCollection = {
             properties:{
                 name:historyKeys[i],
@@ -307,32 +317,32 @@ GraphGenerator.prototype.testMakeMovingFeature = function(){
                 var eachFeature = eachFeatureCollection[eachKeyValues[j]]
                 
                 if(eachFeature.location.length > 1){
-                    var MovingFeatureInfo = this.getMovingFeature(eachFeature)    
-                    MovingFeatureInfo["name"] = this.workerName + "-" + historyKeys[i]+"_"+eachKeyValues[j]
-                    var eachMovingFeature = this.createMovingPoint(MovingFeatureInfo)
+                    if (eachKeyValues[j] === "C018935225"){
+                        console.log(eachKeyValues[j])
+                        var MovingFeatureInfo = this.getMovingFeature(eachFeature)    
+                        MovingFeatureInfo["name"] = this.workerName + "-" + historyKeys[i]+"_"+eachKeyValues[j]
+                        var eachMovingFeature = this.createMovingPoint(MovingFeatureInfo)
+                        
+                        eachMovingFeatureCollection.temporalGeometry.prisms.push(eachMovingFeature)
+                        break
+                    }
                     
-                    eachMovingFeatureCollection.temporalGeometry.prisms.push(eachMovingFeature)
                 }
                 
-                break
             }
             FeatureCollectionList.features.push(eachMovingFeatureCollection)
-            // handleEditorData(historyKeys[i], eachMovingFeatureCollection)  
             
-        
-        }
-        if (i == 4){
-            
-            handleEditorData("20201027_GraphResult", FeatureCollectionList)  
-            break
-        }
-        // break
+            // handleEditorData(historyKeys[i], eachMovingFeatureCollection)          
+        }    
         
         // FeatureCollectionList.push(eachMovingFeatureCollection)
+        
     }
+    // this.saveMFJSON(FeatureCollectionList)
+    // handleEditorData("20201027_GraphResult", FeatureCollectionList)  
     var ProgramEndTime = new Date().toISOString()
     
-    
+    console.log(ProgramStartTime, ProgramEndTime)
     
 }
 
@@ -461,7 +471,9 @@ GraphGenerator.prototype.setShelfInfo = function(shelfInfo){
 GraphGenerator.prototype.setCenterPointList = function(centerPointList){
     this.centerPointList = centerPointList
 }
-
+GraphGenerator.prototype.setCenterPointList2 = function(centerPointList2){
+    this.centerPointList2 = centerPointList2
+}
 GraphGenerator.prototype.getMovingFeature = function(eachFeature){
     var endNode;
     var pathNodeList = []
@@ -474,7 +486,13 @@ GraphGenerator.prototype.getMovingFeature = function(eachFeature){
         var endTime = eachFeature.datetimes[k+1]
         
         var tempNodeList = this.getStartEndNodes(startName, endName, endNode)
-        
+        var testSimplify = []
+        for (var i = 0; i < tempNodeList.length; i++){
+            var coordi = this.centerPointList2[tempNodeList[i]]
+            testSimplify.push(coordi)
+        }
+        console.log(tempNodeList)
+        console.log(simplify(testSimplify, 1, true))
         if (tempNodeList !== undefined){
            
             if (endNode !== undefined){
@@ -569,16 +587,19 @@ GraphGenerator.prototype.getStartEndNodes = function(startName, endName, endNode
             break
         } 
     }    
-    
+    // console.log(startNodeValue, endNodeValue)
+    // console.log(startNodeList, endNodeList)
+    // console.log(pathResult)
+    // console.log("-----------------------------------")
     return pathResult
 }
 
 
 GraphGenerator.prototype.createShelf3DModel = function(maxCellcount, StartUTMCoordi){
     var shelfList = []
-    var cellLength = 0.5
+    var cellLength = this.cellSize
     $.ajax({
-        url: '/data/testData/output_memmap50cm.csv',
+        url: this.ModelPath,
         async: false,
         dataType: 'text',
         success: function successFunction(data) {
@@ -631,26 +652,26 @@ GraphGenerator.prototype.createShelf3DModel = function(maxCellcount, StartUTMCoo
         PolygonGeoJson.features.push(eachFeature)
     }
     this.set3DModelInfo(PolygonGeoJson)
-    var promise = Cesium.GeoJsonDataSource.load(PolygonGeoJson);
+    // var promise = Cesium.GeoJsonDataSource.load(PolygonGeoJson);
     
-    promise.then(function(dataSource){
-        this.viewer.dataSources.add(dataSource)          
-        var entities = dataSource.entities.values;
-        for (var i = 0; i < entities.length; i++) {
+    // promise.then(function(dataSource){
+    //     this.viewer.dataSources.add(dataSource)          
+    //     var entities = dataSource.entities.values;
+    //     for (var i = 0; i < entities.length; i++) {
        
-            var entity = entities[i];
-            var name = entity.name;
+    //         var entity = entities[i];
+    //         var name = entity.name;
             
-            entity.polygon.material = Cesium.Color.RED;
-            entity.polygon.outline = false;  
+    //         entity.polygon.material = Cesium.Color.RED;
+    //         entity.polygon.outline = false;  
             
           
           
-        }
-    }).otherwise(function(error){
-        //Display any errrors encountered while loading.
-        window.alert(error);
-    });
+    //     }
+    // }).otherwise(function(error){
+    //     //Display any errrors encountered while loading.
+    //     window.alert(error);
+    // });
         
 }
 GraphGenerator.prototype.set3DModelInfo = function(PolygonGeoJson){
@@ -660,31 +681,31 @@ GraphGenerator.prototype.get3DModelInfo = function(){
     return this.PolygonGeoJson
 }
 GraphGenerator.prototype.loading3DModel = function(){
-    var promise = Cesium.GeoJsonDataSource.load(this.PolygonGeoJson);
+    // var promise = Cesium.GeoJsonDataSource.load(this.PolygonGeoJson);
 
-    promise.then(function(dataSource){
-        this.viewer.dataSources.add(dataSource)          
-        var entities = dataSource.entities.values;
-        for (var i = 0; i < entities.length; i++) {
+    // promise.then(function(dataSource){
+    //     this.viewer.dataSources.add(dataSource)          
+    //     var entities = dataSource.entities.values;
+    //     for (var i = 0; i < entities.length; i++) {
        
-            var entity = entities[i];
-            var name = entity.name;
-            // entity.label = {
-            //     text: name
-            // };
-            // entity.polygon.material = Cesium.Color.RED;
-            entity.polygon.material = [1, 1, 1, 0.5];
-            entity.polygon.outline = false;  
+    //         var entity = entities[i];
+    //         var name = entity.name;
+    //         // entity.label = {
+    //         //     text: name
+    //         // };
+    //         // entity.polygon.material = Cesium.Color.RED;
+    //         entity.polygon.material = Cesium.Color.RED;
+    //         entity.polygon.outline = false;  
             
-            entity.polygon.extrudedHeight = 1;
+    //         entity.polygon.extrudedHeight = 1;
             
             
           
-        }
-    }).otherwise(function(error){
-        //Display any errrors encountered while loading.
-        window.alert(error);
-    });
+    //     }
+    // }).otherwise(function(error){
+    //     //Display any errrors encountered while loading.
+    //     window.alert(error);
+    // });
 }
 
 GraphGenerator.prototype.addTimeValue = function(timeValue, checkValue){
@@ -699,4 +720,25 @@ GraphGenerator.prototype.addTimeValue = function(timeValue, checkValue){
     }
     
     return new Date(addedTime).toISOString()
+}
+GraphGenerator.prototype.saveMFJSON = function(FeatureCollectionList){
+    $.ajax({
+        type: "POST",
+        url: "/saveJSON",
+        async: true,
+        contentType: "application/json",
+        data: JSON.stringify(FeatureCollectionList),
+        dataType: "json",
+        success: function(json, status){
+            if (status != "success") {
+                console.log("Error loading data");
+                return;
+            }
+            console.log("Data loaded!");
+        },
+        error: function(result, status, err) {
+            console.log("Error loading data");
+            return;
+        }
+    });
 }

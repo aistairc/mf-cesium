@@ -505,6 +505,7 @@ Stinuum.GeometryViewer.prototype.update = function (options) {
     this.super.mfCollection.findMinMaxGeometry();
     // this.clear();
     graphGenerator.loading3DModel()
+    this.draw2()
     // this.draw();
     this.animate(options);
 
@@ -564,7 +565,37 @@ Stinuum.GeometryViewer.prototype.clear = function () {
     }
     this.primitives = {}
 }
+Stinuum.GeometryViewer.prototype.draw2 = function () {
 
+
+    var mf_arr = this.super.mfCollection.features;
+
+    if (mf_arr.length === 0) {
+
+        return -1;
+    }
+
+    var minmax = this.super.mfCollection.min_max;
+
+    if (this.super.mode === 'SPACETIME') {
+        this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0, this.super.maxHeight]);
+        this.super.cesiumViewer.scene.primitives.add(this.drawZaxis());
+        var entities = this.drawZaxisLabel();
+        // this.super.cesiumViewer.entities.add(entities.values[0]);
+        for (var i in entities.values) {
+            this.super.cesiumViewer.entities.add(entities.values[i])
+        }
+    }
+    // else if (this.super.mode == 'ANIMATEDMAP') {
+    //     // add to path 3d map
+    //     this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0, 0]);
+    //     // return -1;
+    // } 
+    else {
+        this.bounding_sphere = Stinuum.getBoundingSphere(minmax, [0, 0]);
+
+    }
+}
 Stinuum.GeometryViewer.prototype.draw = function () {
 
 
@@ -765,6 +796,7 @@ Stinuum.GeometryViewer.prototype.animate = function (options) {
                     id: index,
                     pointColor: pointColor
                 }
+                
                 if (eachFeatures.type == "MovingPoint") {
                     czml = czml.concat(this.moving.moveMovingPoint(MGCoptions));
                 } else if (eachFeatures.type == "MovingPolygon") {
@@ -818,8 +850,8 @@ Stinuum.GeometryViewer.prototype.animate = function (options) {
         // var promise = this.super.cesiumViewer.dataSources.add(load_czml);
     }
 
-    obj = JSON.stringify(czml)
-    console.log(obj)
+    // obj = JSON.stringify(czml)
+    // console.log(obj)
 
 
 
@@ -1016,9 +1048,6 @@ Stinuum.GeometryViewer.prototype.adjustCameraView = function () {
     var bounding = this.bounding_sphere;
     var viewer = this.viewer;
     var geomview = this;
-
-
-
 
     if (bounding == undefined || bounding == -1) {
         return;
@@ -1515,11 +1544,17 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function (options) {
 
     console.log("here check", geometry)
     this.supersuper.mfCollection.findMinMaxGeometry();
-    var pointColor = this.supersuper.mfCollection.getColor(feature_id)
+    // var pointColor = this.supersuper.mfCollection.getColor(feature_id)
+    // console.log(pointColor)
+    // var pointRGB = [Math.floor(pointColor.red * 255), Math.floor(pointColor.green * 255), Math.floor(pointColor.red * 255), 255]
+    var pointColor
+    console.log(options.pointColor)
+    if (options.pointColor !== undefined){
+        pointColor = options.pointColor
+    }else{
+        pointColor = [0, 0, 0, 255]
+    }
     console.log(pointColor)
-    var pointRGB = [Math.floor(pointColor.red * 255), Math.floor(pointColor.green * 255), Math.floor(pointColor.red * 255), 255]
-
-
     var check = true
     if (geometry.datetimes.length == 1 && geometry.datetimes.length == 1) {
         check = false
@@ -1611,7 +1646,7 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function (options) {
         } else {
             v.point = {
                 "color": {
-                    "rgba": pointRGB
+                    "rgba": pointColor
                 },
                 "outlineColor": {
                     "rgba": [255, 255, 255, 255]
