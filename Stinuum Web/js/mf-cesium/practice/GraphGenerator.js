@@ -2,7 +2,7 @@ function GraphGenerator(viewer){
     this.viewer = viewer
     this.graph;
     this.maxCellcount;
-    this.cellSize = 5
+    this.cellSize = 0.5
     this.boxSize = 100
     this.workingStopTime = 2000
     this.utmCode = "EPSG:6677"
@@ -247,7 +247,7 @@ GraphGenerator.prototype.readHistoryFile = function (){
     });
     return FeatureCollections
 }
-GraphGenerator.prototype.createMovingPoint = function(option){
+GraphGenerator.prototype.createMovingPoint = function(options){
     // var Feature = {
     //     name: option.name,
     //     type: "Feature",
@@ -262,18 +262,22 @@ GraphGenerator.prototype.createMovingPoint = function(option){
     //     },
     //     temporalProperties:[{}]
     // }
-    var Feature = {
-        name: option.name,
-        properties: {
-            name: option.name
-        },
-        type:"MovingPoint",
-        datetimes: option.datetimes,
-        coordinates: option.coordinates,
-        interpolation: "Linear"        
-    }
     
-    return Feature
+    if (options.datetimes.length > 1 && options.coordinates.length > 1){
+        var Feature = {
+            name: options.name,
+            properties: {
+                name: options.name
+            },
+            type:"MovingPoint",
+            datetimes: options.datetimes,
+            coordinates: options.coordinates,
+            interpolation: "Linear"        
+        }
+        return Feature
+    }else{
+        return false
+    }
 }
 GraphGenerator.prototype.testMakeMovingFeature = function(){
     var ProgramStartTime = new Date().toISOString()
@@ -301,46 +305,69 @@ GraphGenerator.prototype.testMakeMovingFeature = function(){
         //     type: "FeatureCollection",
         //     features: []
         // }
-       
+        var workerName = historyKeys[i]
         var eachMovingFeatureCollection = {
             properties:{
-                name:historyKeys[i],
+                name:workerName,
             },
-            name: this.workerName + "-" + historyKeys[i],
+            name: this.workerName + "-" + workerName,
             type: "Feature",
             temporalGeometry: {
                 type: "MovingGeometryCollection",
                 prisms: []
             }
         }
-        var eachFeatureCollection = historyInfo[historyKeys[i]]
-        var eachKeyValues = Object.keys(historyInfo[historyKeys[i]])
-        var workerName = historyKeys[i]
+        
+        var eachFeatureCollection = historyInfo[workerName]
+        var eachKeyValues = Object.keys(historyInfo[workerName])
+        
+        
         console.log(workerName)
-        if (eachKeyValues.length > 1){
+        
+        if (eachKeyValues.length !== 0){
             for (var j = 0; j < eachKeyValues.length - 1; j++){
                 var eachFeature = eachFeatureCollection[eachKeyValues[j]]
                 
                 if(eachFeature.location.length > 1){                    
+                    // console.log(eachFeature)
                     
                     var MovingFeatureInfo = this.getMovingFeature(eachFeature)    
-                    MovingFeatureInfo["name"] = this.workerName + "-" + historyKeys[i]+"_"+eachKeyValues[j]
+                    MovingFeatureInfo["name"] = this.workerName + "-" + workerName+"_"+eachKeyValues[j]
                     var eachMovingFeature = this.createMovingPoint(MovingFeatureInfo)
+                    if (eachMovingFeature !== false){
+                        eachMovingFeatureCollection.temporalGeometry.prisms.push(eachMovingFeature)
+                    }
                     
-                    eachMovingFeatureCollection.temporalGeometry.prisms.push(eachMovingFeature)
+                }else{
+                    if (eachFeature.location.length == 1){
+                        var MovingFeatureInfo = this.makeOneLocationInfo(eachFeature)
+                        if (MovingFeatureInfo !== false){
+                            MovingFeatureInfo["name"] = this.workerName + "-" + workerName+"_"+eachKeyValues[j]
+                            var eachMovingFeature = this.createMovingPoint(MovingFeatureInfo)
+                            console.log(eachMovingFeature)
+                            eachMovingFeatureCollection.temporalGeometry.prisms.push(eachMovingFeature)
+                        }
+                        
+                    }
+                    
                 }
                 
             }
-    
-            FeatureCollectionList.features.push(eachMovingFeatureCollection)
+            if (eachMovingFeatureCollection.temporalGeometry.prisms.length > 0){
+                FeatureCollectionList.features.push(eachMovingFeatureCollection)
+            }
             
-            // handleEditorData(historyKeys[i], eachMovingFeatureCollection)          
+            
+        //     // handleEditorData(historyKeys[i], eachMovingFeatureCollection)          
         }    
         
         // FeatureCollectionList.push(eachMovingFeatureCollection)
         
     }
-    this.saveMFJSON(FeatureCollectionList)
+    if (FeatureCollectionList.features.length > 0){
+        this.saveMFJSON(FeatureCollectionList)
+    }
+    
     // handleEditorData("20201027_GraphResult", FeatureCollectionList)  
     var ProgramEndTime = new Date().toISOString()
     console.log(ProgramStartTime, ProgramEndTime)    
@@ -480,11 +507,32 @@ GraphGenerator.prototype.setCenterPointList = function(centerPointList){
 GraphGenerator.prototype.setCenterPointList2 = function(centerPointList2){
     this.centerPointList2 = centerPointList2
 }
+GraphGenerator.prototype.makeOneLocationInfo = function(eachFeature){
+    var startTime = eachFeature.datetimes[0]
+    var startName = eachFeature.location[0]
+    var endNode;
+    var tempNodeList = this.getStartEndNodes(startName, startName, endNode)
+    if (tempNodeList === undefined){
+        return false
+    }else{
+        
+        var datetimes = []
+        var ST = new Date(startTime).getTime()
+        // console.log(ST, ST+this.workingStopTime)
+        var endTime = GraphGenerator.changeDateTime(ST+this.workingStopTime, true)
+        datetimes.push(startTime)
+        datetimes.push(endTime)
+        var coordi = [this.centerPointList2[tempNodeList[0]]]
+        var coordinates = this.convertCoordiToWGS84(coordi)
+        return {coordinates, datetimes}
+    }
+}
 GraphGenerator.prototype.getMovingFeature = function(eachFeature){
     var endNode;
     var pathNodeList = []
     var tempDatetimes = []
-    
+
+ 
     for (var k = 0; k < eachFeature.location.length-1; k++){
         var startName = eachFeature.location[k]
         var startTime = eachFeature.datetimes[k]
@@ -493,11 +541,7 @@ GraphGenerator.prototype.getMovingFeature = function(eachFeature){
         
         var tempNodeList = this.getStartEndNodes(startName, endName, endNode)
         var testSimplify = []
-        
-        
-       
-        
-        
+                
         if (tempNodeList !== undefined){     
             for (var i = 0; i < tempNodeList.length; i++){
                 var coordi = this.centerPointList2[tempNodeList[i]]
@@ -534,6 +578,8 @@ GraphGenerator.prototype.getMovingFeature = function(eachFeature){
     datetimes.push(addEndTime)
     
     return {coordinates, datetimes}
+    
+   
 }
 GraphGenerator.prototype.getLengthRate = function(resultSimplify){
     var eachNodeLengthRate = []

@@ -33,7 +33,7 @@ app.post("/saveJSON", function(req, res){
     let dPath = "/home/dprt/Documents/dprt/oldVersionCesium/githubMFCesium/mf-cesium/Stinuum Web/data/testData/"
     let data = req.body
     
-    fs.writeFileSync(dPath+fileName+"2-simplify-5m.json", JSON.stringify(data))
+    fs.writeFileSync(dPath+fileName+"1-simplify-50cm.json", JSON.stringify(data))
     
 })
 
