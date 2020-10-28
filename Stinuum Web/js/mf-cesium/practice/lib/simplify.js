@@ -75,7 +75,7 @@ function getSqSegDist(p, p1, p2) {
 
     dx = p[0] - x;
     dy = p[1] - y;
-    console.log((dx * dx + dy * dy) > 1)
+    // console.log((dx * dx + dy * dy) > 1)
     return dx * dx + dy * dy;
 }
 // rest of the code doesn't care about point format

@@ -5,22 +5,24 @@ function GraphGenerator(viewer){
     this.cellSize = 5
     this.boxSize = 100
     this.workingStopTime = 2000
+    this.utmCode = "EPSG:6677"
     this.workerName = "Worker"
     this.MapFileName = '/data/testData/partsCenter_153721.csv'
     this.ShelfFileName = '/data/testData/partsCenter_s_info_153721.csv'
     this.HistoryFileName = '/data/testData/PickingHistory_SampleData.csv'
     this.ModelPath = '/data/testData/1027_output_memmap.csv'
-    this.testMakeMovingFeature()
+    // this.testMakeMovingFeature()
     
 }
 
 GraphGenerator.prototype.readMapFile = function (){
 
     var StartPoint = [139.77744515681255, 35.61793664193283]
-    var utmCode = "EPSG:6677"
+    var utmCode = this.utmCode
     var StartUTMCoordi;
     if (SRSTranslator.crsCheck2(utmCode)){
         StartUTMCoordi = SRSTranslator.forward2(StartPoint, "WGS84", utmCode)
+        this.setStartUTMCoordi(StartUTMCoordi)
     }
     var maxCellcount
     var cellSize = this.cellSize //m
@@ -66,24 +68,26 @@ GraphGenerator.prototype.readMapFile = function (){
                     // var NodeID = x * maxCellcount + x + y
                     var NodeID = x * maxCellcount + y
 
-                    var centerX = StartUTMCoordi[0] + x * cellSize + cellSize / 2
-                    var centerY = StartUTMCoordi[1] + y * cellSize + cellSize / 2
-                    var centerPoint = SRSTranslator.forward2([centerX, centerY], utmCode, "WGS84")
-                    centerPointList[NodeID.toString()] = centerPoint
-                    centerPointList2[NodeID.toString()] = [centerX, centerY]
+                    // var centerX = StartUTMCoordi[0] + x * cellSize + cellSize / 2
+                    // var centerY = StartUTMCoordi[1] + y * cellSize + cellSize / 2
+                    
+
+                    // var centerPoint = SRSTranslator.forward2([centerX, centerY], utmCode, "WGS84")
+                    // centerPointList[NodeID.toString()] = centerPoint
+                    centerPointList2[NodeID.toString()] = [x, y]
 
                     
-                    var eachFeature = {
-                        "type": "Feature",
-                        "properties": {
-                            "name": NodeID.toString()
-                        },
-                        "geometry": {
-                            "type": "Point",
-                            "coordinates": centerPoint
-                        }
-                    }
-                    centerPointGeoJson.features.push(eachFeature)
+                    // var eachFeature = {
+                    //     "type": "Feature",
+                    //     "properties": {
+                    //         "name": NodeID.toString()
+                    //     },
+                    //     "geometry": {
+                    //         "type": "Point",
+                    //         "coordinates": centerPoint
+                    //     }
+                    // }
+                    // centerPointGeoJson.features.push(eachFeature)
                     
                     testGraph[NodeID.toString()] = {}
                     for (var j = 2; j < eachRow.length; j+=2){
@@ -99,28 +103,30 @@ GraphGenerator.prototype.readMapFile = function (){
             }
         }
     });
-    var pointinfo = Cesium.GeoJsonDataSource.load(centerPointGeoJson);
-    pointinfo.then(function(dataSource){
-        viewer.dataSources.add(dataSource)          
-        var entities = dataSource.entities.values;
+    // var pointinfo = Cesium.GeoJsonDataSource.load(centerPointGeoJson);
+    // pointinfo.then(function(dataSource){
+    //     viewer.dataSources.add(dataSource)          
+    //     var entities = dataSource.entities.values;
     
-        var colorHash = {};
-        for (var i = 0; i < entities.length; i++) {
-        //For each entity, create a random color based on the state name.
-        //Some states have multiple entities, so we store the color in a
-        //hash so that we use the same color for the entire state.
-            var entity = entities[i];
-            var name = entity.name;
-            entity.label = {
-                text: name
-            };
+    //     var colorHash = {};
+        
+    //     for (var i = 0; i < entities.length; i++) {
+    //     //For each entity, create a random color based on the state name.
+    //     //Some states have multiple entities, so we store the color in a
+    //     //hash so that we use the same color for the entire state.
+    //         var entity = entities[i];
+    //         var name = entity.name;
+    //         entity.billboard.show = false
+    //         entity.label = {
+    //             text: name
+    //         };
             
-        }
-    // this.viewer.dataSources.add(pointinfo)
-    }).otherwise(function(error){
-        //Display any errrors encountered while loading.
-        window.alert(error);
-    });
+    //     }
+    // // this.viewer.dataSources.add(pointinfo)
+    // }).otherwise(function(error){
+    //     //Display any errrors encountered while loading.
+    //     window.alert(error);
+    // });
     var graph = new Graph(testGraph);
     this.setGraphInfo(testGraph)
     this.setGraph(graph)
@@ -280,7 +286,7 @@ GraphGenerator.prototype.testMakeMovingFeature = function(){
     
 
     var historyKeys = Object.keys(historyInfo)
-    var graph = mapinfo.graph
+    
     var FeatureCollectionList = {
         name: "20201027_GraphResult",
         properties: {
@@ -295,9 +301,7 @@ GraphGenerator.prototype.testMakeMovingFeature = function(){
         //     type: "FeatureCollection",
         //     features: []
         // }
-        if( i !== 13){
-            continue
-        }
+       
         var eachMovingFeatureCollection = {
             properties:{
                 name:historyKeys[i],
@@ -312,24 +316,22 @@ GraphGenerator.prototype.testMakeMovingFeature = function(){
         var eachFeatureCollection = historyInfo[historyKeys[i]]
         var eachKeyValues = Object.keys(historyInfo[historyKeys[i]])
         var workerName = historyKeys[i]
+        console.log(workerName)
         if (eachKeyValues.length > 1){
             for (var j = 0; j < eachKeyValues.length - 1; j++){
                 var eachFeature = eachFeatureCollection[eachKeyValues[j]]
                 
-                if(eachFeature.location.length > 1){
-                    if (eachKeyValues[j] === "C018935225"){
-                        console.log(eachKeyValues[j])
-                        var MovingFeatureInfo = this.getMovingFeature(eachFeature)    
-                        MovingFeatureInfo["name"] = this.workerName + "-" + historyKeys[i]+"_"+eachKeyValues[j]
-                        var eachMovingFeature = this.createMovingPoint(MovingFeatureInfo)
-                        
-                        eachMovingFeatureCollection.temporalGeometry.prisms.push(eachMovingFeature)
-                        break
-                    }
+                if(eachFeature.location.length > 1){                    
                     
+                    var MovingFeatureInfo = this.getMovingFeature(eachFeature)    
+                    MovingFeatureInfo["name"] = this.workerName + "-" + historyKeys[i]+"_"+eachKeyValues[j]
+                    var eachMovingFeature = this.createMovingPoint(MovingFeatureInfo)
+                    
+                    eachMovingFeatureCollection.temporalGeometry.prisms.push(eachMovingFeature)
                 }
                 
             }
+    
             FeatureCollectionList.features.push(eachMovingFeatureCollection)
             
             // handleEditorData(historyKeys[i], eachMovingFeatureCollection)          
@@ -338,12 +340,10 @@ GraphGenerator.prototype.testMakeMovingFeature = function(){
         // FeatureCollectionList.push(eachMovingFeatureCollection)
         
     }
-    // this.saveMFJSON(FeatureCollectionList)
+    this.saveMFJSON(FeatureCollectionList)
     // handleEditorData("20201027_GraphResult", FeatureCollectionList)  
     var ProgramEndTime = new Date().toISOString()
-    
-    console.log(ProgramStartTime, ProgramEndTime)
-    
+    console.log(ProgramStartTime, ProgramEndTime)    
 }
 
 GraphGenerator.checkingDupleValue = function(startNodeList, endNodeList){
@@ -440,18 +440,24 @@ GraphGenerator.prototype.getPath = function(startNodeList, endNodeList, sameChec
     return result
 }
 
-GraphGenerator.prototype.makeDatetimes = function(startTime, endTime, nodeSize, checkFirst){
+GraphGenerator.prototype.makeDatetimes = function(startTime, endTime, pathInfo, checkFirst){
     
     var dateTimeList = []
-    
+    var totalSUM = pathInfo.totalSUM
+    var eachNodeLengthRate = pathInfo.eachNodeLengthRate
     var ST = new Date(startTime).getTime() + 2000;
     var ET = new Date(endTime).getTime() - 2000;
-    var timeRange = (ET - ST) / (nodeSize - 1)
+    var timeRange = (ET - ST)
+    
     var startTime2 = GraphGenerator.changeDateTime(ST, true)
+    
     dateTimeList.push(startTime2)
-    for (var i = 1; i < nodeSize - 1; i++){
-        var eachTime = GraphGenerator.changeDateTime(ST + (timeRange * i), true)
-        dateTimeList.push(eachTime)
+    if(eachNodeLengthRate.length > 1){
+        for (var i = 0; i < eachNodeLengthRate.length-1; i++){
+            var eachTime = GraphGenerator.changeDateTime(ST + (timeRange * eachNodeLengthRate[i] / totalSUM), true)
+            ST += (timeRange * eachNodeLengthRate[i] / totalSUM)
+            dateTimeList.push(eachTime)
+        }
     }
     var endTime2 = GraphGenerator.changeDateTime(ET, true)
     dateTimeList.push(endTime2)
@@ -487,43 +493,40 @@ GraphGenerator.prototype.getMovingFeature = function(eachFeature){
         
         var tempNodeList = this.getStartEndNodes(startName, endName, endNode)
         var testSimplify = []
-        for (var i = 0; i < tempNodeList.length; i++){
-            var coordi = this.centerPointList2[tempNodeList[i]]
-            testSimplify.push(coordi)
-        }
-        console.log(tempNodeList)
-        console.log(simplify(testSimplify, 1, true))
-        if (tempNodeList !== undefined){
-           
-            if (endNode !== undefined){
-                tempDatetimes.push(...this.makeDatetimes(startTime, endTime, tempNodeList.length, false))
-                if (tempNodeList.length == 1){
-                    
-                    tempNodeList.push(tempNodeList[0])
-                }
-                pathNodeList.push(...tempNodeList)
-                
-            }else{
-                tempDatetimes.push(...this.makeDatetimes(startTime, endTime, tempNodeList.length, false))
-                if (tempNodeList.length == 1){
-                    tempNodeList.push(tempNodeList[0])
-                }
-                pathNodeList.push(...tempNodeList)
+        
+        
+       
+        
+        
+        if (tempNodeList !== undefined){     
+            for (var i = 0; i < tempNodeList.length; i++){
+                var coordi = this.centerPointList2[tempNodeList[i]]
+                testSimplify.push(coordi)
+            }    
+            var resultSimplify = simplify(testSimplify, 0.1, true)
+            if (resultSimplify.length == 1){
+                resultSimplify.push(resultSimplify[0])
             }
+            
+            endNode = tempNodeList[tempNodeList.length - 1]  
+            
+            var resultLengthRate = this.getLengthRate(resultSimplify)
+            tempDatetimes.push(...this.makeDatetimes(startTime, endTime, resultLengthRate, false))
+            
+            pathNodeList.push(...resultSimplify)
+                
+            // }else{
+            //     if (resultSimplify.length == 1){
+            //         resultSimplify.push(resultSimplify[0])
+            //     }
+            //     tempDatetimes.push(...this.makeDatetimes(startTime, endTime, resultSimplify.length, false))
+                
+            //     pathNodeList.push(...resultSimplify)
+            // }
                         
-            endNode = tempNodeList[tempNodeList.length - 1]      
         }
     }
-    
-    var coordinates = []
-    
-    for (var i = 0; i < pathNodeList.length; i++){
-        var coordinate = this.centerPointList[pathNodeList[i]]
-        if (i == 0 || i == pathNodeList.length - 1){
-            coordinates.push(coordinate)
-        }
-        coordinates.push(coordinate)
-    }
+    var coordinates = this.convertCoordiToWGS84(pathNodeList) 
     var addStartTime = this.addTimeValue(tempDatetimes[0], false) 
     var addEndTime = this.addTimeValue(tempDatetimes[tempDatetimes.length - 1], true) 
     var datetimes = [addStartTime].concat(tempDatetimes)
@@ -532,6 +535,33 @@ GraphGenerator.prototype.getMovingFeature = function(eachFeature){
     
     return {coordinates, datetimes}
 }
+GraphGenerator.prototype.getLengthRate = function(resultSimplify){
+    var eachNodeLengthRate = []
+    var totalSUM = 0
+    for (var i = 0; i < resultSimplify.length - 1; i++){
+        var currInfo = resultSimplify[i]
+        var nextInfo = resultSimplify[i + 1]
+        var nodeLength = Math.abs((currInfo[0] - nextInfo[0]) + (currInfo[1] - nextInfo[1]))
+        totalSUM += nodeLength
+        eachNodeLengthRate.push(nodeLength)
+    }
+
+    return {totalSUM, eachNodeLengthRate}
+}
+GraphGenerator.prototype.convertCoordiToWGS84 = function(localCoordiList){
+    var coordinates = []
+    for (var i = 0; i < localCoordiList.length; i++){
+        var centerX = this.StartUTMCoordi[0] + localCoordiList[i][0] * this.cellSize + this.cellSize / 2
+        var centerY = this.StartUTMCoordi[1] + localCoordiList[i][1] * this.cellSize + this.cellSize / 2
+        var coordinate = SRSTranslator.forward2([centerX, centerY], this.utmCode, "WGS84")
+        if (i == 0 || i == localCoordiList.length - 1){
+            coordinates.push(coordinate)
+        }
+        coordinates.push(coordinate)
+    }
+    return coordinates
+}
+
 GraphGenerator.prototype.getStartEndNodes = function(startName, endName, endNode){
     var startNodeList, endNodeList;
     var shelfKeys = Object.keys(this.shelfInfo)
@@ -587,10 +617,10 @@ GraphGenerator.prototype.getStartEndNodes = function(startName, endName, endNode
             break
         } 
     }    
-    // console.log(startNodeValue, endNodeValue)
-    // console.log(startNodeList, endNodeList)
-    // console.log(pathResult)
-    // console.log("-----------------------------------")
+    
+    
+    
+    
     return pathResult
 }
 
@@ -680,6 +710,9 @@ GraphGenerator.prototype.set3DModelInfo = function(PolygonGeoJson){
 GraphGenerator.prototype.get3DModelInfo = function(){
     return this.PolygonGeoJson
 }
+GraphGenerator.prototype.setStartUTMCoordi = function(StartUTMCoordi){
+    this.StartUTMCoordi = StartUTMCoordi
+}
 GraphGenerator.prototype.loading3DModel = function(){
     // var promise = Cesium.GeoJsonDataSource.load(this.PolygonGeoJson);
 
@@ -731,13 +764,13 @@ GraphGenerator.prototype.saveMFJSON = function(FeatureCollectionList){
         dataType: "json",
         success: function(json, status){
             if (status != "success") {
-                console.log("Error loading data");
+                
                 return;
             }
-            console.log("Data loaded!");
+            
         },
         error: function(result, status, err) {
-            console.log("Error loading data");
+            
             return;
         }
     });

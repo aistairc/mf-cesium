@@ -39,6 +39,7 @@ Stinuum.MFPair = function (id, feature) {
 
 
 
+
 Stinuum.QueryProcessor = function (stinuum) {
     this.super = stinuum;
     this.result_pairs = [];
@@ -72,9 +73,9 @@ Stinuum.GeometryViewer = function (stinuum) {
     this.projection = null;
     this.time_label = [];
     this.label_timeout = undefined;
-    LOG(this.super.cesiumViewer.scene.primitives)
-    LOG(this.super.cesiumViewer.dataSources)
-    LOG(this.super.cesiumViewer.entities)
+    // 
+    // 
+    // 
 
 
 
@@ -500,13 +501,13 @@ Stinuum.DirectionInfo.prototype.updateAvgVelocity = function () {
 }
 
 Stinuum.GeometryViewer.prototype.update = function (options) {
-    LOG("update function")
+    // 
     this.clear();
     this.super.mfCollection.findMinMaxGeometry();
     // this.clear();
     graphGenerator.loading3DModel()
-    this.draw2()
-    // this.draw();
+    // this.draw2()
+    this.draw();
     this.animate(options);
 
 
@@ -514,17 +515,17 @@ Stinuum.GeometryViewer.prototype.update = function (options) {
 
 Stinuum.GeometryViewer.prototype.clear = function () {
     this.super.cesiumViewer.clock.multiplier = 10;
-    // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
-    // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0].constructor)
+    
+    
 
     if (Object.keys(this.primitives).length !== 0){
         this.super.cesiumViewer.dataSources.removeAll();
         this.super.cesiumViewer.entities.removeAll();   
-        // LOG(Object.values(this.primitives))
+        
         var IDCount = 0
-        // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
-        // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0].constructor.name === "Primitive")
-        // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0] instanceof PrimitiveCollection)
+        
+        
+        
         var primitivesInfo = Object.values(this.super.cesiumViewer.scene.primitives._primitives)
         var remindedValue = []
         for (var primitivesID in primitivesInfo){
@@ -558,7 +559,7 @@ Stinuum.GeometryViewer.prototype.clear = function () {
         
         
         // for (var i in Object.keys(this.primitives)){
-        //     LOG()
+            
         
         // }
         // this.super.cesiumViewer.scene.primitives.removeAll()
@@ -701,11 +702,11 @@ Stinuum.GeometryViewer.prototype.draw = function () {
             }
             if (primitive !== -1) {
                 
-                LOG("here", primitive)
+                // 
                 path_prim = this.super.cesiumViewer.scene.primitives.add(primitive);
                 //
                 this.primitives[mf.id] = path_prim;
-                LOG("here", primitive)
+                // 
             }
         }
 
@@ -785,7 +786,7 @@ Stinuum.GeometryViewer.prototype.animate = function (options) {
         var feature = mf_arr[index].feature;
         if (feature.temporalGeometry.type == "MovingGeometryCollection") {
             var pointColor = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), 255]
-            console.log("MovingGeometryCollection", feature.properties.name)
+            
             
             for (var prism_i = 0; prism_i < feature.temporalGeometry.prisms.length; prism_i++) {
                 var eachFeatures = feature.temporalGeometry.prisms[prism_i];
@@ -851,7 +852,7 @@ Stinuum.GeometryViewer.prototype.animate = function (options) {
     }
 
     // obj = JSON.stringify(czml)
-    // console.log(obj)
+    // 
 
 
 
@@ -1542,19 +1543,19 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function (options) {
     start = new Date(geometry.datetimes[0]).toISOString();
     stop = new Date(geometry.datetimes[length - 1]).toISOString();
 
-    console.log("here check", geometry)
+    
     this.supersuper.mfCollection.findMinMaxGeometry();
     // var pointColor = this.supersuper.mfCollection.getColor(feature_id)
-    // console.log(pointColor)
+    // 
     // var pointRGB = [Math.floor(pointColor.red * 255), Math.floor(pointColor.green * 255), Math.floor(pointColor.red * 255), 255]
     var pointColor
-    console.log(options.pointColor)
+    
     if (options.pointColor !== undefined){
         pointColor = options.pointColor
     }else{
         pointColor = [0, 0, 0, 255]
     }
-    console.log(pointColor)
+    
     var check = true
     if (geometry.datetimes.length == 1 && geometry.datetimes.length == 1) {
         check = false
@@ -4993,7 +4994,7 @@ Stinuum.QueryProcessor.prototype.queryByTime = function (start, end) {
     }
 
     this.super.mfCollection.features = new_mf_arr; 
-    LOG(this.super.mfCollection.features)
+    // 
 }
 
 Stinuum.QueryProcessor.prototype.sliceFeatureByTime = function (feature, start, end) {
