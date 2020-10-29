@@ -11,10 +11,325 @@ function GraphGenerator(viewer){
     this.ShelfFileName = '/data/testData/partsCenter_s_info_153721.csv'
     this.HistoryFileName = '/data/testData/PickingHistory_SampleData.csv'
     this.ModelPath = '/data/testData/1027_output_memmap.csv'
+    
+    // this.GridMap = new GridMap([102,77], 50)
     // this.testMakeMovingFeature()
+    this.call()
     
 }
+GraphGenerator.prototype.call = function (){
+    var ProgramStartTime = new Date().toISOString()
+    var a = readGeoJSON("/data/testData/sample.geojson", 500)
 
+    this.graphMap = a.printIndoorGraph()
+    this.graphShelf = a.printShelfOpenTo()
+    this.Shelf3DModel = a.printGridMap()
+    console.log(a.shelfInfo)
+    // var mapinfo = this.readMapFile2()
+    // this.createShelf3DModel2(mapinfo.maxCellcount)
+    // this.readShelfFile2(mapinfo.maxCellcount)
+    
+    // var historyInfo = this.readHistoryFile()
+    
+
+    // var historyKeys = Object.keys(historyInfo)
+    
+    // var FeatureCollectionList = {
+    //     name: "20201027_GraphResult",
+    //     properties: {
+    //         name: "20201027_GraphResult"
+    //     },
+    //     type: "FeatureCollection",
+    //     features: []
+    // }
+    // for (var i = 0; i < historyKeys.length; i++){
+    //     // var eachMovingFeatureCollection = {
+    //     //     name: historyKeys[i],
+    //     //     type: "FeatureCollection",
+    //     //     features: []
+    //     // }
+    //     var workerName = historyKeys[i]
+    //     var eachMovingFeatureCollection = {
+    //         properties:{
+    //             name:workerName,
+    //         },
+    //         name: this.workerName + "-" + workerName,
+    //         type: "Feature",
+    //         temporalGeometry: {
+    //             type: "MovingGeometryCollection",
+    //             prisms: []
+    //         }
+    //     }
+        
+    //     var eachFeatureCollection = historyInfo[workerName]
+    //     var eachKeyValues = Object.keys(historyInfo[workerName])
+        
+        
+    //     console.log(workerName)
+        
+    //     if (eachKeyValues.length !== 0){
+    //         for (var j = 0; j < eachKeyValues.length - 1; j++){
+    //             var eachFeature = eachFeatureCollection[eachKeyValues[j]]
+                
+    //             if(eachFeature.location.length > 1){                    
+    //                 // console.log(eachFeature)
+                    
+    //                 var MovingFeatureInfo = this.getMovingFeature(eachFeature)    
+    //                 MovingFeatureInfo["name"] = this.workerName + "-" + workerName+"_"+eachKeyValues[j]
+    //                 var eachMovingFeature = this.createMovingPoint(MovingFeatureInfo)
+    //                 if (eachMovingFeature !== false){
+    //                     eachMovingFeatureCollection.temporalGeometry.prisms.push(eachMovingFeature)
+    //                 }
+                    
+    //             }else{
+    //                 if (eachFeature.location.length == 1){
+    //                     var MovingFeatureInfo = this.makeOneLocationInfo(eachFeature)
+    //                     if (MovingFeatureInfo !== false){
+    //                         MovingFeatureInfo["name"] = this.workerName + "-" + workerName+"_"+eachKeyValues[j]
+    //                         var eachMovingFeature = this.createMovingPoint(MovingFeatureInfo)
+    //                         eachMovingFeatureCollection.temporalGeometry.prisms.push(eachMovingFeature)
+    //                     }
+                        
+    //                 }
+                    
+    //             }
+    //             break
+                
+    //         }
+    //         if (eachMovingFeatureCollection.temporalGeometry.prisms.length > 0){
+    //             FeatureCollectionList.features.push(eachMovingFeatureCollection)
+    //         }
+    //         break
+            
+            
+        
+    //     }    
+        
+    //     // FeatureCollectionList.push(eachMovingFeatureCollection)
+        
+    // }
+    // if (FeatureCollectionList.features.length > 0){
+    //     this.saveMFJSON(FeatureCollectionList)
+    // }
+    
+    // // handleEditorData("20201027_GraphResult", FeatureCollectionList)  
+    // var ProgramEndTime = new Date().toISOString()
+    // console.log(ProgramStartTime, ProgramEndTime)    
+}
+
+GraphGenerator.prototype.readMapFile2 = function (){
+
+    var StartPoint = [139.77744515681255, 35.61793664193283]
+    var utmCode = this.utmCode
+    var StartUTMCoordi;
+    if (SRSTranslator.crsCheck2(utmCode)){
+        StartUTMCoordi = SRSTranslator.forward2(StartPoint, "WGS84", utmCode)
+        this.setStartUTMCoordi(StartUTMCoordi)
+    }
+    var maxCellcount
+    var cellSize = this.cellSize //m
+    var testGraph = {}
+    var gridMapGeoJson = {
+            "type": "FeatureCollection",
+            "features": []
+        }
+    var centerPointGeoJson = {    
+            "type": "FeatureCollection",
+            "features": []
+        }
+    var centerPointList = {}
+    var centerPointList2 = {}
+    var allRows = this.graphMap.split(/\r?\n|\r/)
+    var cellInfo = allRows[0].replace(/[^\d,]/g,'').split(',')
+    if (parseInt(cellInfo[0]) >= parseInt(cellInfo[1])){
+        maxCellcount = parseInt(cellInfo[0])
+        
+    }else{
+        maxCellcount = parseInt(cellInfo[1])
+    }
+    
+
+    for (var i = 0; i < allRows.length; i++){
+        
+        var eachRow = allRows[i].replace(/[^\d,]/g,'').split(',')
+        if (eachRow.length >= 4){
+            
+            var x = parseInt(eachRow[0])
+            var y = parseInt(eachRow[1])
+            
+            var NodeID = x * maxCellcount + y
+
+            var centerX = StartUTMCoordi[0] + x * cellSize + cellSize / 2
+            var centerY = StartUTMCoordi[1] + y * cellSize + cellSize / 2
+            
+
+            var centerPoint = SRSTranslator.forward2([centerX, centerY], utmCode, "WGS84")
+            centerPointList[NodeID.toString()] = centerPoint
+            centerPointList2[NodeID.toString()] = [x, y]
+
+            
+            var eachFeature = {
+                "type": "Feature",
+                "properties": {
+                    "name": NodeID.toString()
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": centerPoint
+                }
+            }
+            centerPointGeoJson.features.push(eachFeature)
+            
+            testGraph[NodeID.toString()] = {}
+            for (var j = 2; j < eachRow.length; j+=2){
+                
+                var x1 = parseInt(eachRow[j])
+                var y1 = parseInt(eachRow[j+1])
+                // var connectID = x1 * maxCellcount + x1 + y1
+                var connectID = x1 * maxCellcount + y1
+
+                testGraph[NodeID.toString()][connectID.toString()] = 1
+            }
+        }                 
+    }
+    var pointinfo = Cesium.GeoJsonDataSource.load(centerPointGeoJson);
+    pointinfo.then(function(dataSource){
+        viewer.dataSources.add(dataSource)          
+        var entities = dataSource.entities.values;
+    
+        var colorHash = {};
+        
+        for (var i = 0; i < entities.length; i++) {
+        //For each entity, create a random color based on the state name.
+        //Some states have multiple entities, so we store the color in a
+        //hash so that we use the same color for the entire state.
+            var entity = entities[i];
+            var name = entity.name;
+            entity.billboard.show = false
+            entity.label = {
+                text: name
+            };
+            
+        }
+    // this.viewer.dataSources.add(pointinfo)
+    }).otherwise(function(error){
+        //Display any errrors encountered while loading.
+        window.alert(error);
+    });
+    var graph = new Graph(testGraph);
+    this.setGraphInfo(testGraph)
+    this.setGraph(graph)
+    this.setCenterPointList(centerPointList)
+    this.setCenterPointList2(centerPointList2)
+
+    return {maxCellcount, StartUTMCoordi}
+    
+}
+GraphGenerator.prototype.createShelf3DModel2 = function(maxCellcount){
+    var shelfList = []
+    var cellLength = this.cellSize
+    
+        
+    var allRows = this.Shelf3DModel.split(/\r?\n|\r/);
+    
+    for (var i = 0; i < allRows.length; i++){
+        
+        var indexID = allRows[i].split(',');
+        for (var j = 0; j < indexID.length; j++){
+            if (indexID[j] === "9" || indexID[j] == "11"){
+                console.log(j, i)
+                shelfList.push([j, i])
+            }
+        }
+    
+    }
+   console.log(shelfList)
+    var PolygonGeoJson = {    
+        "type": "FeatureCollection",
+        "features": []
+    }
+    var startX = this.StartUTMCoordi[0]
+    var startY = this.StartUTMCoordi[1]
+
+    for (var i = 0; i < shelfList.length; i++){
+        var x = shelfList[i][0]
+        var y = shelfList[i][1]
+        var a = [startX + (cellLength * x), startY + (cellLength * y)]
+        var b = [startX + (cellLength * (x+1)), startY + (cellLength * y)]
+        var c = [startX + (cellLength * (x+1)), startY + (cellLength * (y + 1))]
+        var d = [startX + (cellLength * (x)), startY + (cellLength * (y + 1))]
+        var polygon = []
+        var NodeID = x * maxCellcount + y
+        polygon.push(SRSTranslator.forward2(a, "EPSG:6677", "WGS84"))
+        polygon.push(SRSTranslator.forward2(b, "EPSG:6677", "WGS84"))
+        polygon.push(SRSTranslator.forward2(c, "EPSG:6677", "WGS84"))
+        polygon.push(SRSTranslator.forward2(d, "EPSG:6677", "WGS84"))
+        polygon.push(SRSTranslator.forward2(a, "EPSG:6677", "WGS84"))
+        var eachFeature = {
+            "type": "Feature",
+            "properties": {
+                "name": NodeID
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [polygon]
+            }
+        }
+        PolygonGeoJson.features.push(eachFeature)
+    }
+    this.set3DModelInfo(PolygonGeoJson)
+    var promise = Cesium.GeoJsonDataSource.load(PolygonGeoJson);
+    
+    promise.then(function(dataSource){
+        this.viewer.dataSources.add(dataSource)          
+        var entities = dataSource.entities.values;
+        for (var i = 0; i < entities.length; i++) {
+       
+            var entity = entities[i];
+            var name = entity.name;
+            
+            entity.polygon.material = Cesium.Color.RED;
+            entity.polygon.outline = false;  
+            
+          
+          
+        }
+    }).otherwise(function(error){
+        //Display any errrors encountered while loading.
+        window.alert(error);
+    });
+        
+}
+GraphGenerator.prototype.readShelfFile2 = function (maxCellcount){
+
+    var shelf = {}
+  
+    // var allRows = data.split("\n")split(/\r?\n|\r/)
+    var allRows = this.graphShelf.split(/\r?\n|\r/)
+
+    // var allRows = data.replace("\n",'a')
+
+    for (var i = 0; i < allRows.length; i++){
+        
+        var eachRow = allRows[i].replace(/[^\w,]/g,'').split(',')
+        if (eachRow.length >= 3){
+            var shelfID = eachRow[0]
+            shelf[shelfID] = []
+            for (var j = 1; j < eachRow.length; j+=2){
+                var x1 = parseInt(eachRow[j])
+                var y1 = parseInt(eachRow[j+1])
+                
+                // var connectID = x1 * maxCellcount + x1 + y1
+                var connectID = x1 * maxCellcount + y1
+
+                shelf[shelfID].push(connectID.toString())
+            }                
+        }                    
+    }
+    
+    this.setShelfInfo(shelf)
+    return shelf
+}
 GraphGenerator.prototype.readMapFile = function (){
 
     var StartPoint = [139.77744515681255, 35.61793664193283]
@@ -135,6 +450,7 @@ GraphGenerator.prototype.readMapFile = function (){
 
     return {maxCellcount, StartUTMCoordi}
 }
+
 
 GraphGenerator.prototype.readShelfFile = function (maxCellcount){
 
@@ -760,31 +1076,31 @@ GraphGenerator.prototype.setStartUTMCoordi = function(StartUTMCoordi){
     this.StartUTMCoordi = StartUTMCoordi
 }
 GraphGenerator.prototype.loading3DModel = function(){
-    // var promise = Cesium.GeoJsonDataSource.load(this.PolygonGeoJson);
+    var promise = Cesium.GeoJsonDataSource.load(this.PolygonGeoJson);
 
-    // promise.then(function(dataSource){
-    //     this.viewer.dataSources.add(dataSource)          
-    //     var entities = dataSource.entities.values;
-    //     for (var i = 0; i < entities.length; i++) {
+    promise.then(function(dataSource){
+        this.viewer.dataSources.add(dataSource)          
+        var entities = dataSource.entities.values;
+        for (var i = 0; i < entities.length; i++) {
        
-    //         var entity = entities[i];
-    //         var name = entity.name;
-    //         // entity.label = {
-    //         //     text: name
-    //         // };
-    //         // entity.polygon.material = Cesium.Color.RED;
-    //         entity.polygon.material = Cesium.Color.RED;
-    //         entity.polygon.outline = false;  
+            var entity = entities[i];
+            var name = entity.name;
+            // entity.label = {
+            //     text: name
+            // };
+            // entity.polygon.material = Cesium.Color.RED;
+            entity.polygon.material = Cesium.Color.RED;
+            entity.polygon.outline = false;  
             
-    //         entity.polygon.extrudedHeight = 1;
+            entity.polygon.extrudedHeight = 1;
             
             
           
-    //     }
-    // }).otherwise(function(error){
-    //     //Display any errrors encountered while loading.
-    //     window.alert(error);
-    // });
+        }
+    }).otherwise(function(error){
+        //Display any errrors encountered while loading.
+        window.alert(error);
+    });
 }
 
 GraphGenerator.prototype.addTimeValue = function(timeValue, checkValue){
