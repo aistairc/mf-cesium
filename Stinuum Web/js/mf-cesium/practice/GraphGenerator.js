@@ -14,7 +14,7 @@ function GraphGenerator(viewer){
     
     // this.GridMap = new GridMap([102,77], 50)
     // this.testMakeMovingFeature()
-    this.call()
+    // this.call()
     
 }
 GraphGenerator.prototype.call = function (){
