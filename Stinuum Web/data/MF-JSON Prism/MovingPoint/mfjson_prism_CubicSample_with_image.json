@@ -100,7 +100,7 @@
     "interpolation": "Cubic",
     "base": {
       "type": "glTF",
-      "href": "https://github.com/CesiumGS/cesium/blob/1.29/Apps/SampleData/models/CesiumMilkTruck/CesiumMilkTruck.gltf"
+      "href": "https://raw.githubusercontent.com/CesiumGS/cesium/1.29/Apps/SampleData/models/CesiumMilkTruck/CesiumMilkTruck.gltf"
     },
     "orientations": [
       {

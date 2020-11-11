@@ -1542,6 +1542,15 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function (options) {
                     "pixelSize": 20
                 };
             }else{
+                // var baseModel;
+                // $.ajax({
+                //     url: geometry.base.href,
+                //     async: false,
+                //     // dataType: 'json',
+                //     success: function successFunction(data) {
+                //         console.log(data)
+                //     }
+                // })
                 v.model = {
                     gltf: geometry.base.href,
                     scale : scale,
