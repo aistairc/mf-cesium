@@ -1543,7 +1543,7 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function (options) {
                 };
             }else{
                 v.model = {
-                    gltf: geometry.base,
+                    gltf: geometry.base.href,
                     scale : scale,
                     show: [{
                         interval: availability,

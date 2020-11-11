@@ -98,7 +98,10 @@
       ]
     ],
     "interpolation": "Discrete",
-    "base": "/data/CesiumMilkTruck/CesiumMilkTruck.gltf",
+    "base": {
+      "type": "glTF",
+      "href": "https://github.com/CesiumGS/cesium/blob/1.29/Apps/SampleData/models/CesiumMilkTruck/CesiumMilkTruck.gltf"
+    },
     "orientations": [
       {
         "scales": [
