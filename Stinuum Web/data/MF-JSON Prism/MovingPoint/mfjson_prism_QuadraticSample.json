@@ -36,10 +36,9 @@
     "state": "test1"
   },
   "crs": {
-    "type": "Link",
+    "type": "Name",
     "properties": {
-      "type": "WKTK",
-      "href": "/js/mf-cesium/practice/data_crs.csv"
+        "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
     }
   },
   "trs": {
