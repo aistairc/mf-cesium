@@ -114,7 +114,7 @@ function updateBuffer_local(filename, data) {
     } else { // file is not layer
       data.name = layer + "_0"
       data.id = layer + "_0"
-
+      data.properties.name = layer + "_0"
       buffer.setBuffer_feature(layer, data.properties.name, data);
     }
   }
