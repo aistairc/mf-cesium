@@ -1,6 +1,6 @@
 {
-  "name": "point_sample_2",
   "type": "Feature",
+  "id": "point_sample_6",
   "geometry": {
     "type": "LineString",
     "coordinates": [
@@ -182,8 +182,8 @@
           4.2,
           1.5
         ],
-        "interpolation": "Linear",
-        "description": "description1"
+        "interpolation": "Linear"
+        
       },
       "discharge": {
         "type": "Measure",
@@ -206,8 +206,8 @@
           "human",
           "human"
         ],
-        "interpolation": "Discrete",
-        "description": "description2"
+        "interpolation": "Discrete"
+        
       }
     }
   ]

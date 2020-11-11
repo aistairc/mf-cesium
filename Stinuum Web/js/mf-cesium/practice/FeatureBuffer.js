@@ -77,7 +77,7 @@ FeatureBuffer.prototype.setBuffer_layer = function (layer, feature_data) {
 }
 
 FeatureBuffer.prototype.setBuffer_feature = function (layer_id, feature_id, feature_data) {
-
+  console.log(layer_id, feature_id, feature_data)
   if (!this.data.hasOwnProperty(layer_id) && !this.fromServer.hasOwnProperty(layer_id)) {
     throw layer_id + " is not created layer";
   }

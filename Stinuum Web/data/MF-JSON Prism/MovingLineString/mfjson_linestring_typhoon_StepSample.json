@@ -1,7 +1,6 @@
 {
-  "name": "lineString_sample_6",
-
   "type": "Feature",
+  "id": "lineString_sample_6",
   "geometry": null,
   "properties": {
     "name": "台風201501号_3 (POLYLINE_Step)"
@@ -272,9 +271,8 @@
           35.0,
           35.0
         ],
-        "interpolation": [
-          "Regression"
-        ]
+        "interpolation": "Regression"
+        
       }
     },
     {
@@ -293,9 +291,7 @@
           1002.0,
           1002.0
         ],
-        "interpolation": [
-          "Linear"
-        ]
+        "interpolation": "Linear"
       },
       "speed2": {
         "type": "Measure",
@@ -306,9 +302,7 @@
           35.0,
           35.0
         ],
-        "interpolation": [
-          "Regression"
-        ]
+        "interpolation": "Regression"
       }
     }
   ]

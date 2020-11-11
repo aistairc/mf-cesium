@@ -1,6 +1,6 @@
 {
-  "name": "lineString_sample_2",
   "type": "Feature",
+  "id": "lineString_sample_2",
   "geometry": null,
   "properties": {
     "name": "台風201501号_3 (POLYLINE_Cubic)"
@@ -257,9 +257,9 @@
           1002.0,
           1002.0
         ],
-        "interpolation": [
+        "interpolation": 
           "Linear"
-        ]
+        
       },
       "speed": {
         "type": "Measure",
@@ -271,9 +271,9 @@
           35.0,
           35.0
         ],
-        "interpolation": [
+        "interpolation": 
           "Regression"
-        ]
+        
       }
     },
     {
@@ -292,9 +292,9 @@
           1002.0,
           1002.0
         ],
-        "interpolation": [
+        "interpolation": 
           "Linear"
-        ]
+        
       },
       "speed2": {
         "type": "Measure",
@@ -305,9 +305,9 @@
           35.0,
           35.0
         ],
-        "interpolation": [
+        "interpolation": 
           "Regression"
-        ]
+        
       }
     }
   ]

@@ -1,6 +1,7 @@
 {
 
     "type": "Feature",
+    "id": "polygon_sample_1",
     "geometry": null,
     "properties": {
         "name": "台風201502号 (HIGOS)"

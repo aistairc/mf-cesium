@@ -1,6 +1,6 @@
 {
-    "name": "lineString_sample_2",
     "type": "Feature",
+    "id": "lineString_sample_1",
     "geometry": null,
     "properties": {
         "name": "台風201501号_3 (POLYLINE)"

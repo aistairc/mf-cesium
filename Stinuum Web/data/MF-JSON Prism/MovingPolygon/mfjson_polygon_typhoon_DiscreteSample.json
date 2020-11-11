@@ -1,6 +1,7 @@
 {
-    "name": "polygon_sample",
+    
     "type": "FeatureCollection",
+    "id": "polygon_sample_2",
     "features": [{
         "type": "Feature",
         "geometry": null,
@@ -345,13 +346,13 @@
                 "type": "Measure",
                 "form": "A97",
                 "values": [1008.0, 1006.0, 1004.0, 1004.0, 1004.0, 1000.0, 996.0, 990.0, 990.0, 985.0, 985.0, 980.0, 975.0, 965.0, 955.0, 940.0, 955.0, 975.0, 990.0, 994.0, 1002.0, 1004.0, 1006.0, 1004.0, 1008.0],
-                "interpolation": ["Regression"]
+                "interpolation": "Regression"
             },
             "speed": {
                 "type": "Measure",
                 "form": "KTN",
                 "values": [0.0, 0.0, 0.0, 0.0, 0.0, 35.0, 40.0, 45.0, 45.0, 50.0, 50.0, 55.0, 60.0, 70.0, 80.0, 90.0, 80.0, 65.0, 50.0, 40.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                "interpolation": ["Linear"]
+                "interpolation": "Linear"
             }
         }]
     }]

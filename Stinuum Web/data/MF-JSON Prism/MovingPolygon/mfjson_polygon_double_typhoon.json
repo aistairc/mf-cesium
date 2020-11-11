@@ -1,6 +1,7 @@
 {
-    "name": "polygon_sample",
+    
     "type" : "FeatureCollection",
+    "id": "polygon_sample",
     "features": [
       {
         "type": "Feature",
