@@ -71,6 +71,7 @@ FeatureBuffer.prototype.setBuffer_layer = function (layer, feature_data) {
   } else {
     var feature_id = feature_data.properties.name
   }
+  console.log(feature_id)
   this.setBuffer_feature(layer, feature_id, feature_data);
 
 }

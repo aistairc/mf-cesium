@@ -1,9 +1,5 @@
 {
     "name": "lineString_sample_2",
-    
-    "description": "lineString",
-    "updateFrequency": 0,
-
     "type": "Feature",
     "geometry": null,
     "properties": {

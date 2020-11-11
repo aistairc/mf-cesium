@@ -85,14 +85,14 @@ function updateBuffer_local(filename, data) {
     }
   }
   
-  var layer = data.name;
-  console.log(data.name)
-  if (layer == undefined) {
-    
+  
+  var layer
+  if (data.name == undefined) {
+    console.log("here")
     layer = filename;
-    data.name = layer
-    console.log(data.name)
+    
   }
+  // var layer = data.name;
   if (buffer.data[layer] == undefined) { // this is new data.
     buffer.createLayer(layer);
 
@@ -102,7 +102,9 @@ function updateBuffer_local(filename, data) {
       for (var feature_i = 0; feature_i < data.features.length; feature_i++) {
         if (data.features[feature_i].properties.name == undefined) {
           data.features[feature_i].properties.name = layer + "_" + count
-     
+          data.features[feature_i].name = layer + "_" + count;
+          data.features[feature_i].id = layer + "_" + count;
+
           count += 1;
         }
         buffer.setBuffer_layer(layer, data.features[feature_i]);
@@ -110,7 +112,8 @@ function updateBuffer_local(filename, data) {
      
       // buffer.setBuffer_layer(data.features[feature_i]);
     } else { // file is not layer
-    
+      data.name = layer + "_0"
+      data.id = layer + "_0"
 
       buffer.setBuffer_feature(layer, data.properties.name, data);
     }

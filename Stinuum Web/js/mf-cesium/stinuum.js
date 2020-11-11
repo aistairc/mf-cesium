@@ -1111,7 +1111,7 @@ Stinuum.MFCollection.prototype.add = function (mf, id) {
             return -2;
         }
 
-        if (id == undefined && mf.properties.name == undefined) {
+        if (mf.name == undefined && id == undefined && mf.properties.name == undefined) {
             alert("feature has no name!");
             return -1;
         }

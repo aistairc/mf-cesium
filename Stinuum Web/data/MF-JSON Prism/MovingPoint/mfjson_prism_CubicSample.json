@@ -1,7 +1,5 @@
 {
   "name": "point_sample_2",
-  "description": "test",
-  "updateFrequency": 0,
   "type": "Feature",
   "geometry": {
     "type": "LineString",

@@ -1,7 +1,5 @@
 {
     "name": "multiple_typhoon",
-    "description": "test3",
-    "updateFrequency": 0,
     "type": "FeatureCollection",
     "features": [
 

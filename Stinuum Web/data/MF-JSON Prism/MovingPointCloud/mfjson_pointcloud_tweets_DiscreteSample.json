@@ -1,8 +1,5 @@
 {
-  "name": "point_sample",
-  "description": "test",
-  "updateFrequency": 0,
- 
+  "name": "point_sample", 
     "type": "Feature",
     "properties": {
       "name" : "<Class1> 者 被害 れる 人 加害 俺 ない こと 拉致 思う"
