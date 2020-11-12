@@ -145,7 +145,7 @@ var upload_mfjson = function() {
     
     console.log(JSON.parse(cm.getValue()));
     var new_data = JSON.parse(cm.getValue());
-    var temp_fileName = "tempName_"+temp_i;
+    var temp_fileName = ""+new Date().getTime()
     temp_i += 1;
     close_mfjson()
     handleEditorData(temp_fileName, new_data)

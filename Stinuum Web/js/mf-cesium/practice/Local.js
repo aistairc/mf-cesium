@@ -146,9 +146,15 @@ function convertTtoP(filename, data) {
       properties: {},
       temporalGeometry: {}
     }
+    var name;
+    if (data.id === undefined){
+      NewPrism.id = (new Date().getTime() / 1000).toString()
+      name = (new Date().getTime() / 1000).toString()
+    }
+    
     var geometry = data.geometry;
     var properties = data.properties;
-    var name = data.id;
+    
     var FeatureType = "MovingPoint";
     var coordinates = geometry.coordinates;
     // var datetimes2 = convertDate(properties.datetimes)
