@@ -2,6 +2,7 @@ function ServerAuth() {
   this.on = false; //is Server connected?
   this.selectValue = {};
   this.selectData = {};
+  this.ServerURL = "http://localhost:8085"
 }
 
 
@@ -67,7 +68,7 @@ ServerAuth.prototype.uploadServerData = function(layer_id, feature_id){
       var data = {
         type: -1,
         // address: feature_id[i].href,
-        address: "http://localhost:8085/collections/"+layer_id+"/items/"+feature_id[i].id
+        address: this.ServerURL+"/collections/"+layer_id+"/items/"+feature_id[i].id
         // token: this.token,
         // session_id: this.session_id,
       }
@@ -244,7 +245,7 @@ ServerAuth.prototype.start = function () {
       count_list.push(1000)
     }
     this.selectValue = {}
-    this.selectValue.address = "http://localhost:8085/collections"
+    this.selectValue.address = this.ServerURL+"/collections"
     this.selectValue.names = id_list
     this.selectValue.bbox = bbox_list
     this.selectValue.time = time_list

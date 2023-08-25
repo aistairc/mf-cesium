@@ -2,7 +2,7 @@
 <html lang="en" >
 <head>
     <meta charset="UTF-8">
-    <title>CodePen - Table UI with TailwindCSS &amp; AlpineJS</title>
+    <title>MovingFeature Server</title>
     <link rel="dns-prefetch" href="//unpkg.com" />
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
     <link rel="stylesheet" href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css">
@@ -238,7 +238,7 @@
             ],
             mfcs: [],
             originalMfcs: [],
-            defaultURL: "http://localhost:8085/collections",
+            defaultURL: "http://localhost:8085",
             nextURL: "",
             selectedRows: [],
             selectedDataset: [],
@@ -313,7 +313,7 @@
                 // Replace 'your-server-url' with the actual URL to fetch data from
                 let searchParma = 1;
                 this.clearTable();
-                fetch("http://localhost:8085/collections", {
+                fetch(this.defaultURL+"/collections", {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
