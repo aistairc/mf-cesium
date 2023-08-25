@@ -16,49 +16,57 @@ The OGC Moving Features JSON format is described in [OGC 19-045r3 Section 7](htt
 
 ## Tech/Framework used
 
-Built with Node.js 10.x (we test using 10.20.1)
+Built with Node.js v10.x ~ 16.x (we test using 16.14.2)
 
-## Installation
+## Dependency
 
-Installation is not required - see below for local setup.
+* [![Node.JS][node-shield]][node-js-url]
+* [![NPM][npm-shield]][npm-js-url]
+* [![Cesium][cesium-shield]][cesium-js-url]
 
-## Using in your application
-
-Download stinuum.js and add ```<script src="stinuum.js"></script>``` to your HTML file.
 - - -
 
 ## Local setup
 
 1. Clone this project.
 
-   ```sh
-   git clone http://github.com/aistairc/mf-cesium
-   ```
+```sh
+git clone http://github.com/aistairc/mf-cesium
+```
 
 2. Install Node.js (and npm) and run the following command to install the dependencies at the previous folder :
 
-   ```sh
-   cd Stinuum\ Web
-   npm install
-   ```
+```sh
+cd /path/to/mf-cesium/Stinuum\ Web
+# Check if file package.json and package-lock.json exist
+npm install
+```
 
-3. If you have BingMapsApi Key, add it to __/Stinuum Web/views/demo.ejs__ file.
+3. Start Cesium server
 
-   ```js
-   /* line 183 */
-   defaultKey = "your_BingMapsApi Key"
-   ```
+```sh
+node app.js
+```
 
-4. Start Cesium server
+4. Enter http://localhost:8080 in your browser. We recommend [Chrome](https://www.google.com/intl/ko/chrome/).
 
-   ```sh
-   node app.js
-   ```
+5. Load Moving Features data using drag-and-drop. We provide sample files in ```Stinuum\ Web/data```.
 
-5. Enter http://localhost:8080 in your browser. We recommend [Chrome](https://www.google.com/intl/ko/chrome/).
+6. This version can be used in conjunction with MF-API & MF-Server
+   - You can simply build [![MF-API][github-shield]][mf-server-url] on your local PC using Docker
+      ```shell
+      docker pull timeocarina/mf-api-server:latest
+      docker run -p 8085:8085 -p 25432:5432 -d --name mf-api-server timeocarina/mf-api-server
+      docker exec mf-api-server ./run.sh
+      ```
+   - And then you can connect to the homepage with the below URL:
+      - http://localhost:8085
+   - For detailed usage of the API, please go to the link below
+      - [![MF-API-Swagger][swagger-shield]][mf-api-swagger]
+      - [![MF-API-Redoc][redoc-shield]][mf-api-redoc]
 
-6. Load Moving Features data using drag-and-drop. We provide sample files in ```Stinuum\ Web/data```.
-
+7. We enclose a python program that allows you to upload large amounts of data using the MF-API
+   - Please refer to MFAPIHandler
 - - -
 
 ## API Reference
@@ -80,4 +88,19 @@ Usage of Stinuum Web is [here](https://github.com/aistairc/mf-cesium/wiki/Stinuu
 
 STINUUM is licensed under the [MIT license](https://github.com/aistairc/mf-cesium/blob/master/LICENSE)
 
-- - -  
+---
+
+
+
+[github-shield]: https://img.shields.io/badge/MF_API-181717?style=flat&logo=github&logoColor=white
+[mf-server-url]: https://github.com/aistairc/mf-api
+[mf-api-swagger]: http://localhost:8085/openapi?f=html
+[swagger-shield]: https://img.shields.io/badge/MF_API_Swagger-85EA2D?style=flat&logo=Swagger&logoColor=white
+[mf-api-redoc]: http://localhost:8085/openapi?f=html&ui=redoc
+[redoc-shield]: https://img.shields.io/badge/MF_API_Redoc-8CA1AF?style=flat&logo=readthedocs&logoColor=white
+[node-js-url]: https://nodejs.org/
+[node-shield]: https://img.shields.io/badge/Node.js_v16.14.2-339933?style=flat&logo=Node.js&logoColor=white
+[npm-js-url]: https://www.npmjs.com/
+[npm-shield]: https://img.shields.io/badge/NPM_v8.5.0-CB3837?style=flat&logo=npm&logoColor=white
+[cesium-js-url]: https://github.com/CesiumGS/cesium
+[cesium-shield]: https://img.shields.io/badge/Cesium_v1.73-6CADDF?style=flat&logo=Cesium&logoColor=white  
