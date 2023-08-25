@@ -63,9 +63,9 @@ docker exec mf-api-server ./run.sh
 > [!IMPORTANT]  
 > If you change the __MF-Server-API-Port__, please change the code below  
 > (Will be controlled later with config.yml file)  
-> [![ServerAuth.js][js-shield]][serverauth-url]: this.ServerURL = "http://localhost:8085" ⮕ "http://localhost:__*YOUR-PORT*__"  
-> [![dataSelect.ejs][ejs-shield]][dataselect-url]: defaultURL: "http://localhost:8085" ⮕ "http://localhost:__*YOUR-PORT*__"  
-> [![MFAPIHandler][py-shield]][mfapihandler-url]: base_url = "http://localhost:8085" ⮕ "http://localhost:__*YOUR-PORT*__"    
+> [![ServerAuth.js][js-shield]][serverauth-url]: this.ServerURL = "http://localhost:8085" ⮕ "http://localhost:*__YOUR-PORT__*"  
+> [![dataSelect.ejs][ejs-shield]][dataselect-url]: defaultURL: "http://localhost:8085" ⮕ "http://localhost:*__YOUR-PORT__*"  
+> [![MFAPIHandler][py-shield]][mfapihandler-url]: base_url = "http://localhost:8085" ⮕ "http://localhost:*__YOUR-PORT__*"    
 
 - And then you can connect to the homepage with the below URL:
 - http://localhost:8085
