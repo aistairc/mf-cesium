@@ -17,13 +17,6 @@ function ConnectFunction () {
     // this.token;
     // this.session_id;
     this.ServerOn2 = false;
-    // this.LOGIN_CLIENT_ID = "b72112cd-6d77-4204-9e6e-ffa4af1c5550";
-    // this.LOGIN_CLIENT_SECRET = "ebe41ad8-1b97-4ab2-aa6f-d5d5b21224b5";
-    // this.LOGIN_REDIRECT_URI = "https://localhost:11111/callback";
-    // this.__path_csrf = '/pntml2/csrf';
-    // this.__path_login = '/pntml2/login';
-    // this.__path_oauth = '/pntml2/oauth/authorize?';
-    // this.__path_token = '/pntml2/oauth/token';
     this.__cookies = ""
 }
 
