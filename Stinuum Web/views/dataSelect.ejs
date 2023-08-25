@@ -185,9 +185,6 @@
                     <td class="border-dashed border-t border-gray-200 mfc_id">
                         <span class="text-gray-700 px-6 py-3 flex items-center" x-text="mfc.mfc_id"></span>
                     </td>
-                    <td class="border-dashed border-t border-gray-200 mfc_type">
-                        <span class="text-gray-700 px-6 py-3 flex items-center" x-text="mfc.mfc_type"></span>
-                    </td>
                     <td class="border-dashed border-t border-gray-200 mfc_title">
                         <span class="text-gray-700 px-6 py-3 flex items-center" x-text="mfc.mfc_title"></span>
                     </td>
@@ -220,15 +217,11 @@
                 },
                 {
                     'key': 'mfc_id',
-                    'value': 'MFC ID'
-                },
-                {
-                    'key': 'mfc_type',
-                    'value': 'MFC Type'
+                    'value': 'MovingFeature Collection ID'
                 },
                 {
                     'key': 'mfc_title',
-                    'value': 'MFC Title'
+                    'value': 'MovingFeature Collection Title'
                 },
                 {
                     'key': 'mfc_bbox',
@@ -341,7 +334,7 @@
                             this.mfcs.push({
                                 mfc_idx: F_number,
                                 mfc_id: F_id,
-                                mfc_type: F_type,
+                                // mfc_type: F_type,
                                 mfc_title: F_title,
                                 mfc_bbox: F_p_bbox,
                                 mfc_time: F_p_time,
@@ -351,7 +344,7 @@
                                 {
                                     mfc_idx: F_number,
                                     mfc_id: F_id,
-                                    mfc_type: F_type,
+                                    // mfc_type: F_type,
                                     mfc_title: F_title,
                                     mfc_bbox: F_p_bbox,
                                     mfc_time: F_p_time,
