@@ -1,0 +1,253 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
+
+     
+    </head>
+    <body>
+        <div>
+            <input type="text" placeholder="Enter Count (1~1000)"  id="dataAmount" onkeyup="OnlyNumber(this, 1000)" value="10">
+            <input type="submit" value="GET Server Data" id="OK"/>
+        </div>
+        <div>
+            <table id="featureTable"  class="display select" style="width: 100%;">
+                <colgroup>
+                    <col width="10%"/>
+                    <col width="10%"/>
+                    <col width="10%"/>
+                    <col width="10%"/>
+                    <col width="10%"/>
+                    <col width="10%"/>
+                    <col width="10%"/>
+                    <col width="10%"/>
+                </colgroup>
+                <thead>
+                <tr>
+                    <th><input name="select_all" value="1" id="featureTable-select-all" type="checkbox" /></th>
+                    <th>Number</th>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>tGeometry Type</th>
+                    <th>BBox</th>
+                    <th>Time</th>
+                    <th>Limit</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+
+        <button id="frm-example">Send Data</button>
+        <pre id="example-console"></pre>
+        <!-- <form id="frm-example" action="/path/to/your/script" method="POST"></form> -->
+    </body>
+    <script>
+        function OnlyNumber(obj, chkint){
+            if(isNaN(obj.value)){
+                alert("Only numbers can be entered");
+                obj.value="";
+                obj.focus();
+                return false;
+            }
+            else if(obj.value > Number(chkint) || obj.value == 0) {
+            
+                alert("Only numbers below "+chkint+" are allowed.");
+                obj.value="";
+                obj.focus();
+                return false;
+                
+            }
+                
+            return true;
+            
+        }
+
+        function getCookie(name) {
+            var value = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+            return value? value[2] : null;
+        };
+        var data_address = "http://localhost:8085/collections"
+        // var token = getCookie('XSRF-TOKEN')
+        // var session_id = getCookie('SESSION')
+        // console.log(token)
+        // if (token == null){
+        //     alert("You are not login in to server")
+        //     location.href="/";
+        // }
+        
+        $("#OK").click(function(){
+            var count = $("#dataAmount").get(0).value
+            if (count == undefined){
+                count = 10
+            }
+            $('#featureTable').dataTable().fnClearTable()
+        
+            $.ajax({
+                url: '/datalist',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    'address': data_address,
+                    'count': count
+                },
+                success: function(data){
+                    if (data.ok){
+                        console.log(data.data)
+                        let features = data.data['collections']
+                        console.log(features.length)
+                        let count = 0
+
+                        for(let each_i = 0; each_i < features.length; each_i += 1){
+                            let eachFeature = features[each_i]
+                            // console.log(eachFeature.id, eachFeature.itemType, eachFeature['extent']['spatial']['bbox'], eachFeature['extent']['temporal']['interval'])
+                            let F_number = each_i
+                            let F_id = (eachFeature.id !== undefined) ? eachFeature.id : each_i
+                            let F_type = (eachFeature.itemType !== undefined) ? eachFeature.itemType : null
+                            //var F_g_type = (eachFeature.geometry !== undefined) ? eachFeature.geometry.type : null
+                            let F_g_type = null
+                            let F_p_bbox = (eachFeature['extent']['spatial']['bbox'] !== undefined) ? eachFeature['extent']['spatial']['bbox'] : null
+                            let F_p_time = (eachFeature['temporal']['interval'] !== undefined) ? eachFeature['temporal']['interval'] : null
+                            
+                            if (F_p_bbox !== undefined && F_p_time !== undefined){
+                            
+                                $('#featureTable').dataTable().fnAddData([count, F_number, F_id, F_type, F_g_type, F_p_bbox, F_p_time])
+                                count += 1
+                            }
+                        }
+                    }else{
+                        alert("Login please..")
+                        location.href="/";
+                    }
+                },
+                error: function(err){
+                alert("Failed to get data" + err);
+                location.href="/";
+            }
+            });
+        });
+     
+        $ (document).ready(function(){
+            var table = $('#featureTable').DataTable({
+                
+                'columnDefs': [{
+                    'targets': 0,
+                    'searchable': false,
+                    'orderable': false,
+                    'className': 'dt-body-center',
+                    'render': function (data, type, full, meta){
+                        // console.log(type)
+                        return '<input type="checkbox" name="' + $('<div/>').text(full[2]).html() + '" value="' + $('<div/>').text(data).html() + '">';
+                        // return '<input type="checkbox" name="id[]" value="' + $('<div/>').text(data).html() + '">';
+                    }
+                },
+                {
+                    'targets': 7,
+                    'searchable': false,
+                    'orderable': false,
+                    'className': 'dt-body-center',
+                    'render': function (data, type, full, meta){
+                        // console.log(meta)
+                        var valueName = full[1] +"_"+ full[2]
+                       
+                        return '<input type="text" placeholder="Enter Count (1~1000)"  id="'+valueName+'" onkeyup="OnlyNumber(this, 1000)" value="'+10+'">';
+                        // return '<input type="checkbox" name="id[]" value="' + $('<div/>').text(data).html() + '">';
+                    }
+                }],
+                'order': [[1, 'asc']]
+            });
+       
+            $('#featureTable-select-all').on('click', function(){
+     
+                var rows = table.rows({ 'search': 'applied' }).nodes();
+           
+                $('input[type="checkbox"]', rows).prop('checked', this.checked);
+                // $('input[type="text"]', rows).prop('value', this.value);
+         
+            });
+
+            $('#featureTable tbody').on('change', 'input[type="checkbox"]', function(){
+                
+                if(!this.checked){
+                    var el = $('#featureTable-select-all').get(0);
+        
+                    if(el && el.checked && ('indeterminate' in el)){
+                        console.log(el)
+                        el.indeterminate = true;
+                    }
+                }
+            });
+
+            $('#frm-example').click(function(e){
+                var id_list = Array();
+                var bbox_list = Array();
+                var time_list = Array();
+                var count_list = Array();
+                
+                // table.$('input[type="checkbox"]').each(function(){
+                table.$('input[type="checkbox"]').each(function(eachRow){
+                    var eachNode = table.rows(eachRow).nodes()
+                    var eachCheckbox = $(eachNode).find(':input[type="checkbox"]')
+                    // console.log(eachCheckbox)
+                    if(eachCheckbox[0].checked){
+                        var allData = table.rows(eachRow).data();
+                        console.log(allData)
+                        id_list.push(allData[0][2])
+                        bbox_list.push(allData[0][4])
+                        var cellItem = $(eachNode).find(':input[type="text"]')
+                        var countValue = cellItem.get(0).value
+                        if (countValue == null){
+                            count_list.push(10)    
+                        }else{
+                            count_list.push(countValue)
+                        }
+                        // var tempTime = Array();
+                        var timeList = allData[0][5]
+                        time_list.push(timeList)
+                    }
+                 
+                });
+           
+                var contact = {};
+                contact.address = data_address;
+                // contact.session_id = session_id,
+                // contact.token = token,
+                contact.names = id_list;
+                contact.bbox = bbox_list;
+                contact.time = time_list;
+                contact.count = count_list;
+                var a = JSON.stringify(contact)
+                sessionStorage.foo = a
+                location.href="/";
+
+                // if (id_list.length != 0){
+                //     // traditional: true,
+                //     $.ajax({
+                //         url: '/eachFeature',
+                //         type: 'POST',
+                          
+                //         data : { data : a },
+                       
+                //         success: function(data){
+                //             var features = data.data
+                //             var getServerData = getCookie("getServerData");
+                //             if (getServerData == 1 || getServerData == null){
+
+                //             }
+                //             document.cookie = "getServerData"+2
+                //             document.cookie = "LoginChecker="+1
+                //             console.log(features)
+                //             sessionStorage.foo = JSON.stringify(features)
+                //             location.href="/main";
+                //         }
+                //     });
+                // }
+            });
+        });
+    </script>
+</html>
+
+
+
+
