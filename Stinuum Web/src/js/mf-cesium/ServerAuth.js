@@ -242,7 +242,7 @@ ServerAuth.prototype.start = function () {
       id_list.push(eachValue.mfc_id)
       bbox_list.push(eachValue.mfc_bbox)
       time_list.push(eachValue.mfc_time)
-      count_list.push(1000)
+      count_list.push(parseInt(eachValue.mfc_limit))
     }
     this.selectValue = {}
     this.selectValue.address = this.ServerURL+"/collections"

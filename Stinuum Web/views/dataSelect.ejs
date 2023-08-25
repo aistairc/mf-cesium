@@ -251,7 +251,6 @@
                 } else {
                     this.mfcs = this.originalMfcs.filter(mfc => {
                         return mfc.mfc_id.toLowerCase().includes(term) ||
-                            mfc.mfc_type.toLowerCase().includes(term) ||
                             mfc.mfc_title.toLowerCase().includes(term);
                     });
                 }
@@ -338,7 +337,7 @@
                                 mfc_title: F_title,
                                 mfc_bbox: F_p_bbox,
                                 mfc_time: F_p_time,
-                                mfc_limit: 10
+                                mfc_limit: 5
                             })
                             this.originalMfcs.push(
                                 {
@@ -348,7 +347,7 @@
                                     mfc_title: F_title,
                                     mfc_bbox: F_p_bbox,
                                     mfc_time: F_p_time,
-                                    mfc_limit: 10
+                                    mfc_limit: 5
                                 }
                             )
                         }
