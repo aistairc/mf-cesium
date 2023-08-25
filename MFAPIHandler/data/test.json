@@ -1,0 +1,208 @@
+{
+  "type": "Feature",
+  "id": "mf-1",
+  "properties": {
+    "name": "car1",
+    "state": "test1",
+    "video": "http://.../example/video.mpeg"
+  },
+  "crs": {
+    "type": "Name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "trs": {
+    "type": "Link",
+    "properties": {
+      "type": "ogcdef",
+      "href": "http://www.opengis.net/def/uom/ISO-8601/0/Gregorian"
+    }
+  },
+  "temporalGeometry": {
+    "type": "MovingPoint",
+    "datetimes": [
+      "2011-07-14T22:01:01.000Z",
+      "2011-07-14T22:01:02.000Z",
+      "2011-07-14T22:01:03.000Z",
+      "2011-07-14T22:01:04.000Z",
+      "2011-07-14T22:01:05.000Z"
+    ],
+    "coordinates": [
+      [
+        139.757083,
+        35.627701,
+        0.5
+      ],
+      [
+        139.757399,
+        35.627701,
+        2
+      ],
+      [
+        139.757555,
+        35.627688,
+        4
+      ],
+      [
+        139.757651,
+        35.627596,
+        4
+      ],
+      [
+        139.757716,
+        35.627483,
+        4
+      ]
+    ],
+    "interpolation": "Linear",
+    "base": {
+      "type": "glTF",
+      "href": "http://.../example/car3dmodel.gltf"
+    },
+    "orientations": [
+      {
+        "scales": [
+          1,
+          1,
+          1
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "scales": [
+          1,
+          1,
+          1
+        ],
+        "angles": [
+          0,
+          355,
+          0
+        ]
+      },
+      {
+        "scales": [
+          1,
+          1,
+          1
+        ],
+        "angles": [
+          0,
+          0,
+          330
+        ]
+      },
+      {
+        "scales": [
+          1,
+          1,
+          1
+        ],
+        "angles": [
+          0,
+          0,
+          300
+        ]
+      },
+      {
+        "scales": [
+          1,
+          1,
+          1
+        ],
+        "angles": [
+          0,
+          0,
+          270
+        ]
+      }
+    ]
+  },
+  "temporalProperties": [
+    {
+      "datetimes": [
+        "2011-07-14T22:01:01.450Z",
+        "2011-07-14T23:01:01.450Z",
+        "2011-07-15T00:01:01.450Z"
+      ],
+      "length": {
+        "type": "Measure",
+        "form": "http://www.qudt.org/qudt/owl/1.0.0/quantity/Length",
+        "values": [
+          1,
+          2.4,
+          1
+        ],
+        "interpolation": "Linear",
+        "description": "description1"
+      },
+      "discharge": {
+        "type": "Measure",
+        "form": "MQS",
+        "values": [
+          3,
+          4,
+          5
+        ],
+        "interpolation": "Step"
+      }
+    },
+    {
+      "datetimes": [
+        "2011-07-15T23:01:01.450Z",
+        "2011-07-16T00:01:01.450Z"
+      ],
+      "camera": {
+        "type": "Image",
+        "values": [
+          "http://.../example/image1",
+          "VBORw0KGgoAAAANSUhEU......"
+        ],
+        "interpolation": "Discrete"
+      },
+      "labels": {
+        "type": "Text",
+        "values": [
+          "car",
+          "human"
+        ],
+        "interpolation": "Discrete"
+      }
+    }
+  ],
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [
+        139.757083,
+        35.627701,
+        0.5
+      ],
+      [
+        139.757399,
+        35.627701,
+        2
+      ],
+      [
+        139.757555,
+        35.627688,
+        4
+      ],
+      [
+        139.757651,
+        35.627596,
+        4
+      ],
+      [
+        139.757716,
+        35.627483,
+        4
+      ]
+    ]
+  }
+}
