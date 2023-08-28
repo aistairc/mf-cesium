@@ -32,7 +32,7 @@ $ node app.js
 
 - Stinuum main can visualize based on CesiumJS with the MovingFeature-JSON document
 
-- Stinuum main can use without connecting to the MovingFeature-Server
+- Stinuum main can use without connecting to the MF-API Server
 
 - The features of Stinuum main are shown below figure
 
@@ -187,8 +187,8 @@ $ node app.js
 
 ## 2. Stinuum with OGC API - MovingFeatures Server(MF-API Server)
 
-- If users can connect to the MF-Server, Stinuum can get to MF data from MF-Server by [MF-API](https://opengeospatial.github.io/ogcapi-movingfeatures/openapi/openapi-movingfeatures-1.html)
-- The Server function provides a button for getting the MovingFeatureCollection data list from MF Server.
+- If users can connect to the MF-API Server, Stinuum can get to MovingFeatureCollection data from MF-API Server using [MF-API](https://opengeospatial.github.io/ogcapi-movingfeatures/openapi/openapi-movingfeatures-1.html)
+- The Server function provides a button for getting the MovingFeatureCollection data list from MF-API Server.
 
     + If clicking the _**"SERVER"**_ button, the browser moves to the data selection page (localhost:8080/dataSelect), where users can select MovingFeatureCollection data from the MF server.
 
@@ -202,7 +202,7 @@ $ node app.js
 
     + Click the _**"GET MovingFeatureCollection"**_ button.
 
-        + Receive the whole data of MovingFeatureCollection from MF-Server
+        + Receive the whole data of MovingFeatureCollection from MF-API Server
 
     + If it succeeds, the result is added to the bottom table.
 
