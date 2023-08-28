@@ -18,13 +18,13 @@ $ node app.js
    1.4\. [SceneModePicker](#14-SceneModePicker)  
    1.5\. [Graph](#15-Graph)  
    1.6\. [Slice](#16-Slice)  
-   1.7\. [Rader](#17-ader)  
+   1.7\. [Rader](#17-Rader)  
    1.8\. [Image](#18-Image)  
    1.9\. [Text](#19-Text)
 2. [Stinuum Server](#2-Stinuum-Server)  
    2.1\. [Server](#21-Server)  
-   2.2\. [Get the MF-Collection](#22-Get-the-MF-Collection)  
-   2.3\. [Send the MF-Collection data to main page](#23-Send-the-MF-Collection-data-to-main-page)  
+   2.2\. [Get the MovingFeatureCollection](#22-Get-the-MovingFeatureCollection)  
+   2.3\. [Send the MovingFeatureCollection data to main page](#23-Send-the-MovingFeatureCollection-data-to-main-page)  
    2.4\. [Get MovingFeature list](#24-Get-MovingFeature-list)  
    2.5\. [Get additional MovingFeatures](#25-Get-additional-MovingFeatures)
 ***
@@ -182,30 +182,28 @@ $ node app.js
 
 ***
 
-## 1.10. Server
 
-- The Server function provides a button for getting the MovingFeatureCollection (MovingFeature Collection) data list from MF Server.
 
-    + If clicking the _**"SERVER"**_ button, the browser moves to the data selection page (localhost:8080/dataSelect), where users can select MovingFeature Collection data from the MF server.
-    + If users didn't log in before, the browser moves to log in page (localhost:8080/).
+***
+
+## 2. Stinuum with OGC API - MovingFeatures Server(MF-API Server)
+
+- If users can connect to the MF-Server, Stinuum can get to MF data from MF-Server by [MF-API](https://opengeospatial.github.io/ogcapi-movingfeatures/openapi/openapi-movingfeatures-1.html)
+- The Server function provides a button for getting the MovingFeatureCollection (MovingFeatureCollection) data list from MF Server.
+
+    + If clicking the _**"SERVER"**_ button, the browser moves to the data selection page (localhost:8080/dataSelect), where users can select MovingFeatureCollection data from the MF server.
 
 ![Server](https://github.com/aistairc/mf-cesium/blob/mf-cesium_api/Stinuum%20Web/documents/image/Server-1.png)
 
 ***
 
-## 2. Stinuum Server
+## 2.1. Get the MovingFeatureCollection
 
-- If users can connect to the MF-Server, Stinuum can get to MF data from MF-Server by [MF-API](https://github.com/aistairc/mf-api)
-
-***
-
-## 2.1. Get the MF-Collection
-
-- In the data selection page (localhost:8080/dataSelect), users can communicate with the server to get the MovingFeature-Collection
+- In the data selection page (localhost:8080/dataSelect), users can communicate with the server to get the MovingFeatureCollection
 
     + Click the _**"GET MovingFeatureCollection"**_ button.
 
-        + Receive the whole data of MovingFeature Collection from MF-Server
+        + Receive the whole data of MovingFeatureCollection from MF-Server
 
     + If it succeeds, the result is added to the bottom table.
 
@@ -213,19 +211,10 @@ $ node app.js
 
 ***
 
-## 2.2. Send the MF-Collection data to the main page
+## 2.2. Send the MovingFeatureCollection data to the main page
 
-- Select one or more columns that users need to get the MovingFeature data and then enter the number of MovingFeatures.
-
-    + The order of the MovingFeature list is ascending order depends on the _**"Number"**_ value.
-
-- The sampling count shall be **5**.
-
-    + The sampling count means that the number of MovingFeature getting from a selected MovingFeature-Collection.
-    + If the count of MovingFeature is over then the sampling count, it gets from the front of the MovingFeature list.
-
-- Click the _**"Send Data"**_ button to sends the selected column values ​​to the main page (localhost:8080/main)
-
+- Select one or more rows that users need to get the MovingFeature data.
+- And then click the _**"Send MovingFeatureCollection"**_ button to sends the selected column values ​​to the main page (localhost:8080/main)
 
 ![server-3](https://github.com/aistairc/mf-cesium/blob/mf-cesium_api/Stinuum%20Web/documents/image/Server-3.png)
 
@@ -237,7 +226,7 @@ $ node app.js
 
     + Select one or more the titles and then click the _**"SHOW"**_ button to get the MovingFeature data list.
 
-- Add the MovingFeatureCollection data to the Collection Layer (detail describe in 1.2 Layers).
+- Add the MovingFeatureCollection data to the Collection Layer (detail describe in [1.2 Layers](#12-Layers)).
 
 - When users click on an item in the Collection Layer, it adds a list of MovingFeatures in the Feature Layer.
 
@@ -253,6 +242,6 @@ $ node app.js
 
 ## 2.4. Get additional MovingFeatures
 
-- When the _**"ADD"**_ button is clicked, an additional 5 MovingFeatures data are added to the corresponding layer (via the process described in [Get MovingFeature list](#23-Get-MovingFeature-list)).
+- When the _**"ADD"**_ button is clicked, it will fetch the next five pieces of MovingFeature data and add them to the corresponding layer (via the process described in [Get MovingFeature list](#23-Get-MovingFeature-list)).
 
   ![server-5](https://github.com/aistairc/mf-cesium/blob/mf-cesium_api/Stinuum%20Web/documents/image/Server-5.png)
