@@ -21,12 +21,11 @@ $ node app.js
    1.7\. [Rader](#17-Rader)  
    1.8\. [Image](#18-Image)  
    1.9\. [Text](#19-Text)
-2. [Stinuum Server](#2-Stinuum-Server)  
-   2.1\. [Server](#21-Server)  
-   2.2\. [Get the MovingFeatureCollection](#22-Get-the-MovingFeatureCollection)  
-   2.3\. [Send the MovingFeatureCollection data to main page](#23-Send-the-MovingFeatureCollection-data-to-main-page)  
-   2.4\. [Get MovingFeature list](#24-Get-MovingFeature-list)  
-   2.5\. [Get additional MovingFeatures](#25-Get-additional-MovingFeatures)
+2. [Stinuum with OGC API - MovingFeatures Server(MF-API Server)](#2-stinuum-with-ogc-api---movingfeatures-servermf-api-server)  
+   2.1\. [Get the MovingFeatureCollection](#21-get-the-movingfeaturecollection)  
+   2.2\. [Send the MovingFeatureCollection data to main page](#22-send-the-movingfeaturecollection-data-to-the-main-page)  
+   2.3\. [Get MovingFeature list](#23-get-movingfeature-list)  
+   2.4\. [Get additional MovingFeatures](#24-get-additional-movingfeatures)
 ***
 
 ## 1. Stinuum Main
@@ -189,7 +188,7 @@ $ node app.js
 ## 2. Stinuum with OGC API - MovingFeatures Server(MF-API Server)
 
 - If users can connect to the MF-Server, Stinuum can get to MF data from MF-Server by [MF-API](https://opengeospatial.github.io/ogcapi-movingfeatures/openapi/openapi-movingfeatures-1.html)
-- The Server function provides a button for getting the MovingFeatureCollection (MovingFeatureCollection) data list from MF Server.
+- The Server function provides a button for getting the MovingFeatureCollection data list from MF Server.
 
     + If clicking the _**"SERVER"**_ button, the browser moves to the data selection page (localhost:8080/dataSelect), where users can select MovingFeatureCollection data from the MF server.
 
