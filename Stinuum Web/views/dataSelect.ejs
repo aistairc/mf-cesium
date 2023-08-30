@@ -208,6 +208,7 @@
 </div>
 
 <script>
+    var localServerURL = '<%= localServerURL %>';
     function datatables() {
         return {
             headings: [
@@ -238,7 +239,7 @@
             ],
             mfcs: [],
             originalMfcs: [],
-            defaultURL: "http://localhost:8085",
+            defaultURL: localServerURL,
             nextURL: "",
             selectedRows: [],
             selectedDataset: [],

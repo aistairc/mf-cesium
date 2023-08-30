@@ -2,11 +2,13 @@ function ServerAuth() {
   this.on = false; //is Server connected?
   this.selectValue = {};
   this.selectData = {};
-  this.ServerURL = "http://localhost:8085"
+  this.ServerURL = ""
 }
 
 
-
+ServerAuth.prototype.setServerURL = function (serverURL){
+  this.ServerURL = serverURL
+}
 
 ServerAuth.prototype.getFeatureID = function(layer_id, address, count){
   console.log("getFeatureID", address, layer_id, count)

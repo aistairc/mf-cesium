@@ -139,6 +139,9 @@
         var viewer;
         var stinuum;
         //var labelEntity;
+        var localServerURL = '<%= localServerURL %>';
+        // let localServerURL = optionValue.localServerURL;
+        console.log(localServerURL)
         var handler;
         var slider;
         var label_timeout;
@@ -173,6 +176,7 @@
     
         // var connector = new ServerConnector();
         var connector = new ServerAuth();
+        connector.setServerURL(localServerURL)
         var SRSTranslator = new SRSTranslator();
         var buffer = new FeatureBuffer(connector);
         var list_maker = new DivListMaker(connector);
