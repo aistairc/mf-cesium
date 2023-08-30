@@ -62,10 +62,8 @@ node app.js
    ```
    > [!IMPORTANT]  
    > If you change the __MF-Server-API-Port__, please change the code below  
-   > (Will be controlled later with config.yml file)  
-   > [![ServerAuth.js][js-shield]][serverauth-url]: this.ServerURL = "http://localhost:8085" ⮕ "http://localhost:*__YOUR-PORT__*"  
-   > [![dataSelect.ejs][ejs-shield]][dataselect-url]: defaultURL: "http://localhost:8085" ⮕ "http://localhost:*__YOUR-PORT__*"  
-   > [![MFAPIHandler][py-shield]][mfapihandler-url]: base_url = "http://localhost:8085" ⮕ "http://localhost:*__YOUR-PORT__*"    
+   > (Will be controlled later with system.json file)  
+   > [![system.json][json-shield]][system-url]: mf_api_server_url = "http://localhost:8085" ⮕ "http://localhost:*__YOUR-PORT__*"
 
    - And then you can connect to the homepage with the below URL:
      - http://localhost:8085
@@ -111,8 +109,8 @@ STINUUM is licensed under the [MIT license](https://github.com/aistairc/mf-cesiu
 [npm-shield]: https://img.shields.io/badge/NPM_v8.5.0-CB3837?style=flat&logo=npm&logoColor=white
 [cesium-js-url]: https://github.com/CesiumGS/cesium
 [cesium-shield]: https://img.shields.io/badge/Cesium_v1.73-6CADDF?style=flat&logo=Cesium&logoColor=white
-[js-shield]:  https://img.shields.io/badge/ServerAuth.js-F7DF1E?style=flat&logo=javascript&logoColor=white
-[serverauth-url]: https://github.com/aistairc/mf-cesium/blob/mf-cesium_api/Stinuum%20Web/src/js/mf-cesium/ServerAuth.js
+[json-shield]:  https://img.shields.io/badge/ServerAuth.js-000000?style=flat&logo=json&logoColor=white
+[system-url]: https://github.com/aistairc/mf-cesium/blob/mf-cesium_api/Stinuum%20Web/system.json
 [ejs-shield]:  https://img.shields.io/badge/dataSelect.ejs-E34F26?style=flat&logo=html5&logoColor=white
 [dataselect-url]: https://github.com/aistairc/mf-cesium/blob/mf-cesium_api/Stinuum%20Web/views/dataSelect.ejs
 [py-shield]: https://img.shields.io/badge/MFAPIHandler.py-3776AB?style=flat&logo=python&logoColor=white

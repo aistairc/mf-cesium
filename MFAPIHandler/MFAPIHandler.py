@@ -59,7 +59,11 @@ class MFAPIHandler:
         return response
 
 if __name__ == "__main__":
-    base_url = "http://localhost:8085"
+    system_json_path = "../Stinuum Web/system.json"
+    with open(test_data_path, "r") as fp0:
+        system_json = json.load(fp0)
+    base_url = system_json["mf_api_server_url"]
+
     mfapi_handler = MFAPIHandler(base_url)
 
     # Register the MovingFeature Collection
