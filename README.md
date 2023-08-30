@@ -63,7 +63,7 @@ node app.js
     > [!IMPORTANT]  
     > If you change the __MF-Server-API-Port__, please change the code below  
     > (Will be controlled later with system.json file)  
-    > [![system.json][json-shield]][system-url]: mf_api_server_url = "http://localhost:8085" ⮕ "http://localhost:*__YOUR-PORT__*"  
+    > [![system.json][json-shield]][system-url]: mf_api_server_url = `http://localhost:8085` ⮕ `http://localhost:YOUR-PORT`  
 
    - And then you can connect to the homepage with the below URL:
      - http://localhost:8085
