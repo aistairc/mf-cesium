@@ -101,7 +101,7 @@ STINUUM is licensed under the [MIT license](https://github.com/aistairc/mf-cesiu
 [mf-server-url]: https://github.com/aistairc/mf-api
 [mf-api-swagger]: http://localhost:8085/openapi?f=html
 [swagger-shield]: https://img.shields.io/badge/MF_API_Swagger-85EA2D?style=flat&logo=Swagger&logoColor=white
-[mf-api-redoc]: http://localhost:8085/openapi?f=html&ui=redoc
+[mf-api-redoc]: https://opengeospatial.github.io/ogcapi-movingfeatures/openapi/openapi-movingfeatures-1.html
 [redoc-shield]: https://img.shields.io/badge/MF_API_Redoc-8CA1AF?style=flat&logo=readthedocs&logoColor=white
 [node-js-url]: https://nodejs.org/
 [node-shield]: https://img.shields.io/badge/Node.js_v16.14.2-339933?style=flat&logo=Node.js&logoColor=white
