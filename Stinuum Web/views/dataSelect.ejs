@@ -313,7 +313,7 @@
                 // Replace 'your-server-url' with the actual URL to fetch data from
                 let searchParma = 1;
                 this.clearTable();
-                fetch(this.defaultURL+"/collections", {
+                fetch(this.defaultURL+"/collections?f=json", {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -330,7 +330,7 @@
                             let F_type = (eachMFCollection.itemType !== undefined) ? eachMFCollection.itemType : null
                             let F_title = eachMFCollection.title
                             let F_p_bbox = (eachMFCollection['extent']['spatial']['bbox'] !== undefined) ? eachMFCollection['extent']['spatial']['bbox'] : null
-                            let F_p_time = (eachMFCollection['temporal']['interval'] !== undefined) ? eachMFCollection['temporal']['interval'] : null
+                            let F_p_time = (eachMFCollection['extent']['temporal']['interval'] !== undefined) ? eachMFCollection['extent']['temporal']['interval'] : null
                             this.mfcs.push({
                                 mfc_idx: F_number,
                                 mfc_id: F_id,

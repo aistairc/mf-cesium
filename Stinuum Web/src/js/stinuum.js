@@ -1297,7 +1297,7 @@ Stinuum.MFCollection.prototype.findMinMaxGeometry = function (p_mf_arr, use_defa
     } else {
         first_date = new Date(mf_arr[0].feature.temporalGeometry.datetimes[0]);
     }
-    console.log(mf_arr[0].feature.temporalGeometry.prisms[0].datetimes[0])
+    // console.log(mf_arr[0].feature.temporalGeometry.prisms[0].datetimes[0])
     // first_date = Stinuum.reformattingTime(first_date)
     min_max.date = [first_date, first_date];
 
