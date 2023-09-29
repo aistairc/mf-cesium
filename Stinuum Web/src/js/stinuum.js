@@ -503,64 +503,92 @@ Stinuum.GeometryViewer.prototype.update = function (options) {
     LOG("update function")
     this.clear();
     this.super.mfCollection.findMinMaxGeometry();
-    // this.clear();
-    this.draw();
+    // // this.clear();
+    // LOG("option check", options);
+    // LOG("option check", this.primitives);
     this.animate(options);
+    this.draw();
 
 }
 
 Stinuum.GeometryViewer.prototype.clear = function () {
     this.super.cesiumViewer.clock.multiplier = 10;
     LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
-    // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0].constructor)
+    LOG(Object.keys(this.primitives))
+    if (this.super.cesiumViewer.scene.primitives.length > 0) {
 
-    if (Object.keys(this.primitives).length !== 0){
-        this.super.cesiumViewer.dataSources.removeAll();
-        this.super.cesiumViewer.entities.removeAll();   
-        LOG(Object.values(this.primitives))
-        var IDCount = 0
-        LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
-        // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0].constructor.name === "Primitive")
-        // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0] instanceof PrimitiveCollection)
-        var primitivesInfo = Object.values(this.super.cesiumViewer.scene.primitives._primitives)
-        var remindedValue = []
-        for (var primitivesID in primitivesInfo){
-            
-            if (primitivesInfo[IDCount] !== undefined){
-                if (primitivesInfo[IDCount].constructor.name !== "PrimitiveCollection"){
-                    primitivesInfo[IDCount].destroy()
+        let primitivesInfo = this.super.cesiumViewer.scene.primitives._primitives;
+        let remindedValue = []
+        for (let primitivesID in primitivesInfo){
+            if (primitivesInfo[primitivesID] !== undefined && primitivesID !== "contain"){
+                console.log(primitivesInfo[primitivesID].constructor.name, primitivesID)
+                if (Object.keys(this.primitives).includes(primitivesInfo[primitivesID].id) && primitivesInfo[primitivesID].id !== undefined){
+                    this.super.cesiumViewer.scene.primitives._primitives[parseInt(primitivesID)].destroy();
+                    remindedValue.push(parseInt(primitivesID));
                 }
             }
-            IDCount += 1;
         }
+
+        let result = this.super.cesiumViewer.scene.primitives._primitives.filter((element, index) => !remindedValue.includes(index));
+        this.super.cesiumViewer.scene.primitives._primitives = result;
+        console.log("Remove Result: ", remindedValue, this.super.cesiumViewer.scene.primitives._primitives)
+        // this.super.cesiumViewer.scene.primitives._primitives = [];
+        this.super.cesiumViewer.dataSources.removeAll();
+        this.super.cesiumViewer.entities.removeAll();
+        this.primitives = {};
+    }
+    // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0].constructor)
+    // if (this.super.cesiumViewer.scene.primitives.length > 0){
+    //     this.super.cesiumViewer.dataSources.removeAll();
+    //     this.super.cesiumViewer.entities.removeAll();
+    //     this.super.cesiumViewer.scene.primitives.destroy();
+    // }
+    // if (Object.keys(this.primitives).length !== 0){
+    //
+    //     LOG(Object.values(this.primitives))
+    //     var IDCount = 0
+    //     LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
+    //     // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0].constructor.name === "Primitive")
+    //     // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0] instanceof PrimitiveCollection)
+    //     var primitivesInfo = Object.values(this.super.cesiumViewer.scene.primitives._primitives)
+    //     var remindedValue = []
+    //     for (var primitivesID in primitivesInfo){
+    //
+    //         if (primitivesInfo[IDCount] !== undefined){
+    //             if (primitivesInfo[IDCount].constructor.name !== "PrimitiveCollection"){
+    //                 primitivesInfo[IDCount].destroy()
+    //             }
+    //         }
+    //         IDCount += 1;
+    //     }
         // var IDCount = 0
         // for (var primitivesID in remindedValue){
         //     this.super.cesiumViewer.scene.primitives.remove(remindedValue[IDCount])
         //     IDCount += 1;
         // }
-        
+
         // this.super.cesiumViewer.scene.primitives.add(remindedValue)
 
         // for (var primitivesID in Object.values(this.primitives)){
         //     if (primitivesID === "contains"){
         //         continue;
         //     }
-          
+
         //     if (this.super.cesiumViewer.scene.primitives.contains(Object.values(this.primitives)[IDCount])){
         //         this.super.cesiumViewer.scene.primitives.remove(Object.values(this.primitives)[IDCount])
-                
-        //     }   
-        //     IDCount += 1; 
+
+        //     }
+        //     IDCount += 1;
         // }
-        
-        
+
+
         // for (var i in Object.keys(this.primitives)){
         //     LOG()
-        
+
         // }
         // this.super.cesiumViewer.scene.primitives.removeAll()
-    }
-    this.primitives = {}
+    // }
+    // this.primitives = {}
 }
 
 Stinuum.GeometryViewer.prototype.draw = function () {
@@ -823,18 +851,17 @@ Stinuum.GeometryViewer.prototype.animate = function (options) {
             }
 
         }
-        // var load_czml = Cesium.CzmlDataSource.load(czml);
-        // var promise = this.super.cesiumViewer.dataSources.add(load_czml);
+        var load_czml = Cesium.CzmlDataSource.load(czml);
+        var promise = this.super.cesiumViewer.dataSources.add(load_czml);
     }
 
-    obj = JSON.stringify(czml)
 
 
 
 
     // let load_czml = Cesium.CzmlDataSource.load([{"id":"document","name":"animationOfMovingFeature","version":"1.0","clock":{"interval":"2015-02-06T21:00:00.000Z/2015-02-12T21:00:00.000Z","currentTime":"2015-02-06T21:00:00.000Z","multiplier":10,"range":"LOOP_STOP"}},{"id":"dynamicPolygon_0_1","polygon":{"positions":{"references":["v_0_1_1#position","v_0_1_2#position","v_0_1_3#position","v_0_1_4#position","v_0_1_5#position","v_0_1_6#position","v_0_1_7#position","v_0_1_8#position","v_0_1_9#position"]},"perPositionHeight":true,"material":{"solidColor":{"color":{"rgbaf":[1,0,0,1]}}}},"availability":"2015-02-06T21:00:00.000Z/2015-02-12T21:00:00.000Z"},{"id":"v_0_1_1","position":{"interpolationAlgorithm":"LINEAR","interpolationDegree":1,"interval":"2015-02-06T21:00:00.000Z/2015-02-12T21:00:00.000Z","epoch":"2015-02-06T21:00:00.000Z","cartographicDegrees":[0,159.3,8.6,0,21600,158.9,9.1,0,43200,158.7,9.7,0,64800,158.4,10.3,0,86400,158.5,10.8,0,108000,160.5,11.6,0,129600,160.3,11.9,0,151200,160,12,0,172800,159.9,11.9,0,194400,159.7,11.9,0,216000,159.4,12.1,0,237600,159.1,12.3,0,259200,158.7,12.6,0,280800,158.2,13,0,302400,157.7,13.6,0,324000,157.2,14.2,0,345600,157.1,14.7,0,367200,156.6,15,0,388800,156.2,15.3,0,410400,155.8,15.5,0,432000,153.5,16.1,0,453600,153.2,16.5,0,475200,153.1,16.6,0,496800,153.6,17.4,0,518400,153.8,18.2,0]}},{"id":"v_0_1_2","position":{"interpolationAlgorithm":"LINEAR","interpolationDegree":1,"interval":"2015-02-06T21:00:00.000Z/2015-02-12T21:00:00.000Z","epoch":"2015-02-06T21:00:00.000Z","cartographicDegrees":[0,159.00710678118656,7.892893218813452,0,21600,158.60710678118656,8.392893218813452,0,43200,158.40710678118654,8.992893218813451,0,64800,158.10710678118656,9.592893218813453,0,86400,158.20710678118655,10.092893218813453,0,108000,159.62132034355963,9.478679656440358,0,129600,159.42132034355964,9.778679656440358,0,151200,159.12132034355963,9.878679656440358,0,172800,159.02132034355964,9.778679656440358,0,194400,158.82132034355962,9.778679656440358,0,216000,158.52132034355964,9.978679656440358,0,237600,158.22132034355963,10.178679656440359,0,259200,157.82132034355962,10.478679656440358,0,280800,157.32132034355962,10.878679656440358,0,302400,156.82132034355962,11.478679656440358,0,324000,156.32132034355962,12.078679656440357,0,345600,156.22132034355963,12.578679656440357,0,367200,155.72132034355963,12.878679656440358,0,388800,155.32132034355962,13.178679656440359,0,410400,154.92132034355964,13.378679656440358,0,432000,153.20710678118655,15.392893218813454,0,453600,152.90710678118654,15.792893218813452,0,475200,152.80710678118655,15.892893218813454,0,496800,153.30710678118655,16.692893218813452,0,518400,153.50710678118656,17.492893218813453,0]}},{"id":"v_0_1_3","position":{"interpolationAlgorithm":"LINEAR","interpolationDegree":1,"interval":"2015-02-06T21:00:00.000Z/2015-02-12T21:00:00.000Z","epoch":"2015-02-06T21:00:00.000Z","cartographicDegrees":[0,158.3,7.6,0,21600,157.9,8.1,0,43200,157.7,8.7,0,64800,157.4,9.3,0,86400,157.5,9.8,0,108000,157.5,8.6,0,129600,157.3,8.9,0,151200,157,9,0,172800,156.9,8.9,0,194400,156.7,8.9,0,216000,156.4,9.1,0,237600,156.1,9.3,0,259200,155.7,9.6,0,280800,155.2,10,0,302400,154.7,10.6,0,324000,154.2,11.2,0,345600,154.1,11.7,0,367200,153.6,12,0,388800,153.2,12.3,0,410400,152.8,12.5,0,432000,152.5,15.100000000000001,0,453600,152.2,15.5,0,475200,152.1,15.600000000000001,0,496800,152.6,16.4,0,518400,152.8,17.2,0]}},{"id":"v_0_1_4","position":{"interpolationAlgorithm":"LINEAR","interpolationDegree":1,"interval":"2015-02-06T21:00:00.000Z/2015-02-12T21:00:00.000Z","epoch":"2015-02-06T21:00:00.000Z","cartographicDegrees":[0,157.59289321881346,7.892893218813452,0,21600,157.19289321881345,8.392893218813452,0,43200,156.99289321881344,8.992893218813451,0,64800,156.69289321881345,9.592893218813453,0,86400,156.79289321881345,10.092893218813453,0,108000,155.37867965644037,9.478679656440356,0,129600,155.17867965644038,9.778679656440357,0,151200,154.87867965644037,9.878679656440358,0,172800,154.77867965644037,9.778679656440357,0,194400,154.57867965644036,9.778679656440357,0,216000,154.27867965644037,9.978679656440356,0,237600,153.97867965644036,10.178679656440359,0,259200,153.57867965644036,10.478679656440356,0,280800,153.07867965644036,10.878679656440358,0,302400,152.57867965644036,11.478679656440356,0,324000,152.07867965644036,12.078679656440357,0,345600,151.97867965644036,12.578679656440357,0,367200,151.47867965644036,12.878679656440358,0,388800,151.07867965644036,13.178679656440359,0,410400,150.67867965644038,13.378679656440358,0,432000,151.79289321881345,15.392893218813454,0,453600,151.49289321881344,15.792893218813452,0,475200,151.39289321881344,15.892893218813454,0,496800,151.89289321881344,16.692893218813452,0,518400,152.09289321881346,17.492893218813453,0]}},{"id":"v_0_1_5","position":{"interpolationAlgorithm":"LINEAR","interpolationDegree":1,"interval":"2015-02-06T21:00:00.000Z/2015-02-12T21:00:00.000Z","epoch":"2015-02-06T21:00:00.000Z","cartographicDegrees":[0,157.3,8.6,0,21600,156.9,9.1,0,43200,156.7,9.7,0,64800,156.4,10.3,0,86400,156.5,10.8,0,108000,154.5,11.6,0,129600,154.3,11.9,0,151200,154,12,0,172800,153.9,11.9,0,194400,153.7,11.9,0,216000,153.4,12.1,0,237600,153.1,12.3,0,259200,152.7,12.6,0,280800,152.2,13,0,302400,151.7,13.6,0,324000,151.2,14.2,0,345600,151.1,14.7,0,367200,150.6,15,0,388800,150.2,15.3,0,410400,149.8,15.5,0,432000,151.5,16.1,0,453600,151.2,16.5,0,475200,151.1,16.6,0,496800,151.6,17.4,0,518400,151.8,18.2,0]}},{"id":"v_0_1_6","position":{"interpolationAlgorithm":"LINEAR","interpolationDegree":1,"interval":"2015-02-06T21:00:00.000Z/2015-02-12T21:00:00.000Z","epoch":"2015-02-06T21:00:00.000Z","cartographicDegrees":[0,157.59289321881346,9.307106781186548,0,21600,157.19289321881345,9.807106781186548,0,43200,156.99289321881344,10.407106781186547,0,64800,156.69289321881345,11.007106781186549,0,86400,156.79289321881345,11.507106781186549,0,108000,155.37867965644037,13.721320343559642,0,129600,155.17867965644038,14.021320343559642,0,151200,154.87867965644037,14.121320343559642,0,172800,154.77867965644037,14.021320343559642,0,194400,154.57867965644036,14.021320343559642,0,216000,154.27867965644037,14.221320343559642,0,237600,153.97867965644036,14.421320343559643,0,259200,153.57867965644036,14.721320343559642,0,280800,153.07867965644036,15.121320343559642,0,302400,152.57867965644036,15.721320343559642,0,324000,152.07867965644036,16.32132034355964,0,345600,151.97867965644036,16.82132034355964,0,367200,151.47867965644036,17.121320343559642,0,388800,151.07867965644036,17.421320343559643,0,410400,150.67867965644038,17.621320343559642,0,432000,151.79289321881345,16.807106781186548,0,453600,151.49289321881344,17.207106781186546,0,475200,151.39289321881344,17.307106781186548,0,496800,151.89289321881344,18.107106781186545,0,518400,152.09289321881346,18.907106781186545,0]}},{"id":"v_0_1_7","position":{"interpolationAlgorithm":"LINEAR","interpolationDegree":1,"interval":"2015-02-06T21:00:00.000Z/2015-02-12T21:00:00.000Z","epoch":"2015-02-06T21:00:00.000Z","cartographicDegrees":[0,158.3,9.6,0,21600,157.9,10.1,0,43200,157.7,10.7,0,64800,157.4,11.3,0,86400,157.5,11.8,0,108000,157.5,14.6,0,129600,157.3,14.9,0,151200,157,15,0,172800,156.9,14.9,0,194400,156.7,14.9,0,216000,156.4,15.1,0,237600,156.1,15.3,0,259200,155.7,15.6,0,280800,155.2,16,0,302400,154.7,16.6,0,324000,154.2,17.2,0,345600,154.1,17.7,0,367200,153.6,18,0,388800,153.2,18.3,0,410400,152.8,18.5,0,432000,152.5,17.1,0,453600,152.2,17.5,0,475200,152.1,17.6,0,496800,152.6,18.4,0,518400,152.8,19.2,0]}},{"id":"v_0_1_8","position":{"interpolationAlgorithm":"LINEAR","interpolationDegree":1,"interval":"2015-02-06T21:00:00.000Z/2015-02-12T21:00:00.000Z","epoch":"2015-02-06T21:00:00.000Z","cartographicDegrees":[0,159.00710678118656,9.307106781186548,0,21600,158.60710678118656,9.807106781186548,0,43200,158.40710678118654,10.407106781186547,0,64800,158.10710678118656,11.007106781186549,0,86400,158.20710678118655,11.507106781186549,0,108000,159.62132034355963,13.721320343559643,0,129600,159.42132034355964,14.021320343559644,0,151200,159.12132034355963,14.121320343559642,0,172800,159.02132034355964,14.021320343559644,0,194400,158.82132034355962,14.021320343559644,0,216000,158.52132034355964,14.221320343559643,0,237600,158.22132034355963,14.421320343559643,0,259200,157.82132034355962,14.721320343559643,0,280800,157.32132034355962,15.121320343559642,0,302400,156.82132034355962,15.721320343559643,0,324000,156.32132034355962,16.32132034355964,0,345600,156.22132034355963,16.82132034355964,0,367200,155.72132034355963,17.121320343559642,0,388800,155.32132034355962,17.421320343559643,0,410400,154.92132034355964,17.621320343559642,0,432000,153.20710678118655,16.807106781186548,0,453600,152.90710678118654,17.207106781186546,0,475200,152.80710678118655,17.307106781186548,0,496800,153.30710678118655,18.107106781186545,0,518400,153.50710678118656,18.907106781186545,0]}},{"id":"v_0_1_9","position":{"interpolationAlgorithm":"LINEAR","interpolationDegree":1,"interval":"2015-02-06T21:00:00.000Z/2015-02-12T21:00:00.000Z","epoch":"2015-02-06T21:00:00.000Z","cartographicDegrees":[0,159.3,8.6,0,21600,158.9,9.1,0,43200,158.7,9.7,0,64800,158.4,10.3,0,86400,158.5,10.8,0,108000,160.5,11.6,0,129600,160.3,11.9,0,151200,160,12,0,172800,159.9,11.9,0,194400,159.7,11.9,0,216000,159.4,12.1,0,237600,159.1,12.3,0,259200,158.7,12.6,0,280800,158.2,13,0,302400,157.7,13.6,0,324000,157.2,14.2,0,345600,157.1,14.7,0,367200,156.6,15,0,388800,156.2,15.3,0,410400,155.8,15.5,0,432000,153.5,16.1,0,453600,153.2,16.5,0,475200,153.1,16.6,0,496800,153.6,17.4,0,518400,153.8,18.2,0]}}]);
-    var load_czml = Cesium.CzmlDataSource.load(czml);
-    var promise = this.super.cesiumViewer.dataSources.add(load_czml);
+    // var load_czml = Cesium.CzmlDataSource.load(czml);
+    // var promise = this.super.cesiumViewer.dataSources.add(load_czml);
 
     // return min_max;
 }
@@ -1297,7 +1324,6 @@ Stinuum.MFCollection.prototype.findMinMaxGeometry = function (p_mf_arr, use_defa
     } else {
         first_date = new Date(mf_arr[0].feature.temporalGeometry.datetimes[0]);
     }
-    console.log(mf_arr[0].feature.temporalGeometry.prisms[0].datetimes[0])
     // first_date = Stinuum.reformattingTime(first_date)
     min_max.date = [first_date, first_date];
 
@@ -5328,15 +5354,15 @@ Stinuum.reformattingTime = function (tempDatetimes) {
 }
 
 Stinuum.findMinMaxTime = function (datetimes) {
-    console.log(datetimes)
+    // console.log(datetimes)
     let min_max_date = [];
     min_max_date[0] = new Date(datetimes[0]);
     min_max_date[1] = new Date(datetimes[0]);
-    console.log(min_max_date)
+    // console.log(min_max_date)
     if (isNaN(min_max_date[0].getTime())) throw new Error("cannot be date type, utility.js, findMinMaxTime");
     for (var j = 1; j < datetimes.length; j++) {
         let time = new Date(datetimes[j]);
-        console.log(min_max_date)
+        // console.log(min_max_date)
         if (min_max_date[0].getTime() > time.getTime()) {
             min_max_date[0] = time;
         }
