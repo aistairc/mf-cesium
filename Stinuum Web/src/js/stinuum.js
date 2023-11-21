@@ -974,48 +974,48 @@ Stinuum.GeometryViewer.prototype.drawZaxisLabel = function () {
 //     return prim;
 // }
 
-// Stinuum.GeometryViewer.prototype.showHeightBar = function (id) {
-//     var mf = this.super.mfCollection.getMFPairById(id).feature;
-//     var color = this.super.mfCollection.getColor(id);
+Stinuum.GeometryViewer.prototype.showHeightBar = function (id) {
+    var mf = this.super.mfCollection.getMFPairById(id).feature;
+    var color = this.super.mfCollection.getColor(id);
 
-//     var geometry = mf.temporalGeometry;
-//     var instances = [];
-//     var time_label = [];
-//     //upper
-//     var pole = [];
-//     var upper_pos = [];
-//     var right_pos = [];
+    var geometry = mf.temporalGeometry;
+    var instances = [];
+    var time_label = [];
+    //upper
+    var pole = [];
+    var upper_pos = [];
+    var right_pos = [];
 
-//     var heights = this.super.getListOfHeight(geometry.datetimes);
-//     pole = [179, 89, heights[0], 179, 89, heights[geometry.datetimes.length - 1]];
-//     instances.push(Stinuum.drawInstanceOneLine(pole, Cesium.Color.RED.withAlpha(1.0), 10));
+    var heights = this.super.getListOfHeight(geometry.datetimes);
+    pole = [179, 89, heights[0], 179, 89, heights[geometry.datetimes.length - 1]];
+    instances.push(Stinuum.drawInstanceOneLine(pole, Cesium.Color.RED.withAlpha(1.0), 10));
 
-//     time_label.push({
-//         position: Cesium.Cartesian3.fromDegrees(160, 78, heights[0]),
-//         label: {
-//             text: geometry.datetimes[0],
-//             font: '12pt sans-serif',
-//             verticalOrigin: Cesium.VerticalOrigin.TOP
-//         }
-//     });
-//     time_label.push({
-//         position: Cesium.Cartesian3.fromDegrees(178, 60, heights[geometry.datetimes.length - 1]),
-//         label: {
-//             text: geometry.datetimes[geometry.datetimes.length - 1],
-//             font: '12pt sans-serif',
-//             verticalOrigin: Cesium.VerticalOrigin.TOP
-//         }
-//     });
+    time_label.push({
+        position: Cesium.Cartesian3.fromDegrees(160, 78, heights[0]),
+        label: {
+            text: geometry.datetimes[0],
+            font: '12pt sans-serif',
+            verticalOrigin: Cesium.VerticalOrigin.TOP
+        }
+    });
+    time_label.push({
+        position: Cesium.Cartesian3.fromDegrees(178, 60, heights[geometry.datetimes.length - 1]),
+        label: {
+            text: geometry.datetimes[geometry.datetimes.length - 1],
+            font: '12pt sans-serif',
+            verticalOrigin: Cesium.VerticalOrigin.TOP
+        }
+    });
 
 
-//     var prim = new Cesium.Primitive({
-//         geometryInstances: instances,
-//         appearance: new Cesium.PolylineColorAppearance(),
-//         allowPicking: false
-//     });
+    var prim = new Cesium.Primitive({
+        geometryInstances: instances,
+        appearance: new Cesium.PolylineColorAppearance(),
+        allowPicking: false
+    });
 
-//     return [prim, time_label];
-// }
+    return [prim, time_label];
+}
 
 Stinuum.GeometryViewer.prototype.adjustCameraView = function () {
     //TODO
@@ -3768,7 +3768,7 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function (propertyName, arra
     var dataSet = []
     if (object_arr[0].form != undefined) {
         $.ajax({
-            url: '/js/mf-cesium/practice/data_symbol.csv',
+            url: '/js/mf-cesium/data_symbol.csv',
             async: false,
             dataType: 'text',
             success: function successFunction(data) {
@@ -4278,7 +4278,7 @@ Stinuum.PropertyGraph.prototype.showComapreArray = function (arr, div_id) {
     var dataSet_2 = []
     if (object_arr[0].form == undefined) {
         $.ajax({
-            url: 'data_symbol.csv',
+            url: '/js/mf-cesium/practice/data_symbol.csv',
             async: false,
             dataType: 'text',
             success: function successFunction(data) {
@@ -4332,7 +4332,7 @@ Stinuum.PropertyGraph.prototype.showComapreArray = function (arr, div_id) {
     // RIGHT
     if (object_arr_right[0].form == undefined) {
         $.ajax({
-            url: 'data_symbol.csv',
+            url: '/js/mf-cesium/practice/data_symbol.csv',
             async: false,
             dataType: 'text',
             success: function successFunction(data) {
@@ -5889,44 +5889,52 @@ Stinuum.Imagemarking.prototype.show_img = function (pro_type_arr, image) {
         image_name_arr.push(image_pro_arr[i][1]);
     }
     let timeline_detections = {};
+    timeline_images = [];
+
     for (let id = 0; id < image_object_arr.length; id++) {
-        let img_object = image_object_arr[id][0];
+        let img_object = image_object_arr[id];
+        // let img_object = image_object_arr[id][0];
         for (let i = 0; i < img_object.datetimes.length; i++) {
             if (img_object.values[i] == null) {
                 break;
             }
+            let timeline_image_temp = {}
+
             let detection_time = new Date(img_object.datetimes[i]).getTime();
             // convert form string to json
-
+            timeline_image_temp.time = new Date(img_object.datetimes[i]).getTime();
+            if (img_object.values[i] == null) break;
+            timeline_image_temp.value = img_object.values[i];
+            if (timeline_image_temp.time in timeline_detections) {
+                timeline_image_temp.detection = timeline_detections[timeline_image_temp.time];
+            }
+            timeline_images.push(timeline_image_temp);
 
             if (img_object.values[i].hasOwnProperty('contains')) {
                 delete img_object.values[i].contains
             }
-
-
             // timeline_detections[detection_time] = JSON.parse(object.values[i]);
-            timeline_detections[detection_time] = img_object.values[i];
+            // timeline_detections[detection_time] = img_object.values[i];
         }
     }
-    timeline_images = [];
-    for (let id = 0; id < image_object_arr.length; id++) {
-        let img_object = image_object_arr[id][0];
-        for (let i = 0; i < img_object.datetimes.length; i++) {
-            let timeline_image = {}
-
-
-            // 1504835873000
-
-            timeline_image.time = new Date(img_object.datetimes[i]).getTime();
-            if (img_object.values[i] == null) break;
-            timeline_image.value = img_object.values[i];
-            if (timeline_image.time in timeline_detections) {
-                timeline_image.detection = timeline_detections[timeline_image.time];
-            }
-            timeline_images.push(timeline_image);
-        }
-    }
-    timeline_detections = {}
+    // for (let id = 0; id < image_object_arr.length; id++) {
+    //     let img_object = image_object_arr[id][0];
+    //     for (let i = 0; i < img_object.datetimes.length; i++) {
+    //         let timeline_image_temp = {}
+    //
+    //
+    //         // 1504835873000
+    //
+    //         timeline_image_temp.time = new Date(img_object.datetimes[i]).getTime();
+    //         if (img_object.values[i] == null) break;
+    //         timeline_image_temp.value = img_object.values[i];
+    //         if (timeline_image_temp.time in timeline_detections) {
+    //             timeline_image_temp.detection = timeline_detections[timeline_image_temp.time];
+    //         }
+    //         timeline_images.push(timeline_image_temp);
+    //     }
+    // }
+    // timeline_detections = {}
 
 
     if (timeline_images.length > 0) {
