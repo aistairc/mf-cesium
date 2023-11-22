@@ -442,7 +442,7 @@ var selectPropertyImage = function (image_id) {
     let show_list = [];
     for (let i = 0; i < pro_type_arr.length; i++) {
       
-        if (hide_items.indexOf((pro_type_arr[i].type).toUpperCase()) != -1) {
+        if (hide_items.indexOf((pro_type_arr[i].type)) != -1) {
             show_list.push(pro_type_arr[i].key);
         }
         // if (hide_items.indexOf((pro_type_arr[i]).toUpperCase()) != -1) {
@@ -464,8 +464,8 @@ var selectProperty = function (graph_id) {
     LOG("here selectProperty", pro_type_arr)
     let show_list = [];
     for (let i = 0; i < pro_type_arr.length; i++) {
-        console.log(hide_items.indexOf((pro_type_arr[i].type).toUpperCase()))
-        if (hide_items.indexOf((pro_type_arr[i].type).toUpperCase()) == -1) {
+        // console.log(hide_items.indexOf((pro_type_arr[i].type).toUpperCase()))
+        if (hide_items.indexOf((pro_type_arr[i].type)) == -1) {
             LOG("here selectProperty : ",pro_type_arr[i])
             if(show_list.indexOf(pro_type_arr[i].key) == -1){
                 show_list.push(pro_type_arr[i].key);
