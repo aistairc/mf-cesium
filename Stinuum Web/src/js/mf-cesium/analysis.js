@@ -442,7 +442,7 @@ var selectPropertyImage = function (image_id) {
     let show_list = [];
     for (let i = 0; i < pro_type_arr.length; i++) {
       
-        if (hide_items.indexOf((pro_type_arr[i].type)) != -1) {
+        if (hide_items.indexOf((pro_type_arr[i].type).toUpperCase()) != -1) {
             show_list.push(pro_type_arr[i].key);
         }
         // if (hide_items.indexOf((pro_type_arr[i]).toUpperCase()) != -1) {
@@ -465,7 +465,7 @@ var selectProperty = function (graph_id) {
     let show_list = [];
     for (let i = 0; i < pro_type_arr.length; i++) {
         // console.log(hide_items.indexOf((pro_type_arr[i].type).toUpperCase()))
-        if (hide_items.indexOf((pro_type_arr[i].type)) == -1) {
+        if (hide_items.indexOf((pro_type_arr[i].type).toUpperCase()) == -1) {
             LOG("here selectProperty : ",pro_type_arr[i])
             if(show_list.indexOf(pro_type_arr[i].key) == -1){
                 show_list.push(pro_type_arr[i].key);
@@ -746,7 +746,10 @@ function setOptionDIVforSlider() {
 
     min_date_div.innerText = fastest.getFullYear() + " / " + (fastest.getMonth() + 1) + " / " + (fastest.getDate());
     max_date_div.innerText = latest.getFullYear() + " / " + (latest.getMonth() + 1) + " / " + (latest.getDate());
-
+    min_date_div.style.color = "white"
+    max_date_div.style.color = "white"
+    min_date_div.style.fontSize = "18px"
+    max_date_div.style.fontSize = "18px"
     var close_btn = makeAnalysisCloseBtn();
 
     document.getElementById(div_id.option).appendChild(min_date_div);

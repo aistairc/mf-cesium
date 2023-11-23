@@ -87,8 +87,8 @@ function showContextMenu(id, pos) {
         for (var k = 0; k < keys.length; k++) {
             if (keys[k].toUpperCase() == 'DATETIMES') continue;
             LOG(feature.feature.temporalProperties[i][keys[k]].type)
-            // if(hide_items.indexOf(feature.feature.temporalProperties[i][keys[k]].type.toUpperCase())>=0){
-            if(hide_items.indexOf(feature.feature.temporalProperties[i][keys[k]].type)>=0){
+            if(hide_items.indexOf(feature.feature.temporalProperties[i][keys[k]].type.toUpperCase())>=0){
+            // if(hide_items.indexOf(feature.feature.temporalProperties[i][keys[k]].type)>=0){
                 continue;
             }
             if(exist_items.indexOf(keys[k])>=0){

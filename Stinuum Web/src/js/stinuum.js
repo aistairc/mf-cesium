@@ -828,7 +828,8 @@ Stinuum.GeometryViewer.prototype.animate = function (options) {
     }
 
     obj = JSON.stringify(czml)
-
+    console.log(obj)
+    alert(obj)
 
 
 
@@ -1548,7 +1549,7 @@ Stinuum.MovementDrawing.prototype.moveMovingPoint = function (options) {
             interpolation = "LINEAR";
             interpolationD = 1;
         } else if (geometry_interpolation == "Quadratic") {
-            interpolation = "LAGRANGE";
+            interpolation = "SPLINE";
             interpolationD = 2;
         } else {
             interpolation = "HERMITE";

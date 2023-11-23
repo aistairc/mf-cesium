@@ -208,15 +208,14 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
   var  temporalProperties_name = new Array();
   let hide_items = ["DATETIMES", "IMAGE" ,"DETECTION"];
   if (feature.temporalGeometry.type == "MovingGeometryCollection")  {
-   
     if (Array.isArray(temporalProperties)){
       for(var i = 0; i < temporalProperties.length; i++){
         var keys = Object.keys(temporalProperties[i]);
         for (var k = 0; k < keys.length; k++) {
             if (keys[k].toUpperCase() == 'DATETIMES') continue;
             LOG(temporalProperties[i][keys[k]].type)
-            // if(hide_items.indexOf(temporalProperties[i][keys[k]].type.toUpperCase())>=0){
-            if(hide_items.indexOf(temporalProperties[i][keys[k]].type) >= 0){
+            if(hide_items.indexOf(temporalProperties[i][keys[k]].type.toUpperCase())>=0){
+            // if(hide_items.indexOf(temporalProperties[i][keys[k]].type) >= 0){
                 continue;
             }
             if(temporalProperties_name.indexOf(keys[k])>=0){
@@ -270,8 +269,8 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
             // LOG(temporalProperties[p_i][keys[k]])
             // LOG(temporalProperties[p_i][keys[k]].type)
             // LOG(temporalProperties[p_i][keys[k]].type.toUpperCase())
-            // if(hide_items.indexOf(temporalProperties[p_i][keys[k]].type.toUpperCase())>=0){
-            if(hide_items.indexOf(temporalProperties[p_i][keys[k]].type)>=0){
+            if(hide_items.indexOf(temporalProperties[p_i][keys[k]].type.toUpperCase())>=0){
+            // if(hide_items.indexOf(temporalProperties[p_i][keys[k]].type)>=0){
                 continue;
             }
             if(temporalProperties_name.indexOf(keys[k])>=0){
