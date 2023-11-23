@@ -1,3 +1,5 @@
 {
-  "mf_api_server_url": "http://localhost:8085"
+  "mf_api_server_url": "http://localhost:8085",
+  "mfc_limit": 10,
+  "mf_limit": 10
 }

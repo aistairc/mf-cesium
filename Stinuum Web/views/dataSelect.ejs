@@ -320,7 +320,6 @@
                     },
                 }).then(response => response.json())
                     .then(data => {
-                        console.log(data)
                         let MFCollections = data['collections']
                         for(let each_i = 0; each_i < MFCollections.length; each_i += 1){
                             let eachMFCollection = MFCollections[each_i]
@@ -330,7 +329,7 @@
                             let F_type = (eachMFCollection.itemType !== undefined) ? eachMFCollection.itemType : null
                             let F_title = eachMFCollection.title
                             let F_p_bbox = (eachMFCollection['extent']['spatial']['bbox'] !== undefined) ? eachMFCollection['extent']['spatial']['bbox'] : null
-                            let F_p_time = (eachMFCollection['extent']['temporal']['interval'] !== undefined) ? eachMFCollection['extent']['temporal']['interval'] : null
+                            let F_p_time = (eachMFCollection['temporal']['interval'] !== undefined) ? eachMFCollection['temporal']['interval'] : null
                             this.mfcs.push({
                                 mfc_idx: F_number,
                                 mfc_id: F_id,
