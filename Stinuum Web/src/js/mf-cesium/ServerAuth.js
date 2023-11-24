@@ -44,7 +44,7 @@ ServerAuth.prototype.getFeatureID = function(layer_id, address, count){
   this.selectData[layer_id] = {
     "next": nextHref,
     "numberMatched": featureIDlist.numberMatched,
-    "numberReturned": featureIDlist.numberReturned
+    "numberReturned": featureIDlist.numberReturned,
   };
   console.log(featureIDlist);
   return featureIDlist.features;
@@ -233,14 +233,27 @@ ServerAuth.prototype.start = function () {
    * 2. features title - name
    */
   console.log("start")
-  if (sessionStorage.length != 0){
+  let serverDataset = {}
+  $.ajax({
+    url: '/getSelectedMFC',
+    type: 'POST',
+    async: false,
+    success: function(data){
+      if (data.ok){
+        serverDataset = data.serverData
+      }
+    }
+  });
+  if (Object.keys(serverDataset).length > 0){
     document.getElementById('drop_zone').style.visibility = 'hidden';
     document.getElementById('drop_zone_bg').style.visibility = 'hidden';
     let id_list = Array();
     let bbox_list = Array();
     let time_list = Array();
     let count_list = Array();
-    for (let eachValue of JSON.parse(sessionStorage.getItem("foo"))){
+
+
+    for (let eachValue of Object.values(serverDataset)){
       id_list.push(eachValue.mfc_id)
       bbox_list.push(eachValue.mfc_bbox)
       time_list.push(eachValue.mfc_time)
@@ -326,7 +339,7 @@ ServerAuth.prototype.getTemporalGeometry = function (layer_id, feature_id, featu
     // session_id: this.session_id,
     address: temporalGeometryAddress,
     time: feature_time,
-    limit: 1000
+    // limit: 1000
   }
   LOG(data)
 
@@ -353,7 +366,19 @@ ServerAuth.prototype.getTemporalGeometry = function (layer_id, feature_id, featu
     }
     
   });
-  console.log(temporalGeometry)
+  console.log("temporalGeometry", temporalGeometry)
+  if (this.selectData[layer_id][feature_id] !== undefined){
+    this.selectData[layer_id][feature_id] = {
+
+    }
+  }else{
+    this.selectData[layer_id][feature_id] = {
+      // "next": nextHref,
+      // "numberMatched": featureIDlist.numberMatched,
+      // "numberReturned": featureIDlist.numberReturned,
+    }
+  }
+
   return temporalGeometry
 }
 
@@ -366,7 +391,7 @@ ServerAuth.prototype.getTemporalProperties = function (layer_id, feature_id, fea
     address: temporalPropertiesAddress,
     name: feature_id,
     time: feature_time,
-    limit: 1000
+    // limit: 1000
   }
   $.ajax({
     url: '/eachFeature',
@@ -398,7 +423,7 @@ ServerAuth.prototype.getEachTemporalProperty = function (tProperties, address){
   var data = {
     type: 1,
     address: "",
-    limit: 1000
+    // limit: 1000
   }
   for (let tProperty of tProperties){
     let tempValue = {

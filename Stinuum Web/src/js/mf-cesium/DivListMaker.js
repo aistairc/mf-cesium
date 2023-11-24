@@ -73,17 +73,19 @@ DivListMaker.prototype.turnOffFeature= function(layer_id, feature_id){
 }
 
 DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, is_printed_features=false){
-  LOG("createLIforFeature")
+  let typeinfo = buffer.getFeatureIDsByLayerIDTemp(layer_id);
+  LOG("createLIforFeature", typeinfo)
+
   var li = document.createElement("li");
   var a = document.createElement("a");
   var ul = document.createElement("ul");
   var chk = document.createElement("input");
   var div = document.createElement("div");
-  
   li.role = "presentation";
   div.className = "list-group-item left-toolbar-item";
-  div.style.width = "100%";
-//  ul.className = "list-group";
+
+
+ // ul.className = "list-group";
   
   a.style.width = "90%";
   a.innerText = feature_id;
@@ -116,17 +118,41 @@ DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, is_pri
   chk.addEventListener('click', function(){
       toggleFeature(layer_id,feature_id);
   });
-
+  // div.style.width = "100%";
   div.appendChild(chk);
   div.appendChild(a);
-
   li.appendChild(div);
+
+  // if (typeinfo === true) {
+  //   // var addBtn = document.createElement("button");
+  //   var div2 = document.createElement("div");
+  //   addBtn.innerText = "ADD"
+  //   addBtn.addEventListener('click', function () {
+  //     alert(layer_id, feature_id)
+  //   })
+  //   div2.appendChild(addBtn)
+  //   div2.className = "list-group-item left-toolbar-add";
+  //   div2.style.width= "20%"
+  //   div2.style.float= "right"
+  //   // addBtn.style.width= "100%"
+  //   // addBtn.style.height= "100%"
+  //   div2.style.color = "black"
+  //   div.style.width = "80%";
+  //   div.style.float= "left"
+  //   li.appendChild(div);
+  //   li.appendChild(div2)
+  // }else{
+  //   div.style.width = "100%";
+  //   li.appendChild(div);
+  // }
+
   return li;
 }
 
 DivListMaker.prototype.getFeaturesDivList = function(layer_id){
   var target = document.createElement('ul');
   var features_list = buffer.getFeatureIDsByLayerID(layer_id);
+  console.log("getFeaturesDivList")
   target.className = "input-group";
   for (var feature_id in features_list) {
     //var data = buffer.getFeature(layer_id, feature_id);
@@ -163,6 +189,7 @@ DivListMaker.prototype.getDivAllFeaturesAreTurnedOn = function(){
   var object = this.getFeaturesAndLayersTurnedOn();
   var target = document.createElement('ul');
   target.className = "input-group";
+
   for (var layer_id in object){
     for (var i = 0 ; i < object[layer_id].length ; i++){
       var feature_id = object[layer_id][i];

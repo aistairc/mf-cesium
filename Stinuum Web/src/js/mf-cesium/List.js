@@ -1,6 +1,7 @@
 function printFeaturesList(layer){
   current_layer = layer;
-	var list = list_maker.getFeaturesDivList(layer);
+
+  var list = list_maker.getFeaturesDivList(layer);
   var printArea = document.getElementById(div_id.left_upper_list);
   printArea.innerHTML = "";
   printArea.appendChild(list);

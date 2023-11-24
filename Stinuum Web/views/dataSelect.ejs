@@ -209,6 +209,7 @@
 
 <script>
     var localServerURL = '<%= localServerURL %>';
+    var limitMFC = '<%= limitMFC %>';
     function datatables() {
         return {
             headings: [
@@ -321,6 +322,7 @@
                 }).then(response => response.json())
                     .then(data => {
                         let MFCollections = data['collections']
+                        console.log(MFCollections)
                         for(let each_i = 0; each_i < MFCollections.length; each_i += 1){
                             let eachMFCollection = MFCollections[each_i]
                             // console.log(eachFeature.id, eachFeature.itemType, eachFeature['extent']['spatial']['bbox'], eachFeature['extent']['temporal']['interval'])
@@ -337,7 +339,7 @@
                                 mfc_title: F_title,
                                 mfc_bbox: F_p_bbox,
                                 mfc_time: F_p_time,
-                                mfc_limit: 5
+                                mfc_limit: limitMFC
                             })
                             this.originalMfcs.push(
                                 {
@@ -347,7 +349,7 @@
                                     mfc_title: F_title,
                                     mfc_bbox: F_p_bbox,
                                     mfc_time: F_p_time,
-                                    mfc_limit: 5
+                                    mfc_limit: limitMFC
                                 }
                             )
                         }
@@ -359,9 +361,22 @@
                     return;
                 }
                 this.selectedDataset = this.mfcs.filter(mfc => this.selectedRows.includes(mfc.mfc_idx))
-                // console.log(JSON.stringify(selectedDataset))
-                sessionStorage.foo = JSON.stringify(this.selectedDataset)
-                location.href="/";
+                let data = {
+                    mfc_list: JSON.stringify(this.selectedDataset)
+                }
+                $.ajax({
+                    url: '/selectedMFC',
+                    type: 'POST',
+                    data: data,
+                    async: false,
+                    success: function(data){
+                        if (data.ok){
+                            location.href = '/';
+                        }
+                    }
+                });
+
+                // sessionStorage.foo = JSON.stringify(this.selectedDataset)
             }
         }
     }

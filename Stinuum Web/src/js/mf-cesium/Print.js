@@ -9,9 +9,12 @@ function backButton() {
     var printArea = document.getElementById(div_id.left_upper_list);
     var printProperty = document.getElementById('property');
     var property_panel = document.getElementById("property_panel");
+    var list_div = document.getElementById(div_id.printed_features);
+
     var menu = document.getElementById(div_id.menu_list);
     if (printMenuState == MENU_STATE.layers) {
         //nothing
+
     }
     else if (printMenuState == MENU_STATE.features) { //go to LAYER
     // if(isServer == false){
@@ -22,6 +25,8 @@ function backButton() {
         changeMenuMode(MENU_STATE.layers);
         printArea.innerHTML = "";
         printArea.appendChild(list_maker.getLayerDivList());
+        list_div.innerHTML = "";
+        // afterChangingCheck();
     } 
     else if (printMenuState == MENU_STATE.one_feature) {
         printCheckAllandUnCheck();
@@ -31,8 +36,8 @@ function backButton() {
 
         printArea.innerHTML = "";
         printArea.appendChild(list_maker.getFeaturesDivList(current_layer));
-        clearAnalysis();
-        afterChangingCheck();
+        // clearAnalysis();
+        // afterChangingCheck();
     }else {
         throw "BACK BUTTON, STATE ERROR"
     }
@@ -156,7 +161,7 @@ function toggleFeature(layer_id, feature_id){
         showFeature(layer_id, feature_id);
         
     }
-    
+
     if (printMenuState == MENU_STATE.features) printFeaturesList(layer_id);
     afterChangingCheck();
 }

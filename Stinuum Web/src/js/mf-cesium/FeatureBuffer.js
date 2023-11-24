@@ -3,7 +3,23 @@ function FeatureBuffer(p_connection) {
   this.data = {};
   this.fromServer = {};
 }
+FeatureBuffer.prototype.getFeatureIDsByLayerIDTemp = function (layer_id) {
+  LOG("getFeatureIDsByLayerID", layer_id)
+  if (this.data[layer_id] !== undefined) {
+    return false
+  }else if(this.fromServer[layer_id] !== undefined){
+    return true
+  }else{
+    LOG("no layer", layer_id);
+    throw "this layer_id is not in buffer" + layer_id;
+  }
 
+  // if (this.data[layer_id] == undefined) {
+  //   LOG("no layer", layer_id);
+  //   throw "this layer_id is not in buffer" + layer_id;
+  // }
+  // return this.data[layer_id];
+}
 FeatureBuffer.prototype.getFeatureIDsByLayerID = function (layer_id) {
   LOG("getFeatureIDsByLayerID", layer_id)
   if (this.data[layer_id] != undefined) {

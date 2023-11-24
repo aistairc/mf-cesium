@@ -38,7 +38,6 @@ Stinuum.MFPair = function (id, feature) {
 }
 
 
-
 Stinuum.QueryProcessor = function (stinuum) {
     this.super = stinuum;
     this.result_pairs = [];
@@ -5894,6 +5893,9 @@ Stinuum.Imagemarking.prototype.show_img = function (pro_type_arr, image) {
 
     for (let id = 0; id < image_object_arr.length; id++) {
         let img_object = image_object_arr[id];
+        if (img_object.datetimes === undefined){
+            img_object = image_object_arr[id][0];
+        }
         // let img_object = image_object_arr[id][0];
         for (let i = 0; i < img_object.datetimes.length; i++) {
             if (img_object.values[i] == null) {
