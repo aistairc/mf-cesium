@@ -3768,7 +3768,7 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function (propertyName, arra
     var dataSet = []
     if (object_arr[0].form != undefined) {
         $.ajax({
-            url: '/js/mf-cesium/data_symbol.csv',
+            url: 'js/mf-cesium/data_symbol.csv',
             async: false,
             dataType: 'text',
             success: function successFunction(data) {
@@ -3913,7 +3913,7 @@ Stinuum.PropertyGraph.prototype.showPropertyArray = function (propertyName, arra
 
         if (object_interpolation == 'Linear') {
             line.curve(d3.curveLinear);
-        } else if (object_interpolation == 'Step') {
+        } else if (object_interpolation == 'Step' || object_interpolation == 'Stepwise') {
             if (object.type == "Text") {
                 for (var i = 0; i < data.length; i++) {
                     g.selectAll("circle" + id)
