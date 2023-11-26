@@ -28,9 +28,9 @@ function getHighlight(feature, temporalProperty) {
 
     changeOptionToolbarToCloseDIV();
     showOneFeatureGraph(feature, temporalProperty);
-    LOG("getHighlight")
-    LOG(feature)
-    LOG(temporalProperty)
+    // LOG("getHighlight")
+    // LOG(feature)
+    // LOG(temporalProperty)
     stinuum.temporalMap.show(feature, temporalProperty);
 }
 
@@ -81,12 +81,12 @@ function showContextMenu(id, pos) {
     let hide_items = ["DATETIMES", "IMAGE" ,"DETECTION"];
     let exist_items = []
     var feature = stinuum.mfCollection.getMFPairByIdInFeatures(id);
-    LOG("showContextMenu", feature, id)
+    // LOG("showContextMenu", feature, id)
     for (var i = 0; i < feature.feature.temporalProperties.length; i++) {
         var keys = Object.keys(feature.feature.temporalProperties[i]);
         for (var k = 0; k < keys.length; k++) {
             if (keys[k].toUpperCase() == 'DATETIMES') continue;
-            LOG(feature.feature.temporalProperties[i][keys[k]].type)
+            // LOG(feature.feature.temporalProperties[i][keys[k]].type)
             if(hide_items.indexOf(feature.feature.temporalProperties[i][keys[k]].type.toUpperCase())>=0){
             // if(hide_items.indexOf(feature.feature.temporalProperties[i][keys[k]].type)>=0){
                 continue;
@@ -94,7 +94,7 @@ function showContextMenu(id, pos) {
             if(exist_items.indexOf(keys[k])>=0){
                 continue;
             }
-            LOG(keys[k])
+            // LOG(keys[k])
             exist_items.push(keys[k])
             var div = document.createElement("div");
             div.className = "context-menu";
@@ -178,7 +178,7 @@ function updateProperties(id, name) {
     var chk = document.getElementById(id + "_" + name);
     var graph = document.getElementById('graph').style;
     var cesiumContainer = document.getElementById("cesiumContainer");
-    console.log(id, name, chk);
+    // console.log(id, name, chk);
     if (chk.checked == true) {
         if (property_name !== name) {
             temp_property = property_name;
@@ -203,7 +203,7 @@ function updateProperties(id, name) {
         document.getElementById("graph").style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
 
         stinuum.propertyGraph.show(name, "graph");
-        console.log("finish");
+        // console.log("finish");
     } else {
         $('input:checkbox[name="' + name + '"]').each(function () {
             if (this.checked) {

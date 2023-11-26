@@ -332,7 +332,7 @@ ServerConnector.prototype.requestFeatureObject = function (moving_feature_id, ur
 };
 
 ServerConnector.prototype.requestData = function (url) {
-    LOG("Connect url[" + url + "]");
+    // LOG("Connect url[" + url + "]");
     return new Promise(function (resolved, rejected) {
         var xhr = createCORSRequest('GET', url);
         if (!xhr) {
@@ -345,7 +345,7 @@ ServerConnector.prototype.requestData = function (url) {
             resolved(text);
         };
         xhr.onerror = function (ev) {
-            LOG(ev);
+            // LOG(ev);
             alert('Woops, there was an error making the request.');
         };
         xhr.send();
@@ -378,7 +378,7 @@ ServerConnector.prototype.turnOffLoading = function () {
 }
 
 ServerConnector.prototype.getFeaturesByLayerWithin = function (layer_id, layer_buffer, start, end, callback) {
-    LOG("getFeaturesByLayerWithin")
+    // LOG("getFeaturesByLayerWithin")
     let connector = this;
     connector.turnOnLoading();
     let promises = [];
@@ -390,9 +390,9 @@ ServerConnector.prototype.getFeaturesByLayerWithin = function (layer_id, layer_b
             "/features(\'" + keys[i] + "\')" +
             "/?token=" + connector.token +
             "&$select=subTrajectory(" + encodeURIComponent(start.toISOString() + "," + end.toISOString()) + ")";
-        LOG(feature_url);
-        LOG(start.toISOString());
-        LOG(end.toISOString());
+        // LOG(feature_url);
+        // LOG(start.toISOString());
+        // LOG(end.toISOString());
         //connector.requestFeatureObject(keys[i], feature_url)
         let feature_promise = connector.requestFeatureObject(keys[i], feature_url);
         promises.push(feature_promise);
@@ -466,7 +466,7 @@ ServerConnector.prototype.getFeaturesByLayerID = function (layer_id, layer_buffe
 }
 
 function setMovingFeatureResponse(layer_buffer, v) {
-    LOG(v);
+    // LOG(v);
     let mfjson = null;
     if (layer_buffer[v["id"]]) {
         mfjson = layer_buffer[v["id"]];
@@ -497,7 +497,7 @@ function setMovingFeatureResponse(layer_buffer, v) {
             }
         }
     }
-    LOG(mfjson);
+    // LOG(mfjson);
     layer_buffer[v["id"]] = mfjson;
 }
 

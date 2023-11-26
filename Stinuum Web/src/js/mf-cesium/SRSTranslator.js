@@ -16,12 +16,12 @@ SRSTranslator.prototype.addProjection = function (name, projection){
 }
 
 SRSTranslator.prototype.forward = function (coords, projectionFrom, projectionTo){
-    console.log(coords)
+    // console.log(coords)
     let height = undefined
     if (coords.length === 3){
         height = coords.pop()
     }
-    console.log(height)
+    // console.log(height)
     let transformation = this.getTransformation(projectionFrom, projectionTo)
     coords = transformation.forward(coords)
     
@@ -59,7 +59,7 @@ SRSTranslator.prototype.getProjection = function (name) {
     return this.projections[name]
 }
 SRSTranslator.prototype.searchProjecion = function(name){
-    console.log(this.projections[name])
+    // console.log(this.projections[name])
     if (this.projections[name] == undefined){
         return false
     }else{
@@ -79,7 +79,7 @@ SRSTranslator.prototype.crsCheck = function(crs){
                 type: 'GET',
                 
                 success: function(data){
-                    console.log(typeof(data))
+                    // console.log(typeof(data))
                     
                     crsValue = data
                 },
@@ -105,7 +105,7 @@ SRSTranslator.prototype.crsCheck = function(crs){
             type: 'GET',
             
             success: function(data){
-                console.log(typeof(data))
+                // console.log(typeof(data))
                 
                 crsValue = data
             },
@@ -114,7 +114,7 @@ SRSTranslator.prototype.crsCheck = function(crs){
             }
         });
         if (crsValue != undefined){
-            LOG(crsValue)
+            // LOG(crsValue)
             return ["LINK", crsValue]
         }
     }

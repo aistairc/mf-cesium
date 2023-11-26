@@ -42,7 +42,7 @@ function backButton() {
         throw "BACK BUTTON, STATE ERROR"
     }
     clearAnalysis();
-    console.log(printMenuState);
+    // console.log(printMenuState);
 }
 
 function toggle_toolbar(){
@@ -125,14 +125,14 @@ function showFeature(layer_id, feature_id){
     var ft = buffer.getFeature(layer_id, feature_id);
     if (!buffer.checkServerData(layer_id)){
         // console.log(connector.getTemporalProperties(layer_id, feature_id))
-        console.log(buffer.fromServer[layer_id][feature_id])
+        // console.log(buffer.fromServer[layer_id][feature_id])
         if(!buffer.fromServer[layer_id][feature_id].hasOwnProperty('temporalGeometry')){
             var tempObj = connector.makeOneFeature(layer_id, feature_id, ft.time)
             for(let i in Object.keys(tempObj)){
 
                 let eachKey = Object.keys(tempObj)[i];
                 let eachValue = tempObj[Object.keys(tempObj)[i]];
-                console.log(eachKey, eachValue)
+                // console.log(eachKey, eachValue)
                 buffer.fromServer[layer_id][feature_id][eachKey] = eachValue;
                 
             }
@@ -172,7 +172,7 @@ function refresh() {
 }
 
 function drawFeatures() { //아이디로 찾을까
-    LOG("drawFeatures");
+    // LOG("drawFeatures");
     stinuum.geometryViewer.update();
 
 }
@@ -180,7 +180,7 @@ function drawFeatures() { //아이디로 찾을까
 function connectHomeButton(){
     $('.cesium-button.cesium-toolbar-button.cesium-home-button').each(function(){
         $this = $(this);
-        LOG($this);
+        // LOG($this);
         $this.unbind(); 
         $this.click(function(){
             stinuum.geometryViewer.adjustCameraView();
@@ -201,7 +201,7 @@ function checkTemporalGeometry(layer_id, feature_id)  {
     if (feature_data.temporalGeometry.type == 'MovingGeometryCollection'){
         for (var prism_i = 0; prism_i < feature_data.temporalGeometry.prisms.length; prism_i++){
           var eachFeature = feature_data.temporalGeometry.prisms[prism_i];
-          LOG(eachFeature)
+          // LOG(eachFeature)
           if (!Array.isArray(eachFeature.coordinates[0][0][0]) &&  (eachFeature.type == 'MovingPolygon' || eachFeature.type == 'MovingLineString' || eachFeature.type == 'MovingPointCloud')) { //old mf-json format for polygon
             var coord = eachFeature.coordinates;
             var new_arr = [];

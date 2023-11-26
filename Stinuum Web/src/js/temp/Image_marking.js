@@ -67,7 +67,7 @@ Stinuum.Imagemarking.prototype.show = function(canvasID){
   for (var index = 0 ; index < this.super.mfCollection.features.length ; index++){
     var mf = this.super.mfCollection.features[index];
     var cl = Stinuum.addDirectionInfo(cumulative, mf.feature.temporalGeometry);
-    LOG(cl);
+    // LOG(cl);
     if (cl != -1)
       this.super.mfCollection.setColor(mf.id, cl);
   }

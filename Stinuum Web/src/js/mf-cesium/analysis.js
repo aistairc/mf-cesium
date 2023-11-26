@@ -143,7 +143,7 @@ var close_mfjson = function() {
 }
 var upload_mfjson = function() {
     
-    console.log(JSON.parse(cm.getValue()));
+    // console.log(JSON.parse(cm.getValue()));
     var new_data = JSON.parse(cm.getValue());
     var temp_fileName = "tempName_"+temp_i;
     temp_i += 1;
@@ -174,7 +174,7 @@ function showGraphItems(graph_id, pro_type_arr) {
 
 function showSelectItemsDialog(graph_id, pro_type_arr) {
     
-    LOG(pro_type_arr);
+    // LOG(pro_type_arr);
     // Create and set Overlay
     let dialogOverlay = document.createElement("div");
     dialogOverlay.classList.add("dialog-overlay");
@@ -187,7 +187,12 @@ function showSelectItemsDialog(graph_id, pro_type_arr) {
     // Create and set Dialog Header
     let dialogHeader = document.createElement("div");
     dialogHeader.classList.add("dialog-header");
-    dialogHeader.textContent = "Select show properties.";
+    if (graph_id == "server"){
+        dialogHeader.textContent = "Select Moving Feature Collections";
+    }else{
+        dialogHeader.textContent = "Select show properties.";
+    }
+
 
     // Create and set Dialog Boday
     // Dialog Body:[Dialog Message,Dialog Values, Dialog Buttons]
@@ -197,7 +202,12 @@ function showSelectItemsDialog(graph_id, pro_type_arr) {
     // Create and set Dialog Message
     let dialogMessage = document.createElement("div");
     dialogMessage.classList.add("dialog-message");
-    dialogMessage.textContent = "Max select 10 properties."
+
+    if (graph_id == "server"){
+        dialogMessage.textContent = ""
+    }else{
+        dialogMessage.textContent = "Max select 10 properties."
+    }
 
     // Create and set Dialog Buttons
     // Dialog Buttons:[ok, cancel]
@@ -218,18 +228,19 @@ function showSelectItemsDialog(graph_id, pro_type_arr) {
             }
         });
         if (graph_id == 'graph'){
-            console.log(graph_id, show_pro_type_arr)
+            // console.log(graph_id, show_pro_type_arr)
             showSelectProperties(graph_id, show_pro_type_arr);
             document.body.removeChild(dialogOverlay);
         }else if(graph_id == 'image'){
-            console.log(graph_id, show_pro_type_arr)
+            // console.log(graph_id, show_pro_type_arr)
             showSelectImgProperties(graph_id, show_pro_type_arr);
             document.body.removeChild(dialogOverlay);
             // document.body.removeChild(dialogOverlay);
         }else if(graph_id == 'server'){
-            console.log(graph_id, show_pro_type_arr)
+            // console.log(graph_id, show_pro_type_arr)
             connector.getServerDataList(show_pro_type_arr);
             document.body.removeChild(dialogOverlay);
+
             
             // document.body.removeChild(dialogOverlay);
         }
@@ -298,7 +309,7 @@ function showSelectItemsDialog(graph_id, pro_type_arr) {
 }
 
 function showSelectProperties(graph_id, pro_type_arr) {
-    console.log(graph_id, pro_type_arr)
+    // console.log(graph_id, pro_type_arr)
     if (document.getElementById('pro_menu')) {
         document.getElementById('pro_menu').remove();
     }
@@ -360,7 +371,7 @@ function showSelectProperties(graph_id, pro_type_arr) {
         // <---
         div.onclick = (function (stinuum, name_arr, index, graph) {
             return function () {
-                console.log(name_arr)
+                // console.log(name_arr)
                 document.getElementById('pro_menu').style.bottom = '20%';
                 document.getElementById('btn' + name_arr[index]).style.backgroundColor = 'rgba(200,100,100,0.8)';
                 document.getElementById("graph").style.height = '20%';
@@ -378,9 +389,9 @@ function showSelectProperties(graph_id, pro_type_arr) {
                         main_name = element.dataset.name;
                     }
                 });
-                console.log("compare grpah need : ", main_name, name_arr[index])
+                // console.log("compare grpah need : ", main_name, name_arr[index])
                 if (main_name && main_name != name_arr[index]) {
-                    console.log("compare grpah need : ", main_name, name_arr[index])
+                    // console.log("compare grpah need : ", main_name, name_arr[index])
                     stinuum.propertyGraph.compare(main_name, name_arr[index], graph);
                 } else {
                     stinuum.propertyGraph.show(name_arr[index], graph);
@@ -461,12 +472,12 @@ var selectProperty = function (graph_id) {
     }
 
     let pro_type_arr = stinuum.mfCollection.getAllPropertyType();
-    LOG("here selectProperty", pro_type_arr)
+    // LOG("here selectProperty", pro_type_arr)
     let show_list = [];
     for (let i = 0; i < pro_type_arr.length; i++) {
         // console.log(hide_items.indexOf((pro_type_arr[i].type).toUpperCase()))
         if (hide_items.indexOf((pro_type_arr[i].type).toUpperCase()) == -1) {
-            LOG("here selectProperty : ",pro_type_arr[i])
+            // LOG("here selectProperty : ",pro_type_arr[i])
             if(show_list.indexOf(pro_type_arr[i].key) == -1){
                 show_list.push(pro_type_arr[i].key);
             }
@@ -716,7 +727,7 @@ function makeAnalysisCloseBtn() {
         return function () {
             var option_div = document.getElementById('option')
             option_div.style.removeProperty("height");
-            console.log(option_div, $(option_div.style))
+            // console.log(option_div, $(option_div.style))
             clearAnalysis();
             refresh();
             drawFeatures();
@@ -816,7 +827,7 @@ function time_query() {
 }
 
 function zoom() {
-    LOG("timeQuery")
+    // LOG("timeQuery")
     var zoom_time = slider.getValue();
     var time_min_max = stinuum.mfCollection.getWholeMinMax(true).date;
 
@@ -901,7 +912,7 @@ function showSelectImgProperties(image_id, pro_type_arr) {
     
     img_view.style.height = '100%'
     img_view.style.zIndex = "25";
-    console.log(dialog.height)
+    // console.log(dialog.height)
     img_view.style.top = ''+dialog.height * 0.1+'px';
     img_view.width = document.body.offsetHeight / 3;
     img_view.height = document.body.offsetHeight / 3; 
@@ -933,7 +944,7 @@ function showSelectImgProperties(image_id, pro_type_arr) {
         checkbox.addEventListener('click', (e) => {
             let elements = document.getElementsByClassName('chk-image-item');
             let current = e.currentTarget;
-            console.log(current.id)
+            // console.log(current.id)
             Array.from(elements).forEach((element) => {
                 if (current.checked && element.id != current.id) {
                     element.setAttribute('disabled', 'disabled');
@@ -997,7 +1008,7 @@ function showSelectImgProperties(image_id, pro_type_arr) {
     close_div.onclick = (function () {
         return function () {
             
-            console.log("close")
+            // console.log("close")
             document.getElementById('img_menu').remove();
             $('img_view').remove();
             close_img()

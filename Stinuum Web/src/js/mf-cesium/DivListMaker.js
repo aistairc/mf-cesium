@@ -4,7 +4,7 @@ function DivListMaker(p_connection){
 }
 
 DivListMaker.prototype.getLayerDivList = function(){
-  console.log('getLayerDivList')
+  // console.log('getLayerDivList')
   var upper_ul = document.createElement('ul');
   upper_ul.style.height = "10%";
   upper_ul.className = "input-group";
@@ -20,7 +20,7 @@ DivListMaker.prototype.getLayerDivList = function(){
     li.onclick = (function(id) {
       return function() {
         changeMenuMode(MENU_STATE.features);
-        LOG(buffer);
+        // LOG(buffer);
 
         var features = buffer.getFeatureIDsByLayerID(id);
         var features_is_empty = Object.keys(features).length === 0 && features.constructor === Object;
@@ -30,17 +30,17 @@ DivListMaker.prototype.getLayerDivList = function(){
             printCheckAllandUnCheck(id);  
             stinuum.geometryViewer.adjustCameraView();  
         };
-        LOG(features)
-        LOG(buffer.fromServer[id])
+        // LOG(features)
+        // LOG(buffer.fromServer[id])
         if (features_is_empty && buffer.fromServer[id]){
-          LOG("features from server");
-          LOG(id, buffer.fromServer[id])
+          // LOG("features from server");
+          // LOG(id, buffer.fromServer[id])
           connector.getFeaturesByLayerID(id, buffer.fromServer[id], callback);
           // connector.getFeaturesByLayerID(id, buffer.data[id], callback);
           // callback();
         }
         else{
-          LOG("features from local", features);
+          // LOG("features from local", features);
           callback();
         }
       };
@@ -56,8 +56,8 @@ DivListMaker.prototype.getLayerDivList = function(){
 }
 
 DivListMaker.prototype.turnOnFeature= function(layer_id, feature_id, check){
-  LOG("turnOnFeature")
-  LOG(this.isFeatureChecked[layer_id])
+  // LOG("turnOnFeature")
+  // LOG(this.isFeatureChecked[layer_id])
   if (this.isFeatureChecked[layer_id] == undefined){
     throw "isFeatureChecked[layer_id] is undefined in DivListMaker";
   }
@@ -65,7 +65,7 @@ DivListMaker.prototype.turnOnFeature= function(layer_id, feature_id, check){
 }
 
 DivListMaker.prototype.turnOffFeature= function(layer_id, feature_id){
-  LOG("turnOffFeature")
+  // LOG("turnOffFeature")
   if (this.isFeatureChecked[layer_id] == undefined){
     throw "isFeatureChecked[layer_id] is undefined in DivListMaker";
   }
@@ -74,7 +74,7 @@ DivListMaker.prototype.turnOffFeature= function(layer_id, feature_id){
 
 DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, is_printed_features=false){
   let typeinfo = buffer.getFeatureIDsByLayerIDTemp(layer_id);
-  LOG("createLIforFeature", typeinfo)
+  // LOG("createLIforFeature", typeinfo)
 
   var li = document.createElement("li");
   var a = document.createElement("a");
@@ -152,7 +152,7 @@ DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, is_pri
 DivListMaker.prototype.getFeaturesDivList = function(layer_id){
   var target = document.createElement('ul');
   var features_list = buffer.getFeatureIDsByLayerID(layer_id);
-  console.log("getFeaturesDivList")
+  // console.log("getFeaturesDivList")
   target.className = "input-group";
   for (var feature_id in features_list) {
     //var data = buffer.getFeature(layer_id, feature_id);
@@ -193,7 +193,7 @@ DivListMaker.prototype.getDivAllFeaturesAreTurnedOn = function(){
   for (var layer_id in object){
     for (var i = 0 ; i < object[layer_id].length ; i++){
       var feature_id = object[layer_id][i];
-      console.log(feature_id)
+      // console.log(feature_id)
       target.appendChild(this.createLIforFeature(layer_id, feature_id, true));
     }
   }
@@ -240,7 +240,7 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
         var keys = Object.keys(temporalProperties[i]);
         for (var k = 0; k < keys.length; k++) {
             if (keys[k].toUpperCase() == 'DATETIMES') continue;
-            LOG(temporalProperties[i][keys[k]].type)
+            // LOG(temporalProperties[i][keys[k]].type)
             if(hide_items.indexOf(temporalProperties[i][keys[k]].type.toUpperCase())>=0){
             // if(hide_items.indexOf(temporalProperties[i][keys[k]].type) >= 0){
                 continue;
@@ -248,21 +248,22 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
             if(temporalProperties_name.indexOf(keys[k])>=0){
                 continue;
             }
-            LOG(keys[k])
+            // LOG(keys[k])
             temporalProperties_name.push(keys[k])
         }
         
       }
     } 
     else {
-      LOG(temporalProperties);
-      throw new Error("temporalProperties should be array");
+      // LOG(temporalProperties);
+      throw new Error("temporalPr" +
+          "operties should be array");
       //temporalProperties_name = Object.keys(temporalProperties);
     }
-    LOG("here temporalProperties_name", temporalProperties_name);
+    // LOG("here temporalProperties_name", temporalProperties_name);
     for (var i = 0; i < temporalProperties_name.length; i++) {
       
-        LOG(temporalProperties_name[i])
+        // LOG(temporalProperties_name[i])
         
         var li_temp = document.createElement("li");
         var a_temp = document.createElement("a");
@@ -287,7 +288,7 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
   }
   else{
     if (Array.isArray(temporalProperties)) {
-      LOG("here : ", temporalProperties.length)
+      // LOG("here : ", temporalProperties.length)
   
       for(var p_i = 0;p_i < temporalProperties.length;p_i++ ){
         var keys = Object.keys(temporalProperties[p_i]);
@@ -303,18 +304,18 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
             if(temporalProperties_name.indexOf(keys[k])>=0){
                 continue;
             }
-            LOG(keys[k])
+            // LOG(keys[k])
             temporalProperties_name.push(keys[k])
         }
       }
       
     }
     else {
-      LOG(temporalProperties);
+      // LOG(temporalProperties);
       throw new Error("temporalProperties should be array");
       //temporalProperties_name = Object.keys(temporalProperties);
     }
-    LOG("here temporalProperties_name", temporalProperties_name);
+    // LOG("here temporalProperties_name", temporalProperties_name);
     for (var i = 0; i < temporalProperties_name.length; i++) {
       
       var li_temp = document.createElement("li");

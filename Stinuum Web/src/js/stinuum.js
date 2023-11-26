@@ -71,9 +71,9 @@ Stinuum.GeometryViewer = function (stinuum) {
     this.projection = null;
     this.time_label = [];
     this.label_timeout = undefined;
-    LOG(this.super.cesiumViewer.scene.primitives)
-    LOG(this.super.cesiumViewer.dataSources)
-    LOG(this.super.cesiumViewer.entities)
+    // LOG(this.super.cesiumViewer.scene.primitives)
+    // LOG(this.super.cesiumViewer.dataSources)
+    // LOG(this.super.cesiumViewer.entities)
 
 
 
@@ -499,7 +499,7 @@ Stinuum.DirectionInfo.prototype.updateAvgVelocity = function () {
 }
 
 Stinuum.GeometryViewer.prototype.update = function (options) {
-    LOG("update function")
+    // LOG("update function")
     this.clear();
     this.super.mfCollection.findMinMaxGeometry();
     // this.clear();
@@ -510,15 +510,15 @@ Stinuum.GeometryViewer.prototype.update = function (options) {
 
 Stinuum.GeometryViewer.prototype.clear = function () {
     this.super.cesiumViewer.clock.multiplier = 10;
-    LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
+    // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
     // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0].constructor)
 
     if (Object.keys(this.primitives).length !== 0){
         this.super.cesiumViewer.dataSources.removeAll();
         this.super.cesiumViewer.entities.removeAll();   
-        LOG(Object.values(this.primitives))
+        // LOG(Object.values(this.primitives))
         var IDCount = 0
-        LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
+        // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives))
         // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0].constructor.name === "Primitive")
         // LOG(Object.values(this.super.cesiumViewer.scene.primitives._primitives)[0] instanceof PrimitiveCollection)
         var primitivesInfo = Object.values(this.super.cesiumViewer.scene.primitives._primitives)
@@ -667,11 +667,11 @@ Stinuum.GeometryViewer.prototype.draw = function () {
             }
             if (primitive !== -1) {
                 
-                LOG("here", primitive)
+                // LOG("here", primitive)
                 path_prim = this.super.cesiumViewer.scene.primitives.add(primitive);
                 //
                 this.primitives[mf.id] = path_prim;
-                LOG("here", primitive)
+                // LOG("here", primitive)
             }
         }
 
@@ -682,7 +682,7 @@ Stinuum.GeometryViewer.prototype.draw = function () {
 Stinuum.GeometryViewer.prototype.animate = function (options) {
     var mf_arr;
     var current_time;
-    console.log(this.super.mfCollection)
+    // console.log(this.super.mfCollection)
     var min_max = this.super.mfCollection.min_max;
     if (options != undefined) {
         if (options.id == undefined) {
@@ -720,7 +720,7 @@ Stinuum.GeometryViewer.prototype.animate = function (options) {
             current_time = min_max.date[0].toISOString();
         }
     } else {
-        console.log( "check", min_max)
+        // console.log( "check", min_max)
         current_time = min_max.date[0].toISOString();
     }
 
@@ -826,9 +826,9 @@ Stinuum.GeometryViewer.prototype.animate = function (options) {
         // var promise = this.super.cesiumViewer.dataSources.add(load_czml);
     }
 
-    obj = JSON.stringify(czml)
-    console.log(obj)
-    alert(obj)
+    // obj = JSON.stringify(czml)
+    // console.log(obj)
+    // alert(obj)
 
 
 
@@ -1291,7 +1291,7 @@ Stinuum.MFCollection.prototype.findMinMaxGeometry = function (p_mf_arr, use_defa
 
     min_max.date = [];
     var first_date;
-    console.log(mf_arr[0].feature)
+    // console.log(mf_arr[0].feature)
     if (mf_arr[0].feature.temporalGeometry.type == "MovingGeometryCollection") {
         first_date = new Date(mf_arr[0].feature.temporalGeometry.prisms[0].datetimes[0]);
     } else {
@@ -1307,7 +1307,7 @@ Stinuum.MFCollection.prototype.findMinMaxGeometry = function (p_mf_arr, use_defa
         if (mf_arr[i].feature.temporalGeometry.type == "MovingGeometryCollection") {
             for (var prism_i = 0; prism_i < mf_arr[i].feature.temporalGeometry.prisms.length; prism_i++) {
                 var eachFeature = mf_arr[i].feature.temporalGeometry.prisms[prism_i];
-                console.log("check", eachFeature)
+                // console.log("check", eachFeature)
                 if (eachFeature.type == "MovingPoint") {
                     mf_min_max_coord = Stinuum.findMinMaxCoord(eachFeature.coordinates);
                 } else {
@@ -4954,7 +4954,7 @@ Stinuum.QueryProcessor.prototype.queryByTime = function (start, end) {
     }
 
     this.super.mfCollection.features = new_mf_arr; 
-    LOG(this.super.mfCollection.features)
+    // LOG(this.super.mfCollection.features)
 }
 
 Stinuum.QueryProcessor.prototype.sliceFeatureByTime = function (feature, start, end) {
@@ -5300,7 +5300,7 @@ Stinuum.TemporalMap.prototype.show = function (mf_id, propertyName) {
     return 0;
 }
 Stinuum.reformattingTime = function (tempDatetimes) {
-    console.log(typeof tempDatetimes, tempDatetimes)
+    // console.log(typeof tempDatetimes, tempDatetimes)
 
     let newDatetimes = [];
     for(let eachTime of tempDatetimes){
@@ -5328,15 +5328,15 @@ Stinuum.reformattingTime = function (tempDatetimes) {
 }
 
 Stinuum.findMinMaxTime = function (datetimes) {
-    console.log(datetimes)
+    // console.log(datetimes)
     let min_max_date = [];
     min_max_date[0] = new Date(datetimes[0]);
     min_max_date[1] = new Date(datetimes[0]);
-    console.log(min_max_date)
+    // console.log(min_max_date)
     if (isNaN(min_max_date[0].getTime())) throw new Error("cannot be date type, utility.js, findMinMaxTime");
     for (var j = 1; j < datetimes.length; j++) {
         let time = new Date(datetimes[j]);
-        console.log(min_max_date)
+        // console.log(min_max_date)
         if (min_max_date[0].getTime() > time.getTime()) {
             min_max_date[0] = time;
         }

@@ -34,7 +34,7 @@ if (limitMFtp > 10000) {
     limitMFtp = 10000
 }
 let serverDataSet = {}
-console.log("app", localServerURL, limitMFtg, limitMFtp, limitMFC)
+// console.log("app", localServerURL, limitMFtg, limitMFtp, limitMFC)
 
 app.get("/dataSelect", function(req, res){
 
@@ -50,13 +50,13 @@ app.post("/selectedMFC", function(req, res){
     for (let eachData of receviedMFC){
         serverDataSet[eachData.mfc_id] = eachData
     }
-    console.log(serverDataSet)
+    // console.log(serverDataSet)
     res.json({ok: true});
     // res.render("dataSelect", {localServerURL: localServerURL});
 })
 
 app.post("/getSelectedMFC", function(req, res){
-    console.log("getSelectedMFC")
+    // console.log("getSelectedMFC")
     // console.log(Object.keys(serverDataSet).length)
     if (Object.keys(serverDataSet).length > 0) {
         res.json({ok: true, serverData: serverDataSet});
@@ -68,7 +68,7 @@ app.post("/getSelectedMFC", function(req, res){
     // res.render("dataSelect", {localServerURL: localServerURL});
 })
 app.post("/datalist", function(req, res){
-    console.log("app/datalist", req.body.address)
+    // console.log("app/datalist", req.body.address)
 
     let parameters = {
         limit: req.body.count
@@ -81,7 +81,7 @@ app.post("/eachFeature", function(req, res){
     // let parameters = {limit : 10};
     let parameters = {};
     if (req.body.type == undefined){
-        console.log("here undefined")
+        // console.log("here undefined")
         let parameters = {
             limit: req.body.limit
         };
@@ -90,12 +90,12 @@ app.post("/eachFeature", function(req, res){
     }
     else{
         if (req.body.type == "-1"){
-            console.log("Get featureValue")
+            // console.log("Get featureValue")
             serverCon.GET(req.body.address, parameters, res)
         }
         else if (req.body.type == "0"){
-            console.log("Get TemporalGeometry", req.body.address)
-            console.log(Array.isArray(req.body.time))
+            // console.log("Get TemporalGeometry", req.body.address)
+            // console.log(Array.isArray(req.body.time))
             if (Array.isArray(req.body.time) && req.body.time.length == 2){
                 parameters['time'] = req.body.time[0] + ',' + req.body.time[1]
             }else{
@@ -103,12 +103,12 @@ app.post("/eachFeature", function(req, res){
             }
 
             parameters['limit']= limitMFtg
-            console.log(parameters)
+            // console.log(parameters)
             serverCon.GET(req.body.address, parameters, res)
         }
         else if (req.body.type == "1"){
-            console.log("Get TemporalProperties")
-            console.log(Array.isArray(req.body.time))
+            // console.log("Get TemporalProperties")
+            // console.log(Array.isArray(req.body.time))
             if (Array.isArray(req.body.time) && req.body.time.length == 2){
                 parameters['time'] = req.body.time[0] + ',' + req.body.time[1]
             }else{
