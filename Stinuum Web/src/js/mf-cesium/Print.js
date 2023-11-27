@@ -123,6 +123,7 @@ function showFeature(layer_id, feature_id){
     
     list_maker.turnOnFeature(layer_id,feature_id);
     var ft = buffer.getFeature(layer_id, feature_id);
+    console.log("check", ft)
     if (!buffer.checkServerData(layer_id)){
         // console.log(connector.getTemporalProperties(layer_id, feature_id))
         // console.log(buffer.fromServer[layer_id][feature_id])

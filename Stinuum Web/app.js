@@ -82,16 +82,30 @@ app.post("/eachFeature", function(req, res){
 
     let parameters = {};
     if (req.body.type == undefined){
-
         let parameters = {
             limit: req.body.limit
         };
+        if (Array.isArray(req.body.time) && req.body.time.length == 2){
+            let startTime = req.body.time[0].replace(/\//g, "-");
+            let endTime = req.body.time[1].replace(/\//g, "-");
+            parameters['datetime'] = startTime + '/' + endTime
+        }else{
+            parameters['datetime'] = req.body.time
+        }
+
         let address = req.body.address+"/"+req.body.title+"/items"
         serverCon.GET(address, parameters, res)
     }
     else{
         if (req.body.type == "-1"){
             // console.log("Get featureValue")
+            if (Array.isArray(req.body.time) && req.body.time.length == 2){
+                let startTime = req.body.time[0].replace(/\//g, "-");
+                let endTime = req.body.time[1].replace(/\//g, "-");
+                parameters['datetime'] = startTime + '/' + endTime
+            }else{
+                parameters['datetime'] = req.body.time
+            }
             serverCon.GET(req.body.address, parameters, res)
         }
         else if (req.body.type == "0"){

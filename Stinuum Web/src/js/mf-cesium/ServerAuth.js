@@ -15,6 +15,7 @@ ServerAuth.prototype.getFeatureID = function(layer_id, address, count){
   var featureIDlist; 
   var data = {
     title: layer_id,
+
     address: address,
     limit: count
   };
@@ -46,7 +47,7 @@ ServerAuth.prototype.getFeatureID = function(layer_id, address, count){
     "numberMatched": featureIDlist.numberMatched,
     "numberReturned": featureIDlist.numberReturned,
   };
-  // console.log(featureIDlist);
+  console.log(featureIDlist);
   return featureIDlist.features;
   // if (featureIDlist.features.length > 1){
   //   return (featureIDlist.features).splice(0, count);
@@ -56,7 +57,7 @@ ServerAuth.prototype.getFeatureID = function(layer_id, address, count){
   //
   // }
 }
-ServerAuth.prototype.uploadServerData = function(layer_id, feature_id){
+ServerAuth.prototype.uploadServerData = function(layer_id, feature_id, mf_time){
   // console.log("uploadServerData", feature_id);
   buffer.createLayer(layer_id, true);
   // if(this.token == undefined || this.session_id == undefined){
@@ -70,6 +71,7 @@ ServerAuth.prototype.uploadServerData = function(layer_id, feature_id){
       var data = {
         type: -1,
         // address: feature_id[i].href,
+        time: mf_time,
         address: this.ServerURL+"/collections/"+layer_id+"/items/"+feature_id[i].id
         // token: this.token,
         // session_id: this.session_id,
@@ -200,8 +202,9 @@ ServerAuth.prototype.getServerDataList = function(titleNames){
   this.on = true
   // this.selectValue.names[0] = '20200106'
   // console.log("id Value")
-  // console.log(this.selectValue.names)
+  console.log(this.selectValue)
   let sampleCount = this.selectValue.count;
+  let mf_time = this.selectValue.time
   let address = this.selectValue.address;
   if(titleNames.length !== 0 ){
     // console.log(buffer.fromServer)
@@ -213,7 +216,7 @@ ServerAuth.prototype.getServerDataList = function(titleNames){
           let featureID = this.getFeatureID(titleNames[name_i], address, sampleCount[name_i])
           // console.log(featureID)
           if (featureID.length != 0){
-            this.uploadServerData(titleNames[name_i], featureID, address)
+            this.uploadServerData(titleNames[name_i], featureID, address, mf_time)
           }
         }
       }
@@ -299,6 +302,7 @@ ServerAuth.prototype.makeOneFeature = function(layer_id, feature_id, feature_tim
   tempObj.properties = {
     name: feature_id
   }
+  console.log("check", feature_time)
   var time
   if(new Date(feature_time[0]).getTime() === new Date(feature_time[1]).getTime()){
     
@@ -318,6 +322,7 @@ ServerAuth.prototype.makeOneFeature = function(layer_id, feature_id, feature_tim
   }
   let temporalProperties = this.getTemporalProperties(layer_id, feature_id, time)
   for (let each_property of temporalProperties.temporalProperties){
+    console.log(each_property)
     if (each_property["datetimes"] !== undefined) {
       let new_times = each_property["datetimes"].map(this.parseDateTime).map(this.formatDateTime);
       each_property["datetimes"] = new_times;
