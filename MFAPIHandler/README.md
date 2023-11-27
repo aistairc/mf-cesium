@@ -10,7 +10,7 @@
 1. [Install Python][python-url]
 2. Install python library
 ```shell
-cd Stinuum Web/MFAPIHandler
+cd mf-cesium/MFAPIHandler
 pip install -r requirements.txt
 ```
 
