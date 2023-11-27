@@ -100,9 +100,17 @@ function updateBuffer_local(filename, data) {
       var count = 0
       for (var feature_i = 0; feature_i < data.features.length; feature_i++) {
         if (data.features[feature_i].properties.name == undefined) {
-          data.features[feature_i].properties.name = layer + "_" + count
+          if (data.features[feature_i].id !== undefined) {
+            data.features[feature_i].properties.name = data.features[feature_i].id
+          }else if (data.features[feature_i].properties.id !== undefined){
+            data.features[feature_i].properties.name = data.features[feature_i].properties.id
+          }else{
+            data.features[feature_i].properties.name = layer + "_" + count
+            count += 1;
+          }
+          // data.features[feature_i].properties.name = layer + "_" + count
           // LOG(data.features[feature_i].properties.name)
-          count += 1;
+
         }
         buffer.setBuffer_layer(layer, data.features[feature_i]);
       }

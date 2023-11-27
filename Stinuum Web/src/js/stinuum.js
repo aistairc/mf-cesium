@@ -1026,8 +1026,6 @@ Stinuum.GeometryViewer.prototype.adjustCameraView = function () {
     var geomview = this;
 
 
-
-
     if (bounding == undefined || bounding == -1) {
         return;
     }

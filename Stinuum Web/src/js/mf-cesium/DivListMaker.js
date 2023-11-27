@@ -36,6 +36,7 @@ DivListMaker.prototype.getLayerDivList = function(){
           // LOG("features from server");
           // LOG(id, buffer.fromServer[id])
           connector.getFeaturesByLayerID(id, buffer.fromServer[id], callback);
+          stinuum.geometryViewer.adjustCameraView();
           // connector.getFeaturesByLayerID(id, buffer.data[id], callback);
           // callback();
         }

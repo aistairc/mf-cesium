@@ -78,10 +78,11 @@ app.post("/datalist", function(req, res){
 });
 app.post("/eachFeature", function(req, res){
 
-    // let parameters = {limit : 10};
+
+
     let parameters = {};
     if (req.body.type == undefined){
-        // console.log("here undefined")
+
         let parameters = {
             limit: req.body.limit
         };
@@ -97,12 +98,15 @@ app.post("/eachFeature", function(req, res){
             // console.log("Get TemporalGeometry", req.body.address)
             // console.log(Array.isArray(req.body.time))
             if (Array.isArray(req.body.time) && req.body.time.length == 2){
-                parameters['time'] = req.body.time[0] + ',' + req.body.time[1]
+                let startTime = req.body.time[0].replace(/\//g, "-");
+                let endTime = req.body.time[1].replace(/\//g, "-");
+                parameters['datetime'] = startTime + '/' + endTime
             }else{
-                parameters['time'] = req.body.time
+                parameters['datetime'] = req.body.time
             }
-
+            parameters['subTrajectory'] = true
             parameters['limit']= limitMFtg
+            console.log("/eachFeature", req.body.type, req.body.address, parameters)
             // console.log(parameters)
             serverCon.GET(req.body.address, parameters, res)
         }
@@ -110,13 +114,16 @@ app.post("/eachFeature", function(req, res){
             // console.log("Get TemporalProperties")
             // console.log(Array.isArray(req.body.time))
             if (Array.isArray(req.body.time) && req.body.time.length == 2){
-                parameters['time'] = req.body.time[0] + ',' + req.body.time[1]
+                let startTime = req.body.time[0].replace(/\//g, "-");
+                let endTime = req.body.time[1].replace(/\//g, "-");
+                parameters['datetime'] = startTime + '/' + endTime
             }else{
-                parameters['time'] = req.body.time
+                parameters['datetime'] = req.body.time.replace(/\//g, "-")
             }
 
             parameters['limit']= limitMFtp
-
+            parameters['subTemporalValue'] = true
+            console.log("/eachFeature", req.body.type, req.body.address, parameters)
             serverCon.GET(req.body.address, parameters, res)
         }
     }

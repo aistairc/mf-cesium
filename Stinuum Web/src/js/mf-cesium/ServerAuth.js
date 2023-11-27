@@ -29,8 +29,8 @@ ServerAuth.prototype.getFeatureID = function(layer_id, address, count){
       }
       else{
         featureIDlist = [];
-        // window.alert("Login Please");
-        location.href = '/';
+        window.alert("Login Please");
+        // location.href = '/';
       }
       
     }
@@ -87,7 +87,7 @@ ServerAuth.prototype.uploadServerData = function(layer_id, feature_id){
             // console.log(data.data);
           }else{
             alert("Login Please");
-            location.href = '/';
+            // location.href = '/';
           }
           // console.log(feature_data)
         }
@@ -126,12 +126,12 @@ ServerAuth.prototype.uploadServerData2 = function(layer_id){
         if (data.ok){
           feature_data = data.data;
         }else{
-          // alert("Login Please");
-          location.href = '/';
+          alert("Login Please");
+          // location.href = '/';
         }
       }
     });
-    // console.log(feature_data);
+    console.log(feature_data);
 
     this.selectData[layer_id].numberReturned = feature_data.numberReturned;
     this.selectData[layer_id].numberLoaded += feature_data.numberReturned;
@@ -310,14 +310,20 @@ ServerAuth.prototype.makeOneFeature = function(layer_id, feature_id, feature_tim
   } 
 
   let temporalGeometry = this.getTemporalGeometry(layer_id, feature_id, time)
-  let temporalProperties = this.getTemporalProperties(layer_id, feature_id, time)
+
   // console.log(temporalGeometry)
   if (temporalGeometry.type !== undefined){
 
     tempObj.temporalGeometry = this.checkData(temporalGeometry)
   }
-  // console.log(temporalProperties)
-  // console.log(temporalProperties.temporalProperties[0])
+  let temporalProperties = this.getTemporalProperties(layer_id, feature_id, time)
+  for (let each_property of temporalProperties.temporalProperties){
+    if (each_property["datetimes"] !== undefined) {
+      let new_times = each_property["datetimes"].map(this.parseDateTime).map(this.formatDateTime);
+      each_property["datetimes"] = new_times;
+    }
+
+  }
   if (temporalProperties.temporalProperties.length !== 0 && temporalProperties.temporalProperties[0].datetimes !== undefined){
     tempObj.temporalProperties = temporalProperties.temporalProperties
   }
@@ -330,7 +336,7 @@ ServerAuth.prototype.getTemporalGeometry = function (layer_id, feature_id, featu
   // https://dpsdev.aaic.hpcc.jp/mf/collections/20190614/mfeatures/featureKeys
   // var index = this.getNameIndex(layer_id);
   // console.log("getTemporalGeometry")
-  let temporalGeometryAddress = this.selectValue.address+"/"+layer_id+"/items/"+feature_id+"/tGeometries";
+  let temporalGeometryAddress = this.selectValue.address+"/"+layer_id+"/items/"+feature_id+"/tgsequence";
 
   let temporalGeometry;
   let data = {
@@ -352,12 +358,12 @@ ServerAuth.prototype.getTemporalGeometry = function (layer_id, feature_id, featu
     success: function(data){
     
       if (data.ok){
-        // console.log(data.data)
+        console.log(data.data)
         temporalGeometry = data.data
       }else{
         temporalGeometry = {}
-        // alert("Login Please")
-        location.href = '/'
+        alert("Login Please")
+        // location.href = '/'
         
       }
     },
@@ -366,7 +372,7 @@ ServerAuth.prototype.getTemporalGeometry = function (layer_id, feature_id, featu
     }
     
   });
-  // console.log("temporalGeometry", temporalGeometry)
+  console.log("temporalGeometry", temporalGeometry)
   if (this.selectData[layer_id][feature_id] !== undefined){
     this.selectData[layer_id][feature_id] = {
 
@@ -378,7 +384,11 @@ ServerAuth.prototype.getTemporalGeometry = function (layer_id, feature_id, featu
       // "numberReturned": featureIDlist.numberReturned,
     }
   }
-
+  if (temporalGeometry.hasOwnProperty("geometrySequence")) {
+    temporalGeometry["prisms"] = temporalGeometry["geometrySequence"];
+    delete temporalGeometry["geometrySequence"];
+  }
+  temporalGeometry.type = "MovingGeometryCollection"
   return temporalGeometry
 }
 
@@ -405,7 +415,7 @@ ServerAuth.prototype.getTemporalProperties = function (layer_id, feature_id, fea
         temporalProperties = data.data
       }else{
         // console.log(data.data)
-        temporalProperties = []        
+        temporalProperties = {}
       
       }
     },error: function(err){
@@ -413,9 +423,16 @@ ServerAuth.prototype.getTemporalProperties = function (layer_id, feature_id, fea
     }
   });
   // console.log("get properties", temporalProperties)
-  let tPropertiesWithValue = this.getEachTemporalProperty(temporalProperties.temporalProperties, temporalPropertiesAddress)
-  // console.log(tPropertiesWithValue)
-  return tPropertiesWithValue
+
+  if (temporalProperties.temporalProperties == undefined){
+    temporalProperties.temporalProperties = []
+    return temporalProperties
+  }else{
+    // let tPropertiesWithValue = this.getEachTemporalProperty(temporalProperties.temporalProperties, temporalPropertiesAddress)
+    // console.log(tPropertiesWithValue)
+    return temporalProperties
+  }
+
 }
 
 ServerAuth.prototype.getEachTemporalProperty = function (tProperties, address){
@@ -451,7 +468,8 @@ ServerAuth.prototype.getEachTemporalProperty = function (tProperties, address){
         console.log(err)
       }
     });
-    tempValue.datetimes = this.reformattingTime(tempValue.datetimes)
+    let new_datetimes = tempValue.datetimes.map(this.parseDateTime).map(this.formatDateTime)
+    tempValue.datetimes = new_datetimes
     tPropertiesWithValue.temporalProperties.push(tempValue);
   }
   return tPropertiesWithValue
@@ -482,35 +500,72 @@ ServerAuth.prototype.turnOffLoading = function () {
   document.getElementById(div_id.server_state).innerHTML = '';
 }
 
-ServerAuth.prototype.reformattingTime = function (tempDatetimes) {
+// ServerAuth.prototype.formatDateTime = function (inputDateTime) {
+//   // 입력된 문자열을 Date 객체로 변환
+//   let dateTime = new Date(inputDateTime);
+//
+//   // 원하는 형식으로 포맷팅
+//   let formattedDateTime = dateTime.toISOString();
+//
+//   return formattedDateTime;
+// }
+function formatDateTime(dateTime) {
+  // ISO 8601 형식으로 포맷팅
+  return dateTime.toISOString();
+}
+ServerAuth.prototype.formatDateTime = function (dateTime) {
+  return dateTime.toISOString();
+}
+ServerAuth.prototype.parseDateTime = function (inputDateTime){
+  const regex = /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?)(?:([+-]\d{2})(\d{2}))?/;
+  const match = inputDateTime.match(regex);
+
+  if (!match) {
+    throw new Error("Invalid date format");
+  }
+
+  const [, dateTimeString, offsetHours, offsetMinutes] = match;
+
+  // 시간대 오프셋이 주어진 경우 적용
+  const offsetMilliseconds = (offsetHours || 0) * 60 * 60 * 1000 + (offsetMinutes || 0) * 60 * 1000;
+
+  // Date 객체 생성
+  const dateTime = new Date(dateTimeString + "Z");
+  dateTime.setTime(dateTime.getTime() - offsetMilliseconds);
+
+  return dateTime;
+}
+
+// ServerAuth.prototype.reformattingTime = function (tempDatetimes) {
   // console.log(typeof tempDatetimes, tempDatetimes);
   // console.log("hi");
-  let newDatetimes = [];
-  for(let eachTime of tempDatetimes){
-    if (eachTime.match(/\+/g)?.length === 1){
-      let CheckisoDateString = eachTime.length - (eachTime.lastIndexOf("+") + 1);
-      if (CheckisoDateString === 3){
-        let formattedDateString = eachTime.replace(/(\d{1})(\d{1})Z$/, '$1$2:00');
-        // console.log(formattedDateString);
-        newDatetimes.push(formattedDateString);
-      }else{
-        newDatetimes.push(eachTime);
-      }
-    }
-    else if (eachTime.match(/\-/g)?.length === 3){
-      let CheckisoDateString = eachTime.length - (eachTime.lastIndexOf("-") + 1);
-      if (CheckisoDateString === 3){
-        let formattedDateString = eachTime.replace(/(\d{1})(\d{1})Z$/, '$1$2:00');
-        // console.log(formattedDateString);
-        newDatetimes.push(formattedDateString);
-      }else{
-        newDatetimes.push(eachTime);
-      }
-    }else{
-      newDatetimes.push(eachTime);
-    }
-  }
-  return newDatetimes;
+  // let newDatetimes = [];
+
+  // for(let eachTime of tempDatetimes){
+  //   if (eachTime.match(/\+/g)?.length === 1){
+  //     let CheckisoDateString = eachTime.length - (eachTime.lastIndexOf("+") + 1);
+  //     if (CheckisoDateString === 3){
+  //       let formattedDateString = eachTime.replace(/(\d{1})(\d{1})Z$/, '$1$2:00');
+  //       // console.log(formattedDateString);
+  //       newDatetimes.push(formattedDateString);
+  //     }else{
+  //       newDatetimes.push(eachTime);
+  //     }
+  //   }
+  //   else if (eachTime.match(/\-/g)?.length === 3){
+  //     let CheckisoDateString = eachTime.length - (eachTime.lastIndexOf("-") + 1);
+  //     if (CheckisoDateString === 3){
+  //       let formattedDateString = eachTime.replace(/(\d{1})(\d{1})Z$/, '$1$2:00');
+  //       // console.log(formattedDateString);
+  //       newDatetimes.push(formattedDateString);
+  //     }else{
+  //       newDatetimes.push(eachTime);
+  //     }
+  //   }else{
+  //     newDatetimes.push(eachTime);
+  //   }
+  // }
+  // return newDatetimes;
 
 
   // let newDatetimes = [];
@@ -525,14 +580,15 @@ ServerAuth.prototype.reformattingTime = function (tempDatetimes) {
   //   }
   // }
   // return newDatetimes
-}
-
+// }
 
 ServerAuth.prototype.checkData = function(feature_data){
-  if (feature_data.type == 'MovingGeometryCollection'){
+  if (feature_data.type == "MovingGeometryCollection"){
     for (var prism_i = 0; prism_i < feature_data.prisms.length; prism_i++){
       var eachFeature = feature_data.prisms[prism_i];
-      feature_data.prisms[prism_i].datetimes = this.reformattingTime(eachFeature.datetimes);
+      let new_datetimes = feature_data.prisms[prism_i].datetimes.map(this.parseDateTime).map(this.formatDateTime);
+      // feature_data.prisms[prism_i].datetimes = this.reformattingTime(eachFeature.datetimes);
+      feature_data.prisms[prism_i].datetimes = new_datetimes
       if (!Array.isArray(eachFeature.coordinates[0][0][0]) &&  (eachFeature.type == 'MovingPolygon' || eachFeature.type == 'MovingLineString' || eachFeature.type == 'MovingPointCloud')) { //old mf-json format for polygon
         var coord = eachFeature.coordinates;
         var new_arr = [];
@@ -547,7 +603,9 @@ ServerAuth.prototype.checkData = function(feature_data){
   else if (!Array.isArray(feature_data.coordinates[0][0][0]) &&
   // feature_data.type == 'MovingPolygon'||feature_data.type == 'MovingPoint'||feature_data.type == 'MovingLineString') { //old mf-json format for polygon
   (feature_data.type == 'MovingPolygon' || feature_data.type == 'MovingLineString' || feature_data.type == 'MovingPointCloud')) { //old mf-json format for polygon
-    feature_data.datetimes = this.reformattingTime(feature_data.datetimes);
+    let new_datetimes = feature_data.datetimes.map(this.parseDateTime).map(this.formatDateTime)
+    // feature_data.datetimes = this.reformattingTime(feature_data.datetimes);
+    feature_data.datetimes = new_datetimes
     var coord = feature_data.coordinates;
     var new_arr = [];
     // LOG("eachFeature test")
@@ -557,6 +615,38 @@ ServerAuth.prototype.checkData = function(feature_data){
     feature_data.coordinates = new_arr;
     // LOG("old data format coming..")
   }
-
+  console.log(feature_data)
   return feature_data
 }
+// ServerAuth.prototype.checkData = function(feature_data){
+//   if (feature_data.type == 'MovingGeometryCollection'){
+//     for (var prism_i = 0; prism_i < feature_data.prisms.length; prism_i++){
+//       var eachFeature = feature_data.prisms[prism_i];
+//       feature_data.prisms[prism_i].datetimes = this.reformattingTime(eachFeature.datetimes);
+//       if (!Array.isArray(eachFeature.coordinates[0][0][0]) &&  (eachFeature.type == 'MovingPolygon' || eachFeature.type == 'MovingLineString' || eachFeature.type == 'MovingPointCloud')) { //old mf-json format for polygon
+//         var coord = eachFeature.coordinates;
+//         var new_arr = [];
+//         for (var j = 0; j < coord.length; j++) {
+//           new_arr.push([coord[j]]);
+//         }
+//         feature_data.prisms[prism_i].coordinates = new_arr;
+//         // LOG("old data format coming..")
+//       }
+//     }
+//   }
+//   else if (!Array.isArray(feature_data.coordinates[0][0][0]) &&
+//   // feature_data.type == 'MovingPolygon'||feature_data.type == 'MovingPoint'||feature_data.type == 'MovingLineString') { //old mf-json format for polygon
+//   (feature_data.type == 'MovingPolygon' || feature_data.type == 'MovingLineString' || feature_data.type == 'MovingPointCloud')) { //old mf-json format for polygon
+//     feature_data.datetimes = this.reformattingTime(feature_data.datetimes);
+//     var coord = feature_data.coordinates;
+//     var new_arr = [];
+//     // LOG("eachFeature test")
+//     for (var j = 0; j < coord.length; j++) {
+//       new_arr.push([coord[j]]);
+//     }
+//     feature_data.coordinates = new_arr;
+//     // LOG("old data format coming..")
+//   }
+//
+//   return feature_data
+// }
