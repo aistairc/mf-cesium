@@ -3,19 +3,16 @@
 > There is an example of registering MovingFeatureCollection in the "main()" function of MFAPIHandler.py program and uploading MovingFeature data.
 
 ## Dependency
-* Python 3.10 (Test version)
+* [![Python3][python-shield]][python-url]
+
 
 ## Install Method
-1. Install Python [Link](https://www.python.org/downloads/)
+1. [Install Python][python-url]
 2. Install python library
 ```shell
 cd Stinuum Web/MFAPIHandler
 pip install -r requirements.txt
 ```
-
-
-* [![Python3][python-shield]][python-url]
-* [![MF-API][github-shield]][mf-server-url]
 
 [python-shield]: https://img.shields.io/badge/Python_v3.10-3776AB?style=flat&logo=python&logoColor=white
 [python-url]: https://www.python.org/
