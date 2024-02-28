@@ -120,7 +120,7 @@ function eraseFeature(layer_id, feature_id){
 }
 
 function showFeature(layer_id, feature_id){
-    
+    // alert("showFeature")
     list_maker.turnOnFeature(layer_id,feature_id);
     var ft = buffer.getFeature(layer_id, feature_id);
     console.log("check", ft)

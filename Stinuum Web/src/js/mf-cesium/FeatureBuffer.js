@@ -23,6 +23,7 @@ FeatureBuffer.prototype.addTproperty = function (layer_id, feature_id, tgeometry
   if (!idx){
     this.fromServer[layer_id][feature_id].temporalProperties.push(t_property);
   }
+  return idx;
 }
 
 FeatureBuffer.prototype.getTgeometryID = function (layer_id, feature_id){

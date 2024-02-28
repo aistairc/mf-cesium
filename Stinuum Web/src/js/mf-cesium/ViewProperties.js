@@ -25,7 +25,7 @@ function turnOffProperties() {
 }
 
 function getHighlight(feature, temporalProperty) {
-
+    // console.log("getHighlight", feature, temporalProperty)
     changeOptionToolbarToCloseDIV();
     showOneFeatureGraph(feature, temporalProperty);
     // LOG("getHighlight")

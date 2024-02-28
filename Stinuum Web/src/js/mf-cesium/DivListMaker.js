@@ -92,6 +92,7 @@ DivListMaker.prototype.createLIforFeature= function(layer_id, feature_id, is_pri
   a.innerText = feature_id;
   if (!is_printed_features){
     a.onclick = (function(layer, feature) {
+
       return function() {
         //LOG("dra");
         changeMenuMode(MENU_STATE.one_feature);
@@ -227,6 +228,7 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
   var feature = buffer.getFeature(layer_id, feature_id);
 
   var name = feature.properties.name;
+  console.log("getTemporalPropertiesListDiv", name);
   var temporalProperties = feature.temporalProperties;
   
   var ul = document.createElement("ul");
@@ -329,6 +331,7 @@ DivListMaker.prototype.getTemporalPropertiesListDiv = function(layer_id, feature
   
       a_temp.innerText = temporalProperties_name[i];
       a_temp.onclick = (function(feature_id, temporalProperty) {
+        alert(feature_id)
         return function() {
           getHighlight(feature_id, temporalProperty);
         }

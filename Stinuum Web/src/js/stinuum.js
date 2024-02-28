@@ -5172,6 +5172,7 @@ Stinuum.TemporalMap.prototype.show = function (mf_id, propertyName) {
 
 
     var mf = this.super.mfCollection.getMFPairById(mf_id);
+    // console.log(mf, pro_name)
     if (mf == -1) {
 
         return;
@@ -5181,6 +5182,7 @@ Stinuum.TemporalMap.prototype.show = function (mf_id, propertyName) {
     this.super.mfCollection.hideAll(mf_id);
 
     var property = Stinuum.getPropertyByName(mf.feature, pro_name, mf_id);
+    // console.log(property)
     if (property == -1) {
 
         return;
@@ -5193,6 +5195,7 @@ Stinuum.TemporalMap.prototype.show = function (mf_id, propertyName) {
 
     this.super.mfCollection.min_max = this.super.mfCollection.findMinMaxGeometry([mf]);
     var type = mf.feature.temporalGeometry.type;
+    console.log(type)
     this.super.geometryViewer.clear();
 
     if (this.super.mode == 'SPACETIME') {
@@ -5211,8 +5214,8 @@ Stinuum.TemporalMap.prototype.show = function (mf_id, propertyName) {
         for (var property_i = 0; property_i < property.length; property_i++) {
             for (var prism_i = 0; prism_i < mf.feature.temporalGeometry.prisms.length; prism_i++) {
                 var eachFeature = mf.feature.temporalGeometry.prisms[prism_i]
-                var check_start = false
-                var check_end = false
+                var check_start = false;
+                var check_end = false;
 
 
                 if (eachFeature.datetimes.length == property[property_i][0].datetimes.length) {
@@ -5286,7 +5289,7 @@ Stinuum.TemporalMap.prototype.show = function (mf_id, propertyName) {
         }
     }
 
-
+    console.log(highlight_prim)
     this.super.geometryViewer.primitives[mf_id] = highlight_prim;
 
 

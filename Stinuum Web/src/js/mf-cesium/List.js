@@ -22,6 +22,29 @@ function changeMenuMode(mode, feature_id){
     }
 }
 
+function addTpropertyName(feautre_id, tproperty_name){
+  let name = feautre_id;
+  var left_upper_div = document.getElementById(div_id.left_upper_list);
+
+  var ul = document.getElementById(name);
+  var li_temp = document.createElement("li");
+  var a_temp = document.createElement("a");
+  var div_temp = document.createElement("div");
+
+  div_temp.className = "list-group-item left-toolbar-item";
+  //div_temp.style.display = "inline-block";
+  div_temp.role = "presentation";
+
+  a_temp.innerText = tproperty_name;
+  a_temp.onclick = (function(feature_id, temporalProperty) {
+    return function() {
+      getHighlight(feature_id, temporalProperty);
+    }
+  })(name, tproperty_name);
+  div_temp.appendChild(a_temp);
+  li_temp.appendChild(div_temp);
+  ul.appendChild(li_temp);
+}
 function addButton(printState, feature_id){
   printState.innerText = "";
   let temp_div = document.createElement("div");
@@ -73,8 +96,11 @@ function getProperty(collection_id, mfeature_id, tgeometry_id, q_type){
           values: userData.valueSequence[0].values,
           interpolation: userData.valueSequence[0].interpolation
         }
-        buffer.addTproperty(collection_id, mfeature_id, tgeometry_id, t_properties, userData.name);
+        let result = buffer.addTproperty(collection_id, mfeature_id, tgeometry_id, t_properties, userData.name);
         showSelectProperties("graph", [q_type]);
+        if(!result){
+          addTpropertyName(mfeature_id, userData.name);
+        }
         console.log('User Data:', t_properties);
       })
       .catch(error => {
@@ -277,7 +303,7 @@ function afterChangingCheck(){
   // LOG("afterChangingCheck");
   update_printed_features();
   clearAnalysis();
-  // refresh(); //All whole -> features And remove Anlaysis mf.
+  refresh(); //All whole -> features And remove Anlaysis mf.
   drawFeatures();
 }
 
