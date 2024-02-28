@@ -240,9 +240,11 @@ function showSelectItemsDialog(graph_id, pro_type_arr) {
             // console.log(graph_id, show_pro_type_arr)
             connector.getServerDataList(show_pro_type_arr);
             document.body.removeChild(dialogOverlay);
-
-            
             // document.body.removeChild(dialogOverlay);
+        }else if(graph_id == 'server2') {
+            // console.log(graph_id, show_pro_type_arr)
+            connector.getServerDataList(show_pro_type_arr);
+            document.body.removeChild(dialogOverlay);
         }
       
     });
@@ -309,7 +311,7 @@ function showSelectItemsDialog(graph_id, pro_type_arr) {
 }
 
 function showSelectProperties(graph_id, pro_type_arr) {
-    // console.log(graph_id, pro_type_arr)
+    console.log(graph_id, pro_type_arr)
     if (document.getElementById('pro_menu')) {
         document.getElementById('pro_menu').remove();
     }
@@ -440,6 +442,139 @@ function showSelectProperties(graph_id, pro_type_arr) {
     document.body.appendChild(pro_menu);
     changeOptionToolbarToCloseDIV();
 }
+function showSelectPropertiesTemp(graph_id, pro_type_arr) {
+    console.log(graph_id, pro_type_arr)
+    // if (document.getElementById('pro_menu')) {
+    //     document.getElementById('pro_menu').remove();
+    // }
+    // document.getElementById(graph_id).innerHTML = '';
+    // document.getElementById(graph_id).style.height = '0%';
+    // document.getElementById(graph_id).style.cursor = 'pointer';
+    //
+    // let pro_menu = document.createElement('div');
+    // pro_menu.style.bottom = '0';
+    // pro_menu.style.backgroundColor = 'rgba(105, 105, 105, 0.8)';
+    // pro_menu.style.height = "5%";
+    // pro_menu.style.zIndex = "25";
+    // pro_menu.id = 'pro_menu';
+    // pro_menu.style.cursor = 'pointer';
+    // pro_menu.className = 'graph';
+    // for (let i = 0; i < pro_type_arr.length; i++) {
+    //     let div = document.createElement('div');
+    //     div.style.padding = "0px 10px 0px 10px";
+    //     div.style.color = 'white';
+    //     div.style.float = 'left';
+    //     //div.style.textAlign = 'center';
+    //     div.style.fontSize = '100%';
+    //     div.style.height = "100%";
+    //     div.style.lineHeight = "100%";
+    //     div.style.width = 100 / (pro_type_arr.length + 1) + '%';
+    //     //div.innerHTML = pro_type_arr[i];
+    //     div.id = 'btn' + pro_type_arr[i];
+    //     // Add ktianishi 2018.02.01 -->
+    //     div.style.display = 'flex';
+    //     div.style.justifyContent = 'center';
+    //     div.style.flexDirection = 'row';
+    //     div.style.alignItems = 'center';
+    //     let checkbox = document.createElement('input');
+    //     checkbox.type = 'checkbox';
+    //     checkbox.style.marginTop = '0';
+    //     checkbox.style.height = '100%';
+    //     checkbox.id = 'chk' + pro_type_arr[i];
+    //     checkbox.dataset.name = pro_type_arr[i];
+    //     checkbox.classList.add('chk-graph-item');
+    //     checkbox.addEventListener('click', (e) => {
+    //         let elements = document.getElementsByClassName('chk-graph-item');
+    //         let current = e.currentTarget;
+    //         Array.from(elements).forEach((element) => {
+    //             if (current.checked && element.id != current.id) {
+    //                 element.setAttribute('disabled', 'disabled');
+    //             } else {
+    //                 element.removeAttribute('disabled');
+    //             }
+    //         });
+    //     });
+    //     let label = document.createElement('label');
+    //     label.for = checkbox.id;
+    //     label.style.margin = "0px";
+    //     label.style.fontWeight = '100';
+    //     label.style.fontSize = "small";
+    //     label.textContent = pro_type_arr[i];
+    //     div.appendChild(checkbox);
+    //     div.appendChild(label);
+    //     // <---
+    //     div.onclick = (function (stinuum, name_arr, index, graph) {
+    //         return function () {
+    //             // console.log(name_arr)
+    //             document.getElementById('pro_menu').style.bottom = '20%';
+    //             document.getElementById('btn' + name_arr[index]).style.backgroundColor = 'rgba(200,100,100,0.8)';
+    //             document.getElementById("graph").style.height = '20%';
+    //             document.getElementById("graph").style.backgroundColor = 'rgba(5, 5, 5, 0.8)';
+    //
+    //             for (var i = 0; i < name_arr.length; i++) {
+    //                 if (i == index) continue;
+    //                 document.getElementById('btn' + name_arr[i]).style.backgroundColor = 'transparent';
+    //             }
+    //
+    //             let elements = document.getElementsByClassName('chk-graph-item');
+    //             let main_name = null;
+    //             Array.from(elements).forEach((element) => {
+    //                 if (element.checked) {
+    //                     main_name = element.dataset.name;
+    //                 }
+    //             });
+    //             // console.log("compare grpah need : ", main_name, name_arr[index])
+    //             if (main_name && main_name != name_arr[index]) {
+    //                 // console.log("compare grpah need : ", main_name, name_arr[index])
+    //                 stinuum.propertyGraph.compare(main_name, name_arr[index], graph);
+    //             } else {
+    //                 stinuum.propertyGraph.show(name_arr[index], graph);
+    //             }
+    //         };
+    //     })(stinuum, pro_type_arr, i, graph_id);
+    //     pro_menu.appendChild(div);
+    // }
+    //
+    // var close_div = document.createElement('div');
+    // close_div.setAttribute("id", "btnclose");
+    // // close_div.addEventListener('click', function (event) {
+    //
+    // //     document.getElementById('pro_menu').remove();
+    // //     document.getElementById(graph_id).style.height = "0%";
+    // //     clearAnalysis();
+    // //     refresh();
+    //
+    // //   });
+    // //close_div.style.padding = "10px";
+    // close_div.style.color = 'white';
+    // close_div.style.float = 'right';
+    // close_div.style.justifyContent = 'center';
+    // close_div.style.fontSize = 'small';
+    // close_div.style.alignItems = 'center';
+    // close_div.style.display = 'flex';
+    // close_div.style.height = '100%'
+    // close_div.style.width = 100 / (pro_type_arr.length + 1) + '%';
+    // close_div.innerHTML = 'CLOSE';
+    // pro_menu.appendChild(close_div);
+    //
+    //
+    // close_div.onclick = (function (graph_id) {
+    //     return function () {
+    //
+    //         //console.log(document.getElementById('pro_menu'))
+    //         document.getElementById('pro_menu').remove();
+    //         document.getElementById(graph_id).style.height = "0%";
+    //         clearAnalysis();
+    //         refresh();
+    //         // drawFeatures();
+    //
+    //     }
+    // })(graph_id);
+    //
+    // document.body.appendChild(pro_menu);
+    // changeOptionToolbarToCloseDIV();
+}
+
 var selectPropertyImage = function (image_id) {
 
     let hide_items = ['IMAGE'];

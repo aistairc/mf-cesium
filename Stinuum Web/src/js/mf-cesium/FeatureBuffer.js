@@ -3,6 +3,32 @@ function FeatureBuffer(p_connection) {
   this.data = {};
   this.fromServer = {};
 }
+FeatureBuffer.prototype.getLayerID = function (feature_id){
+  for (let [key, value] of Object.entries(this.fromServer)){
+    if (value[feature_id] !== undefined){
+      return key;
+    }
+  }
+  return false;
+}
+
+FeatureBuffer.prototype.addTproperty = function (layer_id, feature_id, tgeometry_id, t_property, keyValue){
+  let idx = false;
+  for (let p_idx=0; p_idx < this.fromServer[layer_id][feature_id].temporalProperties.length;p_idx++){
+    if (Object.keys(this.fromServer[layer_id][feature_id].temporalProperties[p_idx]).includes(keyValue)){
+      idx = true;
+      break;
+    }
+  }
+  if (!idx){
+    this.fromServer[layer_id][feature_id].temporalProperties.push(t_property);
+  }
+}
+
+FeatureBuffer.prototype.getTgeometryID = function (layer_id, feature_id){
+  let feature_info = this.getFeature(layer_id, feature_id);
+  return feature_info.temporalGeometry.prisms[0].id;
+}
 FeatureBuffer.prototype.getFeatureIDsByLayerIDTemp = function (layer_id) {
   // LOG("getFeatureIDsByLayerID", layer_id)
   if (this.data[layer_id] !== undefined) {

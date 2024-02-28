@@ -16,7 +16,7 @@ Stinuum.PropertyGraph.prototype.show = function(propertyName, divID){
 }
 
 Stinuum.PropertyGraph.prototype.showPropertyArray = function(propertyName, array, div_id){
-
+  console.log("showPropertyArray",propertyName, array, div_id)
 
   document.getElementById(div_id).innerHTML = '';
 
