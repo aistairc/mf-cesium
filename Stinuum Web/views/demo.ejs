@@ -2,60 +2,49 @@
 <html lang="en">
 
 <head>
-    <!-- Use correct character set. -->
     <meta charset="utf-8">
-    <!-- Tell IE to use the latest, best version. -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
-    <title id="title">Stinuum Example</title>
-
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <title>cesium</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+<!--    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.0/proj4.js"></script>
-    <!-- bootstarp -->
-   
-    <link type="text/css" href="/js/mf-cesium/practice/lib/bootstrap.min.css" rel="stylesheet" >
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- d3 -->
-    <!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
+
+    <link rel="stylesheet" href="cesium/Build/Cesium/Widgets/widgets.css">
+    <link type="text/css" href="js/mf-cesium/lib/bootstrap.min.css" rel="stylesheet" >
+
+    <link rel="stylesheet" type="text/css" href="css/demo_style.css">
+
+    <link rel="stylesheet" type="text/css" href="css/mfjson.css">
+    <link type="text/css" href="css/bs.css" rel="stylesheet" >
+    <link type="text/css" href="js/mf-cesium/lib/codemirror.css" rel="stylesheet" >
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.js"></script>
+    <script src="js/mf-cesium/lib/bootstrap.min.js"></script>
     <script src="https://d3js.org/d3.v4.js"></script>
     <script src='https://unpkg.com/simple-statistics@7.0.6/dist/simple-statistics.min.js'></script>
+    <script src="cesium/Build/Cesium/Cesium.js"></script>
 
-    <!-- https://github.com/denisemauldin/d3-timeline/tree/master/dist -->
-    <!-- cesium -->
-    <script type="text/javascript" src="/js/Apps/Sandcastle/Sandcastle-header.js"></script>
-    <!-- <script src="/js/ThirdParty/requirejs-2.1.20/require.js"></script> -->
-    <script src="/js/Build/Cesium/Cesium.js"></script>
-    <script src="/js/mf-cesium/practice/lib/bootstrap.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/js/mf-cesium/practice/demo_style.css">
-    <link rel="stylesheet" type="text/css" href="/js/mf-cesium/practice/mfjson.css">
-    <link type="text/css" href="/js/mf-cesium/practice/bs.css" rel="stylesheet" >
-    <link type="text/css" href="/js/mf-cesium/practice/lib/codemirror.css" rel="stylesheet" >
-    <!-- Stinuum -->
-    <!-- <script src="../stinuum.js"></script> -->
-    <script src="/js/mf-cesium/stinuum.js"></script>
-    <script src="/js/mf-cesium/practice/d3-timelines.js"></script>
-    <script src="/js/mf-cesium/practice/FeatureBuffer.js"></script>
-    <script src="/js/mf-cesium/practice/Fileio.js"></script>
-    <script src="/js/mf-cesium/practice/ViewProperties.js"></script>
-    <script src="/js/mf-cesium/practice/Print.js"></script>
-    <script src="/js/mf-cesium/practice/Local.js"></script>
-    <script src="/js/mf-cesium/practice/analysis.js"></script>
-    <script src="/js/mf-cesium/practice/List.js"></script>
-    <script src="/js/mf-cesium/practice/DivListMaker.js"></script>
-    <script src="/js/mf-cesium/practice/SRSTranslator.js"></script>
-    <script src="/js/mf-cesium/practice/lib/codemirror.js"></script>
-    <script src="/js/mf-cesium/practice/lib/javascript.js"></script>
-    <script src="/js/mf-cesium/practice/lib/addon/edit/matchbrackets.js"></script>
-    <script src="/js/mf-cesium/practice/lib/addon/comment/continuecomment.js"></script>
-    <script src="/js/mf-cesium/practice/lib/addon/comment/comment.js"></script>
-    <!-- <script src="/js/mf-cesium/practice/lib/mode/meta.js"></script> -->
+    <script src="js/stinuum.js"></script>
+    <script src="js/mf-cesium/d3-timelines.js"></script>
+    <script src="js/mf-cesium/FeatureBuffer.js"></script>
+    <script src="js/mf-cesium/ServerConnector.js"></script>
+    <script src="js/mf-cesium/Fileio.js"></script>
+    <script src="js/mf-cesium/ViewProperties.js"></script>
+    <script src="js/mf-cesium/Print.js"></script>
+    <script src="js/mf-cesium/Local.js"></script>
+    <script src="js/mf-cesium/analysis.js"></script>
+    <script src="js/mf-cesium/List.js"></script>
+    <script src="js/mf-cesium/DivListMaker.js"></script>
+    <script src="js/mf-cesium/ServerAuth.js"></script>
+    <script src="js/mf-cesium/SRSTranslator.js"></script>
+    <script src="js/mf-cesium/lib/codemirror.js"></script>
+    <script src="js/mf-cesium/lib/javascript.js"></script>
+    <script src="js/mf-cesium/lib/addon/edit/matchbrackets.js"></script>
+    <script src="js/mf-cesium/lib/addon/comment/continuecomment.js"></script>
+    <script src="js/mf-cesium/lib/addon/comment/comment.js"></script>
 
-
-    
-    
 </head>
 
 <body style="margin-bottom:20%">
@@ -88,6 +77,7 @@
         <ul id="menu_list" class="list-group left_toolbar_div panel-default">
             <li onclick="backButton()" class="back-btn">Back</li>
             <li id="uploadButton" class="upload-li"></li>
+            <li id="serverButton" class="upload-li"></li>
             <li id="printMenuState" role="presentation" class="list-title" style="flex-grow : 0;"></li>
             <li id="featureLayer" role="presentation">
             </li>
@@ -150,6 +140,9 @@
         var viewer;
         var stinuum;
         //var labelEntity;
+        var localServerURL = '<%= localServerURL %>';
+        // let localServerURL = optionValue.localServerURL;
+        console.log(localServerURL)
         var handler;
         var slider;
         var label_timeout;
@@ -180,14 +173,17 @@
             "layers": "LAYER",
             "one_feature": "one_feature"
         }
-        var defaultKey = ""
+        
+    
+        // var connector = new ServerConnector();
+        var connector = new ServerAuth();
+        connector.setServerURL(localServerURL)
         var SRSTranslator = new SRSTranslator();
-        var buffer = new FeatureBuffer();
-        var list_maker = new DivListMaker();
+        var buffer = new FeatureBuffer(connector);
+        var list_maker = new DivListMaker(connector);
+
         (function () {
-            if (defaultKey != ""){
-                Cesium.BingMapsApi.defaultKey = defaultKey
-            }
+
             viewer = new Cesium.Viewer('cesiumContainer', {
                 orderIndependentTranslucency: false,
                 baseLayerPicker: true,
@@ -198,22 +194,18 @@
                 navigationHelpButton: false,
                 navigationInstructionsInitiallyVisible: false,
                 fullscreenButton: false
-
             });
-            if(defaultKey == ""){
-                var viewModel = viewer.baseLayerPicker.viewModel;
-                viewModel.selectedImagery = viewModel.imageryProviderViewModels[9]
-            }
+
+            var viewModel = viewer.baseLayerPicker.viewModel;
+            viewModel.selectedImagery = viewModel.imageryProviderViewModels[6]
+
             viewer.resolutionScale = 0.5; //for Debug..
             viewer.scene.fxaa = false;
-            
             stinuum = new Stinuum(viewer);
             viewer.scene.mode = Cesium.SceneMode.SCENE2D;
-  
             viewer.scene.morphComplete.addEventListener(function () {
                 refresh();
                 clearAnalysis();
-             
                 if (viewer.scene.mode == Cesium.SceneMode.COLUMBUS_VIEW) {
                     stinuum.changeMode('SPACETIME');
                 } else if (viewer.scene.mode == Cesium.SceneMode.SCENE2D) {
@@ -228,21 +220,17 @@
                     stinuum.geometryViewer.adjustCameraView();
                     console.log('Camera view rectangle updated...');
                 });
-             
             });
-            
             scene = viewer.scene;
             if (isHTMLDebug) scene.destroy();
             viewer.clock.shouldAnimate = false;
             handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
             this.handler.setInputAction(function (movement) {
-              
-
                 var featureName = document.getElementById('featureName');
                 if (label_timeout !== undefined) {
                     window.clearTimeout(label_timeout);
                 }
-     
+
                 var pick = scene.pick(movement.position);
                 if (Cesium.defined(pick)) {
                     featureName.innerText = "";
@@ -273,7 +261,13 @@
             }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
             clearAnalysis();
             printFileUploadButton();
+            printPathServerButton();
+            // connector.getFeatureID()
             getLocalFile()
+            if (connector.start() == -1) {
+                
+                getLocalFile();
+            }
             connectHomeButton();
             var left_toolbar_btn = document.getElementById('left_toolbar_btn');
             left_toolbar_btn.className = 'btn btn-default';
@@ -288,7 +282,6 @@
             }
         })()
         String.prototype.replaceAll = function (org, dest) {
-           
             return this.split(org).join(dest);
         }
     </script>

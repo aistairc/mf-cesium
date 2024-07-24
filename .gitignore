@@ -1,4 +1,2 @@
-#MacBook
-*DS_Store*
-data/server/
-*dont_use*
+/Stinuum Web/node_modules/
+/Stinuum Web/src/js.zip
