@@ -326,6 +326,9 @@
                         for(let each_i = 0; each_i < MFCollections.length; each_i += 1){
                             let eachMFCollection = MFCollections[each_i]
                             // console.log(eachFeature.id, eachFeature.itemType, eachFeature['extent']['spatial']['bbox'], eachFeature['extent']['temporal']['interval'])
+                            if (eachMFCollection.itemType == undefined || eachMFCollection.itemType !== "movingfeature"){
+                                continue;
+                            }
                             let F_number = each_i
                             let F_id = (eachMFCollection.id !== undefined) ? eachMFCollection.id : each_i
                             let F_type = (eachMFCollection.itemType !== undefined) ? eachMFCollection.itemType : null
