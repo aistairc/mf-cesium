@@ -99,10 +99,10 @@ node app.js
     > [!IMPORTANT]  
     > If you change the __MF-Server-API-Port__, please change the code below  
     > (Will be controlled later with system.json file)  
-    > [system.json][system-url]: mf_api_server_url = `http://localhost:8085` ⮕ `http://localhost:YOUR-PORT`  
+    > [system.json][system-url]: pygeoapi_server_url = `http://localhost:5050` ⮕ `http://localhost:YOUR-PORT`  
 
    - And then you can connect to the homepage with the below URL:
-     - http://localhost:8085
+     - http://localhost:5050
    - For detailed usage of the API, please go to the link below
      - [![MF-API-Redoc][redoc-shield]][mf-api-redoc]
 

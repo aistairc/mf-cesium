@@ -20,7 +20,7 @@ app.use(express.static(join(__dirname, "src")));
 
 const jsonFile = fs.readFileSync('./system.json', 'utf8');
 const jsonData = JSON.parse(jsonFile);
-const localServerURL = jsonData.mf_api_server_url;
+const localServerURL = jsonData.pygeoapi_server_url;
 let limitMFC = jsonData.mfc_limit;
 let limitMFtg = jsonData.mf_tg_limit;
 let limitMFtp = jsonData.mf_tp_limit;

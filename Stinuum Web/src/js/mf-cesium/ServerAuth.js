@@ -10,6 +10,10 @@ ServerAuth.prototype.setServerURL = function (serverURL){
   this.ServerURL = serverURL
 }
 
+ServerAuth.prototype.getServerURL = function (){
+  return this.ServerURL
+}
+
 ServerAuth.prototype.getFeatureID = function(layer_id, address, count){
   // console.log("getFeatureID", address, layer_id, count)
   var featureIDlist; 
@@ -399,7 +403,7 @@ ServerAuth.prototype.getTemporalGeometry = function (layer_id, feature_id, featu
 
 ServerAuth.prototype.getTemporalProperties = function (layer_id, feature_id, feature_time){
   var index = this.getNameIndex(layer_id);
-  var temporalPropertiesAddress = this.selectValue.address+"/"+layer_id+"/items/"+feature_id+"/tProperties";
+  var temporalPropertiesAddress = this.selectValue.address+"/"+layer_id+"/items/"+feature_id+"/tproperties";
   var temporalProperties;
   var data = {
     type: 1,

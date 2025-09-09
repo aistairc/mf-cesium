@@ -77,7 +77,8 @@ function addButton(printState, feature_id){
 
 }
 function getProperty(collection_id, mfeature_id, tgeometry_id, q_type){
-  let defaultURL = `http://localhost:8085/collections/${collection_id}/items/${mfeature_id}/tgsequence/${tgeometry_id}/${q_type}`;
+  let serverURL = connector.getServerURL()
+  let defaultURL = `${serverURL}/collections/${collection_id}/items/${mfeature_id}/tgsequence/${tgeometry_id}/${q_type}`;
   fetch(defaultURL)
       .then(response => {
         if (!response.ok) {
