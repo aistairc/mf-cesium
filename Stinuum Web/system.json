@@ -1,6 +1,6 @@
 {
   "pygeoapi_server_url": "http://localhost:5050",
   "mfc_limit": 10,
-  "mf_tg_limit": 100,
-  "mf_tp_limit": 100
+  "mf_tg_limit": 10000,
+  "mf_tp_limit": 10000
 }
